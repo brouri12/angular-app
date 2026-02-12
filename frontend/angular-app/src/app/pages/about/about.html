@@ -1,0 +1,45 @@
+<div class="min-h-screen py-20">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <h1 class="text-4xl font-bold mb-4">About SkillForge</h1>
+      <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+        Empowering learners worldwide with expert-led courses and cutting-edge skills.
+      </p>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-12 items-center mb-20">
+      <div>
+        <img 
+          src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&h=600&fit=crop" 
+          alt="Team collaboration"
+          class="rounded-2xl shadow-xl">
+      </div>
+      <div>
+        <h2 class="text-3xl font-bold mb-6">Our Story & Mission</h2>
+        <p class="text-gray-600 dark:text-gray-400 mb-6">
+          Founded in 2020, SkillForge was born from a simple belief: everyone deserves access to quality education. We've grown from a small team of passionate educators to a global platform serving over 100,000 learners worldwide.
+        </p>
+        <p class="text-gray-600 dark:text-gray-400 mb-8">
+          Our mission is to empower individuals with the skills they need to thrive in today's rapidly evolving digital landscape. We partner with industry experts to create courses that are not just educational, but transformational.
+        </p>
+      </div>
+    </div>
+
+    <div class="bg-gradient-to-br from-[rgb(0,200,151)]/5 to-[rgb(255,127,80)]/5 rounded-2xl p-12">
+      <h2 class="text-3xl font-bold text-center mb-12">Our Values</h2>
+      <div class="grid md:grid-cols-3 gap-8">
+        @for (value of values; track value.title) {
+          <div class="text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] mb-4">
+              <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+            </div>
+            <h3 class="font-bold text-xl mb-2">{{ value.title }}</h3>
+            <p class="text-gray-600 dark:text-gray-400">{{ value.description }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,9 @@
+<div class="flex h-screen bg-gray-50 dark:bg-gray-900">
+  <app-sidebar></app-sidebar>
+  <div class="flex-1 ml-64">
+    <app-topbar></app-topbar>
+    <main class="mt-16 overflow-y-auto h-[calc(100vh-4rem)]">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
