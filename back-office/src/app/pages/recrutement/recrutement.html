@@ -1,0 +1,271 @@
+<div class="container mx-auto p-6">
+  <h1 class="text-3xl font-bold mb-6">Gestion du Recrutement</h1>
+
+  <!-- Error Message -->
+  @if (error) {
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+      <strong class="font-bold">Erreur:</strong>
+      <pre class="whitespace-pre-wrap text-sm mt-2">{{ error }}</pre>
+    </div>
+  }
+
+  <!-- Loading -->
+  @if (loading) {
+    <div class="text-center py-8">
+      <p class="text-gray-600">Chargement...</p>
+    </div>
+  }
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Liste des Offres -->
+    <div class="md:col-span-1">
+      <div class="bg-white rounded-lg shadow p-4">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-semibold">Offres</h2>
+          <button
+            (click)="showOffreForm = !showOffreForm"
+            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            + Nouvelle
+          </button>
+        </div>
+
+        <!-- Formulaire Nouvelle Offre -->
+        @if (showOffreForm) {
+          <div class="mb-4 p-4 bg-gray-50 rounded max-h-96 overflow-y-auto">
+            <input
+              [(ngModel)]="newOffre.titre"
+              placeholder="Titre (5-150 caractères)"
+              class="w-full mb-2 px-3 py-2 border rounded"
+            />
+            <textarea
+              [(ngModel)]="newOffre.description"
+              placeholder="Description (20-2000 caractères)"
+              class="w-full mb-2 px-3 py-2 border rounded"
+              rows="3"
+            ></textarea>
+            <input
+              [(ngModel)]="newOffre.specialite"
+              placeholder="Spécialité (3-100 caractères)"
+              class="w-full mb-2 px-3 py-2 border rounded"
+            />
+            <input
+              [(ngModel)]="newOffre.niveau_requis"
+              placeholder="Niveau requis (ex: Master, Doctorat)"
+              class="w-full mb-2 px-3 py-2 border rounded"
+            />
+            <select
+              [(ngModel)]="newOffre.type_contrat"
+              class="w-full mb-2 px-3 py-2 border rounded"
+            >
+              <option value="">Sélectionner un type de contrat</option>
+              <option value="CDI">CDI</option>
+              <option value="CDD">CDD</option>
+              <option value="Vacataire">Vacataire</option>
+            </select>
+            <input
+              type="number"
+              [(ngModel)]="newOffre.nombre_postes"
+              placeholder="Nombre de postes (1-50)"
+              min="1"
+              max="50"
+              class="w-full mb-2 px-3 py-2 border rounded"
+            />
+            <input
+              type="number"
+              [(ngModel)]="newOffre.experience_min"
+              placeholder="Expérience minimale en années (0-30)"
+              min="0"
+              max="30"
+              class="w-full mb-2 px-3 py-2 border rounded"
+            />
+            <input
+              type="date"
+              [(ngModel)]="newOffre.date_limite"
+              placeholder="Date limite (doit être future)"
+              class="w-full mb-2 px-3 py-2 border rounded"
+            />
+            <div class="flex gap-2">
+              <button
+                (click)="createOffre()"
+                class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+              >
+                Créer
+              </button>
+              <button
+                (click)="showOffreForm = false"
+                class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- Liste -->
+        <div class="space-y-2">
+          @for (offre of offres; track offre.id) {
+            <div
+              (click)="selectOffre(offre)"
+              class="p-3 border rounded cursor-pointer hover:bg-gray-50"
+              [class.bg-blue-50]="selectedOffre?.id === offre.id"
+            >
+              <h3 class="font-semibold">{{ offre.titre }}</h3>
+              <p class="text-sm text-gray-600">{{ offre.specialite }}</p>
+              <p class="text-xs text-gray-500">{{ offre.type_contrat }}</p>
+              <span
+                class="text-xs px-2 py-1 rounded"
+                [class.bg-green-100]="offre.statut === 'OUVERTE'"
+                [class.bg-red-100]="offre.statut === 'FERMEE'"
+                [class.bg-yellow-100]="offre.statut === 'POURVUE'"
+              >
+                {{ offre.statut }}
+              </span>
+              <div class="mt-2 flex gap-2">
+                @if (offre.statut === 'OUVERTE') {
+                  <button
+                    (click)="fermerOffre(offre.id!); $event.stopPropagation()"
+                    class="text-xs bg-orange-500 text-white px-2 py-1 rounded"
+                  >
+                    Fermer
+                  </button>
+                }
+                <button
+                  (click)="deleteOffre(offre.id!); $event.stopPropagation()"
+                  class="text-xs bg-red-500 text-white px-2 py-1 rounded"
+                >
+                  Supprimer
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Candidatures -->
+    <div class="md:col-span-2">
+      @if (selectedOffre) {
+        <div class="bg-white rounded-lg shadow p-4">
+          <div class="flex justify-between items-center mb-4">
+            <div>
+              <h2 class="text-xl font-semibold">{{ selectedOffre.titre }}</h2>
+              <p class="text-gray-600">{{ selectedOffre.description }}</p>
+              <p class="text-sm text-gray-500 mt-2">
+                Date limite: {{ selectedOffre.date_limite | date: 'dd/MM/yyyy' }}
+              </p>
+            </div>
+            <button
+              (click)="showCandidatureForm = !showCandidatureForm"
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              + Candidature
+            </button>
+          </div>
+
+          <!-- Formulaire Nouvelle Candidature -->
+          @if (showCandidatureForm) {
+            <div class="mb-4 p-4 bg-gray-50 rounded">
+              <input
+                [(ngModel)]="newCandidature.nom_candidat"
+                placeholder="Nom (2-50 caractères, commence par majuscule)"
+                class="w-full mb-2 px-3 py-2 border rounded"
+              />
+              <input
+                [(ngModel)]="newCandidature.prenom_candidat"
+                placeholder="Prénom (2-50 caractères, commence par majuscule)"
+                class="w-full mb-2 px-3 py-2 border rounded"
+              />
+              <input
+                type="email"
+                [(ngModel)]="newCandidature.email"
+                placeholder="Email (format: exemple@domaine.com)"
+                class="w-full mb-2 px-3 py-2 border rounded"
+              />
+              <input
+                [(ngModel)]="newCandidature.cv_url"
+                placeholder="URL du CV (https://... avec extension .pdf, .doc, .docx ou .txt)"
+                class="w-full mb-2 px-3 py-2 border rounded"
+              />
+              <textarea
+                [(ngModel)]="newCandidature.lettre_motivation"
+                placeholder="Lettre de motivation (100-2000 caractères, min 20 mots, phrases complètes)"
+                class="w-full mb-2 px-3 py-2 border rounded"
+                rows="6"
+              ></textarea>
+              <div class="flex gap-2">
+                <button
+                  (click)="postuler()"
+                  class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                >
+                  Envoyer
+                </button>
+                <button
+                  (click)="showCandidatureForm = false"
+                  class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                >
+                  Annuler
+                </button>
+              </div>
+            </div>
+          }
+
+          <!-- Liste des Candidatures -->
+          <div class="space-y-4">
+            @for (candidature of candidatures; track candidature.id_candidature) {
+              <div class="p-4 border rounded">
+                <div class="flex justify-between items-start mb-2">
+                  <div>
+                    <h3 class="font-semibold">
+                      {{ candidature.prenom_candidat }} {{ candidature.nom_candidat }}
+                    </h3>
+                    <p class="text-sm text-gray-600">{{ candidature.email }}</p>
+                  </div>
+                  <span
+                    class="text-xs px-2 py-1 rounded"
+                    [class.bg-yellow-100]="candidature.statut === 'EN_ATTENTE'"
+                    [class.bg-green-100]="candidature.statut === 'ACCEPTEE'"
+                    [class.bg-red-100]="candidature.statut === 'REFUSEE'"
+                  >
+                    {{ candidature.statut }}
+                  </span>
+                </div>
+                <p class="text-sm text-gray-700 mb-2">{{ candidature.lettre_motivation }}</p>
+                <a
+                  [href]="candidature.cv_url"
+                  target="_blank"
+                  class="text-blue-500 text-sm hover:underline"
+                >
+                  Voir le CV
+                </a>
+                <div class="mt-3 flex gap-2">
+                  @if (candidature.statut === 'EN_ATTENTE') {
+                    <button
+                      (click)="changerStatut(candidature.id_candidature!, 'ACCEPTEE')"
+                      class="text-xs bg-green-500 text-white px-3 py-1 rounded"
+                    >
+                      Accepter
+                    </button>
+                    <button
+                      (click)="changerStatut(candidature.id_candidature!, 'REFUSEE')"
+                      class="text-xs bg-red-500 text-white px-3 py-1 rounded"
+                    >
+                      Refuser
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+            @empty {
+              <p class="text-center text-gray-500 py-8">Aucune candidature</p>
+            }
+          </div>
+        </div>
+      } @else {
+        <div class="bg-white rounded-lg shadow p-8 text-center text-gray-500">
+          Sélectionnez une offre pour voir les candidatures
+        </div>
+      }
+    </div>
+  </div>
+</div>

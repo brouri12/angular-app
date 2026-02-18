@@ -1,0 +1,205 @@
+<div class="container mx-auto p-6">
+  <h1 class="text-3xl font-bold mb-6">Gestion des Forums</h1>
+
+  <!-- Error Message -->
+  @if (error) {
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+      <pre class="whitespace-pre-wrap text-sm">{{ error }}</pre>
+    </div>
+  }
+
+  <!-- Loading -->
+  @if (loading) {
+    <div class="text-center py-8">
+      <p class="text-gray-600">Chargement...</p>
+    </div>
+  }
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Liste des Forums -->
+    <div class="md:col-span-1">
+      <div class="bg-white rounded-lg shadow p-4">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-semibold">Forums</h2>
+          <button
+            (click)="showForumForm = !showForumForm"
+            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            + Nouveau
+          </button>
+        </div>
+
+        <!-- Formulaire Nouveau Forum -->
+        @if (showForumForm) {
+          <div class="mb-4 p-4 bg-gray-50 rounded">
+            <input
+              [(ngModel)]="newForum.titre"
+              placeholder="Titre (5-100 caractères)"
+              class="w-full mb-2 px-3 py-2 border rounded"
+            />
+            <textarea
+              [(ngModel)]="newForum.description"
+              placeholder="Description (10-1000 caractères)"
+              class="w-full mb-2 px-3 py-2 border rounded"
+              rows="3"
+            ></textarea>
+            <select
+              [(ngModel)]="newForum.niveau"
+              class="w-full mb-2 px-3 py-2 border rounded"
+            >
+              <option value="">Sélectionner un niveau</option>
+              <option value="L1">L1</option>
+              <option value="L2">L2</option>
+              <option value="L3">L3</option>
+              <option value="M1">M1</option>
+              <option value="M2">M2</option>
+            </select>
+            <input
+              [(ngModel)]="newForum.groupe"
+              placeholder="Groupe (ex: INFO-A, MATH-B) - 2-50 caractères"
+              class="w-full mb-2 px-3 py-2 border rounded"
+            />
+            <input
+              [(ngModel)]="newForum.cours"
+              placeholder="Cours (3-100 caractères)"
+              class="w-full mb-2 px-3 py-2 border rounded"
+            />
+            <div class="flex gap-2">
+              <button
+                (click)="createForum()"
+                class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+              >
+                Créer
+              </button>
+              <button
+                (click)="showForumForm = false"
+                class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- Liste -->
+        <div class="space-y-2">
+          @for (forum of forums; track forum.id) {
+            <div
+              (click)="selectForum(forum)"
+              class="p-3 border rounded cursor-pointer hover:bg-gray-50"
+              [class.bg-blue-50]="selectedForum?.id === forum.id"
+            >
+              <h3 class="font-semibold">{{ forum.titre }}</h3>
+              <p class="text-sm text-gray-600">{{ forum.niveau }} - {{ forum.groupe }}</p>
+              <span
+                class="text-xs px-2 py-1 rounded"
+                [class.bg-green-100]="forum.statut === 'OUVERT'"
+                [class.bg-red-100]="forum.statut === 'FERME'"
+              >
+                {{ forum.statut }}
+              </span>
+              <div class="mt-2 flex gap-2">
+                @if (forum.statut === 'OUVERT') {
+                  <button
+                    (click)="fermerForum(forum.id!); $event.stopPropagation()"
+                    class="text-xs bg-orange-500 text-white px-2 py-1 rounded"
+                  >
+                    Fermer
+                  </button>
+                }
+                <button
+                  (click)="deleteForum(forum.id!); $event.stopPropagation()"
+                  class="text-xs bg-red-500 text-white px-2 py-1 rounded"
+                >
+                  Supprimer
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Messages du Forum -->
+    <div class="md:col-span-2">
+      @if (selectedForum) {
+        <div class="bg-white rounded-lg shadow p-4">
+          <div class="flex justify-between items-center mb-4">
+            <div>
+              <h2 class="text-xl font-semibold">{{ selectedForum.titre }}</h2>
+              <p class="text-gray-600">{{ selectedForum.description }}</p>
+            </div>
+            <button
+              (click)="showMessageForm = !showMessageForm"
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              + Message
+            </button>
+          </div>
+
+          <!-- Formulaire Nouveau Message -->
+          @if (showMessageForm) {
+            <div class="mb-4 p-4 bg-gray-50 rounded">
+              <textarea
+                [(ngModel)]="newMessage.contenu"
+                placeholder="Votre message (1-2000 caractères)..."
+                class="w-full mb-2 px-3 py-2 border rounded"
+                rows="4"
+              ></textarea>
+              <select
+                [(ngModel)]="newMessage.type_auteur"
+                class="w-full mb-2 px-3 py-2 border rounded"
+              >
+                <option value="ETUDIANT">Étudiant</option>
+                <option value="ENSEIGNANT">Enseignant</option>
+                <option value="ADMIN">Admin</option>
+              </select>
+              <div class="flex gap-2">
+                <button
+                  (click)="createMessage()"
+                  class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                >
+                  Envoyer
+                </button>
+                <button
+                  (click)="showMessageForm = false"
+                  class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                >
+                  Annuler
+                </button>
+              </div>
+            </div>
+          }
+
+          <!-- Liste des Messages -->
+          <div class="space-y-4">
+            @for (message of messages; track message.id) {
+              <div class="p-4 border rounded">
+                <div class="flex justify-between items-start mb-2">
+                  <span
+                    class="text-xs px-2 py-1 rounded"
+                    [class.bg-blue-100]="message.type_auteur === 'ETUDIANT'"
+                    [class.bg-purple-100]="message.type_auteur === 'ENSEIGNANT'"
+                  >
+                    {{ message.type_auteur }}
+                  </span>
+                  <span class="text-xs text-gray-500">
+                    {{ message.date_message | date: 'dd/MM/yyyy HH:mm' }}
+                  </span>
+                </div>
+                <p class="text-gray-800">{{ message.contenu }}</p>
+              </div>
+            }
+            @empty {
+              <p class="text-center text-gray-500 py-8">Aucun message</p>
+            }
+          </div>
+        </div>
+      } @else {
+        <div class="bg-white rounded-lg shadow p-8 text-center text-gray-500">
+          Sélectionnez un forum pour voir les messages
+        </div>
+      }
+    </div>
+  </div>
+</div>

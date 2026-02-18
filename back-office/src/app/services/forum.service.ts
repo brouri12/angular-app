@@ -1,0 +1,79 @@
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Forum, MessageForum } from '../models/forum.model';
+import { environment } from '../../environments/environment';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ForumService {
+  private http = inject(HttpClient);
+  private apiUrl = environment.forumServiceUrl;
+
+  // CRUD Forums
+  getAllForums(): Observable<Forum[]> {
+    return this.http.get<Forum[]>(`${this.apiUrl}/forums`);
+  }
+
+  getForumById(id: number): Observable<Forum> {
+    return this.http.get<Forum>(`${this.apiUrl}/forums/${id}`);
+  }
+
+  createForum(forum: Forum): Observable<Forum> {
+    return this.http.post<Forum>(`${this.apiUrl}/forums`, forum);
+  }
+
+  updateForum(id: number, forum: Forum): Observable<Forum> {
+    return this.http.put<Forum>(`${this.apiUrl}/forums/${id}`, forum);
+  }
+
+  deleteForum(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/forums/${id}`);
+  }
+
+  fermerForum(id: number): Observable<Forum> {
+    return this.http.patch<Forum>(`${this.apiUrl}/forums/${id}/fermer`, {});
+  }
+
+  getForumsByStatut(statut: string): Observable<Forum[]> {
+    return this.http.get<Forum[]>(`${this.apiUrl}/forums/statut/${statut}`);
+  }
+
+  getForumsByNiveau(niveau: string): Observable<Forum[]> {
+    return this.http.get<Forum[]>(`${this.apiUrl}/forums/niveau/${niveau}`);
+  }
+
+  // Messages
+  getAllMessages(): Observable<MessageForum[]> {
+    return this.http.get<MessageForum[]>(`${this.apiUrl}/messages`);
+  }
+
+  getMessagesByForum(forumId: number): Observable<MessageForum[]> {
+    return this.http.get<MessageForum[]>(`${this.apiUrl}/messages/forum/${forumId}`);
+  }
+
+  createMessage(forumId: number, message: MessageForum): Observable<MessageForum> {
+    return this.http.post<MessageForum>(`${this.apiUrl}/messages/forum/${forumId}`, message);
+  }
+
+  updateMessage(id: number, message: MessageForum): Observable<MessageForum> {
+    return this.http.put<MessageForum>(`${this.apiUrl}/messages/${id}`, message);
+  }
+
+  deleteMessage(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/messages/${id}`);
+  }
+
+  archiverMessage(id: number): Observable<MessageForum> {
+    return this.http.patch<MessageForum>(`${this.apiUrl}/messages/${id}/archiver`, {});
+  }
+
+  searchMessages(keyword: string): Observable<MessageForum[]> {
+    return this.http.get<MessageForum[]>(`${this.apiUrl}/messages/search?keyword=${keyword}`);
+  }
+
+  getStatistiques(forumId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/forums/${forumId}/statistiques`);
+  }
+}

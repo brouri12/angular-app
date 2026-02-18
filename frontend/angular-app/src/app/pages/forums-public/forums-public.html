@@ -1,0 +1,230 @@
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+  <!-- Header -->
+  <header class="bg-white dark:bg-gray-900 shadow-lg border-b border-gray-200 dark:border-gray-800">
+    <div class="container mx-auto px-4 py-8">
+      <div class="flex items-center gap-4">
+        <div class="bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] rounded-xl p-3">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-3xl font-bold bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] bg-clip-text text-transparent">
+            Forums de Discussion
+          </h1>
+          <p class="text-gray-600 dark:text-gray-400 mt-1">Posez vos questions et partagez vos connaissances</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container mx-auto px-4 py-8">
+    <!-- Loading -->
+    @if (loading) {
+      <div class="text-center py-16">
+        <div class="inline-block animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-[rgb(0,200,151)]"></div>
+        <p class="text-gray-600 dark:text-gray-400 mt-4 text-lg">Chargement des forums...</p>
+      </div>
+    }
+    
+    @if (!loading) {
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Liste des Forums -->
+      <div class="lg:col-span-1">
+        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 p-6 sticky top-24">
+          <h2 class="text-xl font-bold mb-6 text-gray-900 dark:text-white flex items-center gap-2">
+            <span class="w-2 h-2 bg-[rgb(0,200,151)] rounded-full animate-pulse"></span>
+            Forums Actifs
+          </h2>
+          
+          <div class="space-y-3 max-h-[calc(100vh-250px)] overflow-y-auto pr-2 custom-scrollbar">
+            @for (forum of forums; track forum.id) {
+              <div
+                (click)="selectForum(forum)"
+                class="p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                [class.border-[rgb(0,200,151)]]="selectedForum?.id === forum.id"
+                [class.bg-gradient-to-br]="selectedForum?.id === forum.id"
+                [class.from-[rgb(0,200,151)]/10]="selectedForum?.id === forum.id"
+                [class.to-[rgb(255,127,80)]/10]="selectedForum?.id === forum.id"
+                [class.border-gray-200]="selectedForum?.id !== forum.id"
+                [class.dark:border-gray-700]="selectedForum?.id !== forum.id"
+                [class.hover:border-[rgb(0,200,151)]/50]="selectedForum?.id !== forum.id"
+              >
+                <h3 class="font-bold text-gray-900 dark:text-white mb-2">{{ forum.titre }}</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">{{ forum.description }}</p>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-xs bg-[rgb(0,200,151)]/20 text-[rgb(0,200,151)] px-3 py-1 rounded-full font-medium">
+                    {{ forum.niveau }}
+                  </span>
+                  <span class="text-xs bg-[rgb(255,127,80)]/20 text-[rgb(255,127,80)] px-3 py-1 rounded-full font-medium">
+                    {{ forum.groupe }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                  <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/>
+                  </svg>
+                  {{ forum.cours }}
+                </p>
+              </div>
+            }
+            @empty {
+              <div class="text-center py-12">
+                <svg class="mx-auto h-16 w-16 text-gray-400 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                </svg>
+                <p class="text-gray-500 dark:text-gray-400 mt-4 font-medium">Aucun forum disponible</p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Messages du Forum -->
+      <div class="lg:col-span-2">
+        @if (selectedForum) {
+          <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 p-8">
+            <!-- En-tête du forum -->
+            <div class="border-b border-gray-200 dark:border-gray-800 pb-6 mb-6">
+              <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-3">{{ selectedForum.titre }}</h2>
+              <p class="text-gray-600 dark:text-gray-400 mb-4">{{ selectedForum.description }}</p>
+              
+              <!-- Barre de recherche -->
+              <div class="mt-6 flex gap-3">
+                <div class="flex-1 relative">
+                  <input
+                    type="text"
+                    [(ngModel)]="searchKeyword"
+                    (keyup.enter)="searchMessages()"
+                    placeholder="Rechercher dans les messages..."
+                    class="w-full px-5 py-3 pl-12 border-2 border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent transition-all"
+                  />
+                  <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                  </svg>
+                </div>
+                <button
+                  (click)="searchMessages()"
+                  class="px-8 py-3 bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white rounded-xl hover:shadow-lg hover:-translate-y-0.5 transition-all font-medium"
+                >
+                  Rechercher
+                </button>
+              </div>
+            </div>
+
+            <!-- Bouton Nouveau Message -->
+            <div class="mb-6">
+              <button
+                (click)="showMessageForm = !showMessageForm"
+                class="w-full px-6 py-4 bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white rounded-xl hover:shadow-xl hover:-translate-y-1 transition-all font-semibold text-lg flex items-center justify-center gap-2"
+              >
+                @if (showMessageForm) {
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                  Annuler
+                } @else {
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                  </svg>
+                  Nouveau Message
+                }
+              </button>
+            </div>
+
+            <!-- Formulaire Nouveau Message -->
+            @if (showMessageForm) {
+              <div class="mb-6 p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl border-2 border-[rgb(0,200,151)]/30">
+                <h3 class="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <span class="w-2 h-2 bg-[rgb(0,200,151)] rounded-full animate-pulse"></span>
+                  Votre message
+                </h3>
+                <textarea
+                  [(ngModel)]="newMessage.contenu"
+                  placeholder="Écrivez votre message ici..."
+                  class="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent transition-all"
+                  rows="5"
+                ></textarea>
+                <div class="mt-4 flex gap-3">
+                  <button
+                    (click)="createMessage()"
+                    class="flex-1 px-6 py-3 bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white rounded-xl hover:shadow-lg transition-all font-medium"
+                    [disabled]="!newMessage.contenu.trim()"
+                    [class.opacity-50]="!newMessage.contenu.trim()"
+                    [class.cursor-not-allowed]="!newMessage.contenu.trim()"
+                  >
+                    Envoyer
+                  </button>
+                  <button
+                    (click)="showMessageForm = false"
+                    class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-all font-medium"
+                  >
+                    Annuler
+                  </button>
+                </div>
+              </div>
+            }
+
+            <!-- Liste des Messages -->
+            <div class="space-y-4">
+              @for (message of messages; track message.id) {
+                <div class="p-6 border-2 border-gray-200 dark:border-gray-800 rounded-xl hover:shadow-lg hover:border-[rgb(0,200,151)]/30 transition-all duration-300">
+                  <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-12 h-12 rounded-full bg-gradient-to-br flex items-center justify-center text-white font-bold text-lg shadow-lg"
+                        [class.from-[rgb(0,200,151)]]="message.type_auteur === 'ETUDIANT'"
+                        [class.to-[rgb(0,200,151)]/70]="message.type_auteur === 'ETUDIANT'"
+                        [class.from-[rgb(255,127,80)]]="message.type_auteur === 'ENSEIGNANT'"
+                        [class.to-[rgb(255,127,80)]/70]="message.type_auteur === 'ENSEIGNANT'"
+                      >
+                        {{ message.type_auteur === 'ETUDIANT' ? 'E' : 'P' }}
+                      </div>
+                      <div>
+                        <span
+                          class="text-sm font-bold px-4 py-1.5 rounded-full"
+                          [class.bg-[rgb(0,200,151)]/20]="message.type_auteur === 'ETUDIANT'"
+                          [class.text-[rgb(0,200,151)]]="message.type_auteur === 'ETUDIANT'"
+                          [class.bg-[rgb(255,127,80)]/20]="message.type_auteur === 'ENSEIGNANT'"
+                          [class.text-[rgb(255,127,80)]]="message.type_auteur === 'ENSEIGNANT'"
+                        >
+                          {{ message.type_auteur }}
+                        </span>
+                      </div>
+                    </div>
+                    <span class="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      {{ message.date_message | date: 'dd/MM/yyyy HH:mm' }}
+                    </span>
+                  </div>
+                  <p class="text-gray-800 dark:text-gray-200 leading-relaxed">{{ message.contenu }}</p>
+                </div>
+              }
+              @empty {
+                <div class="text-center py-16">
+                  <svg class="mx-auto h-20 w-20 text-gray-400 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                  </svg>
+                  <p class="text-gray-500 dark:text-gray-400 mt-4 text-lg font-medium">Aucun message pour le moment</p>
+                  <p class="text-gray-400 dark:text-gray-500 text-sm mt-2">Soyez le premier à participer !</p>
+                </div>
+              }
+            </div>
+          </div>
+        } @else {
+          <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 p-16 text-center">
+            <div class="inline-block p-6 bg-gradient-to-br from-[rgb(0,200,151)]/10 to-[rgb(255,127,80)]/10 rounded-full mb-6">
+              <svg class="h-20 w-20 text-[rgb(0,200,151)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/>
+              </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-3">Sélectionnez un forum</h3>
+            <p class="text-gray-500 dark:text-gray-400">Choisissez un forum dans la liste pour voir les discussions</p>
+          </div>
+        }
+      </div>
+    </div>
+    }
+  </div>
+</div>

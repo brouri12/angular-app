@@ -1,0 +1,241 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white">
+    <div class="container mx-auto px-4 py-12">
+      <h1 class="text-4xl font-bold">Offres de Recrutement</h1>
+      <p class="text-xl mt-3 opacity-90">Rejoignez notre équipe pédagogique</p>
+    </div>
+  </header>
+
+  <div class="container mx-auto px-4 py-8">
+    <!-- Filtre -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+      <div class="flex gap-4">
+        <input
+          type="text"
+          [(ngModel)]="filterSpecialite"
+          (keyup.enter)="filterBySpecialite()"
+          placeholder="Filtrer par spécialité (ex: Informatique, Mathématiques...)"
+          class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent"
+        />
+        <button
+          (click)="filterBySpecialite()"
+          class="px-8 py-3 bg-[rgb(0,200,151)] text-white rounded-lg hover:bg-[rgb(0,180,135)] transition-colors font-medium"
+        >
+          Filtrer
+        </button>
+        <button
+          (click)="filterSpecialite = ''; loadOffres()"
+          class="px-8 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium"
+        >
+          Réinitialiser
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    @if (loading) {
+      <div class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[rgb(0,200,151)]"></div>
+        <p class="text-gray-600 mt-4">Chargement...</p>
+      </div>
+    }
+    
+    @if (!loading) {
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Liste des Offres -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-xl font-semibold mb-4 text-gray-800">
+            Offres Disponibles ({{ offres.length }})
+          </h2>
+          
+          <div class="space-y-3">
+            @for (offre of offres; track offre.id) {
+              <div
+                (click)="selectOffre(offre)"
+                class="p-4 border rounded-lg cursor-pointer transition-all hover:shadow-md"
+                [ngClass]="{
+                  'border-green-500 bg-green-50': selectedOffre?.id === offre.id,
+                  'border-gray-200': selectedOffre?.id !== offre.id
+                }"
+              >
+                <h3 class="font-semibold text-gray-900">{{ offre.titre }}</h3>
+                <p class="text-sm text-gray-600 mt-1">{{ offre.specialite }}</p>
+                <div class="flex items-center gap-2 mt-2">
+                  <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded font-medium">
+                    {{ offre.type_contrat }}
+                  </span>
+                  <span class="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded font-medium">
+                    {{ offre.nombre_postes }} poste(s)
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">
+                  Date limite: {{ offre.date_limite | date: 'dd/MM/yyyy' }}
+                </p>
+              </div>
+            }
+            @empty {
+              <div class="text-center py-8">
+                <p class="text-gray-500 mt-4">Aucune offre disponible</p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Détails de l'Offre -->
+      <div class="lg:col-span-2">
+        @if (selectedOffre) {
+          <div class="bg-white rounded-lg shadow-md p-8">
+            <!-- En-tête de l'offre -->
+            <div class="border-b pb-6 mb-6">
+              <h2 class="text-3xl font-bold text-gray-900">{{ selectedOffre.titre }}</h2>
+              <div class="flex items-center gap-3 mt-4">
+                <span class="px-4 py-2 bg-[rgb(0,200,151)]/20 text-[rgb(0,200,151)] rounded-full font-medium">
+                  {{ selectedOffre.specialite }}
+                </span>
+                <span class="px-4 py-2 bg-[rgb(255,127,80)]/20 text-[rgb(255,127,80)] rounded-full font-medium">
+                  {{ selectedOffre.type_contrat }}
+                </span>
+                <span class="px-4 py-2 bg-gray-100 text-gray-700 rounded-full font-medium">
+                  {{ selectedOffre.nombre_postes }} poste(s)
+                </span>
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-6">
+              <h3 class="text-xl font-semibold text-gray-900 mb-3">Description du poste</h3>
+              <p class="text-gray-700 leading-relaxed">{{ selectedOffre.description }}</p>
+            </div>
+
+            <!-- Détails -->
+            <div class="grid grid-cols-2 gap-6 mb-6">
+              <div>
+                <h4 class="font-semibold text-gray-900 mb-2">Niveau requis</h4>
+                <p class="text-gray-700">{{ selectedOffre.niveau_requis }}</p>
+              </div>
+              <div>
+                <h4 class="font-semibold text-gray-900 mb-2">Date limite</h4>
+                <p class="text-gray-700">{{ selectedOffre.date_limite | date: 'dd MMMM yyyy' }}</p>
+              </div>
+              @if (selectedOffre.salaire_min && selectedOffre.salaire_max) {
+                <div class="col-span-2">
+                  <h4 class="font-semibold text-gray-900 mb-2">Rémunération</h4>
+                  <p class="text-gray-700">
+                    {{ selectedOffre.salaire_min }} - {{ selectedOffre.salaire_max }} DT
+                  </p>
+                </div>
+              }
+            </div>
+
+            <!-- Bouton Postuler -->
+            @if (!isDateExpired(selectedOffre.date_limite)) {
+              <div class="mt-8">
+                <button
+                  (click)="showCandidatureForm = !showCandidatureForm"
+                  class="w-full px-6 py-4 bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white rounded-lg hover:opacity-90 transition-all font-semibold text-lg shadow-lg"
+                >
+                  {{ showCandidatureForm ? 'Annuler' : 'Postuler à cette offre' }}
+                </button>
+              </div>
+            } @else {
+              <div class="mt-8 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg text-center">
+                Cette offre a expiré
+              </div>
+            }
+
+            <!-- Formulaire de Candidature -->
+            @if (showCandidatureForm && !isDateExpired(selectedOffre.date_limite)) {
+              <div class="mt-6 p-6 bg-gray-50 rounded-lg border border-gray-200">
+                <h3 class="text-xl font-semibold text-gray-900 mb-6">Formulaire de candidature</h3>
+                
+                <div class="space-y-4">
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">Nom *</label>
+                      <input
+                        type="text"
+                        [(ngModel)]="newCandidature.nom_candidat"
+                        placeholder="Votre nom"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">Prénom *</label>
+                      <input
+                        type="text"
+                        [(ngModel)]="newCandidature.prenom_candidat"
+                        placeholder="Votre prénom"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                    <input
+                      type="email"
+                      [(ngModel)]="newCandidature.email"
+                      placeholder="votre.email@example.com"
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">URL du CV *</label>
+                    <input
+                      type="url"
+                      [(ngModel)]="newCandidature.cv_url"
+                      placeholder="https://example.com/mon-cv.pdf"
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent"
+                      required
+                    />
+                    <p class="text-xs text-gray-500 mt-1">Lien vers votre CV (Google Drive, Dropbox, etc.)</p>
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Lettre de motivation *</label>
+                    <textarea
+                      [(ngModel)]="newCandidature.lettre_motivation"
+                      placeholder="Expliquez pourquoi vous êtes le candidat idéal pour ce poste..."
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent"
+                      rows="6"
+                      required
+                    ></textarea>
+                  </div>
+
+                  <div class="flex gap-3 pt-4">
+                    <button
+                      (click)="postuler()"
+                      class="flex-1 px-6 py-3 bg-[rgb(0,200,151)] text-white rounded-lg hover:bg-[rgb(0,180,135)] transition-colors font-medium"
+                      [disabled]="!newCandidature.nom_candidat || !newCandidature.prenom_candidat || !newCandidature.email || !newCandidature.cv_url || !newCandidature.lettre_motivation"
+                    >
+                      Envoyer ma candidature
+                    </button>
+                    <button
+                      (click)="showCandidatureForm = false"
+                      class="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium"
+                    >
+                      Annuler
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="bg-white rounded-lg shadow-md p-12 text-center">
+            <h3 class="text-2xl font-semibold text-gray-700 mt-6">Sélectionnez une offre</h3>
+            <p class="text-gray-500 mt-3">Choisissez une offre dans la liste pour voir les détails et postuler</p>
+          </div>
+        }
+      </div>
+    </div>
+    }
+  </div>
+</div>

@@ -14,6 +14,8 @@ export class Header {
 
   navLinks = [
     { name: 'Courses', path: '/courses' },
+    { name: 'Forums', path: '/forums' },
+    { name: 'Recrutement', path: '/recrutement' },
     { name: 'Pricing', path: '/pricing' },
     { name: 'About', path: '/about' },
   ];
