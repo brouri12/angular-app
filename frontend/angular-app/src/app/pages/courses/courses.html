@@ -7,6 +7,12 @@
       </p>
     </div>
     
+    @if (loading) {
+      <p class="text-center text-gray-600 dark:text-gray-400">Chargement des cours...</p>
+    }
+    @if (error) {
+      <p class="text-center text-red-600 dark:text-red-400">{{ error }}</p>
+    }
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
       @for (course of courses; track course.title) {
         <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden hover:border-[rgb(0,200,151)]/50 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl cursor-pointer group">
