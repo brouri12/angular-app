@@ -25,6 +25,18 @@
     </select>
   </div>
 
+  @if (loading) {
+    <p class="text-gray-600 dark:text-gray-400">Chargement des cours...</p>
+  }
+  @if (error) {
+    <p class="text-red-600 dark:text-red-400">{{ error }}</p>
+  }
+  @if (loading) {
+    <p class="text-gray-600 dark:text-gray-400">Chargement des cours...</p>
+  }
+  @if (error) {
+    <p class="text-red-600 dark:text-red-400">{{ error }}</p>
+  }
   <!-- Courses Grid -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     @for (course of courses; track course.id) {

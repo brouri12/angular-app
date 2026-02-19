@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-courses',
@@ -7,47 +8,32 @@ import { CommonModule } from '@angular/common';
   templateUrl: './courses.html',
   styleUrl: './courses.css'
 })
-export class Courses {
-  courses = [
-    {
-      id: 1,
-      title: 'Complete Web Development Bootcamp 2026',
-      instructor: 'Dr. Angela Yu',
-      category: 'Development',
-      students: 1234,
-      price: '$89.99',
-      status: 'Published',
-      rating: 4.9
-    },
-    {
-      id: 2,
-      title: 'Data Science & Machine Learning',
-      instructor: 'Jose Portilla',
-      category: 'Data Science',
-      students: 987,
-      price: '$94.99',
-      status: 'Published',
-      rating: 4.8
-    },
-    {
-      id: 3,
-      title: 'UI/UX Design Masterclass',
-      instructor: 'Daniel Scott',
-      category: 'Design',
-      students: 756,
-      price: '$79.99',
-      status: 'Published',
-      rating: 4.9
-    },
-    {
-      id: 4,
-      title: 'Mobile App Development with React Native',
-      instructor: 'Maximilian Schwarzmüller',
-      category: 'Development',
-      students: 543,
-      price: '$84.99',
-      status: 'Draft',
-      rating: 0
-    }
-  ];
+export class Courses implements OnInit {
+  courses: Array<{ id: number; title: string; instructor: string; category: string; students: number; price: string; status: string; rating: number }> = [];
+  loading = true;
+  error: string | null = null;
+
+  constructor(private api: ApiService) {}
+
+  ngOnInit(): void {
+    this.api.getCourses().subscribe({
+      next: (data: any[]) => {
+        this.courses = (data || []).map((c: any) => ({
+          id: c.id,
+          title: c.title || '',
+          instructor: c.teacherName || '',
+          category: c.level || 'Course',
+          students: c.maxStudents ?? 0,
+          price: c.price != null ? `${c.price}€` : '',
+          status: c.status || 'Published',
+          rating: 4.5,
+        }));
+        this.loading = false;
+      },
+      error: (err) => {
+        this.error = err?.message || 'Impossible de charger les cours. Démarre le backend (port 8081).';
+        this.loading = false;
+      }
+    });
+  }
 }
