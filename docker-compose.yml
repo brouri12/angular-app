@@ -1,0 +1,202 @@
+
+#==============================================================================
+# docker-compose.yml - E-Learning Platform
+#==============================================================================
+# Services:
+# - eureka-server (port 8761) - Service Discovery
+# - formation-service (port 8081) - Course Management
+# - quiz-badge-service (port 8082) - Quiz and Badge Management
+# - api-gateway (port 8080) - API Gateway
+# - mysql-formation (port 3307) - MySQL for formation-service
+# - mysql-quiz (port 3308) - MySQL for quiz-badge-service
+#==============================================================================
+
+services:
+  #-----------------------------------------------------------------------
+  # Eureka Server - Service Discovery (Must start first)
+  #-----------------------------------------------------------------------
+  eureka-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.eureka-server
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - JAVA_OPTS=-Xms256m -Xmx512m
+    networks:
+      - elearning-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8761/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  #-----------------------------------------------------------------------
+  # MySQL for Formation Service
+  #-----------------------------------------------------------------------
+  mysql-formation:
+    image: mysql:8.0
+    container_name: mysql-formation
+    ports:
+      - "3307:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=formation_db
+      - MYSQL_USER=elearning
+      - MYSQL_PASSWORD=elearning123
+    volumes:
+      - mysql-formation-data:/var/lib/mysql
+    networks:
+      - elearning-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  #-----------------------------------------------------------------------
+  # MySQL for Quiz Badge Service
+  #-----------------------------------------------------------------------
+  mysql-quiz:
+    image: mysql:8.0
+    container_name: mysql-quiz
+    ports:
+      - "3308:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=quiz_badge_db
+      - MYSQL_USER=elearning
+      - MYSQL_PASSWORD=elearning123
+    volumes:
+      - mysql-quiz-data:/var/lib/mysql
+    networks:
+      - elearning-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  #-----------------------------------------------------------------------
+  # Formation Service - Course Management
+  #-----------------------------------------------------------------------
+  formation-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.formation-service
+    container_name: formation-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - JAVA_OPTS=-Xms256m -Xmx512m
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-formation:3306/formation_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=elearning
+      - SPRING_DATASOURCE_PASSWORD=elearning123
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - EUREKA_INSTANCE_PREFER-IP-ADDRESS=true
+    depends_on:
+      mysql-formation:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - elearning-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  #-----------------------------------------------------------------------
+  # Quiz Badge Service - Quiz and Badge Management
+  #-----------------------------------------------------------------------
+  quiz-badge-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.quiz-badge-service
+    container_name: quiz-badge-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - JAVA_OPTS=-Xms256m -Xmx512m
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-quiz:3306/quiz_badge_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=elearning
+      - SPRING_DATASOURCE_PASSWORD=elearning123
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - EUREKA_INSTANCE_PREFER-IP-ADDRESS=true
+    depends_on:
+      mysql-quiz:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - elearning-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  #-----------------------------------------------------------------------
+  # API Gateway - Entry Point
+  #-----------------------------------------------------------------------
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - JAVA_OPTS=-Xms256m -Xmx512m
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - EUREKA_INSTANCE_PREFER-IP-ADDRESS=true
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      formation-service:
+        condition: service_healthy
+      quiz-badge-service:
+        condition: service_healthy
+    networks:
+      - elearning-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+#-----------------------------------------------------------------------
+# Networks
+#-----------------------------------------------------------------------
+networks:
+  elearning-network:
+    driver: bridge
+
+#-----------------------------------------------------------------------
+# Volumes (for persistent data)
+#-----------------------------------------------------------------------
+volumes:
+  mysql-formation-data:
+  mysql-quiz-data:

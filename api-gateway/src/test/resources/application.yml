@@ -1,0 +1,4 @@
+# Configuration de test
+eureka:
+  client:
+    enabled: false

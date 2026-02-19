@@ -1,0 +1,18 @@
+{
+  "name": "test-api-server",
+  "version": "1.0.0",
+  "description": "Simple test server for Postman testing",
+  "main": "xampp-mysql-dashboard.js",
+  "scripts": {
+    "start": "node xampp-mysql-dashboard.js",
+    "launch": "powershell -ExecutionPolicy Bypass -File ./start-all.ps1",
+    "api": "node server-api-8081.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "multer": "^2.0.2",
+    "mysql2": "^3.17.1",
+    "sqlite3": "^5.1.7"
+  }
+}

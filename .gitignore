@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Uploads (fichiers utilisateur)
+uploads/
+
+# Logs
+*.log
+npm-debug.log*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build (Angular, etc.)
+dist/
+build/
+*.tsbuildinfo
+
+# Java / Maven / Spring
+target/
+*.class
+*.jar
+*.war
+!**/mvnw
+!**/mvnw.cmd
+
+# Eureka / microservices (logs locaux)
+*.log
+
+# Fichiers temporaires
+*.tmp
+*.temp
+.cache/

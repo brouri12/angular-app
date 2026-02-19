@@ -1,0 +1,210 @@
+{
+	"info": {
+		"_postman_id": "elearning-api-collection",
+		"name": "E-Learning API - Toutes les tables",
+		"description": "Collection pour tester toutes les tables : students, courses, enrollments, questions, badges + infos BDD",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8081"
+		}
+	],
+	"item": [
+		{
+			"name": "Database Info",
+			"item": [
+				{
+					"name": "GET - Infos base de données",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/api/database/info",
+						"description": "Résumé des tables et nombre d'enregistrements"
+					}
+				}
+			]
+		},
+		{
+			"name": "Students",
+			"item": [
+				{
+					"name": "GET - Liste des étudiants",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/api/students",
+						"description": "Récupère tous les étudiants"
+					}
+				},
+				{
+					"name": "POST - Créer un étudiant",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"Paul\",\n  \"lastName\": \"Durand\",\n  \"email\": \"paul.durand@email.com\",\n  \"city\": \"Rennes\",\n  \"country\": \"France\",\n  \"latitude\": 48.1173,\n  \"longitude\": -1.6778\n}"
+						},
+						"url": "{{baseUrl}}/api/students",
+						"description": "Ajoute un nouvel étudiant"
+					}
+				}
+			]
+		},
+		{
+			"name": "Courses",
+			"item": [
+				{
+					"name": "GET - Liste des cours",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/api/courses",
+						"description": "Récupère tous les cours"
+					}
+				},
+				{
+					"name": "POST - Créer un cours",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"courseCode\": \"PYTHON101\",\n  \"title\": \"Python pour débutants\",\n  \"description\": \"Apprendre Python from scratch\",\n  \"teacherId\": 1,\n  \"teacherName\": \"Prof. Martin\",\n  \"teacherLocation\": \"Paris, France\",\n  \"durationHours\": 45,\n  \"price\": 349.99,\n  \"maxStudents\": 25,\n  \"level\": \"BEGINNER\",\n  \"status\": \"ACTIVE\",\n  \"city\": \"Paris\",\n  \"country\": \"France\",\n  \"latitude\": 48.8566,\n  \"longitude\": 2.3522\n}"
+						},
+						"url": "{{baseUrl}}/api/courses",
+						"description": "Ajoute un nouveau cours. level: BEGINNER|INTERMEDIATE|ADVANCED, status: ACTIVE|INACTIVE|COMPLETED"
+					}
+				}
+			]
+		},
+		{
+			"name": "Enrollments",
+			"item": [
+				{
+					"name": "GET - Liste des inscriptions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/api/enrollments",
+						"description": "Récupère toutes les inscriptions (avec noms étudiant/cours)"
+					}
+				},
+				{
+					"name": "POST - Créer une inscription",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"studentId\": 1,\n  \"courseId\": 2,\n  \"status\": \"ACTIVE\",\n  \"completionPercentage\": 0,\n  \"finalGrade\": null\n}"
+						},
+						"url": "{{baseUrl}}/api/enrollments",
+						"description": "Inscrit un étudiant à un cours. status: ACTIVE|COMPLETED|DROPPED"
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 201 or 200\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									"pm.test(\"Response is JSON with enrollment fields\", function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json).to.have.property(\"id\");",
+									"    pm.expect(json).to.have.property(\"studentId\");",
+									"    pm.expect(json).to.have.property(\"courseId\");",
+									"    pm.expect(json).to.have.property(\"status\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Questions",
+			"item": [
+				{
+					"name": "GET - Liste des questions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/api/questions",
+						"description": "Récupère toutes les questions"
+					}
+				},
+				{
+					"name": "POST - Créer une question",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"courseId\": 1,\n  \"questionText\": \"Qu'est-ce qu'une variable en Java?\",\n  \"questionType\": \"MULTIPLE_CHOICE\",\n  \"points\": 10,\n  \"difficultyLevel\": \"EASY\",\n  \"correctAnswer\": \"Un conteneur pour une valeur\",\n  \"explanation\": \"Une variable stocke une valeur en mémoire\",\n  \"orderNumber\": 3,\n  \"isActive\": true\n}"
+						},
+						"url": "{{baseUrl}}/api/questions",
+						"description": "Ajoute une question. questionType: MULTIPLE_CHOICE|TRUE_FALSE|SHORT_ANSWER|ESSAY, difficultyLevel: EASY|MEDIUM|HARD"
+					}
+				}
+			]
+		},
+		{
+			"name": "Badges",
+			"item": [
+				{
+					"name": "GET - Liste des badges",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/api/badges",
+						"description": "Récupère tous les badges (avec infos étudiant pour la carte)"
+					}
+				},
+				{
+					"name": "POST - Créer un badge",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"studentId\": 1,\n  \"badgeName\": \"Super Star\",\n  \"badgeType\": \"TOP_STUDENT\",\n  \"description\": \"Meilleur de la promo\",\n  \"iconUrl\": \"⭐\",\n  \"courseId\": 1,\n  \"criteriaMet\": \"Top 1\",\n  \"badgeLevel\": \"GOLD\",\n  \"earnedDate\": \"2025-02-17\"\n}"
+						},
+						"url": "{{baseUrl}}/api/badges",
+						"description": "Ajoute un badge. badgeType: COURSE_COMPLETION|QUIZ_MASTER|PERFECT_SCORE|SPEED_STAR|STREAK|EXPERT|FIRST_ATTEMPT|TOP_STUDENT. badgeLevel: BRONZE|SILVER|GOLD|PLATINUM|DIAMOND"
+					}
+				}
+			]
+		}
+	]
+}

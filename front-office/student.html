@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Espace Étudiant – Wordly</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: rgb(0, 200, 151);
+      --secondary: rgb(255, 127, 80);
+      --bg: #ffffff;
+      --card: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --footer-bg: #0f172a;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+
+    .nav {
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+      max-width: 1200px; margin: 0 auto; padding: 1rem 1.5rem;
+      background: var(--card); border-bottom: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-weight: 700; font-size: 1.25rem; color: var(--text); text-decoration: none;
+    }
+    .nav-logo:hover { color: var(--primary); }
+    .nav-logo svg { width: 28px; height: 28px; flex-shrink: 0; }
+    .student-picker { display: flex; align-items: center; gap: 0.5rem; }
+    .student-picker label { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+    .student-picker select {
+      padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--border); font-size: 0.9rem;
+      background: var(--card); color: var(--text); font-family: inherit; min-width: 180px;
+    }
+    .nav-links { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; flex-direction: row; }
+    .nav-links a {
+      padding: 0.5rem 1rem; border-radius: 8px; font-weight: 500; text-decoration: none; color: var(--text);
+      font-size: 0.9rem; transition: background 0.2s, color 0.2s;
+      flex-shrink: 0; white-space: nowrap;
+    }
+    .nav-links a[data-page="parcours"] { order: 1; }
+    .nav-links a[data-page="courses"] { order: 2; }
+    .nav-links a[data-page="enrollments"] { order: 3; }
+    .nav-links a[data-page="badges"] { order: 4; }
+    .nav-links a[data-page="quiz"] { order: 5; }
+    .nav-links a:hover { background: rgba(0,200,151,0.1); color: var(--primary); }
+    .nav-links a.active { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+    .page-hero { margin-bottom: 2rem; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(0,200,151,0.1); color: var(--primary); padding: 0.35rem 0.75rem;
+      border-radius: 999px; font-size: 0.8rem; font-weight: 500; margin-bottom: 0.75rem;
+    }
+    .page-title { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text); }
+    .page-title .green { color: var(--primary); }
+    .page-title .orange { color: var(--secondary); }
+    .page-subtitle { color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem; max-width: 560px; }
+
+    .stats-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card {
+      background: var(--card); border-radius: 12px; padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid var(--border); text-align: center;
+    }
+    .stat-card .num { font-size: 1.75rem; font-weight: 700; color: var(--primary); }
+    .stat-card .label { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+    .section { display: none; }
+    .section.active { display: block; }
+    .card {
+      background: var(--card); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid var(--border);
+    }
+    .card h3 { font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text); }
+    .btn { padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; font-family: inherit; border: none; text-decoration: none; display: inline-block; transition: opacity 0.2s; }
+    .btn:hover { opacity: 0.95; }
+    .btn-primary { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; }
+    .btn-secondary { background: #f1f5f9; color: var(--text); border: 1px solid var(--border); }
+
+    .courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+    .course-card {
+      background: var(--card); border-radius: 12px; overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid var(--border); transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .course-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.1); transform: translateY(-2px); }
+    .course-card .thumb {
+      height: 140px; background: linear-gradient(135deg, rgba(0,200,151,0.2), rgba(255,127,80,0.15));
+      display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: var(--primary);
+    }
+    .course-card .body { padding: 1rem; }
+    .course-card .body h3 { font-size: 1rem; margin-bottom: 0.25rem; }
+    .course-card .meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+    .course-card .price { font-weight: 700; color: var(--primary); margin-top: 0.5rem; font-size: 1rem; }
+    .course-detail { max-width: 640px; }
+    .course-detail .card h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .course-detail .meta { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem; }
+    .progress-bar { height: 10px; background: #e2e8f0; border-radius: 6px; overflow: hidden; margin: 0.5rem 0; }
+    .progress-bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 6px; transition: width 0.3s; }
+
+    input, select, textarea { transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,200,151,0.2); }
+    @keyframes validationFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes validationShake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
+    .input-error, input.input-error, select.input-error, textarea.input-error { border-color: #dc2626 !important; background: #fef2f2 !important; box-shadow: 0 0 0 2px rgba(220,38,38,0.15); animation: validationShake 0.4s ease; }
+    .validation-msg { font-size: 0.8rem; margin-top: 0.4rem; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; border-radius: 8px; animation: validationFadeIn 0.3s ease; line-height: 1.35; }
+    .validation-msg.error { color: #b91c1c; background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border: 1px solid #fecaca; box-shadow: 0 2px 8px rgba(220,38,38,0.12); }
+    .validation-msg.error::before { content: '⚠'; font-size: 1rem; font-weight: 700; flex-shrink: 0; width: 1.25rem; height: 1.25rem; display: inline-flex; align-items: center; justify-content: center; background: #dc2626; color: white; border-radius: 50%; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: rgba(0,200,151,0.1); font-weight: 600; color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-pill {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.8rem; font-weight: 500;
+      background: rgba(0,200,151,0.15); color: var(--primary); margin-right: 0.5rem; margin-bottom: 0.5rem;
+      border: 1px solid rgba(0,200,151,0.3);
+    }
+    .quiz-question { margin-bottom: 1.5rem; }
+    .quiz-question label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); }
+    .quiz-question input[type="text"], .quiz-question select { width: 100%; max-width: 480px; padding: 0.6rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; }
+    .hidden { display: none !important; }
+    .loading { color: var(--text-muted); font-size: 0.9rem; }
+    .error { color: #dc2626; font-size: 0.875rem; }
+    .back-link { margin-bottom: 1rem; }
+    .back-link a { color: var(--primary); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem; }
+    .back-link a:hover { text-decoration: underline; }
+
+    .materials-list { display: flex; flex-direction: column; gap: 1.25rem; }
+    .material-item { padding: 0.75rem; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border); }
+    .video-wrap { margin-top: 0.5rem; border-radius: 8px; overflow: hidden; max-width: 560px; }
+    .video-wrap iframe { display: block; }
+    .level-card { background: var(--card); border-radius: 12px; padding: 1rem; margin-bottom: 0.75rem; border: 1px solid var(--border); cursor: pointer; transition: box-shadow 0.2s; }
+    .level-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .level-card h3 { font-size: 1.1rem; margin-bottom: 0.25rem; }
+    .level-card .code { font-weight: 700; color: var(--primary); }
+    .chapter-card { background: var(--card); border-radius: 12px; padding: 1rem; margin-bottom: 0.75rem; border: 1px solid var(--border); cursor: pointer; transition: box-shadow 0.2s; }
+    .chapter-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .lesson-row { padding: 0.75rem; background: #f8fafc; border-radius: 8px; margin-bottom: 0.5rem; border: 1px solid var(--border); }
+    .quiz-result { padding: 1rem; border-radius: 8px; margin-top: 1rem; font-weight: 600; }
+    .quiz-result.passed { background: rgba(0,200,151,0.15); color: var(--primary); }
+    .quiz-result.failed { background: rgba(220,38,38,0.1); color: #dc2626; }
+
+    .footer-mini { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center; }
+    .footer-mini a { color: var(--primary); text-decoration: none; font-weight: 500; font-size: 0.9rem; }
+    .footer-mini a:hover { text-decoration: underline; }
+
+    @media (max-width: 768px) {
+      .nav { flex-direction: column; align-items: stretch; }
+      .nav-links { justify-content: center; }
+      .stats-strip { grid-template-columns: repeat(2, 1fr); }
+      .courses-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <a href="index.html" class="nav-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M8 7h8"/><path d="M8 11h8"/></svg>
+      Wordly – <span class="green">Espace Étudiant</span>
+    </a>
+    <div class="student-picker">
+      <label>Je suis :</label>
+      <select id="studentSelect">
+        <option value="">-- Choisir un étudiant --</option>
+      </select>
+    </div>
+    <nav class="nav-links">
+      <a href="#" class="active" data-page="parcours">📖 Parcours (niveaux)</a>
+      <a href="#" data-page="courses">📚 Our Courses</a>
+      <a href="#" data-page="enrollments">📋 My Enrollments</a>
+      <a href="#" data-page="badges">🏅 My Badges</a>
+      <a href="#" data-page="quiz">✏️ Quiz</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- Parcours: Niveau → Chapitres → Leçons + Quiz -->
+    <section id="section-parcours" class="section active">
+      <div class="page-hero">
+        <div class="hero-badge">Parcours</div>
+        <h1 class="page-title">Par <span class="green">niveau</span></h1>
+        <p class="page-subtitle">Choisissez un niveau, puis un chapitre. Consultez les leçons (vidéo/PDF) et passez le quiz à la fin du chapitre.</p>
+      </div>
+      <div id="parcours-stats" class="stats-strip" style="display:none;"></div>
+      <div id="parcours-levels"></div>
+      <div id="parcours-chapters" class="hidden"></div>
+      <div id="parcours-chapter-detail" class="hidden"></div>
+    </section>
+
+    <!-- Our Courses (liste) -->
+    <section id="section-courses" class="section">
+      <div class="page-hero">
+        <div class="hero-badge">Catalogue</div>
+        <h1 class="page-title">Our <span class="green">Courses</span></h1>
+        <p class="page-subtitle">Parcourez les cours, consultez les détails et inscrivez-vous en un clic.</p>
+      </div>
+      <div id="student-stats" class="stats-strip" style="display:none;"></div>
+      <div id="courses-list" class="courses-grid"></div>
+    </section>
+
+    <!-- Course Detail + S'inscrire -->
+    <section id="section-course-detail" class="section">
+      <div class="back-link"><a href="#" id="backFromDetail">← Retour aux cours</a></div>
+      <div id="course-detail-content" class="course-detail"></div>
+    </section>
+
+    <!-- My Enrollments -->
+    <section id="section-enrollments" class="section">
+      <div class="page-hero">
+        <div class="hero-badge">Progression</div>
+        <h1 class="page-title">My <span class="green">Enrollments</span></h1>
+        <p class="page-subtitle">Vos inscriptions et votre progression par cours.</p>
+      </div>
+      <div id="enrollments-list"></div>
+    </section>
+
+    <!-- My Badges -->
+    <section id="section-badges" class="section">
+      <div class="page-hero">
+        <div class="hero-badge">Récompenses</div>
+        <h1 class="page-title">My <span class="orange">Badges</span></h1>
+        <p class="page-subtitle">Badges gagnés au fil de votre parcours.</p>
+      </div>
+      <div id="badges-list"></div>
+    </section>
+
+    <!-- Quiz -->
+    <section id="section-quiz" class="section">
+      <div class="page-hero">
+        <div class="hero-badge">Quiz</div>
+        <h1 class="page-title">Quiz / <span class="green">Questions</span></h1>
+        <p class="page-subtitle">Répondez aux questions du cours choisi.</p>
+      </div>
+      <div class="card">
+        <label style="display:block;margin-bottom:0.5rem;font-weight:600;">Cours :</label>
+        <select id="quizCourseSelect" style="max-width:400px;padding:0.6rem;border-radius:8px;border:1px solid var(--border);"><option value="">-- Choisir un cours --</option></select>
+      </div>
+      <div id="quiz-questions"></div>
+    </section>
+
+    <footer class="footer-mini">
+      <a href="index.html">← Retour à l'accueil Wordly</a> · <a href="teacher.html">Espace Enseignant</a>
+    </footer>
+  </main>
+
+  <script>
+    const API = (window.location.port === '8083' || window.location.port === '8081') ? '' : 'http://localhost:8083';
+    async function api(u, opt) {
+      const r = await fetch(API + u, opt);
+      const text = await r.text();
+      if (!r.ok) throw new Error(text || r.statusText);
+      return text ? JSON.parse(text) : null;
+    }
+
+    function getStudentId() { return document.getElementById('studentSelect').value || null; }
+
+    document.querySelectorAll('.nav-links a').forEach(function(a) {
+      a.addEventListener('click', function(e) {
+        e.preventDefault();
+        var p = e.currentTarget.getAttribute('data-page');
+        showPage(p);
+        if (p === 'parcours') loadParcours();
+        if (p === 'courses') loadCourses();
+        if (p === 'enrollments') loadEnrollments();
+        if (p === 'badges') loadBadges();
+        if (p === 'quiz') loadQuizCourses();
+      });
+    });
+    document.getElementById('backFromDetail').addEventListener('click', e => { e.preventDefault(); showPage('courses'); loadCourses(); });
+
+    function showPage(id) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      var navPage = (id === 'course-detail') ? 'courses' : id;
+      document.querySelectorAll('.nav-links a').forEach(function(a) { a.classList.toggle('active', a.getAttribute('data-page') === navPage); });
+      var el = document.getElementById('section-' + id);
+      if (el) el.classList.add('active');
+    }
+
+    let pedagogyTree = [];
+    async function loadParcours() {
+      const levelsEl = document.getElementById('parcours-levels');
+      const chaptersEl = document.getElementById('parcours-chapters');
+      const detailEl = document.getElementById('parcours-chapter-detail');
+      chaptersEl.classList.add('hidden');
+      detailEl.classList.add('hidden');
+      levelsEl.innerHTML = '<span class="loading">Chargement du parcours...</span>';
+      try {
+        pedagogyTree = await api('/api/pedagogy/tree') || [];
+        const sid = getStudentId();
+        if (sid) {
+          try {
+            const pts = await api('/api/students/' + sid + '/points');
+            document.getElementById('parcours-stats').innerHTML = '<div class="stat-card"><div class="num">' + (pts.totalPoints || 0) + '</div><div class="label">Points</div></div>';
+            document.getElementById('parcours-stats').style.display = 'grid';
+          } catch (_) { document.getElementById('parcours-stats').style.display = 'none'; }
+        } else {
+          document.getElementById('parcours-stats').style.display = 'none';
+        }
+        if (!pedagogyTree.length) { levelsEl.innerHTML = '<p>Aucun niveau pour le moment.</p>'; return; }
+        var levelsOrdered = pedagogyTree.slice().sort(function(a, b) { return (a.sortOrder || 0) - (b.sortOrder || 0) || (a.id - b.id); });
+        levelsEl.innerHTML = '<p style="margin-bottom:1rem;color:var(--text-muted);">Choisissez un niveau :</p>' + levelsOrdered.map(l => '<div class="level-card" data-level-id="' + l.id + '"><h3><span class="code">' + (l.code || '') + '</span> – ' + (l.name || '') + '</h3><p class="meta">' + (l.chapters && l.chapters.length ? l.chapters.length + ' chapitre(s)' : '') + '</p></div>').join('');
+        levelsEl.querySelectorAll('.level-card').forEach(card => {
+          card.addEventListener('click', () => showChapters(parseInt(card.getAttribute('data-level-id'), 10)));
+        });
+      } catch (e) {
+        levelsEl.innerHTML = '<span class="error">' + e.message + '</span>';
+      }
+    }
+    function showChapters(levelId) {
+      const level = pedagogyTree.find(l => l.id === levelId);
+      if (!level) return;
+      const levelsEl = document.getElementById('parcours-levels');
+      const chaptersEl = document.getElementById('parcours-chapters');
+      const detailEl = document.getElementById('parcours-chapter-detail');
+      detailEl.classList.add('hidden');
+      chaptersEl.classList.remove('hidden');
+      var chs = (level.chapters || []).slice().sort(function(a, b) { return (a.sortOrder || 0) - (b.sortOrder || 0) || (a.id - b.id); });
+      chaptersEl.innerHTML = '<div class="back-link"><a href="#" id="parcours-back-level">← Retour aux niveaux</a></div><h2 class="page-title">Chapitres – ' + (level.code || '') + '</h2><p class="page-subtitle">Choisissez un chapitre pour voir les leçons et passer le quiz.</p>' + (chs.length ? chs.map(c => '<div class="chapter-card" data-chapter-id="' + c.id + '"><h3>' + (c.title || '') + '</h3><p class="meta">' + (c.lessons && c.lessons.length ? c.lessons.length + ' leçon(s)' : '0 leçon') + (c.quiz ? ' · Quiz' : '') + '</p></div>').join('') : '<p>Aucun chapitre.</p>');
+      document.getElementById('parcours-back-level').onclick = e => { e.preventDefault(); chaptersEl.classList.add('hidden'); levelsEl.classList.remove('hidden'); };
+      chaptersEl.querySelectorAll('.chapter-card').forEach(card => {
+        card.addEventListener('click', () => showChapterDetail(levelId, parseInt(card.getAttribute('data-chapter-id'), 10)));
+      });
+    }
+    async function showChapterDetail(levelId, chapterId) {
+      const level = pedagogyTree.find(l => l.id === levelId);
+      const chapter = level && (level.chapters || []).find(c => c.id === chapterId);
+      if (!chapter) return;
+      const chaptersEl = document.getElementById('parcours-chapters');
+      const detailEl = document.getElementById('parcours-chapter-detail');
+      detailEl.classList.remove('hidden');
+      var lessons = (chapter.lessons || []).slice().sort(function(a, b) { return (a.sortOrder || 0) - (b.sortOrder || 0) || (a.id - b.id); });
+      const baseUrl = API || window.location.origin;
+      let lessonsHtml = lessons.length ? '<h3 style="margin-bottom:0.75rem;">📄 Leçons du chapitre</h3>' + lessons.map(l => {
+        const isVideo = l.type === 'VIDEO';
+        const url = (l.url || '').startsWith('http') ? l.url : baseUrl + (l.url || '');
+        return '<div class="lesson-row"><strong>' + (isVideo ? '🎬 ' : '📄 ') + (l.title || '') + '</strong>' + (l.durationMinutes ? ' <span class="meta">(' + l.durationMinutes + ' min)</span>' : '') + '<br><a href="' + url + '" target="_blank" rel="noopener" class="btn btn-secondary" style="margin-top:0.5rem;">' + (isVideo ? 'Voir la vidéo' : 'Ouvrir le PDF') + '</a></div>';
+      }).join('') : '<p>Aucune leçon dans ce chapitre.</p>';
+      let quizHtml = '';
+      if (chapter.quiz) {
+        const questions = await api('/api/quizzes/' + chapter.quiz.id + '/questions').catch(() => []);
+        quizHtml = '<div class="card" style="margin-top:1.5rem;"><h3>✏️ Quiz – ' + (chapter.quiz.title || '') + '</h3><p class="page-subtitle">Répondez aux questions (réponse exacte attendue).</p><form id="parcours-quiz-form">' + (questions.map((q, i) => '<div class="quiz-question"><label>Q' + (i + 1) + ': ' + (q.questionText || '') + '</label><input type="text" name="q' + q.id + '" data-question-id="' + q.id + '" placeholder="Votre réponse"></div>').join('') || '<p>Aucune question.</p>') + '<button type="submit" class="btn btn-primary" style="margin-top:1rem;">Envoyer le quiz</button></form><div id="parcours-quiz-result"></div></div>';
+      } else {
+        quizHtml = '<p class="loading" style="margin-top:1rem;">Aucun quiz pour ce chapitre.</p>';
+      }
+      detailEl.innerHTML = '<div class="back-link"><a href="#" id="parcours-back-chapters">← Retour aux chapitres</a></div><div class="card"><h1>' + (chapter.title || '') + '</h1><p class="meta">Niveau ' + (level.code || '') + '</p>' + lessonsHtml + quizHtml + '</div>';
+      document.getElementById('parcours-back-chapters').onclick = e => { e.preventDefault(); detailEl.classList.add('hidden'); };
+      const form = document.getElementById('parcours-quiz-form');
+      if (form) {
+        form.onsubmit = async e => {
+          e.preventDefault();
+          const sid = getStudentId();
+          if (!sid) { alert('Choisissez un étudiant en haut de page.'); return; }
+          const answers = [];
+          form.querySelectorAll('input[data-question-id]').forEach(inp => { answers.push({ questionId: parseInt(inp.getAttribute('data-question-id'), 10), answerText: inp.value.trim() }); });
+          try {
+            const result = await api('/api/quiz-attempts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId: parseInt(sid, 10), quizId: chapter.quiz.id, answers }) });
+            const resultEl = document.getElementById('parcours-quiz-result');
+            resultEl.innerHTML = '<div class="quiz-result ' + (result.passed ? 'passed' : 'failed') + '">' + (result.passed ? '✓ Réussi' : '✗ Échec') + ' – Score: ' + result.scorePercent + ' % · Points gagnés: ' + result.pointsEarned + ' · Total: ' + result.totalPoints + ' pts' + (result.newBadges && result.newBadges.length ? '<br>🏅 Nouveau(x) badge(s): ' + result.newBadges.map(b => b.badgeName).join(', ') : '') + '</div>';
+            loadParcours();
+          } catch (err) {
+            alert('Erreur: ' + err.message);
+          }
+        };
+      }
+    }
+
+    async function loadStudents() {
+      const list = await api('/api/students');
+      const sel = document.getElementById('studentSelect');
+      sel.innerHTML = '<option value="">-- Choisir un étudiant --</option>' + (list || []).map(s => '<option value="' + s.id + '">' + (s.firstName + ' ' + s.lastName) + '</option>').join('');
+      sel.addEventListener('change', () => { loadEnrollments(); loadBadges(); updateStudentStats(); });
+    }
+
+    async function loadCourses() {
+      const el = document.getElementById('courses-list');
+      el.innerHTML = '<span class="loading">Chargement...</span>';
+      try {
+        const list = await api('/api/courses') || [];
+        const active = list.filter(c => c.status === 'ACTIVE');
+        el.innerHTML = active.map(c => '<div class="course-card"><div class="thumb">📚</div><div class="body"><h3>' + (c.title || '') + '</h3><p class="meta">' + (c.teacherName || '') + ' · ' + (c.level || '') + '</p><p class="price">' + (c.price != null ? c.price + ' €' : 'Gratuit') + '</p><button class="btn btn-primary" onclick="showCourseDetail(' + c.id + ')">Voir & S\'inscrire</button></div></div>').join('') || '<p class="loading">Aucun cours disponible.</p>';
+        updateStudentStats();
+      } catch (e) { el.innerHTML = '<span class="error">' + e.message + '</span>'; }
+    }
+    async function updateStudentStats() {
+      const sid = getStudentId();
+      const box = document.getElementById('student-stats');
+      if (!sid) { box.style.display = 'none'; box.innerHTML = ''; return; }
+      try {
+        const [enrollments, badges] = await Promise.all([ api('/api/enrollments?studentId=' + sid).catch(() => []), api('/api/badges?studentId=' + sid).catch(() => []) ]);
+        const enr = Array.isArray(enrollments) ? enrollments : [];
+        const bad = Array.isArray(badges) ? badges : [];
+        box.innerHTML = '<div class="stat-card"><div class="num">' + enr.length + '</div><div class="label">Inscriptions</div></div><div class="stat-card"><div class="num">' + bad.length + '</div><div class="label">Badges</div></div>';
+        box.style.display = 'grid';
+      } catch (_) { box.style.display = 'none'; }
+    }
+
+    async function showCourseDetail(id) {
+      const [c, materials] = await Promise.all([ api('/api/courses/' + id), api('/api/courses/' + id + '/materials').catch(() => []) ]);
+      const box = document.getElementById('course-detail-content');
+      let materialsHtml = '';
+      if (materials && materials.length) {
+        materialsHtml = '<div class="card" style="margin-top:1rem;"><h3 style="margin-bottom:0.75rem;">📄 Ressources du cours (PDF / Vidéo)</h3><div class="materials-list">' + materials.map(m => {
+          const isVideo = m.type === 'VIDEO';
+          const ytId = (m.url || '').match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+          const vimeoId = (m.url || '').match(/vimeo\.com\/(?:video\/)?(\d+)/);
+          if (isVideo && ytId) return '<div class="material-item"><p style="font-weight:600;margin-bottom:0.35rem;">🎬 ' + (m.title || 'Vidéo') + '</p><div class="video-wrap"><iframe width="100%" height="315" src="https://www.youtube.com/embed/' + ytId[1] + '" frameborder="0" allowfullscreen></iframe></div><a href="' + (m.url || '#') + '" target="_blank" rel="noopener" style="font-size:0.85rem;color:var(--primary);">Ouvrir sur YouTube</a></div>';
+          if (isVideo && vimeoId) return '<div class="material-item"><p style="font-weight:600;margin-bottom:0.35rem;">🎬 ' + (m.title || 'Vidéo') + '</p><div class="video-wrap"><iframe width="100%" height="315" src="https://player.vimeo.com/video/' + vimeoId[1] + '" frameborder="0" allowfullscreen></iframe></div><a href="' + (m.url || '#') + '" target="_blank" rel="noopener" style="font-size:0.85rem;color:var(--primary);">Ouvrir sur Vimeo</a></div>';
+          if (isVideo) return '<div class="material-item"><p style="font-weight:600;">🎬 ' + (m.title || 'Vidéo') + '</p><a href="' + (m.url || '#') + '" target="_blank" rel="noopener" class="btn btn-secondary">Voir la vidéo</a></div>';
+          return '<div class="material-item"><p style="font-weight:600;">📄 ' + (m.title || 'PDF') + '</p><a href="' + (m.url || '#') + '" target="_blank" rel="noopener" class="btn btn-secondary">Ouvrir le PDF</a></div>';
+        }).join('') + '</div></div>';
+      }
+      box.innerHTML = '<div class="card"><div style="display:flex;align-items:flex-start;gap:1rem;flex-wrap:wrap;"><div style="width:120px;height:90px;border-radius:10px;background:linear-gradient(135deg, rgba(0,200,151,0.2), rgba(255,127,80,0.15));display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0;">📚</div><div style="flex:1;min-width:200px;"><h1>' + (c.title || '') + '</h1><p class="meta">' + (c.teacherName || '') + ' · ' + (c.level || '') + ' · ' + (c.durationHours || '') + ' h</p><p class="price" style="margin-top:0.5rem;">' + (c.price != null ? c.price + ' €' : 'Gratuit') + '</p></div></div><p style="margin-top:1rem;line-height:1.6;color:var(--text-muted);">' + (c.description || 'Aucune description.') + '</p><button class="btn btn-primary" id="btnEnroll" data-course-id="' + c.id + '" style="margin-top:1rem;">S\'inscrire à ce cours</button></div>' + materialsHtml;
+      document.getElementById('btnEnroll').onclick = () => enrollInCourse(c.id);
+      showPage('course-detail');
+    }
+
+    async function enrollInCourse(courseId) {
+      const studentId = getStudentId();
+      if (!studentId) { alert('Choisissez un étudiant dans le menu.'); return; }
+      try {
+        await api('/api/enrollments', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId: parseInt(studentId), courseId: parseInt(courseId), status: 'ACTIVE', completionPercentage: 0 }) });
+        alert('Inscription enregistrée.');
+        loadEnrollments();
+      } catch (e) { alert(e.message); }
+    }
+
+    async function loadEnrollments() {
+      const el = document.getElementById('enrollments-list');
+      const sid = getStudentId();
+      if (!sid) { el.innerHTML = '<p class="loading">Choisissez un étudiant.</p>'; return; }
+      el.innerHTML = '<span class="loading">Chargement...</span>';
+      try {
+        const list = await api('/api/enrollments?studentId=' + sid) || [];
+        el.innerHTML = list.map(e => '<div class="card"><h3>' + (e.courseTitle || 'Cours') + '</h3><p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:0.5rem;">Statut: <strong>' + (e.status || '') + '</strong> · Note: ' + (e.finalGrade != null ? e.finalGrade : '-') + '</p><div class="progress-bar"><span style="width:' + (e.completionPercentage || 0) + '%"></span></div><p style="font-size:0.8rem;margin-top:0.25rem;">' + (e.completionPercentage || 0) + '% complété</p><button class="btn btn-secondary" onclick="updateProgress(' + e.id + ',' + (e.completionPercentage || 0) + ')" style="margin-top:0.75rem;">Mettre à jour progression</button></div>').join('') || '<p class="loading">Aucune inscription.</p>';
+      } catch (e) { el.innerHTML = '<span class="error">' + e.message + '</span>'; }
+    }
+
+    async function updateProgress(enrollmentId, current) {
+      const v = prompt('Nouveau % (0-100)', current);
+      if (v == null) return;
+      const pct = Math.min(100, Math.max(0, parseFloat(v) || 0));
+      try {
+        await api('/api/enrollments/' + enrollmentId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'ACTIVE', completionPercentage: pct, finalGrade: null }) });
+        loadEnrollments();
+      } catch (e) { alert(e.message); }
+    }
+
+    async function loadBadges() {
+      const el = document.getElementById('badges-list');
+      const sid = getStudentId();
+      if (!sid) { el.innerHTML = '<p class="loading">Choisissez un étudiant.</p>'; return; }
+      el.innerHTML = '<span class="loading">Chargement...</span>';
+      try {
+        const list = await api('/api/badges?studentId=' + sid) || [];
+        el.innerHTML = list.length ? list.map(b => '<span class="badge-pill">🏅 ' + (b.badgeName || b.badgeType || 'Badge') + '</span>').join('') : '<p class="loading">Aucun badge pour le moment. Complétez des cours et des quiz pour en gagner.</p>';
+      } catch (e) { el.innerHTML = '<span class="error">' + e.message + '</span>'; }
+    }
+
+    async function loadQuizCourses() {
+      const sel = document.getElementById('quizCourseSelect');
+      const list = await api('/api/courses') || [];
+      sel.innerHTML = '<option value="">-- Choisir un cours --</option>' + list.filter(c => c.status === 'ACTIVE').map(c => '<option value="' + c.id + '">' + (c.title || '') + '</option>').join('');
+      sel.onchange = () => loadQuizQuestions(sel.value);
+    }
+
+    async function loadQuizQuestions(courseId) {
+      const box = document.getElementById('quiz-questions');
+      if (!courseId) { box.innerHTML = ''; return; }
+      box.innerHTML = '<span class="loading">Chargement des questions...</span>';
+      try {
+        const list = await api('/api/questions?courseId=' + courseId) || [];
+        if (!list.length) { box.innerHTML = '<p class="loading">Aucune question pour ce cours.</p>'; return; }
+        box.innerHTML = '<form id="quizForm">' + list.map((q, i) => '<div class="card quiz-question"><label>Q' + (i+1) + ': ' + (q.questionText || '') + '</label><input type="text" name="q' + q.id + '" placeholder="Votre réponse" data-question-id="' + q.id + '"></div>').join('') + '<button type="submit" class="btn btn-primary">Envoyer les réponses</button></form>';
+        document.getElementById('quizForm').onsubmit = submitQuiz;
+      } catch (e) { box.innerHTML = '<span class="error">' + e.message + '</span>'; }
+    }
+
+    async function submitQuiz(e) {
+      e.preventDefault();
+      const studentId = getStudentId();
+      if (!studentId) { alert('Choisissez un étudiant.'); return; }
+      const form = e.target;
+      const inputs = form.querySelectorAll('input[data-question-id]');
+      for (const input of inputs) {
+        const questionId = input.getAttribute('data-question-id');
+        const answerText = input.value.trim();
+        if (!answerText) continue;
+        try {
+          await api('/api/responses', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId: parseInt(studentId), questionId: parseInt(questionId), answerText }) });
+        } catch (err) { console.warn(err); }
+      }
+      alert('Réponses enregistrées.');
+    }
+
+    loadStudents().then(() => { loadParcours(); loadCourses(); });
+  </script>
+</body>
+</html>

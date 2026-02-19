@@ -1,0 +1,112 @@
+<header class="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 transition-colors duration-300">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo -->
+      <a routerLink="/" class="flex items-center gap-2 group">
+        <div class="bg-[rgb(0,200,151)] rounded-lg p-2 group-hover:scale-110 transition-transform duration-300">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
+          </svg>
+        </div>
+        <span class="text-xl font-bold bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] bg-clip-text text-transparent">
+          Wordly
+        </span>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <nav class="hidden md:flex items-center gap-8">
+        @for (link of navLinks; track link.path) {
+          <a 
+            [routerLink]="link.path" 
+            routerLinkActive="text-[rgb(0,200,151)]"
+            [routerLinkActiveOptions]="{exact: false}"
+            class="transition-colors duration-200 hover:text-[rgb(0,200,151)]">
+            {{ link.name }}
+          </a>
+        }
+      </nav>
+
+      <!-- Desktop Actions -->
+      <div class="hidden md:flex items-center gap-4">
+        <button 
+          (click)="themeService.toggleTheme()"
+          class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          aria-label="Toggle theme">
+          @if (themeService.theme() === 'light') {
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+          } @else {
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+          }
+        </button>
+        <button class="px-4 py-2 text-sm font-medium hover:bg-[rgb(255,127,80)] hover:text-white rounded-lg transition-colors">
+          Sign In
+        </button>
+        <button class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white rounded-lg hover:opacity-90 transition-opacity">
+          Get Started
+        </button>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <div class="flex md:hidden items-center gap-2">
+        <button 
+          (click)="themeService.toggleTheme()"
+          class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          aria-label="Toggle theme">
+          @if (themeService.theme() === 'light') {
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+          } @else {
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+          }
+        </button>
+        <button 
+          (click)="toggleMobileMenu()"
+          class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          aria-label="Toggle menu">
+          @if (mobileMenuOpen) {
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          } @else {
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  @if (mobileMenuOpen) {
+    <div class="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md">
+      <div class="px-4 py-4 space-y-3">
+        @for (link of navLinks; track link.path) {
+          <a 
+            [routerLink]="link.path" 
+            (click)="toggleMobileMenu()"
+            routerLinkActive="bg-[rgb(0,200,151)]/10 text-[rgb(0,200,151)]"
+            class="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+            {{ link.name }}
+          </a>
+        }
+        <div class="pt-4 border-t border-gray-200 dark:border-gray-800 flex flex-col gap-2">
+          <button class="w-full px-4 py-2 text-sm font-medium border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-[rgb(255,127,80)] hover:text-white hover:border-[rgb(255,127,80)] transition-colors">
+            Sign In
+          </button>
+          <button class="w-full px-4 py-2 text-sm font-medium bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white rounded-lg hover:opacity-90 transition-opacity">
+            Get Started
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</header>

@@ -1,0 +1,82 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  
+  cloud:
+    gateway:
+      # Global CORS configuration
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: false
+            maxAge: 3600
+      
+      # Route definitions
+      routes:
+        # API Node (données E-Learning: students, courses, enrollments, teachers, questions, badges, pédagogie, materials)
+        - id: node-api
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/students,/api/courses,/api/enrollments,/api/teachers,/api/questions,/api/badges,/api/database/**,/api/pedagogy/**,/api/levels/**,/api/chapters/**,/api/lessons/**,/api/quizzes/**,/api/quiz-questions/**,/api/quiz-attempts/**,/api/materials/**,/api/responses/**,/api/ping
+        # Formation Service
+        - id: formation-service
+          uri: lb://FORMATION-SERVICE
+          predicates:
+            - Path=/api/formation/**
+          filters:
+            - StripPrefix=1
+        
+        # Quiz Badge Service - Quiz endpoints
+        - id: quiz-badge-service-quiz
+          uri: lb://QUIZ-BADGE-SERVICE
+          predicates:
+            - Path=/api/quiz/**
+          filters:
+            - StripPrefix=1
+        
+        # Quiz Badge Service - Badge endpoints
+        - id: quiz-badge-service-badge
+          uri: lb://QUIZ-BADGE-SERVICE
+          predicates:
+            - Path=/api/badge/**
+          filters:
+            - StripPrefix=1
+
+# Eureka Discovery Client Configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+
+# Actuator endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+  endpoint:
+    health:
+      show-details: always
+    gateway:
+      enabled: true
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    com.elearning.gateway: DEBUG

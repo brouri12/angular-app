@@ -1,0 +1,17 @@
+═══════════════════════════════════════════════════════════════
+  RAPPORT DE VÉRIFICATION - MICROSERVICES E-LEARNING
+  Généré le: 2026-02-16 03:02:59
+═══════════════════════════════════════════════════════════════
+
+RÉSUMÉ:
+  - Total vérifications: 108
+  - Succès: 105
+  - Échecs: 1
+  - Ignorés: 2
+  - Pourcentage: 97%
+  - Durée: 113s
+
+PROBLÈMES:
+  - Port 8081 (formation-service) DÉJÀ UTILISÉ
+
+RECOMMENDATIONS:
