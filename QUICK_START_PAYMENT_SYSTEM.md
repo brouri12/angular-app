@@ -149,8 +149,8 @@ All through API Gateway: `http://localhost:8888/user-service/api/payments`
 ## 🔑 Credentials
 
 ### Stripe (Test Mode)
-- **Publishable**: `pk_test_51T4T13CmhqMbGh2rgELLpfm9qBwyRj8CrJTISITJkWaPLmZk1mYj7zO55JNIEpq38yWPaiMWxIVnkMOLaixK0FGB00RGj3bUrQ`
-- **Secret**: `sk_test_51T4T13CmhqMbGh2ri2eV8M6dUtEkhJEDQT9YNcPmvE4x4kHstlLaxOs4UrCSRlm6UQwtWDzTiaGkRngTaPlxqC1700z6SRofIx`
+- **Publishable**: `pk_test_YOUR_PUBLISHABLE_KEY`
+- **Secret**: `sk_test_YOUR_SECRET_KEY`
 
 ### Keycloak
 - **Client Secret**: `wBCcaBhZbarCcZovTzSniLtjCrYoidvl`

@@ -93,7 +93,7 @@ Write-Host ""
 Write-Host "3. Checking Stripe Configuration..." -ForegroundColor Yellow
 $appProps = Get-Content "UserService\src\main\resources\application.properties" -Raw
 
-if ($appProps -match "stripe.secret.key=sk_test_51T4T13CmhqMbGh2ri2eV8M6dUtEkhJEDQT9YNcPmvE4x4kHstlLaxOs4UrCSRlm6UQwtWDzTiaGkRngTaPlxqC1700z6SRofIx") {
+if ($appProps -match "stripe.secret.key=sk_test_YOUR_SECRET_KEY") {
     Write-Host "   OK Stripe Secret Key is configured" -ForegroundColor Green
 } else {
     Write-Host "   ERROR Stripe Secret Key is NOT configured correctly" -ForegroundColor Red

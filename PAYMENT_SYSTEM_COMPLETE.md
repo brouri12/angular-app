@@ -77,13 +77,13 @@ Your complete payment system is now implemented with:
 ### Stripe API Keys ✅
 **Backend:** `UserService/src/main/resources/application.properties`
 ```properties
-stripe.secret.key=sk_test_51T4T13CmhqMbGh2ri2eV8M6dUtEkhJEDQT9YNcPmvE4x4kHstlLaxOs4UrCSRlm6UQwtWDzTiaGkRngTaPlxqC1700z6SRofIx
-stripe.publishable.key=pk_test_51T4T13CmhqMbGh2rgELLpfm9qBwyRj8CrJTISITJkWaPLmZk1mYj7zO55JNIEpq38yWPaiMWxIVnkMOLaixK0FGB00RGj3bUrQ
+stripe.secret.key=sk_test_YOUR_SECRET_KEY
+stripe.publishable.key=pk_test_YOUR_PUBLISHABLE_KEY
 ```
 
 **Frontend:** `frontend/angular-app/src/app/services/stripe.service.ts`
 ```typescript
-private publishableKey = 'pk_test_51T4T13CmhqMbGh2rgELLpfm9qBwyRj8CrJTISITJkWaPLmZk1mYj7zO55JNIEpq38yWPaiMWxIVnkMOLaixK0FGB00RGj3bUrQ';
+private publishableKey = 'pk_test_YOUR_PUBLISHABLE_KEY';
 ```
 
 ### Keycloak Client Secret ✅

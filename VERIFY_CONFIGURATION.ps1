@@ -10,14 +10,14 @@ $allGood = $true
 # Check 1: Stripe Keys in application.properties
 Write-Host "1. Checking Stripe Configuration..." -ForegroundColor Yellow
 $appProps = Get-Content "UserService\src\main\resources\application.properties" -Raw
-if ($appProps -match "stripe.secret.key=sk_test_51T4T13CmhqMbGh2ri2eV8M6dUtEkhJEDQT9YNcPmvE4x4kHstlLaxOs4UrCSRlm6UQwtWDzTiaGkRngTaPlxqC1700z6SRofIx") {
+if ($appProps -match "stripe.secret.key=sk_test_YOUR_SECRET_KEY") {
     Write-Host "   OK Stripe Secret Key: Correct" -ForegroundColor Green
 } else {
     Write-Host "   ERROR Stripe Secret Key: INCORRECT" -ForegroundColor Red
     $allGood = $false
 }
 
-if ($appProps -match "stripe.publishable.key=pk_test_51T4T13CmhqMbGh2rgELLpfm9qBwyRj8CrJTISITJkWaPLmZk1mYj7zO55JNIEpq38yWPaiMWxIVnkMOLaixK0FGB00RGj3bUrQ") {
+if ($appProps -match "stripe.publishable.key=pk_test_YOUR_PUBLISHABLE_KEY") {
     Write-Host "   OK Stripe Publishable Key: Correct" -ForegroundColor Green
 } else {
     Write-Host "   ERROR Stripe Publishable Key: INCORRECT" -ForegroundColor Red
@@ -38,7 +38,7 @@ if ($appProps -match "keycloak.credentials.secret=wBCcaBhZbarCcZovTzSniLtjCrYoid
 Write-Host ""
 Write-Host "3. Checking Frontend Stripe Configuration..." -ForegroundColor Yellow
 $frontendStripe = Get-Content "frontend\angular-app\src\app\services\stripe.service.ts" -Raw
-if ($frontendStripe -match "pk_test_51T4T13CmhqMbGh2rgELLpfm9qBwyRj8CrJTISITJkWaPLmZk1mYj7zO55JNIEpq38yWPaiMWxIVnkMOLaixK0FGB00RGj3bUrQ") {
+if ($frontendStripe -match "pk_test_YOUR_PUBLISHABLE_KEY") {
     Write-Host "   OK Frontend Stripe Key: Correct" -ForegroundColor Green
 } else {
     Write-Host "   ERROR Frontend Stripe Key: INCORRECT" -ForegroundColor Red
