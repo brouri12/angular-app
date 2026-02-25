@@ -1,0 +1,63 @@
+═══════════════════════════════════════════════════════════
+  AUTHENTIFICATION FRONTEND - Instructions
+═══════════════════════════════════════════════════════════
+
+✅ CRÉÉ:
+  - Page Login (/login)
+  - Page Register (/register)
+  - Service d'authentification
+  - Header mis à jour avec menu utilisateur
+
+═══════════════════════════════════════════════════════════
+
+⚠️ IMPORTANT: Démarrer Keycloak d'abord!
+
+PowerShell:
+  cd C:\Users\marwe\Downloads\keycloak-23.0.0\keycloak-23.0.0\bin
+  $env:KEYCLOAK_ADMIN="admin"
+  $env:KEYCLOAK_ADMIN_PASSWORD="admin"
+  .\kc.bat start-dev --http-port=9090
+
+Attendre: "Listening on: http://0.0.0.0:9090"
+
+═══════════════════════════════════════════════════════════
+
+TESTER:
+
+1. Ouvrir: http://localhost:44510 (ou votre port)
+
+2. Cliquer "Get Started" dans le header
+
+3. Créer un compte:
+   - Choisir rôle (Student ou Teacher)
+   - Remplir le formulaire
+   - Cliquer "Create Account"
+
+4. Se connecter:
+   - Entrer username et password
+   - Cliquer "Sign in"
+
+5. Vérifier:
+   - Header affiche votre nom
+   - Menu utilisateur disponible
+   - Bouton "Sign Out" fonctionne
+
+═══════════════════════════════════════════════════════════
+
+SERVICES REQUIS:
+  ✅ MySQL (3307)
+  ✅ Keycloak (9090) ← IMPORTANT!
+  ✅ Eureka (8761)
+  ✅ API Gateway (8888)
+  ✅ User Service (8085)
+  ✅ Frontend (44510)
+
+═══════════════════════════════════════════════════════════
+
+DOCUMENTATION:
+  - RESUME_AUTH_FRONTEND.md (résumé)
+  - FRONTEND_AUTH_GUIDE.md (guide complet)
+  - TEST_AUTH_FRONTEND.md (tests détaillés)
+  - DEMARRER_KEYCLOAK.md (démarrer Keycloak)
+
+═══════════════════════════════════════════════════════════

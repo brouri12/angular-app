@@ -1,0 +1,73 @@
+═══════════════════════════════════════════════════════════
+  LOGIN AVEC EMAIL
+═══════════════════════════════════════════════════════════
+
+✅ MODIFICATION APPLIQUÉE:
+
+Le login utilise maintenant EMAIL + PASSWORD
+au lieu de USERNAME + PASSWORD
+
+═══════════════════════════════════════════════════════════
+
+COMMENT ÇA MARCHE:
+
+1. User entre: email + password dans le modal
+2. Frontend récupère le username depuis l'email
+3. Frontend login avec username vers Keycloak
+4. Token JWT retourné et stocké
+
+═══════════════════════════════════════════════════════════
+
+INTERFACE:
+
+Modal Login:
+  Email: [test@student.com_______]
+  Password: [••••••••••••••••]
+  [Sign in]
+
+═══════════════════════════════════════════════════════════
+
+POUR TESTER:
+
+1. Créer un compte via Register
+   - Email: test@student.com
+   - Username: test_student
+   - Password: 123456
+
+2. Se connecter via Login
+   - Email: test@student.com  ← Utiliser l'email
+   - Password: 123456
+
+3. Vérifier
+   - Connexion réussie
+   - Header affiche l'utilisateur
+
+═══════════════════════════════════════════════════════════
+
+FICHIERS MODIFIÉS:
+
+Frontend:
+  - models/user.model.ts (LoginRequest avec email)
+  - services/auth.service.ts (récupère username)
+  - components/auth-modal/ (champ email)
+
+Backend:
+  - AuthController.java (endpoint user-by-email)
+
+═══════════════════════════════════════════════════════════
+
+AVANTAGES:
+
+✓ Plus intuitif (email au lieu de username)
+✓ Standard moderne
+✓ Cohérent avec l'inscription
+✓ Pas besoin de se souvenir du username
+
+═══════════════════════════════════════════════════════════
+
+DOCUMENTATION:
+
+- LOGIN_EMAIL_GUIDE.md (guide complet)
+- MODAL_AUTH_GUIDE.md (guide des modals)
+
+═══════════════════════════════════════════════════════════

@@ -1,0 +1,41 @@
+═══════════════════════════════════════════════════════════
+  À FAIRE MAINTENANT - Corriger l'Erreur CORS
+═══════════════════════════════════════════════════════════
+
+PROBLÈME:
+  Frontend (port 44510) bloqué par CORS
+
+SOLUTION:
+  J'ai modifié l'API Gateway pour autoriser tous les ports localhost
+
+ACTION REQUISE:
+  Redémarrer l'API Gateway dans IntelliJ
+
+═══════════════════════════════════════════════════════════
+
+ÉTAPES:
+
+1. Dans IntelliJ, trouver l'onglet "ApiGateway"
+2. Cliquer sur le bouton STOP (carré rouge)
+3. Attendre quelques secondes
+4. Cliquer sur le bouton RUN (triangle vert)
+5. Attendre le message "Started ApiGatewayApplication"
+
+6. Retourner sur votre frontend: http://localhost:44510
+7. Appuyer sur F5 pour rafraîchir
+8. Aller sur la page Pricing
+
+RÉSULTAT ATTENDU:
+  ✓ Pas d'erreur CORS
+  ✓ Les abonnements s'affichent
+  ✓ Tout fonctionne
+
+═══════════════════════════════════════════════════════════
+
+TEMPS ESTIMÉ: 2 minutes
+
+DOCUMENTATION:
+  - ACTION_IMMEDIATE.md (détails)
+  - CORRECTION_CORS_FINALE.md (explication complète)
+
+═══════════════════════════════════════════════════════════

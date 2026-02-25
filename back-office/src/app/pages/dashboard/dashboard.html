@@ -7,7 +7,7 @@
 
   <!-- Stats Grid -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    @for (stat of stats; track stat.label) {
+    @for (stat of stats(); track stat.label) {
       <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 hover:border-[rgb(0,200,151)] transition-all">
         <div class="flex items-start justify-between mb-4">
           <div class="p-3 bg-gradient-to-r from-[rgb(0,200,151)]/10 to-[rgb(255,127,80)]/10 rounded-lg">
@@ -25,51 +25,75 @@
     }
   </div>
 
-  <!-- Recent Courses -->
-  <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-      <h2 class="text-xl font-bold">Recent Courses</h2>
+  <!-- Recent Payments Table -->
+  <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+      <h2 class="text-xl font-semibold">Recent Payments</h2>
     </div>
-    <div class="overflow-x-auto">
+    
+    @if (loading()) {
+      <div class="p-12 text-center">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[rgb(0,200,151)]"></div>
+        <p class="mt-4 text-gray-600 dark:text-gray-400">Loading payments...</p>
+      </div>
+    } @else if (getRecentPayments().length === 0) {
+      <div class="p-12 text-center text-gray-500 dark:text-gray-400">
+        No payments yet
+      </div>
+    } @else {
       <table class="w-full">
         <thead class="bg-gray-50 dark:bg-gray-900">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Course</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Students</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Revenue</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Client
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Subscription
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Amount
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Status
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Method
+            </th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-          @for (course of recentCourses; track course.title) {
-            <tr class="hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors">
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="font-medium">{{ course.title }}</div>
+          @for (payment of getRecentPayments(); track payment.id_paiement) {
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+              <td class="px-6 py-4">
+                <div>
+                  <div class="font-medium">{{ payment.nom_client }}</div>
+                  <div class="text-sm text-gray-500 dark:text-gray-400">{{ payment.email_client }}</div>
+                </div>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-gray-600 dark:text-gray-400">
-                {{ course.students }}
+              <td class="px-6 py-4 text-gray-600 dark:text-gray-400">
+                {{ payment.type_abonnement }}
               </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span [class]="course.status === 'Active' 
+              <td class="px-6 py-4 font-medium">
+                ${{ payment.montant }}
+              </td>
+              <td class="px-6 py-4">
+                <span [class]="payment.statut === 'Validé' 
                   ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                  : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'"
+                  : payment.statut === 'En attente'
+                  ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                  : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'"
                   class="px-3 py-1 rounded-full text-xs font-medium">
-                  {{ course.status }}
+                  {{ payment.statut }}
                 </span>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap font-medium">
-                {{ course.revenue }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <button class="text-[rgb(0,200,151)] hover:text-[rgb(255,127,80)] transition-colors">
-                  View
-                </button>
+              <td class="px-6 py-4 text-gray-600 dark:text-gray-400 capitalize">
+                {{ payment.methode_paiement }}
               </td>
             </tr>
           }
         </tbody>
       </table>
-    </div>
+    }
   </div>
 </div>
+
