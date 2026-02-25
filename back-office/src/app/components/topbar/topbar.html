@@ -37,6 +37,50 @@
           </svg>
         }
       </button>
+
+      <!-- User Menu -->
+      @if (!isAuthenticated) {
+        <button (click)="openLogin()" class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white rounded-lg hover:opacity-90 transition-opacity">
+          Sign In
+        </button>
+      } @else {
+        <div class="relative">
+          <button 
+            (click)="toggleUserMenu()"
+            class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] flex items-center justify-center text-white font-medium">
+              {{ currentUser?.prenom?.charAt(0) || 'U' }}
+            </div>
+            <span class="text-sm font-medium">{{ currentUser?.prenom || 'User' }}</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+
+          @if (userMenuOpen) {
+            <div class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+              <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                <p class="text-sm font-medium text-gray-900 dark:text-white">{{ currentUser?.username }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">{{ currentUser?.email }}</p>
+                <span class="inline-block mt-1 px-2 py-0.5 text-xs rounded-full bg-primary/10 text-primary">
+                  {{ currentUser?.role }}
+                </span>
+              </div>
+              <a 
+                routerLink="/profile"
+                (click)="closeUserMenu()"
+                class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                Profile
+              </a>
+              <button 
+                (click)="logout()"
+                class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                Sign Out
+              </button>
+            </div>
+          }
+        </div>
+      }
     </div>
   </div>
 </header>

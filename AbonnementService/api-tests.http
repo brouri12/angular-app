@@ -1,0 +1,181 @@
+### ========================================
+### MICROSERVICE ABONNEMENT - TESTS API
+### ========================================
+
+### 1. Test de connexion
+GET http://localhost:8084/api/abonnements/hello
+
+### ========================================
+### TESTS ABONNEMENTS
+### ========================================
+
+### 2. Récupérer tous les abonnements
+GET http://localhost:8084/api/abonnements
+
+### 3. Récupérer l'abonnement avec ID = 1
+GET http://localhost:8084/api/abonnements/1
+
+### 4. Récupérer l'abonnement avec ID = 2
+GET http://localhost:8084/api/abonnements/2
+
+### 5. Rechercher par nom "Premium" (avec pagination)
+GET http://localhost:8084/api/abonnements/search/byNom?nom=Premium&page=0&size=10
+
+### 6. Rechercher par nom "Basic"
+GET http://localhost:8084/api/abonnements/search/byNom?nom=Basic&page=0&size=10
+
+### 7. Rechercher les abonnements actifs
+GET http://localhost:8084/api/abonnements/search/byStatut?statut=Actif
+
+### 8. Rechercher les abonnements inactifs
+GET http://localhost:8084/api/abonnements/search/byStatut?statut=Inactif
+
+### 9. Rechercher les abonnements à moins de 50€
+GET http://localhost:8084/api/abonnements/search/byPrixMax?prix=50.00
+
+### 10. Rechercher les abonnements à moins de 100€
+GET http://localhost:8084/api/abonnements/search/byPrixMax?prix=100.00
+
+### 11. Créer un nouvel abonnement "Gold"
+POST http://localhost:8084/api/abonnements
+Content-Type: application/json
+
+{
+  "nom": "Gold",
+  "description": "Abonnement Gold avec avantages exclusifs",
+  "prix": 49.99,
+  "duree_jours": 90,
+  "niveau_acces": "Gold",
+  "acces_illimite": true,
+  "support_prioritaire": true,
+  "statut": "Actif"
+}
+
+### 12. Créer un abonnement "Silver"
+POST http://localhost:8084/api/abonnements
+Content-Type: application/json
+
+{
+  "nom": "Silver",
+  "description": "Abonnement intermédiaire",
+  "prix": 19.99,
+  "duree_jours": 30,
+  "niveau_acces": "Silver",
+  "acces_illimite": false,
+  "support_prioritaire": true,
+  "statut": "Actif"
+}
+
+### 13. Mettre à jour l'abonnement ID = 1
+PUT http://localhost:8084/api/abonnements/1
+Content-Type: application/json
+
+{
+  "nom": "Basic Updated",
+  "description": "Abonnement de base mis à jour",
+  "prix": 12.99,
+  "duree_jours": 30,
+  "niveau_acces": "Basique",
+  "acces_illimite": false,
+  "support_prioritaire": false,
+  "statut": "Actif"
+}
+
+### 14. Changer le statut de l'abonnement ID = 1 en "Inactif"
+PATCH http://localhost:8084/api/abonnements/1/statut?statut=Inactif
+
+### 15. Changer le statut de l'abonnement ID = 2 en "Actif"
+PATCH http://localhost:8084/api/abonnements/2/statut?statut=Actif
+
+### 16. Supprimer l'abonnement ID = 4 (si existe)
+DELETE http://localhost:8084/api/abonnements/4
+
+### ========================================
+### TESTS HISTORIQUE PAIEMENTS
+### ========================================
+
+### 17. Récupérer tous les paiements
+GET http://localhost:8084/api/abonnements/paiements
+
+### 18. Récupérer le paiement avec ID = 1
+GET http://localhost:8084/api/abonnements/paiements/1
+
+### 19. Récupérer les paiements de Jean Dupont
+GET http://localhost:8084/api/abonnements/paiements/client/jean.dupont@email.com
+
+### 20. Récupérer les paiements de Marie Martin
+GET http://localhost:8084/api/abonnements/paiements/client/marie.martin@email.com
+
+### 21. Rechercher les paiements validés
+GET http://localhost:8084/api/abonnements/paiements/search/byStatut?statut=Validé
+
+### 22. Rechercher les paiements en attente
+GET http://localhost:8084/api/abonnements/paiements/search/byStatut?statut=En attente
+
+### 23. Créer un nouveau paiement
+POST http://localhost:8084/api/abonnements/paiements
+Content-Type: application/json
+
+{
+  "nom_client": "Sophie Dubois",
+  "email_client": "sophie.dubois@email.com",
+  "type_abonnement": "Premium",
+  "montant": 29.99,
+  "methode_paiement": "Carte bancaire",
+  "reference_transaction": "TXN-2024-003",
+  "statut": "Validé"
+}
+
+### 24. Créer un paiement avec PayPal
+POST http://localhost:8084/api/abonnements/paiements
+Content-Type: application/json
+
+{
+  "nom_client": "Pierre Durand",
+  "email_client": "pierre.durand@email.com",
+  "type_abonnement": "Basic",
+  "montant": 9.99,
+  "methode_paiement": "PayPal",
+  "reference_transaction": "TXN-2024-004",
+  "statut": "Validé"
+}
+
+### 25. Créer un paiement Enterprise
+POST http://localhost:8084/api/abonnements/paiements
+Content-Type: application/json
+
+{
+  "nom_client": "Entreprise ABC",
+  "email_client": "contact@entreprise-abc.com",
+  "type_abonnement": "Enterprise",
+  "montant": 99.99,
+  "methode_paiement": "Virement bancaire",
+  "reference_transaction": "TXN-2024-005",
+  "statut": "En attente"
+}
+
+### 26. Mettre à jour le statut du paiement ID = 1 en "Remboursé"
+PATCH http://localhost:8084/api/abonnements/paiements/1/statut?statut=Remboursé
+
+### 27. Mettre à jour le statut du paiement ID = 3 en "Validé"
+PATCH http://localhost:8084/api/abonnements/paiements/3/statut?statut=Validé
+
+### 28. Supprimer le paiement ID = 5 (si existe)
+DELETE http://localhost:8084/api/abonnements/paiements/5
+
+### ========================================
+### TESTS DE VALIDATION D'ERREURS
+### ========================================
+
+### 29. Tenter de récupérer un abonnement inexistant (devrait retourner 404)
+GET http://localhost:8084/api/abonnements/999
+
+### 30. Tenter de récupérer un paiement inexistant (devrait retourner 404)
+GET http://localhost:8084/api/abonnements/paiements/999
+
+### 31. Tenter de supprimer un abonnement inexistant (devrait retourner 404)
+DELETE http://localhost:8084/api/abonnements/999
+
+### ========================================
+### FIN DES TESTS
+### ========================================

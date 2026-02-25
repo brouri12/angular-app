@@ -1,0 +1,70 @@
+═══════════════════════════════════════════════════════════
+  ERREUR USER SERVICE - Keycloak Non Démarré
+═══════════════════════════════════════════════════════════
+
+ERREUR:
+  "Connect to localhost:9090 failed: Connection refused"
+
+CAUSE:
+  Keycloak n'est pas démarré sur le port 9090
+
+═══════════════════════════════════════════════════════════
+
+DEUX OPTIONS:
+
+┌─────────────────────────────────────────────────────────┐
+│ OPTION 1: Ignorer (Recommandé pour test rapide)        │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│ User Service n'est PAS nécessaire pour:                │
+│ ✓ Frontend                                              │
+│ ✓ Back-Office                                           │
+│ ✓ Gestion des abonnements                              │
+│                                                         │
+│ Action: Rien à faire!                                   │
+│ Tout fonctionne déjà sans User Service                 │
+│                                                         │
+│ Voir: OPTION_SANS_KEYCLOAK.md                          │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ OPTION 2: Démarrer Keycloak (Pour tester User Service) │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│ Commandes PowerShell:                                   │
+│                                                         │
+│ cd C:\Users\marwe\Downloads\keycloak-23.0.0\           │
+│    keycloak-23.0.0\bin                                  │
+│                                                         │
+│ $env:KEYCLOAK_ADMIN="admin"                            │
+│ $env:KEYCLOAK_ADMIN_PASSWORD="admin"                   │
+│                                                         │
+│ .\kc.bat start-dev --http-port=9090                    │
+│                                                         │
+│ Attendre: "Listening on: http://0.0.0.0:9090"          │
+│ Temps: 2-3 minutes                                      │
+│                                                         │
+│ Voir: DEMARRER_KEYCLOAK.md                             │
+└─────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════
+
+AIDE À LA DÉCISION:
+
+Vous voulez tester quoi?
+
+→ Frontend + Back-Office + Abonnements
+  Réponse: OPTION 1 (ignorer)
+
+→ User Service + Inscription utilisateurs
+  Réponse: OPTION 2 (démarrer Keycloak)
+
+═══════════════════════════════════════════════════════════
+
+FICHIERS UTILES:
+
+- DECISION_KEYCLOAK.md (aide au choix)
+- OPTION_SANS_KEYCLOAK.md (option 1)
+- DEMARRER_KEYCLOAK.md (option 2)
+
+═══════════════════════════════════════════════════════════
