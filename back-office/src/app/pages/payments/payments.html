@@ -1,0 +1,249 @@
+<div class="p-6">
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold mb-2">Payment Management</h1>
+    <p class="text-gray-600 dark:text-gray-400">Review and validate bank transfer payments</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="mb-6 border-b border-gray-200 dark:border-gray-700">
+    <div class="flex gap-4">
+      <button
+        (click)="setActiveTab('pending')"
+        [class]="activeTab() === 'pending' 
+          ? 'border-b-2 border-[rgb(0,200,151)] text-[rgb(0,200,151)] font-semibold' 
+          : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'"
+        class="pb-3 px-1 transition-colors">
+        Pending Payments
+        @if (activeTab() === 'pending' && payments().length > 0) {
+          <span class="ml-2 px-2 py-0.5 bg-[rgb(0,200,151)] text-white text-xs rounded-full">
+            {{ payments().length }}
+          </span>
+        }
+      </button>
+      <button
+        (click)="setActiveTab('all')"
+        [class]="activeTab() === 'all' 
+          ? 'border-b-2 border-[rgb(0,200,151)] text-[rgb(0,200,151)] font-semibold' 
+          : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'"
+        class="pb-3 px-1 transition-colors">
+        All Payments
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="text-center py-12">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[rgb(0,200,151)]"></div>
+      <p class="mt-4 text-gray-600 dark:text-gray-400">Loading payments...</p>
+    </div>
+  } @else if (payments().length === 0) {
+    <div class="text-center py-12 bg-white dark:bg-gray-800 rounded-lg">
+      <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+      </svg>
+      <p class="text-gray-500 dark:text-gray-400">
+        @if (activeTab() === 'pending') {
+          No pending payments
+        } @else {
+          No payments found
+        }
+      </p>
+    </div>
+  } @else {
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead class="bg-gray-50 dark:bg-gray-900">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plan</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Receipt</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+            @for (payment of payments(); track payment.id_payment) {
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <td class="px-6 py-4">
+                  <div class="font-medium">{{ payment.nomClient }}</div>
+                  <div class="text-sm text-gray-500">{{ payment.emailClient }}</div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="font-medium">{{ payment.typeAbonnement }}</div>
+                  <div class="text-sm text-gray-500">{{ payment.referenceTransaction }}</div>
+                </td>
+                <td class="px-6 py-4 font-semibold">${{ payment.montant }}</td>
+                <td class="px-6 py-4">
+                  <span class="capitalize">{{ payment.methodePaiement }}</span>
+                </td>
+                <td class="px-6 py-4">
+                  <span [class]="getStatusClass(payment.statut!)" class="px-2 py-1 text-xs font-semibold rounded-full">
+                    {{ payment.statut }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-sm">{{ formatDate(payment.datePaiement) }}</td>
+                <td class="px-6 py-4">
+                  @if (payment.receiptUrl) {
+                    <button
+                      (click)="viewReceipt(payment)"
+                      class="text-[rgb(0,200,151)] hover:underline flex items-center gap-1">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                      </svg>
+                      View
+                    </button>
+                  } @else {
+                    <span class="text-gray-400 text-sm">N/A</span>
+                  }
+                </td>
+                <td class="px-6 py-4">
+                  @if (payment.statut === 'En attente') {
+                    <button
+                      (click)="openValidationModal(payment)"
+                      class="px-4 py-2 bg-[rgb(0,200,151)] text-white rounded-lg hover:opacity-90 transition-all text-sm font-medium">
+                      Review
+                    </button>
+                  } @else {
+                    <button
+                      (click)="openValidationModal(payment)"
+                      class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all text-sm">
+                      Details
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- Validation Modal -->
+@if (showValidationModal()) {
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" (click)="closeModal()">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full p-8" (click)="$event.stopPropagation()">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">Payment Details</h2>
+        <button (click)="closeModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      @if (selectedPayment()) {
+        <div class="space-y-6">
+          <!-- Payment Info -->
+          <div class="grid grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Client Name</p>
+              <p class="font-semibold">{{ selectedPayment()!.nomClient }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Email</p>
+              <p class="font-semibold">{{ selectedPayment()!.emailClient }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Plan</p>
+              <p class="font-semibold">{{ selectedPayment()!.typeAbonnement }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Amount</p>
+              <p class="font-semibold text-[rgb(0,200,151)]">${{ selectedPayment()!.montant }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Payment Method</p>
+              <p class="font-semibold capitalize">{{ selectedPayment()!.methodePaiement }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Status</p>
+              <span [class]="getStatusClass(selectedPayment()!.statut!)" class="inline-block px-2 py-1 text-xs font-semibold rounded-full">
+                {{ selectedPayment()!.statut }}
+              </span>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Transaction ID</p>
+              <p class="font-mono text-sm">{{ selectedPayment()!.referenceTransaction }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Date</p>
+              <p class="text-sm">{{ formatDate(selectedPayment()!.datePaiement) }}</p>
+            </div>
+          </div>
+
+          <!-- Receipt -->
+          @if (selectedPayment()!.receiptUrl) {
+            <div>
+              <p class="text-sm font-medium mb-2">Receipt</p>
+              <button
+                (click)="viewReceipt(selectedPayment()!)"
+                class="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+                View Receipt
+              </button>
+            </div>
+          }
+
+          <!-- Validation Notes -->
+          @if (selectedPayment()!.statut === 'En attente') {
+            <div>
+              <label class="block text-sm font-medium mb-2">
+                Notes @if (selectedPayment()!.methodePaiement === 'virement') {
+                  <span class="text-red-500">*</span>
+                }
+              </label>
+              <textarea
+                [(ngModel)]="validationNotes"
+                rows="3"
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent"
+                placeholder="Add notes about this payment (required for rejection)"></textarea>
+            </div>
+          } @else if (selectedPayment()!.notes) {
+            <div>
+              <p class="text-sm font-medium mb-2">Admin Notes</p>
+              <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <p class="text-sm">{{ selectedPayment()!.notes }}</p>
+                @if (selectedPayment()!.dateValidation) {
+                  <p class="text-xs text-gray-500 mt-2">
+                    Validated on {{ formatDate(selectedPayment()!.dateValidation) }}
+                  </p>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Actions -->
+          <div class="flex gap-3 pt-4">
+            <button
+              (click)="closeModal()"
+              class="flex-1 px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+              Close
+            </button>
+            @if (selectedPayment()!.statut === 'En attente') {
+              <button
+                (click)="rejectPayment()"
+                class="flex-1 px-6 py-3 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors">
+                Reject
+              </button>
+              <button
+                (click)="validatePayment()"
+                class="flex-1 px-6 py-3 bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white rounded-lg font-medium hover:opacity-90 transition-all">
+                Approve
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}
