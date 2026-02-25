@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jungle in English – Forge Your Future with Expert-Led Courses</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: rgb(0, 200, 151);
+      --secondary: rgb(255, 127, 80);
+      --bg: #ffffff;
+      --card: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --footer-bg: #0f172a;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+
+    /* ----- Nav ----- */
+    .nav {
+      display: flex; align-items: center; justify-content: space-between;
+      max-width: 1200px; margin: 0 auto; padding: 1rem 1.5rem;
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-weight: 700; font-size: 1.25rem; color: var(--text); text-decoration: none;
+    }
+    .nav-logo img { width: 32px; height: 32px; object-fit: contain; }
+    .nav-logo svg { width: 32px; height: 32px; }
+    .nav-links { display: flex; align-items: center; gap: 2rem; }
+    .nav-links a { color: var(--text); text-decoration: none; font-weight: 500; }
+    .nav-links a:hover { color: var(--primary); }
+    .nav-actions { display: flex; align-items: center; gap: 1rem; }
+    .nav-actions .icon-btn { background: none; border: none; cursor: pointer; padding: 0.35rem; color: var(--text); }
+    .nav-actions .sign-in { color: var(--text); text-decoration: none; font-weight: 500; }
+    .btn-get-started {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: white; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem;
+      border: none; cursor: pointer; text-decoration: none; font-family: inherit;
+    }
+    .btn-get-started:hover { opacity: 0.95; }
+
+    /* ----- Hero ----- */
+    .hero {
+      max-width: 1200px; margin: 0 auto; padding: 3rem 1.5rem 4rem;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(0,200,151,0.1); color: var(--primary); padding: 0.35rem 0.75rem;
+      border-radius: 999px; font-size: 0.8rem; font-weight: 500; margin-bottom: 1rem;
+    }
+    .hero-badge::before { content: ''; width: 8px; height: 8px; background: var(--primary); border-radius: 50%; }
+    .hero h1 {
+      font-size: 2.75rem; font-weight: 700; line-height: 1.2; margin-bottom: 1rem; color: var(--text);
+    }
+    .hero h1 .green { color: var(--primary); }
+    .hero h1 .orange { color: var(--secondary); }
+    .hero-desc { color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem; max-width: 480px; }
+    .hero-btns { display: flex; gap: 1rem; margin-bottom: 2rem; }
+    .btn-browse {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: white; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; border: none; cursor: pointer;
+      font-family: inherit; font-size: 0.95rem; text-decoration: none;
+    }
+    .btn-learn { background: white; color: var(--text); border: 2px solid var(--border); padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; font-family: inherit; text-decoration: none; }
+    .btn-learn:hover { border-color: var(--primary); color: var(--primary); }
+    .hero-stats { display: flex; gap: 2rem; }
+    .hero-stat { }
+    .hero-stat .num { font-size: 1.25rem; font-weight: 700; }
+    .hero-stat .num.green { color: var(--primary); }
+    .hero-stat .num.orange { color: var(--secondary); }
+    .hero-stat .label { font-size: 0.8rem; color: var(--text-muted); }
+    .hero-image {
+      border-radius: 16px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+      aspect-ratio: 4/3; background: linear-gradient(135deg, rgba(0,200,151,0.15), rgba(255,127,80,0.1));
+      display: flex; align-items: center; justify-content: center;
+    }
+    .hero-image img { width: 100%; height: 100%; object-fit: cover; }
+    .hero-image-placeholder { font-size: 4rem; opacity: 0.3; }
+
+    /* ----- Stats strip ----- */
+    .stats-strip {
+      max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;
+    }
+    .stat-card {
+      background: var(--card); border-radius: 12px; padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid var(--border); text-align: center;
+    }
+    .stat-card .num { font-size: 2rem; font-weight: 700; color: var(--primary); }
+    .stat-card .label { font-size: 0.9rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+    /* ----- Why Choose ----- */
+    .section { max-width: 1200px; margin: 0 auto; padding: 4rem 1.5rem; }
+    .section-title { font-size: 2rem; font-weight: 700; text-align: center; margin-bottom: 0.5rem; color: var(--text); }
+    .section-subtitle { text-align: center; color: var(--text-muted); margin-bottom: 2.5rem; max-width: 560px; margin-left: auto; margin-right: auto; }
+    .why-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+    .why-card {
+      background: var(--card); border-radius: 12px; padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid var(--border);
+    }
+    .why-card .icon-wrap { width: 40px; height: 40px; background: rgba(0,200,151,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
+    .why-card .icon-wrap svg { width: 20px; height: 20px; color: var(--primary); }
+    .why-card h3 { font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text); }
+    .why-card p { font-size: 0.875rem; color: var(--text-muted); line-height: 1.5; }
+
+    /* ----- Become Instructor ----- */
+    .instructor-hero {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      margin: 0 auto; padding: 4rem 1.5rem; text-align: center; color: white;
+    }
+    .instructor-hero .icon-wrap { width: 80px; height: 80px; background: rgba(255,255,255,0.2); border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem; font-size: 2.5rem; }
+    .instructor-hero h2 { font-size: 2rem; font-weight: 700; margin-bottom: 0.75rem; }
+    .instructor-hero p { opacity: 0.95; max-width: 520px; margin: 0 auto 1.5rem; line-height: 1.5; }
+    .btn-teaching { background: white; color: var(--primary); padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; font-family: inherit; }
+    .btn-teaching:hover { opacity: 0.95; }
+
+    /* ----- Our Courses ----- */
+    .courses-section { background: #f8fafc; }
+    .courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+    .course-card {
+      background: var(--card); border-radius: 12px; overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid var(--border);
+    }
+    .course-card .thumb { height: 140px; background: linear-gradient(135deg, rgba(0,200,151,0.2), rgba(255,127,80,0.15)); display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--primary); }
+    .course-card .body { padding: 1rem; }
+    .course-card h3 { font-size: 1rem; margin-bottom: 0.25rem; }
+    .course-card .meta { font-size: 0.8rem; color: var(--text-muted); }
+    .course-card .price { font-weight: 700; color: var(--primary); margin-top: 0.5rem; }
+    .manage-toggle { margin-top: 1rem; }
+    .manage-toggle .btn { padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; font-family: inherit; border: 1px solid var(--border); background: #f1f5f9; }
+    .manage-toggle .btn:hover { background: #e2e8f0; }
+
+    /* ----- CRUD (hidden by default) ----- */
+    .crud-section { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+    .crud-section.hidden { display: none; }
+    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+    .tab { padding: 0.6rem 1.2rem; border: none; border-radius: 8px; font-weight: 600; font-size: 0.875rem; cursor: pointer; background: #f1f5f9; color: var(--text); font-family: inherit; }
+    .tab.active { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; }
+    .card { background: var(--card); border-radius: 12px; padding: 1.5rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid var(--border); }
+    .btn { padding: 0.5rem 1rem; border: none; border-radius: 8px; font-weight: 600; font-size: 0.8rem; cursor: pointer; font-family: inherit; }
+    .btn-primary { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; }
+    .btn-edit { background: #e0f2fe; color: #0369a1; }
+    .btn-delete { background: #fee2e2; color: #dc2626; }
+    .btn-secondary { background: #f1f5f9; color: var(--text); border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    th, td { padding: 0.6rem 0.8rem; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: rgba(0,200,151,0.1); font-weight: 600; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+    .form-grid label { font-size: 0.8rem; font-weight: 500; color: var(--text-muted); display: block; margin-bottom: 0.25rem; }
+    .form-grid input, .form-grid select { padding: 0.5rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.875rem; }
+    .form-actions { margin-top: 1rem; display: flex; gap: 0.5rem; }
+    .error { color: #dc2626; font-size: 0.875rem; }
+    .loading { color: var(--text-muted); }
+    .hidden { display: none !important; }
+    .badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 6px; font-size: 0.7rem; background: rgba(0,200,151,0.15); color: var(--primary); }
+
+    /* ----- Footer ----- */
+    .footer {
+      background: var(--footer-bg); color: white; padding: 3rem 1.5rem 2rem;
+    }
+    .footer-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 2rem; }
+    .footer-logo { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 1.25rem; margin-bottom: 0.75rem; }
+    .footer-logo svg { width: 28px; height: 28px; }
+    .footer-desc { font-size: 0.9rem; opacity: 0.85; line-height: 1.5; }
+    .footer h4 { font-size: 0.9rem; margin-bottom: 0.75rem; font-weight: 600; }
+    .footer ul { list-style: none; }
+    .footer ul a { color: white; text-decoration: none; opacity: 0.85; font-size: 0.9rem; }
+    .footer ul a:hover { opacity: 1; }
+    .footer-connect { display: flex; gap: 0.75rem; }
+    .footer-connect a { color: white; opacity: 0.85; }
+    .footer-bottom { max-width: 1200px; margin: 3rem auto 0; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.15); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; font-size: 0.85rem; opacity: 0.85; }
+    .footer-bottom a { color: white; text-decoration: none; }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; text-align: center; }
+      .hero-desc { margin-left: auto; margin-right: auto; }
+      .hero-btns { justify-content: center; }
+      .hero-stats { justify-content: center; }
+      .stats-strip { grid-template-columns: repeat(2, 1fr); }
+      .why-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+      .stats-strip { grid-template-columns: 1fr; }
+      .why-grid { grid-template-columns: 1fr; }
+      .footer-inner { grid-template-columns: 1fr; }
+    }
+
+    /* ----- Splash (animation avant interface) ----- */
+    #splash {
+      position: fixed; inset: 0; z-index: 9999;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      transition: opacity 0.6s ease-out; pointer-events: none;
+    }
+    #splash.hide { opacity: 0; }
+    #splash.remove { display: none; }
+    .splash-logo {
+      width: 140px; height: 140px; object-fit: contain;
+      animation: splashLogo 1.2s ease-out forwards;
+      filter: drop-shadow(0 0 24px rgba(0,200,151,0.3));
+    }
+    .splash-name {
+      font-size: 2.25rem; font-weight: 800; color: #fff; letter-spacing: 0.08em;
+      margin-top: 1rem; opacity: 0;
+      animation: splashText 0.8s ease-out 0.4s forwards;
+    }
+    .splash-tagline {
+      font-size: 0.95rem; color: rgba(255,255,255,0.7); margin-top: 0.5rem; opacity: 0;
+      animation: splashText 0.8s ease-out 0.7s forwards;
+    }
+    .splash-loader {
+      width: 120px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 4px;
+      margin-top: 2rem; overflow: hidden; opacity: 0;
+      animation: splashText 0.5s ease-out 1s forwards;
+    }
+    .splash-loader-bar {
+      height: 100%; width: 0; background: linear-gradient(90deg, rgb(0,200,151), rgb(255,127,80));
+      border-radius: 4px; animation: splashLoad 2s ease-in-out 1.2s forwards;
+    }
+    @keyframes splashLogo {
+      0% { transform: scale(0.6); opacity: 0; }
+      50% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes splashText { to { opacity: 1; } }
+    @keyframes splashLoad { to { width: 100%; } }
+  </style>
+</head>
+<body>
+  <!-- Splash (animation avec logo avant interface) -->
+  <div id="splash">
+    <img src="logo.png" alt="Jungle" class="splash-logo">
+    <div class="splash-name">JUNGLE</div>
+    <div class="splash-tagline">in English</div>
+    <div class="splash-loader"><div class="splash-loader-bar"></div></div>
+  </div>
+
+  <!-- Nav -->
+  <header class="nav">
+    <a href="#" class="nav-logo">
+      <img src="logo.png" alt="Jungle">
+      Jungle <span style="font-weight:500;opacity:0.85;font-size:0.9em;">in English</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#courses">Courses</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#about">About</a>
+      <a href="student.html">Espace Étudiant</a>
+      <a href="teacher.html">Espace Enseignant</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="icon-btn" type="button" aria-label="Dark mode">🌙</button>
+      <a href="student.html" class="sign-in">Étudiant</a>
+      <a href="teacher.html" class="btn-get-started">Enseignant</a>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div>
+      <div class="hero-badge">New courses added weekly</div>
+      <h1>Forge Your Future with <span class="green">Expert-Led</span> <span class="orange">Courses</span></h1>
+      <p class="hero-desc">Master cutting-edge skills with industry experts. Learn at your own pace and unlock your full potential with Jungle in English's comprehensive online courses.</p>
+      <div class="hero-btns">
+        <a href="student.html" class="btn-browse">Espace Étudiant – Apprendre & s'inscrire</a>
+        <a href="teacher.html" class="btn-learn">Espace Enseignant – Gérer cours & quiz</a>
+      </div>
+      <p class="hero-desc" style="margin-top:0.5rem;font-size:0.9rem;">Deux interfaces indépendantes : choisissez votre espace ci-dessus ou dans le menu.</p>
+      <div class="hero-stats">
+        <div class="hero-stat"><span class="num green">100K+</span><br><span class="label">Happy Students</span></div>
+        <div class="hero-stat"><span class="num orange">4.9/5</span><br><span class="label">Average Rating</span></div>
+      </div>
+    </div>
+    <div class="hero-image">
+      <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&h=450&fit=crop" alt="People learning together">
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="stats-strip">
+    <div class="stat-card"><div class="num">100K+</div><div class="label">Active Learners</div></div>
+    <div class="stat-card"><div class="num">500+</div><div class="label">Expert Courses</div></div>
+    <div class="stat-card"><div class="num">95%</div><div class="label">Completion Rate</div></div>
+    <div class="stat-card"><div class="num">4.9</div><div class="label">Average Rating</div></div>
+  </section>
+
+  <!-- Why Choose -->
+  <section class="section" id="about">
+    <h2 class="section-title">Why Choose Jungle in English?</h2>
+    <p class="section-subtitle">We're more than just a learning platform. We're your partner in success.</p>
+    <div class="why-grid">
+      <div class="why-card">
+        <div class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+        <h3>Expert Instructors</h3>
+        <p>Learn from industry professionals with years of real-world experience.</p>
+      </div>
+      <div class="why-card">
+        <div class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+        <h3>Lifetime Access</h3>
+        <p>Access your courses anytime, anywhere with lifetime updates included.</p>
+      </div>
+      <div class="why-card">
+        <div class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+        <h3>Career Support</h3>
+        <p>Get personalized career guidance and job placement assistance.</p>
+      </div>
+      <div class="why-card">
+        <div class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+        <h3>Certificates</h3>
+        <p>Earn recognized certificates upon course completion to boost your career.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Become Instructor -->
+  <section class="instructor-hero">
+    <div class="icon-wrap">💼</div>
+    <h2>Become an Instructor</h2>
+    <p>Share your expertise with millions of learners worldwide. Join our community of expert instructors and make an impact.</p>
+    <button type="button" class="btn-teaching">Start Teaching Today</button>
+  </section>
+
+  <!-- Our Courses (from API) -->
+  <section class="section courses-section" id="courses">
+    <h2 class="section-title">Our Courses</h2>
+    <p class="section-subtitle">Explore expert-led courses and start learning today.</p>
+    <div id="courses-grid" class="courses-grid"></div>
+    <div class="manage-toggle">
+      <button type="button" class="btn" id="toggle-crud">Manage courses & students (CRUD)</button>
+    </div>
+  </section>
+
+  <!-- CRUD (hidden) -->
+  <div id="crud-panel" class="crud-section hidden">
+    <div class="tabs">
+      <button class="tab active" onclick="showSection('cours')">Cours</button>
+      <button class="tab" onclick="showSection('etudiants')">Étudiants</button>
+    </div>
+    <section id="section-cours" class="card">
+      <h2 style="margin-bottom:1rem;">Cours (CRUD)</h2>
+      <button class="btn btn-primary" onclick="showFormCours()">+ Nouveau cours</button>
+      <div id="form-cours" class="hidden" style="margin-top:1rem;padding:1rem;background:#f8fafc;border-radius:8px;">
+        <h3 id="titre-form-cours">Ajouter un cours</h3>
+        <input type="hidden" id="course-id" />
+        <div class="form-grid">
+          <div><label>Code</label><input id="c-courseCode" placeholder="JAVA101" /></div>
+          <div><label>Titre</label><input id="c-title" placeholder="Titre" /></div>
+          <div><label>Formateur</label><input id="c-teacherName" placeholder="Nom" /></div>
+          <div><label>Durée (h)</label><input type="number" id="c-durationHours" placeholder="40" /></div>
+          <div><label>Prix</label><input type="number" step="0.01" id="c-price" placeholder="299.99" /></div>
+          <div><label>Niveau</label><select id="c-level"><option value="BEGINNER">Débutant</option><option value="INTERMEDIATE">Intermédiaire</option><option value="ADVANCED">Avancé</option></select></div>
+          <div><label>Ville</label><input id="c-city" placeholder="Paris" /></div>
+          <div><label>Pays</label><input id="c-country" placeholder="France" /></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="submitCours()">Enregistrer</button>
+          <button class="btn btn-secondary" onclick="hideFormCours()">Annuler</button>
+        </div>
+      </div>
+      <div id="list-cours" style="margin-top:1rem;"></div>
+    </section>
+    <section id="section-etudiants" class="card hidden">
+      <h2 style="margin-bottom:1rem;">Étudiants (CRUD)</h2>
+      <button class="btn btn-primary" onclick="showFormStudent()">+ Nouvel étudiant</button>
+      <div id="form-student" class="hidden" style="margin-top:1rem;padding:1rem;background:#f8fafc;border-radius:8px;">
+        <h3 id="titre-form-student">Ajouter un étudiant</h3>
+        <input type="hidden" id="student-id" />
+        <div class="form-grid">
+          <div><label>Prénom</label><input id="s-firstName" placeholder="Jean" /></div>
+          <div><label>Nom</label><input id="s-lastName" placeholder="Dupont" /></div>
+          <div><label>Email</label><input type="email" id="s-email" placeholder="jean@email.com" /></div>
+          <div><label>Ville</label><input id="s-city" placeholder="Paris" /></div>
+          <div><label>Pays</label><input id="s-country" placeholder="France" /></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="submitStudent()">Enregistrer</button>
+          <button class="btn btn-secondary" onclick="hideFormStudent()">Annuler</button>
+        </div>
+      </div>
+      <div id="list-students" style="margin-top:1rem;"></div>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>
+        <div class="footer-logo">
+          <img src="logo.png" alt="Jungle" style="width:28px;height:28px;object-fit:contain;">
+          Jungle in English
+        </div>
+        <p class="footer-desc">Empowering learners worldwide with expert-led courses and cutting-edge skills.</p>
+      </div>
+      <div>
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="#courses">Courses</a></li>
+          <li><a href="#about">About Us</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Support</h4>
+        <ul>
+          <li><a href="#">Help Center</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Connect</h4>
+        <div class="footer-connect">
+          <a href="#" aria-label="Facebook">📘</a>
+          <a href="#" aria-label="Twitter">🐦</a>
+          <a href="#" aria-label="LinkedIn">💼</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Jungle in English. All rights reserved.</span>
+      <span><a href="#">Privacy Policy</a> · <a href="#">Terms of Service</a></span>
+    </div>
+  </footer>
+
+  <script>
+    // Splash: masquer après l'animation (logo + barre de chargement)
+    (function() {
+      var splash = document.getElementById('splash');
+      if (splash) {
+        setTimeout(function() {
+          splash.classList.add('hide');
+          setTimeout(function() { splash.classList.add('remove'); }, 600);
+        }, 3200);
+      }
+    })();
+
+    // Même origine que la page = requêtes relatives. Sinon port 8083.
+    const API_BASE = (window.location.port === '8083' || window.location.port === '8081' ? '' : 'http://localhost:8083');
+
+    function parseResponseError(r, text) {
+      let msg = r.status + ' ' + r.statusText;
+      try { const j = JSON.parse(text); msg = j.error || j.message || msg; } catch (_) {}
+      return msg;
+    }
+    async function apiRequest(url, options = {}) {
+      const r = await fetch(url, options);
+      const text = await r.text();
+      if (!r.ok) throw new Error(parseResponseError(r, text));
+      return text ? JSON.parse(text) : null;
+    }
+
+    // Toggle CRUD panel
+    document.getElementById('toggle-crud').onclick = function() {
+      const panel = document.getElementById('crud-panel');
+      panel.classList.toggle('hidden');
+      if (!panel.classList.contains('hidden')) { loadCours(); }
+    };
+
+    function showSection(section) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('section-cours').classList.toggle('hidden', section !== 'cours');
+      document.getElementById('section-etudiants').classList.toggle('hidden', section !== 'etudiants');
+      if (section === 'cours') loadCours(); else loadStudents();
+    }
+
+    // Load courses for landing grid
+    async function loadCoursesGrid() {
+      const el = document.getElementById('courses-grid');
+      try {
+        const data = await apiRequest(API_BASE + '/api/courses') || [];
+        if (!data.length) { el.innerHTML = '<p class="loading">Aucun cours pour le moment.</p>'; return; }
+        el.innerHTML = data.map(c => '<div class="course-card"><div class="thumb">📚</div><div class="body"><h3>' + (c.title || 'Sans titre') + '</h3><div class="meta">' + (c.teacherName || '') + ' · ' + (c.level || '') + '</div><div class="price">' + (c.price != null ? c.price + ' €' : '—') + '</div></div></div>').join('');
+      } catch (e) {
+        el.innerHTML = '<p class="loading">Chargement des cours...</p>';
+      }
+    }
+    loadCoursesGrid();
+
+    // --- COURS CRUD ---
+    async function loadCours() {
+      const el = document.getElementById('list-cours');
+      el.innerHTML = '<span class="loading">Chargement...</span>';
+      try {
+        const data = await apiRequest(API_BASE + '/api/courses') || [];
+        if (!data.length) { el.innerHTML = '<p class="loading">Aucun cours.</p>'; return; }
+        el.innerHTML = '<table><thead><tr><th>Id</th><th>Code</th><th>Titre</th><th>Formateur</th><th>Prix</th><th>Niveau</th><th>Actions</th></tr></thead><tbody>' +
+          data.map(c => '<tr><td>' + c.id + '</td><td>' + (c.courseCode || '') + '</td><td>' + (c.title || '') + '</td><td>' + (c.teacherName || '') + '</td><td>' + (c.price != null ? c.price + '€' : '') + '</td><td><span class="badge">' + (c.level || '') + '</span></td><td><button class="btn btn-edit" onclick="editCours(' + c.id + ')">Modifier</button> <button class="btn btn-delete" onclick="deleteCours(' + c.id + ')">Supprimer</button></td></tr>').join('') + '</tbody></table>';
+      } catch (e) { el.innerHTML = '<span class="error">Erreur : ' + e.message + '</span>'; }
+    }
+    function showFormCours(course) {
+      document.getElementById('form-cours').classList.remove('hidden');
+      document.getElementById('titre-form-cours').textContent = course ? 'Modifier le cours' : 'Ajouter un cours';
+      document.getElementById('course-id').value = course ? course.id : '';
+      const set = (id, v) => { const e = document.getElementById(id); if (e) e.value = v ?? ''; };
+      if (course) {
+        set('c-courseCode', course.courseCode); set('c-title', course.title); set('c-teacherName', course.teacherName);
+        set('c-durationHours', course.durationHours); set('c-price', course.price); set('c-level', course.level);
+        set('c-city', course.city); set('c-country', course.country);
+      } else {
+        set('c-courseCode',''); set('c-title',''); set('c-teacherName',''); set('c-durationHours','40'); set('c-price','');
+        set('c-level','BEGINNER'); set('c-city','Paris'); set('c-country','France');
+      }
+    }
+    function hideFormCours() { document.getElementById('form-cours').classList.add('hidden'); }
+    async function editCours(id) {
+      try { const course = await apiRequest(API_BASE + '/api/courses/' + id); showFormCours(course); } catch (e) { alert('Erreur : ' + e.message); }
+    }
+    async function submitCours() {
+      const id = document.getElementById('course-id').value;
+      const body = { courseCode: document.getElementById('c-courseCode').value, title: document.getElementById('c-title').value, teacherName: document.getElementById('c-teacherName').value, durationHours: parseInt(document.getElementById('c-durationHours').value) || 40, price: parseFloat(document.getElementById('c-price').value) || 0, level: document.getElementById('c-level').value, city: document.getElementById('c-city').value, country: document.getElementById('c-country').value, description: '', teacherId: 1, teacherLocation: '', maxStudents: 30, status: 'ACTIVE', latitude: null, longitude: null };
+      try {
+        const url = API_BASE + '/api/courses' + (id ? '/' + id : '');
+        await apiRequest(url, { method: id ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        hideFormCours(); loadCours(); loadCoursesGrid();
+      } catch (e) { alert('Erreur : ' + e.message); }
+    }
+    async function deleteCours(id) {
+      if (!confirm('Supprimer ce cours ?')) return;
+      try { await apiRequest(API_BASE + '/api/courses/' + id, { method: 'DELETE' }); loadCours(); loadCoursesGrid(); } catch (e) { alert('Erreur : ' + e.message); }
+    }
+
+    // --- ÉTUDIANTS CRUD ---
+    async function loadStudents() {
+      const el = document.getElementById('list-students');
+      el.innerHTML = '<span class="loading">Chargement...</span>';
+      try {
+        const data = await apiRequest(API_BASE + '/api/students') || [];
+        if (!data.length) { el.innerHTML = '<p class="loading">Aucun étudiant.</p>'; return; }
+        el.innerHTML = '<table><thead><tr><th>Id</th><th>Prénom</th><th>Nom</th><th>Email</th><th>Ville</th><th>Actions</th></tr></thead><tbody>' +
+          data.map(s => '<tr><td>' + s.id + '</td><td>' + (s.firstName || '') + '</td><td>' + (s.lastName || '') + '</td><td>' + (s.email || '') + '</td><td>' + (s.city || '') + '</td><td><button class="btn btn-edit" onclick="editStudent(' + s.id + ')">Modifier</button> <button class="btn btn-delete" onclick="deleteStudent(' + s.id + ')">Supprimer</button></td></tr>').join('') + '</tbody></table>';
+      } catch (e) { el.innerHTML = '<span class="error">Erreur : ' + e.message + '</span>'; }
+    }
+    function showFormStudent(student) {
+      document.getElementById('form-student').classList.remove('hidden');
+      document.getElementById('titre-form-student').textContent = student ? 'Modifier l\'étudiant' : 'Ajouter un étudiant';
+      document.getElementById('student-id').value = student ? student.id : '';
+      const set = (id, v) => { const e = document.getElementById(id); if (e) e.value = v ?? ''; };
+      if (student) { set('s-firstName', student.firstName); set('s-lastName', student.lastName); set('s-email', student.email); set('s-city', student.city); set('s-country', student.country); }
+      else { set('s-firstName',''); set('s-lastName',''); set('s-email',''); set('s-city','Paris'); set('s-country','France'); }
+    }
+    function hideFormStudent() { document.getElementById('form-student').classList.add('hidden'); }
+    async function editStudent(id) {
+      try { const student = await apiRequest(API_BASE + '/api/students/' + id); showFormStudent(student); } catch (e) { alert('Erreur : ' + e.message); }
+    }
+    async function submitStudent() {
+      const id = document.getElementById('student-id').value;
+      const body = { firstName: document.getElementById('s-firstName').value, lastName: document.getElementById('s-lastName').value, email: document.getElementById('s-email').value, city: document.getElementById('s-city').value, country: document.getElementById('s-country').value, latitude: null, longitude: null };
+      try {
+        const url = API_BASE + '/api/students' + (id ? '/' + id : '');
+        await apiRequest(url, { method: id ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        hideFormStudent(); loadStudents();
+      } catch (e) { alert('Erreur : ' + e.message); }
+    }
+    async function deleteStudent(id) {
+      if (!confirm('Supprimer cet étudiant ?')) return;
+      try { await apiRequest(API_BASE + '/api/students/' + id, { method: 'DELETE' }); loadStudents(); } catch (e) { alert('Erreur : ' + e.message); }
+    }
+  </script>
+</body>
+</html>

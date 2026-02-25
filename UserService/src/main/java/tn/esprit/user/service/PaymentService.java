@@ -8,6 +8,7 @@ import tn.esprit.user.dto.PaymentRequest;
 import tn.esprit.user.entity.Payment;
 import tn.esprit.user.repository.PaymentRepository;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -109,14 +110,17 @@ public class PaymentService {
      */
     private void createSubscriptionForPayment(Payment payment) {
         try {
-            // Determine billing cycle (assume monthly for now, can be enhanced)
-            String billingCycle = payment.getMontant() > 100 ? "ANNUAL" : "MONTHLY";
+            // Determine billing cycle based on amount
+            String billingCycle = "MONTHLY";
+            if (payment.getMontant() != null && payment.getMontant().compareTo(new BigDecimal("100")) > 0) {
+                billingCycle = "ANNUAL";
+            }
             
             subscriptionService.createSubscription(
                 payment.getIdUser(),
                 payment.getIdAbonnement(),
                 payment.getTypeAbonnement(),
-                payment.getMontant(),
+                payment.getMontant().doubleValue(),
                 billingCycle,
                 payment.getId_payment()
             );

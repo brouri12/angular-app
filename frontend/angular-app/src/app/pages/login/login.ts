@@ -38,7 +38,40 @@ export class Login {
     this.authService.login(this.loginData).subscribe({
       next: () => {
         this.isLoading = false;
-        this.router.navigate(['/']);
+        this.authService.getUserByEmail(this.loginData.email).subscribe({
+          next: (user) => {
+            const role = String(user?.role || '').toUpperCase();
+            if (role === 'ADMIN') {
+              window.location.href = 'http://localhost:8083/back-office/';
+              return;
+            }
+            if (role === 'TEACHER') {
+              window.location.href = 'http://localhost:8083/front-office/teacher.html';
+              return;
+            }
+            this.router.navigate(['/']);
+          },
+          error: () => {
+            const token = this.authService.getToken();
+            if (token) {
+              try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const roles = payload.realm_access?.roles || [];
+                if (roles.includes('ADMIN')) {
+                  window.location.href = 'http://localhost:8083/back-office/';
+                  return;
+                }
+                if (roles.includes('TEACHER')) {
+                  window.location.href = 'http://localhost:8083/front-office/teacher.html';
+                  return;
+                }
+              } catch (e) {
+                console.error('Error decoding token:', e);
+              }
+            }
+            this.router.navigate(['/']);
+          }
+        });
       },
       error: (error) => {
         this.isLoading = false;

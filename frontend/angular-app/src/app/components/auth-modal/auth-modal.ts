@@ -104,35 +104,44 @@ export class AuthModal implements OnInit {
         console.log('Login successful!');
         this.closeModal();
         this.cdr.detectChanges();
-        
-        // Get user role and redirect accordingly
-        const token = this.authService.getToken();
-        if (token) {
-          try {
-            // Decode token to get role
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            const roles = payload.realm_access?.roles || [];
-            
-            // Check if user is ADMIN
-            if (roles.includes('ADMIN')) {
-              // Redirect to back-office with token in URL
-              window.location.href = `http://localhost:4201/dashboard?token=${encodeURIComponent(token)}`;
-            } else {
-              // TEACHER or STUDENT - stay on frontend and reload
-              this.authService.loadUser();
-              setTimeout(() => {
-                window.location.reload();
-              }, 100);
+
+        // Prefer role from backend profile (more reliable), token as fallback
+        this.authService.getUserByEmail(this.loginData.email).subscribe({
+          next: (user) => {
+            const role = String(user?.role || '').toUpperCase();
+            if (role === 'ADMIN') {
+              window.location.href = 'http://localhost:8083/back-office/';
+              return;
             }
-          } catch (e) {
-            console.error('Error decoding token:', e);
-            // Fallback: just reload
+            if (role === 'TEACHER') {
+              window.location.href = 'http://localhost:8083/front-office/teacher.html';
+              return;
+            }
             this.authService.loadUser();
-            setTimeout(() => {
-              window.location.reload();
-            }, 100);
+            setTimeout(() => window.location.reload(), 100);
+          },
+          error: () => {
+            const token = this.authService.getToken();
+            if (token) {
+              try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const roles = payload.realm_access?.roles || [];
+                if (roles.includes('ADMIN')) {
+                  window.location.href = 'http://localhost:8083/back-office/';
+                  return;
+                }
+                if (roles.includes('TEACHER')) {
+                  window.location.href = 'http://localhost:8083/front-office/teacher.html';
+                  return;
+                }
+              } catch (e) {
+                console.error('Error decoding token:', e);
+              }
+            }
+            this.authService.loadUser();
+            setTimeout(() => window.location.reload(), 100);
           }
-        }
+        });
       },
       error: (error) => {
         console.error('Login error:', error);
