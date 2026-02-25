@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Espace Étudiant – Jungle in English</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: rgb(0, 200, 151);
+      --secondary: rgb(255, 127, 80);
+      --bg: #ffffff;
+      --card: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --footer-bg: #0f172a;
+    }
+    body.dark-theme {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --footer-bg: #020617;
+    }
+    body.dark-theme .level-card, body.dark-theme .chapter-card, body.dark-theme .lesson-row, body.dark-theme .stat-card { background: #1e293b; border-color: #334155; }
+    body.dark-theme .quiz-question-block { background: #1e293b; border-color: #334155; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); transition: background 0.3s, color 0.3s; }
+
+    .nav {
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+      max-width: 1200px; margin: 0 auto; padding: 1rem 1.5rem;
+      background: var(--card); border-bottom: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-weight: 700; font-size: 1.25rem; color: var(--text); text-decoration: none;
+    }
+    .nav-logo:hover { color: var(--primary); }
+    .nav-logo img { width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; }
+    .nav-logo svg { width: 28px; height: 28px; flex-shrink: 0; }
+    .student-picker { display: flex; align-items: center; gap: 0.5rem; }
+    .student-picker label { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+    .student-picker select {
+      padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--border); font-size: 0.9rem;
+      background: var(--card); color: var(--text); font-family: inherit; min-width: 180px;
+    }
+    .nav-links { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; flex-direction: row; }
+    .nav-links a {
+      padding: 0.5rem 1rem; border-radius: 8px; font-weight: 500; text-decoration: none; color: var(--text);
+      font-size: 0.9rem; transition: background 0.2s, color 0.2s;
+      flex-shrink: 0; white-space: nowrap;
+    }
+    .nav-links a[data-page="parcours"] { order: 1; }
+    .nav-links a[data-page="courses"] { order: 2; }
+    .nav-links a[data-page="enrollments"] { order: 3; }
+    .nav-links a[data-page="badges"] { order: 4; }
+    .nav-links a[data-page="quiz"] { order: 5; }
+    .nav-links a:hover { background: rgba(0,200,151,0.1); color: var(--primary); }
+    .nav-links a.active { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; }
+    .nav-notif-wrap { position: relative; order: 5; }
+    .notif-bell { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 0.4rem 0.6rem; cursor: pointer; font-size: 1.1rem; transition: transform 0.2s, box-shadow 0.2s; }
+    .notif-bell:hover { background: rgba(0,200,151,0.1); }
+    .notif-bell.new-notif { animation: notif-bell-ring 1.2s ease-in-out 2; }
+    .notif-bell.new-notif .notif-bell-emoji { display: inline-block; animation: notif-bell-bounce 0.5s ease; }
+    @keyframes notif-bell-ring {
+      0%, 100% { transform: rotate(0deg); box-shadow: 0 0 0 0 rgba(0, 200, 151, 0.4); }
+      10%, 30% { transform: rotate(-12deg); }
+      20%, 40% { transform: rotate(12deg); }
+      50% { transform: rotate(0deg); box-shadow: 0 0 0 8px rgba(0, 200, 151, 0); }
+    }
+    @keyframes notif-bell-bounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.25); }
+    }
+    .notif-badge { position: absolute; top: -6px; right: -6px; min-width: 20px; height: 20px; padding: 0 6px; font-size: 0.75rem; font-weight: 700; background: var(--secondary); color: white; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; transition: transform 0.2s; }
+    .notif-badge.new-notif-badge { animation: notif-badge-pop 0.6s ease; }
+    @keyframes notif-badge-pop {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.35); }
+      70% { transform: scale(0.95); }
+      100% { transform: scale(1); }
+    }
+    .notif-badge.hidden { display: none; }
+    .notif-dropdown { position: absolute; top: 100%; right: 0; margin-top: 0.35rem; width: 320px; max-height: 360px; overflow-y: auto; background: var(--card); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.12); z-index: 100; }
+    .notif-dropdown.hidden { display: none; }
+    .notif-dropdown h4 { padding: 0.75rem 1rem; font-size: 0.9rem; color: var(--text-muted); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+    .notif-header-actions { display: inline-flex; align-items: center; gap: 0.35rem; }
+    .notif-refresh, .notif-clear-all {
+      font-size: 0.75rem; cursor: pointer; background: none; border: 1px solid var(--border); border-radius: 8px;
+      padding: 0.25rem 0.45rem; font-weight: 700;
+    }
+    .notif-refresh { color: var(--primary); }
+    .notif-refresh:hover { background: rgba(0,200,151,0.1); }
+    .notif-clear-all { color: #dc2626; border-color: rgba(220,38,38,0.35); }
+    .notif-clear-all:hover { background: rgba(220,38,38,0.1); }
+    .notif-row { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    .notif-row:hover { background: rgba(0,200,151,0.08); }
+    .notif-item { flex: 1; min-width: 0; text-decoration: none; color: var(--text); font-size: 0.9rem; text-align: left; background: none; border: none; cursor: pointer; padding: 0; font-family: inherit; }
+    .notif-item strong { color: var(--primary); }
+    .notif-item .notif-date { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
+    .notif-actions { display: inline-flex; align-items: center; gap: 0.35rem; flex-shrink: 0; }
+    .notif-open-btn, .notif-delete-btn {
+      border: 1px solid var(--border); border-radius: 8px; padding: 0.3rem 0.45rem; cursor: pointer;
+      background: var(--card); color: var(--text); font-size: 0.75rem; font-weight: 600;
+    }
+    .notif-open-btn:hover { background: rgba(0,200,151,0.1); color: var(--primary); }
+    .notif-delete-btn { color: #dc2626; border-color: rgba(220,38,38,0.35); }
+    .notif-delete-btn:hover { background: rgba(220,38,38,0.1); }
+    .notif-delete-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .notif-empty { padding: 1rem; color: var(--text-muted); font-size: 0.9rem; }
+    .notif-screen-flash {
+      position: fixed; inset: 0; z-index: 9996; pointer-events: none; opacity: 0;
+      background: radial-gradient(circle at 50% 20%, rgba(0,200,151,0.22), rgba(0,200,151,0.06) 45%, rgba(0,0,0,0) 75%);
+    }
+    .notif-screen-flash.active { animation: notif-screen-pulse 1.1s ease-out; }
+    @keyframes notif-screen-pulse {
+      0% { opacity: 0; }
+      20% { opacity: 1; }
+      60% { opacity: 0.45; }
+      100% { opacity: 0; }
+    }
+    .notif-alert-banner {
+      position: fixed; top: 18px; left: 50%; transform: translateX(-50%) translateY(-120%);
+      z-index: 9997; min-width: 320px; max-width: min(92vw, 640px);
+      background: linear-gradient(90deg, rgba(0,200,151,0.96), rgba(255,127,80,0.96));
+      color: #fff; border-radius: 14px; border: 1px solid rgba(255,255,255,0.45);
+      box-shadow: 0 16px 34px rgba(0,0,0,0.3); padding: 0.85rem 1rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+    }
+    .notif-alert-banner.active { animation: notif-banner-inout 3.6s ease forwards; }
+    .notif-alert-main { display: inline-flex; align-items: center; gap: 0.55rem; font-weight: 700; font-size: 0.96rem; line-height: 1.2; }
+    .notif-alert-meta { font-size: 0.8rem; opacity: 0.92; margin-left: 0.35rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .notif-alert-dot { width: 9px; height: 9px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 0 rgba(255,255,255,0.9); animation: notif-dot-ping 1s ease infinite; }
+    @keyframes notif-dot-ping {
+      0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.8); }
+      100% { box-shadow: 0 0 0 11px rgba(255,255,255,0); }
+    }
+    @keyframes notif-banner-inout {
+      0% { transform: translateX(-50%) translateY(-120%); opacity: 0; }
+      10% { transform: translateX(-50%) translateY(0); opacity: 1; }
+      82% { transform: translateX(-50%) translateY(0); opacity: 1; }
+      100% { transform: translateX(-50%) translateY(-120%); opacity: 0; }
+    }
+    .notif-toast {
+      position: fixed; right: 20px; bottom: 18px; z-index: 9998;
+      background: var(--card); color: var(--text); border: 1px solid var(--border);
+      border-left: 4px solid var(--primary); border-radius: 12px; padding: 0.7rem 0.85rem;
+      min-width: 240px; max-width: 320px; box-shadow: 0 14px 30px rgba(0,0,0,0.18);
+      transform: translateY(20px); opacity: 0; pointer-events: none; transition: all 0.22s ease;
+    }
+    .notif-toast.show { transform: translateY(0); opacity: 1; }
+    .notif-toast.error { border-left-color: #dc2626; }
+    .notif-confirm-backdrop {
+      position: fixed; inset: 0; z-index: 9999; background: rgba(2,6,23,0.45);
+      display: flex; align-items: center; justify-content: center; padding: 1rem;
+    }
+    .notif-confirm-backdrop.hidden { display: none !important; }
+    .notif-confirm-card {
+      width: min(96vw, 420px); background: var(--card); color: var(--text);
+      border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+      overflow: hidden;
+    }
+    .notif-confirm-head { padding: 0.85rem 1rem; font-weight: 800; border-bottom: 1px solid var(--border); }
+    .notif-confirm-body { padding: 0.95rem 1rem; color: var(--text-muted); line-height: 1.45; }
+    .notif-confirm-actions { display: flex; justify-content: flex-end; gap: 0.5rem; padding: 0.8rem 1rem 1rem; }
+    .notif-confirm-btn { border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 9px; padding: 0.42rem 0.68rem; cursor: pointer; font-weight: 700; }
+    .notif-confirm-btn.primary { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: #fff; border: none; }
+    .nav-dark-toggle { order: 6; background: none; border: 1px solid var(--border); border-radius: 8px; padding: 0.4rem 0.6rem; cursor: pointer; font-size: 1.1rem; transition: background 0.2s; }
+    .nav-dark-toggle:hover { background: rgba(0,200,151,0.1); }
+    body.dark-theme .nav-dark-toggle { border-color: #475569; }
+    .parcours-search-wrap { margin-bottom: 1rem; max-width: 320px; }
+    .parcours-search-wrap input { width: 100%; padding: 0.6rem 1rem 0.6rem 2.25rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; background: var(--card); color: var(--text); }
+    .parcours-search-wrap { position: relative; }
+    .parcours-search-wrap::before { content: '🔍'; position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 0.9rem; opacity: 0.7; }
+    .resume-card { background: linear-gradient(135deg, rgba(0,200,151,0.12), rgba(255,127,80,0.08)); border: 1px solid var(--primary); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; }
+    .resume-card .resume-label { font-size: 0.85rem; color: var(--text-muted); }
+    .resume-card .resume-title { font-weight: 600; color: var(--text); }
+    .resume-card .btn { flex-shrink: 0; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+    .page-hero { margin-bottom: 2rem; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(0,200,151,0.1); color: var(--primary); padding: 0.35rem 0.75rem;
+      border-radius: 999px; font-size: 0.8rem; font-weight: 500; margin-bottom: 0.75rem;
+    }
+    .page-title { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text); }
+    .page-title .green { color: var(--primary); }
+    .page-title .orange { color: var(--secondary); }
+    .page-subtitle { color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem; max-width: 560px; }
+
+    .stats-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card {
+      background: var(--card); border-radius: 12px; padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid var(--border); text-align: center;
+    }
+    .stat-card .num { font-size: 1.75rem; font-weight: 700; color: var(--primary); }
+    .stat-card .label { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+    .section { display: none; }
+    .section.active { display: block; }
+    .card {
+      background: var(--card); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid var(--border);
+    }
+    .card h3 { font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text); }
+    .btn { padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; font-family: inherit; border: none; text-decoration: none; display: inline-block; transition: opacity 0.2s; }
+    .btn:hover { opacity: 0.95; }
+    .btn-primary { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; }
+    .btn-secondary { background: #f1f5f9; color: var(--text); border: 1px solid var(--border); }
+
+    .courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+    .course-card {
+      background: var(--card); border-radius: 12px; overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid var(--border); transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .course-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.1); transform: translateY(-2px); }
+    .course-card .thumb {
+      height: 140px; background: linear-gradient(135deg, rgba(0,200,151,0.2), rgba(255,127,80,0.15));
+      display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: var(--primary);
+    }
+    .course-card .body { padding: 1rem; }
+    .course-card .body h3 { font-size: 1rem; margin-bottom: 0.25rem; }
+    .course-card .meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+    .course-card .price { font-weight: 700; color: var(--primary); margin-top: 0.5rem; font-size: 1rem; }
+    .course-detail { max-width: 640px; }
+    .course-detail .card h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .course-detail .meta { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem; }
+    .progress-bar { height: 10px; background: #e2e8f0; border-radius: 6px; overflow: hidden; margin: 0.5rem 0; }
+    .progress-bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 6px; transition: width 0.3s; }
+
+    input, select, textarea { transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,200,151,0.2); }
+    @keyframes validationFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes validationShake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
+    .input-error, input.input-error, select.input-error, textarea.input-error { border-color: #dc2626 !important; background: #fef2f2 !important; box-shadow: 0 0 0 2px rgba(220,38,38,0.15); animation: validationShake 0.4s ease; }
+    .validation-msg { font-size: 0.8rem; margin-top: 0.4rem; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; border-radius: 8px; animation: validationFadeIn 0.3s ease; line-height: 1.35; }
+    .validation-msg.error { color: #b91c1c; background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border: 1px solid #fecaca; box-shadow: 0 2px 8px rgba(220,38,38,0.12); }
+    .validation-msg.error::before { content: '⚠'; font-size: 1rem; font-weight: 700; flex-shrink: 0; width: 1.25rem; height: 1.25rem; display: inline-flex; align-items: center; justify-content: center; background: #dc2626; color: white; border-radius: 50%; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: rgba(0,200,151,0.1); font-weight: 600; color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-pill {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.8rem; font-weight: 500;
+      background: rgba(0,200,151,0.15); color: var(--primary); margin-right: 0.5rem; margin-bottom: 0.5rem;
+      border: 1px solid rgba(0,200,151,0.3);
+    }
+    .quiz-question { margin-bottom: 1.5rem; }
+    .quiz-question label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); }
+    .quiz-question input[type="text"], .quiz-question select { width: 100%; max-width: 480px; padding: 0.6rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; }
+    .hidden { display: none !important; }
+    .loading { color: var(--text-muted); font-size: 0.9rem; }
+    .error { color: #dc2626; font-size: 0.875rem; }
+    .back-link { margin-bottom: 1rem; }
+    .back-link a { color: var(--primary); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem; }
+    .back-link a:hover { text-decoration: underline; }
+
+    .materials-list { display: flex; flex-direction: column; gap: 1.25rem; }
+    .material-item { padding: 0.75rem; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border); }
+    .video-wrap { margin-top: 0.5rem; border-radius: 8px; overflow: hidden; max-width: 560px; }
+    .video-wrap iframe { display: block; }
+    .level-card {
+      display: flex; align-items: center;
+      background: var(--card); border-radius: 12px; padding: 1rem; margin-bottom: 0.75rem; border: 1px solid var(--border);
+      cursor: pointer; transition: transform 0.2s ease, box-shadow 0.25s ease, background 0.2s ease;
+    }
+    .level-card:hover { box-shadow: 0 6px 20px rgba(0,200,151,0.15); transform: translateY(-2px); }
+    .level-card:active { transform: scale(0.98); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .level-card.click-anim { animation: cardClick 0.4s ease; }
+    .level-card h3 { font-size: 1.1rem; margin-bottom: 0.25rem; }
+    .level-card .code { font-weight: 700; color: var(--primary); }
+    .chapter-card {
+      display: flex; align-items: center;
+      background: var(--card); border-radius: 12px; padding: 1rem; margin-bottom: 0.75rem; border: 1px solid var(--border);
+      cursor: pointer; transition: transform 0.2s ease, box-shadow 0.25s ease;
+    }
+    .chapter-card:hover { box-shadow: 0 6px 20px rgba(0,200,151,0.15); transform: translateY(-2px); }
+    .chapter-card:active { transform: scale(0.98); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .chapter-card.click-anim { animation: cardClick 0.4s ease; }
+    @keyframes cardClick {
+      0% { transform: scale(1); }
+      50% { transform: scale(0.97); }
+      100% { transform: scale(1); }
+    }
+    /* Transition d’affichage des blocs parcours (niveaux → chapitres → détail) */
+    #parcours-levels, #parcours-chapters, #parcours-chapter-detail { transition: opacity 0.25s ease; }
+    #parcours-levels.parcours-visible, #parcours-chapters.parcours-visible, #parcours-chapter-detail.parcours-visible {
+      animation: parcoursFadeIn 0.4s ease-out forwards;
+    }
+    @keyframes parcoursFadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Fil d'Ariane (breadcrumb) parcours */
+    .parcours-breadcrumb {
+      display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 1.25rem;
+      font-size: 0.9rem; color: var(--text-muted);
+    }
+    .parcours-breadcrumb a { color: var(--primary); text-decoration: none; font-weight: 500; }
+    .parcours-breadcrumb a:hover { text-decoration: underline; }
+    .parcours-breadcrumb span { color: var(--text-muted); }
+    .parcours-breadcrumb .current { color: var(--text); font-weight: 600; }
+
+    /* Icônes parcours (taille et style uniformes) */
+    .icon-parcours {
+      display: inline-flex; align-items: center; justify-content: center; width: 2.25rem; height: 2.25rem;
+      border-radius: 10px; font-size: 1.1rem; margin-right: 0.6rem; flex-shrink: 0;
+    }
+    .icon-level { background: linear-gradient(135deg, rgba(0,200,151,0.2), rgba(0,200,151,0.35)); }
+    .icon-chapter { background: linear-gradient(135deg, rgba(255,127,80,0.2), rgba(255,127,80,0.35)); }
+    .icon-lesson-video { background: rgba(59,130,246,0.2); }
+    .icon-lesson-pdf { background: rgba(139,92,246,0.2); }
+    .icon-quiz { background: linear-gradient(135deg, rgba(0,200,151,0.2), rgba(255,127,80,0.2)); }
+    .icon-quiz-ok { color: var(--primary); font-size: 1.25rem; }
+    .icon-quiz-ko { color: #dc2626; font-size: 1.25rem; }
+    .level-card .icon-parcours, .chapter-card .icon-parcours { margin-right: 0.75rem; }
+
+    /* Pagination */
+    .pagination-wrap { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 1.5rem; flex-wrap: wrap; }
+    .pagination-wrap .btn-page {
+      min-width: 2.25rem; height: 2.25rem; padding: 0 0.5rem; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--card); color: var(--text); font-weight: 600; font-size: 0.875rem; cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .pagination-wrap .btn-page:hover:not(:disabled) { background: rgba(0,200,151,0.1); border-color: var(--primary); color: var(--primary); }
+    .pagination-wrap .btn-page.active { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; border-color: transparent; }
+    .pagination-wrap .btn-page:disabled { opacity: 0.5; cursor: not-allowed; }
+    .pagination-info { font-size: 0.85rem; color: var(--text-muted); margin-right: 0.5rem; }
+
+    /* Barre de progression (étapes) */
+    .parcours-progress {
+      height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 1.5rem; overflow: hidden;
+    }
+    .parcours-progress-bar { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 3px; transition: width 0.4s ease; }
+
+    /* Cartes avec animation décalée */
+    .parcours-cards .level-card, .parcours-cards .chapter-card {
+      animation: cardSlideIn 0.4s ease-out backwards;
+    }
+    .parcours-cards .level-card:nth-child(1), .parcours-cards .chapter-card:nth-child(1) { animation-delay: 0.05s; }
+    .parcours-cards .level-card:nth-child(2), .parcours-cards .chapter-card:nth-child(2) { animation-delay: 0.1s; }
+    .parcours-cards .level-card:nth-child(3), .parcours-cards .chapter-card:nth-child(3) { animation-delay: 0.15s; }
+    .parcours-cards .level-card:nth-child(4), .parcours-cards .chapter-card:nth-child(4) { animation-delay: 0.2s; }
+    .parcours-cards .level-card:nth-child(5), .parcours-cards .chapter-card:nth-child(5) { animation-delay: 0.25s; }
+    .parcours-cards .level-card:nth-child(n+6), .parcours-cards .chapter-card:nth-child(n+6) { animation-delay: 0.3s; }
+    @keyframes cardSlideIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Détail chapitre: onglets Leçons | Quiz */
+    .parcours-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; border-bottom: 2px solid var(--border); }
+    .parcours-tab {
+      padding: 0.6rem 1.25rem; border: none; background: none; cursor: pointer; font-weight: 600; font-size: 0.9rem;
+      color: var(--text-muted); border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s;
+    }
+    .parcours-tab:hover { color: var(--primary); }
+    .parcours-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .parcours-pane { display: none; animation: parcoursFadeIn 0.35s ease-out; }
+    .parcours-pane.active { display: block; }
+
+    /* Quiz une question à la fois */
+    .quiz-step-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 1.25rem; flex-wrap: wrap; gap: 0.75rem; }
+    .quiz-step-info { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
+    .quiz-question-block { padding: 1.25rem; background: #f8fafc; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 1rem; }
+
+    .lesson-row {
+      padding: 1rem; background: linear-gradient(135deg, #f8fafc 0%, #fff 100%);
+      border-radius: 12px; margin-bottom: 0.75rem; border: 1px solid var(--border);
+      display: flex; align-items: flex-start; gap: 1rem; transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .lesson-row:hover { transform: translateX(4px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+    .lesson-row .lesson-icon { flex-shrink: 0; }
+    .quiz-result { padding: 1.25rem; border-radius: 12px; margin-top: 1rem; font-weight: 600; animation: parcoursFadeIn 0.5s ease-out; }
+    .quiz-result.passed { background: linear-gradient(135deg, rgba(0,200,151,0.15), rgba(0,200,151,0.08)); color: var(--primary); }
+    .quiz-result.failed { background: linear-gradient(135deg, rgba(220,38,38,0.1), rgba(220,38,38,0.05)); color: #dc2626; }
+
+    .footer-mini { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center; }
+    .footer-mini a { color: var(--primary); text-decoration: none; font-weight: 500; font-size: 0.9rem; }
+    .footer-mini a:hover { text-decoration: underline; }
+
+    @media (max-width: 768px) {
+      .nav { flex-direction: column; align-items: stretch; }
+      .nav-links { justify-content: center; }
+      .stats-strip { grid-template-columns: repeat(2, 1fr); }
+      .courses-grid { grid-template-columns: 1fr; }
+    }
+    #splash { position: fixed; inset: 0; z-index: 9999; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.6s ease-out; pointer-events: none; }
+    #splash.hide { opacity: 0; }
+    #splash.remove { display: none; }
+    .splash-logo { width: 120px; height: 120px; object-fit: contain; animation: splashLogo 1.2s ease-out forwards; filter: drop-shadow(0 0 20px rgba(0,200,151,0.3)); }
+    .splash-name { font-size: 1.75rem; font-weight: 800; color: #fff; letter-spacing: 0.08em; margin-top: 1rem; opacity: 0; animation: splashText 0.8s ease-out 0.4s forwards; }
+    .splash-tagline { font-size: 0.9rem; color: rgba(255,255,255,0.7); margin-top: 0.5rem; opacity: 0; animation: splashText 0.8s ease-out 0.7s forwards; }
+    .splash-loader { width: 100px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 4px; margin-top: 1.5rem; overflow: hidden; opacity: 0; animation: splashText 0.5s ease-out 1s forwards; }
+    .splash-loader-bar { height: 100%; width: 0; background: linear-gradient(90deg, rgb(0,200,151), rgb(255,127,80)); border-radius: 4px; animation: splashLoad 2s ease-in-out 1.2s forwards; }
+    @keyframes splashLogo { 0% { transform: scale(0.6); opacity: 0; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes splashText { to { opacity: 1; } }
+    @keyframes splashLoad { to { width: 100%; } }
+
+    /* Chatbot (English-only assistant) */
+    .chatbot-fab {
+      position: fixed; right: 20px; bottom: 20px; z-index: 9994;
+      width: 58px; height: 58px; border-radius: 50%;
+      border: none; cursor: pointer; color: #fff; font-size: 1.35rem;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .chatbot-fab:hover { transform: translateY(-2px); }
+    .chatbot-panel {
+      position: fixed; right: 20px; bottom: 88px; z-index: 9994;
+      width: min(94vw, 390px); height: min(72vh, 560px);
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+      box-shadow: 0 22px 50px rgba(0,0,0,0.22);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .chatbot-panel.hidden { display: none; }
+    .chatbot-head {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: #fff; padding: 0.8rem 0.9rem; display: flex; align-items: center; justify-content: space-between;
+    }
+    .chatbot-title { font-size: 0.92rem; font-weight: 800; }
+    .chatbot-sub { font-size: 0.75rem; opacity: 0.9; margin-top: 2px; }
+    .chatbot-close { border: none; background: rgba(255,255,255,0.18); color: #fff; border-radius: 8px; padding: 0.32rem 0.5rem; cursor: pointer; }
+    .chatbot-body { flex: 1; overflow-y: auto; padding: 0.85rem; background: linear-gradient(180deg, rgba(0,200,151,0.04), transparent 20%); }
+    .chatbot-msg { margin-bottom: 0.65rem; display: flex; }
+    .chatbot-msg .bubble { max-width: 86%; padding: 0.58rem 0.72rem; border-radius: 12px; line-height: 1.42; font-size: 0.88rem; }
+    .chatbot-msg.bot { justify-content: flex-start; }
+    .chatbot-msg.user { justify-content: flex-end; }
+    .chatbot-msg.bot .bubble { background: #eef2ff; color: #1e293b; border: 1px solid #dbeafe; }
+    .chatbot-msg.user .bubble { background: linear-gradient(90deg, rgba(0,200,151,0.2), rgba(255,127,80,0.2)); color: var(--text); border: 1px solid rgba(0,200,151,0.24); }
+    .chatbot-tips { padding: 0.55rem 0.75rem; border-top: 1px solid var(--border); display: flex; gap: 0.45rem; flex-wrap: wrap; }
+    .chatbot-tip-btn { border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 999px; font-size: 0.73rem; padding: 0.25rem 0.55rem; cursor: pointer; }
+    .chatbot-tip-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .chatbot-form { border-top: 1px solid var(--border); padding: 0.62rem; display: flex; gap: 0.45rem; }
+    .chatbot-input { flex: 1; border: 1px solid var(--border); border-radius: 10px; padding: 0.56rem 0.68rem; font-size: 0.88rem; background: var(--card); color: var(--text); }
+    .chatbot-send { border: none; border-radius: 10px; padding: 0.52rem 0.82rem; font-weight: 700; cursor: pointer; color: #fff; background: linear-gradient(90deg, var(--primary), var(--secondary)); }
+  </style>
+</head>
+<body>
+  <div id="notif-screen-flash" class="notif-screen-flash" aria-hidden="true"></div>
+  <div id="notif-alert-banner" class="notif-alert-banner" aria-live="polite" role="status">
+    <div class="notif-alert-main">
+      <span class="notif-alert-dot"></span>
+      <span id="notif-alert-text">Nouvelle notification reçue</span>
+    </div>
+    <span class="notif-alert-meta" id="notif-alert-meta"></span>
+  </div>
+  <div id="notif-toast" class="notif-toast" aria-live="polite"></div>
+  <div id="notif-confirm-backdrop" class="notif-confirm-backdrop hidden" aria-hidden="true">
+    <div class="notif-confirm-card" role="dialog" aria-modal="true" aria-labelledby="notif-confirm-head">
+      <div class="notif-confirm-head" id="notif-confirm-head">Confirmation</div>
+      <div class="notif-confirm-body" id="notif-confirm-message">Confirmer cette action ?</div>
+      <div class="notif-confirm-actions">
+        <button type="button" class="notif-confirm-btn" id="notif-confirm-cancel">Annuler</button>
+        <button type="button" class="notif-confirm-btn primary" id="notif-confirm-ok">OK</button>
+      </div>
+    </div>
+  </div>
+  <button type="button" id="chatbot-fab" class="chatbot-fab" title="English Coach" aria-label="Open English chatbot">💬</button>
+  <section id="chatbot-panel" class="chatbot-panel hidden" aria-live="polite">
+    <div class="chatbot-head">
+      <div>
+        <div class="chatbot-title">Jungle English Coach</div>
+        <div class="chatbot-sub">Ask in English only</div>
+      </div>
+      <button type="button" id="chatbot-close" class="chatbot-close">✕</button>
+    </div>
+    <div id="chatbot-body" class="chatbot-body"></div>
+    <div class="chatbot-tips">
+      <button type="button" class="chatbot-tip-btn" data-chat-tip="How can I improve my English speaking?">Speaking tips</button>
+      <button type="button" class="chatbot-tip-btn" data-chat-tip="Give me a short grammar exercise.">Grammar exercise</button>
+      <button type="button" class="chatbot-tip-btn" data-chat-tip="How do I use this platform for learning?">Platform help</button>
+    </div>
+    <form id="chatbot-form" class="chatbot-form">
+      <input id="chatbot-input" class="chatbot-input" placeholder="Ask your question in English..." autocomplete="off" />
+      <button type="submit" class="chatbot-send">Send</button>
+    </form>
+  </section>
+  <div id="splash">
+    <img src="logo.png" alt="Jungle" class="splash-logo">
+    <div class="splash-name">JUNGLE</div>
+    <div class="splash-tagline">in English · Espace Étudiant</div>
+    <div class="splash-loader"><div class="splash-loader-bar"></div></div>
+  </div>
+  <header class="nav">
+    <a href="index.html" class="nav-logo">
+      <img src="logo.png" alt="Jungle">
+      Jungle in English – <span class="green">Espace Étudiant</span>
+    </a>
+    <div class="student-picker">
+      <label>Je suis :</label>
+      <select id="studentSelect">
+        <option value="">-- Choisir un étudiant --</option>
+      </select>
+    </div>
+    <nav class="nav-links">
+      <a href="#" class="active" data-page="parcours">📖 Parcours (niveaux)</a>
+      <a href="#" data-page="courses">📚 Our Courses</a>
+      <a href="#" data-page="enrollments">📋 My Enrollments</a>
+      <a href="#" data-page="badges">🏅 My Badges</a>
+      <a href="#" data-page="quiz">✏️ Quiz</a>
+      <div class="nav-notif-wrap">
+        <button type="button" id="notif-bell-btn" class="notif-bell" title="Notifications" aria-label="Notifications"><span class="notif-bell-emoji">🔔</span></button>
+        <span id="notif-badge" class="notif-badge hidden">0</span>
+        <div id="notif-dropdown" class="notif-dropdown hidden">
+          <h4>
+            Notifications
+            <span class="notif-header-actions">
+              <button type="button" class="notif-refresh" id="notif-refresh-btn" title="Rafraîchir">↻</button>
+              <button type="button" class="notif-clear-all" id="notif-clear-all-btn" title="Supprimer toutes les notifications">🗑️ Tout</button>
+            </span>
+          </h4>
+          <div id="notif-list"></div>
+        </div>
+      </div>
+      <button type="button" id="toggle-dark-student" class="nav-dark-toggle" title="Mode sombre" aria-label="Mode sombre">🌙</button>
+      <button type="button" id="logout-student-btn" class="nav-dark-toggle" title="Logout" aria-label="Logout">🚪</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- Parcours: Niveau → Chapitres → Leçons + Quiz -->
+    <section id="section-parcours" class="section active">
+      <div class="page-hero">
+        <div class="hero-badge">Parcours</div>
+        <h1 class="page-title">Par <span class="green">niveau</span></h1>
+        <p class="page-subtitle">Choisissez un niveau, puis un chapitre. Consultez les leçons (vidéo/PDF) et passez le quiz à la fin du chapitre.</p>
+      </div>
+      <div id="parcours-stats" class="stats-strip" style="display:none;"></div>
+      <div id="parcours-breadcrumb" class="parcours-breadcrumb"></div>
+      <div id="parcours-progress-wrap" class="parcours-progress" style="display:none;"><div id="parcours-progress-bar" class="parcours-progress-bar" style="width:0%"></div></div>
+      <div id="parcours-resume" class="resume-card" style="display:none;">
+        <div><div class="resume-label">Reprendre où j'en étais</div><div class="resume-title" id="parcours-resume-title"></div></div>
+        <button type="button" class="btn btn-primary" id="parcours-resume-btn">Reprendre</button>
+      </div>
+      <div id="parcours-search-levels" class="parcours-search-wrap" style="display:none;"><input type="text" id="parcours-search-levels-input" placeholder="Rechercher un niveau (code ou nom)…"></div>
+      <div id="parcours-search-chapters" class="parcours-search-wrap" style="display:none;"><input type="text" id="parcours-search-chapters-input" placeholder="Rechercher un chapitre…"></div>
+      <div id="parcours-levels"></div>
+      <div id="parcours-chapters" class="hidden"></div>
+      <div id="parcours-chapter-detail" class="hidden"></div>
+    </section>
+
+    <!-- Our Courses (liste) -->
+    <section id="section-courses" class="section">
+      <div class="page-hero">
+        <div class="hero-badge">Catalogue</div>
+        <h1 class="page-title">Our <span class="green">Courses</span></h1>
+        <p class="page-subtitle">Parcourez les cours, consultez les détails et inscrivez-vous en un clic.</p>
+      </div>
+      <div id="student-stats" class="stats-strip" style="display:none;"></div>
+      <div id="courses-list" class="courses-grid"></div>
+    </section>
+
+    <!-- Course Detail + S'inscrire -->
+    <section id="section-course-detail" class="section">
+      <div class="back-link"><a href="#" id="backFromDetail">← Retour aux cours</a></div>
+      <div id="course-detail-content" class="course-detail"></div>
+    </section>
+
+    <!-- My Enrollments -->
+    <section id="section-enrollments" class="section">
+      <div class="page-hero">
+        <div class="hero-badge">Progression</div>
+        <h1 class="page-title">My <span class="green">Enrollments</span></h1>
+        <p class="page-subtitle">Vos inscriptions et votre progression par cours.</p>
+      </div>
+      <div id="enrollments-list"></div>
+    </section>
+
+    <!-- My Badges -->
+    <section id="section-badges" class="section">
+      <div class="page-hero">
+        <div class="hero-badge">Récompenses</div>
+        <h1 class="page-title">My <span class="orange">Badges</span></h1>
+        <p class="page-subtitle">Badges gagnés au fil de votre parcours.</p>
+      </div>
+      <div id="badges-list"></div>
+    </section>
+
+    <!-- Quiz -->
+    <section id="section-quiz" class="section">
+      <div class="page-hero">
+        <div class="hero-badge">Quiz</div>
+        <h1 class="page-title">Quiz / <span class="green">Questions</span></h1>
+        <p class="page-subtitle">Répondez aux questions du cours choisi.</p>
+      </div>
+      <div class="card">
+        <label style="display:block;margin-bottom:0.5rem;font-weight:600;">Cours :</label>
+        <select id="quizCourseSelect" style="max-width:400px;padding:0.6rem;border-radius:8px;border:1px solid var(--border);"><option value="">-- Choisir un cours --</option></select>
+      </div>
+      <div id="quiz-questions"></div>
+    </section>
+
+    <footer class="footer-mini">
+      <a href="index.html">← Retour à l'accueil Jungle in English</a> · <a href="teacher.html">Espace Enseignant</a>
+    </footer>
+  </main>
+
+  <script>
+    (function(){ var s=document.getElementById('splash'); if(s){ setTimeout(function(){ s.classList.add('hide'); setTimeout(function(){ s.classList.add('remove'); }, 600); }, 3200); } })();
+    (function initDarkTheme() {
+      var dark = localStorage.getItem('jungleDarkTheme') === '1';
+      if (dark) document.body.classList.add('dark-theme');
+      var btn = document.getElementById('toggle-dark-student');
+      if (btn) btn.addEventListener('click', function() { document.body.classList.toggle('dark-theme'); var on = document.body.classList.contains('dark-theme'); localStorage.setItem('jungleDarkTheme', on ? '1' : '0'); btn.textContent = on ? '☀️' : '🌙'; btn.title = on ? 'Mode clair' : 'Mode sombre'; });
+      if (btn && document.body.classList.contains('dark-theme')) btn.textContent = '☀️';
+    })();
+    const API = (window.location.port === '8083' || window.location.port === '8081' || window.location.port === '8084' || window.location.port === '8085') ? '' : 'http://localhost:8083';
+    async function api(u, opt) {
+      const r = await fetch(API + u, opt);
+      const text = await r.text();
+      if (!r.ok) {
+        var msg = r.statusText || 'Erreur réseau';
+        try {
+          var j = text ? JSON.parse(text) : {};
+          if (j.error && String(j.error).trim()) msg = j.error;
+          else if (j.message && String(j.message).trim()) msg = j.message;
+        } catch (_) { if (text && text.length < 200) msg = text; }
+        throw new Error(msg);
+      }
+      return text ? JSON.parse(text) : null;
+    }
+    function apiWithPort(baseUrl, u, opt) {
+      return fetch(baseUrl + u, opt).then(function(r) { return r.text().then(function(text) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return text ? JSON.parse(text) : null;
+      }); });
+    }
+
+    function getStudentId() { return document.getElementById('studentSelect').value || null; }
+
+    document.querySelectorAll('.nav-links a').forEach(function(a) {
+      a.addEventListener('click', function(e) {
+        e.preventDefault();
+        var p = e.currentTarget.getAttribute('data-page');
+        showPage(p);
+        if (p === 'parcours') loadParcours();
+        if (p === 'courses') loadCourses();
+        if (p === 'enrollments') loadEnrollments();
+        if (p === 'badges') loadBadges();
+        if (p === 'quiz') loadQuizCourses();
+      });
+    });
+    document.getElementById('backFromDetail').addEventListener('click', e => { e.preventDefault(); showPage('courses'); loadCourses(); });
+
+    document.addEventListener('visibilitychange', function() {
+      if (document.visibilityState === 'visible') { loadNotifications(); loadCourses(); }
+    });
+
+    var notificationsCache = [];
+    var notifInitialized = false;
+    var notifConfirmResolve = null;
+
+    function showNotifToast(message, isError) {
+      var toast = document.getElementById('notif-toast');
+      if (!toast) return;
+      toast.textContent = message || '';
+      toast.classList.toggle('error', !!isError);
+      toast.classList.add('show');
+      clearTimeout(showNotifToast._t);
+      showNotifToast._t = setTimeout(function() { toast.classList.remove('show'); }, 2200);
+    }
+    function notifConfirm(message) {
+      return new Promise(function(resolve) {
+        var backdrop = document.getElementById('notif-confirm-backdrop');
+        var msg = document.getElementById('notif-confirm-message');
+        var okBtn = document.getElementById('notif-confirm-ok');
+        var cancelBtn = document.getElementById('notif-confirm-cancel');
+        if (!backdrop || !msg || !okBtn || !cancelBtn) {
+          resolve(confirm(message || 'Confirmer ?'));
+          return;
+        }
+        notifConfirmResolve = resolve;
+        msg.textContent = message || 'Confirmer cette action ?';
+        backdrop.classList.remove('hidden');
+        var close = function(result) {
+          backdrop.classList.add('hidden');
+          if (notifConfirmResolve) { notifConfirmResolve(result); notifConfirmResolve = null; }
+        };
+        okBtn.onclick = function() { close(true); };
+        cancelBtn.onclick = function() { close(false); };
+        backdrop.onclick = function(e) { if (e.target === backdrop) close(false); };
+      });
+    }
+
+    async function notificationApiDelete(path) {
+      var ports = [8083, 8084, 8085, 8086];
+      var targets = [];
+      if (API === '') targets.push('');
+      else targets.push(API);
+      ports.forEach(function(p) { targets.push('http://localhost:' + p); });
+      var tested = {};
+      var lastError = '';
+      for (var i = 0; i < targets.length; i++) {
+        var base = targets[i];
+        if (tested[base]) continue;
+        tested[base] = true;
+        try {
+          var url = (base || '') + path;
+          var r = await fetch(url, { method: 'DELETE' });
+          var text = await r.text();
+          if (r.ok) return true;
+          lastError = text || ('HTTP ' + r.status);
+        } catch (e) {
+          lastError = (e && e.message) ? e.message : 'Erreur réseau';
+        }
+      }
+      throw new Error(lastError || 'Suppression impossible');
+    }
+
+    function playNotificationSound() {
+      try {
+        var C = window.AudioContext || window.webkitAudioContext;
+        if (!C) return;
+        var ctx = new C();
+        var play = function(freq, start, duration) {
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.frequency.value = freq;
+          osc.type = 'sine';
+          gain.gain.setValueAtTime(0.15, start);
+          gain.gain.exponentialRampToValueAtTime(0.01, start + duration);
+          osc.start(start);
+          osc.stop(start + duration);
+        };
+        play(523.25, 0, 0.12);
+        play(659.25, 0.14, 0.2);
+      } catch (_) {}
+    }
+
+    function triggerNotifEffect(latestNotif) {
+      var bell = document.getElementById('notif-bell-btn');
+      var badge = document.getElementById('notif-badge');
+      var flash = document.getElementById('notif-screen-flash');
+      var banner = document.getElementById('notif-alert-banner');
+      var bannerText = document.getElementById('notif-alert-text');
+      var bannerMeta = document.getElementById('notif-alert-meta');
+      if (bell) {
+        bell.classList.remove('new-notif');
+        bell.offsetHeight;
+        bell.classList.add('new-notif');
+        setTimeout(function() { bell.classList.remove('new-notif'); }, 2400);
+      }
+      if (badge && !badge.classList.contains('hidden')) {
+        badge.classList.remove('new-notif-badge');
+        badge.offsetHeight;
+        badge.classList.add('new-notif-badge');
+        setTimeout(function() { badge.classList.remove('new-notif-badge'); }, 600);
+      }
+      if (flash) {
+        flash.classList.remove('active');
+        flash.offsetHeight;
+        flash.classList.add('active');
+      }
+      if (banner) {
+        var type = latestNotif && latestNotif.type ? String(latestNotif.type).toLowerCase() : '';
+        var label = type === 'new_lesson' ? 'Nouvelle leçon disponible' : (type === 'new_chapter' ? 'Nouveau chapitre disponible' : 'Nouveau cours disponible');
+        var title = latestNotif ? String(latestNotif.courseTitle || latestNotif.coursetitle || '').trim() : '';
+        if (bannerText) bannerText.textContent = label;
+        if (bannerMeta) bannerMeta.textContent = title ? title.substring(0, 70) : 'Cliquez sur la cloche pour voir les détails';
+        banner.classList.remove('active');
+        banner.offsetHeight;
+        banner.classList.add('active');
+      }
+    }
+
+    function renderNotifBadge() {
+      var badge = document.getElementById('notif-badge');
+      if (!badge) return;
+      var n = notificationsCache.length;
+      badge.textContent = n > 99 ? '99+' : n;
+      badge.classList.toggle('hidden', n === 0);
+    }
+    async function openNotifTarget(notifType, targetId) {
+      var d = document.getElementById('notif-dropdown');
+      if (d) d.classList.add('hidden');
+      var id = parseInt(targetId, 10);
+      var sameId = function(a, b) { return String(a) === String(b); };
+      if (notifType === 'course' && Number.isInteger(id) && id > 0) {
+        try {
+          await showCourseDetail(id);
+          return;
+        } catch (_) {}
+      }
+      if (notifType === 'chapter' && Number.isInteger(id) && id > 0) {
+        try {
+          var chapter = await api('/api/chapters/' + id);
+          if (chapter && chapter.levelId) {
+            showPage('parcours');
+            await loadParcours();
+            var levelObj = (pedagogyTree || []).find(function(l) { return sameId(l.id, chapter.levelId); });
+            if (levelObj) {
+              var chapterObj = ((levelObj.chapters || []).find(function(c) { return sameId(c.id, chapter.id); })) || chapter;
+              await showChapterDetail(levelObj.id, chapterObj.id);
+              return;
+            }
+          }
+        } catch (_) {}
+      }
+      if (notifType === 'lesson' && Number.isInteger(id) && id > 0) {
+        try {
+          var lesson = await api('/api/lessons/' + id);
+          if (lesson && lesson.chapterId) {
+            var ch = await api('/api/chapters/' + lesson.chapterId);
+            if (ch && ch.levelId) {
+              showPage('parcours');
+              await loadParcours();
+              var lvObj = (pedagogyTree || []).find(function(l) { return sameId(l.id, ch.levelId); });
+              if (lvObj) {
+                var chObj = ((lvObj.chapters || []).find(function(c) { return sameId(c.id, ch.id); })) || ch;
+                await showChapterDetail(lvObj.id, chObj.id);
+                return;
+              }
+            }
+          }
+        } catch (_) {}
+      }
+      if ((notifType === 'chapter' || notifType === 'lesson') && Number.isInteger(id) && id > 0) {
+        try {
+          // Fallback legacy: recherche dans l'arbre déjà chargé.
+          showPage('parcours');
+          await loadParcours();
+          var found = null;
+          if (notifType === 'chapter') {
+            for (var li = 0; li < (pedagogyTree || []).length && !found; li++) {
+              var level = pedagogyTree[li];
+              var chapters = (level && level.chapters) || [];
+              for (var ci = 0; ci < chapters.length; ci++) {
+                if (parseInt(chapters[ci].id, 10) === id) { found = { levelId: level.id, chapterId: chapters[ci].id }; break; }
+              }
+            }
+          } else {
+            for (var l2 = 0; l2 < (pedagogyTree || []).length && !found; l2++) {
+              var lv = pedagogyTree[l2];
+              var chs = (lv && lv.chapters) || [];
+              for (var c2 = 0; c2 < chs.length; c2++) {
+                var lessons = (chs[c2] && chs[c2].lessons) || [];
+                for (var le = 0; le < lessons.length; le++) {
+                  if (parseInt(lessons[le].id, 10) === id) { found = { levelId: lv.id, chapterId: chs[c2].id }; break; }
+                }
+                if (found) break;
+              }
+            }
+          }
+          if (found) {
+            showChapterDetail(found.levelId, found.chapterId);
+            return;
+          }
+        } catch (_) {}
+      }
+      if (notifType === 'chapter' || notifType === 'lesson') {
+        showPage('parcours');
+        await loadParcours();
+        var sectionParcours = document.getElementById('section-parcours');
+        if (sectionParcours) sectionParcours.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        showPage('courses');
+        await loadCourses();
+        var sectionCourses = document.getElementById('section-courses');
+        if (sectionCourses) sectionCourses.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+    async function deleteNotificationById(id) {
+      if (!id) return;
+      var ok = await notifConfirm('Supprimer cette notification ?');
+      if (!ok) return;
+      try {
+        await notificationApiDelete('/api/notifications/' + id);
+      } catch (e) {
+        showNotifToast('Suppression échouée: ' + (e.message || 'Erreur'), true);
+        return;
+      }
+      notificationsCache = notificationsCache.filter(function(n) { return String(n.id) !== String(id); });
+      renderNotifBadge();
+      renderNotifList();
+      showNotifToast('Notification supprimée', false);
+    }
+    async function deleteAllNotifications() {
+      if (!notificationsCache.length) return;
+      var ok = await notifConfirm('Supprimer toutes les notifications ?');
+      if (!ok) return;
+      try {
+        await notificationApiDelete('/api/notifications');
+      } catch (_) {
+        // Fallback: supprimer une à une si la route bulk n'est pas dispo.
+        var ids = notificationsCache.map(function(n) { return n.id; }).filter(Boolean);
+        var okCount = 0;
+        for (var i = 0; i < ids.length; i++) {
+          try {
+            await notificationApiDelete('/api/notifications/' + ids[i]);
+            okCount++;
+          } catch (_) {}
+        }
+        if (okCount === 0) {
+          showNotifToast('Suppression totale échouée', true);
+          return;
+        }
+      }
+      notificationsCache = [];
+      renderNotifBadge();
+      renderNotifList();
+      showNotifToast('Toutes les notifications supprimées', false);
+    }
+    function renderNotifList() {
+      var list = document.getElementById('notif-list');
+      if (!list) return;
+      var cache = Array.isArray(notificationsCache) ? notificationsCache : [];
+      if (!cache.length) { list.innerHTML = '<div class="notif-empty">Aucune notification.</div>'; return; }
+      list.innerHTML = cache.map(function(n) {
+        var type = (n.type || '').toLowerCase();
+        var isChapter = type === 'new_chapter';
+        var isLesson = type === 'new_lesson';
+        var label = isLesson ? 'Nouvelle leçon' : (isChapter ? 'Nouveau chapitre' : 'Nouveau cours');
+        var title = String(n.courseTitle || n.coursetitle || label).substring(0, 60);
+        var created = n.createdAt || n.createdat || '';
+        var date = created ? new Date(created).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) : '';
+        var notifType = isLesson ? 'lesson' : (isChapter ? 'chapter' : 'course');
+        var id = n.id || '';
+        var targetId = n.courseId || n.courseid || '';
+        var canDelete = !!id;
+        return '<div class="notif-row"><button type="button" class="notif-item" data-notif-type="' + notifType + '" data-notif-id="' + id + '" data-notif-target="' + targetId + '" data-notif-created="' + (created || '') + '"><strong>' + label + '</strong>: ' + title + (title.length >= 60 ? '…' : '') + '<div class="notif-date">' + date + '</div></button><div class="notif-actions"><button type="button" class="notif-open-btn" data-notif-open="' + notifType + '" data-notif-target="' + targetId + '" title="Ouvrir">↗</button><button type="button" class="notif-delete-btn" data-notif-delete="' + id + '"' + (canDelete ? '' : ' disabled') + ' title="' + (canDelete ? 'Supprimer' : 'Suppression indisponible') + '">🗑️</button></div></div>';
+      }).join('');
+      list.querySelectorAll('.notif-item, .notif-open-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          var notifType = btn.getAttribute('data-notif-type') || btn.getAttribute('data-notif-open');
+          var targetId = btn.getAttribute('data-notif-target') || '';
+          openNotifTarget(notifType, targetId).catch(function() {
+            showNotifToast('Impossible d’ouvrir cette notification', true);
+          });
+        });
+      });
+      list.querySelectorAll('.notif-delete-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          var id = btn.getAttribute('data-notif-delete');
+          deleteNotificationById(id);
+        });
+      });
+    }
+    async function loadNotifications() {
+      var prevCount = notificationsCache.length;
+      var list = document.getElementById('notif-list');
+      if (list) list.innerHTML = '<div class="notif-empty">Chargement...</div>';
+      var u = '/api/notifications?limit=30&t=' + Date.now();
+      var raw = null;
+      if (API === '') {
+        try {
+          raw = await api(u);
+        } catch (_) {}
+      }
+      if (raw === null) {
+        var ports = [8083, 8084, 8085, 8086];
+        for (var i = 0; i < ports.length; i++) {
+          try {
+            raw = await apiWithPort('http://localhost:' + ports[i], u);
+            break;
+          } catch (_) {}
+        }
+      }
+      notificationsCache = Array.isArray(raw) ? raw : [];
+      if (list) {
+        if (notificationsCache.length === 0) list.innerHTML = '<div class="notif-empty">Aucune notification.</div>';
+        else renderNotifList();
+      }
+      renderNotifBadge();
+
+      if (notifInitialized && notificationsCache.length > prevCount && document.visibilityState === 'visible') {
+        playNotificationSound();
+        triggerNotifEffect(notificationsCache[0] || null);
+      }
+      notifInitialized = true;
+    }
+    (function initNotifBell() {
+      var bell = document.getElementById('notif-bell-btn');
+      var dropdown = document.getElementById('notif-dropdown');
+      if (bell && dropdown) {
+        bell.addEventListener('click', function(e) {
+          e.stopPropagation();
+          dropdown.classList.toggle('hidden');
+          if (!dropdown.classList.contains('hidden')) loadNotifications();
+        });
+        document.addEventListener('click', function() { dropdown.classList.add('hidden'); });
+        dropdown.addEventListener('click', function(e) { e.stopPropagation(); });
+      }
+      var refreshBtn = document.getElementById('notif-refresh-btn');
+      if (refreshBtn) refreshBtn.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); loadNotifications(); });
+      var clearAllBtn = document.getElementById('notif-clear-all-btn');
+      if (clearAllBtn) clearAllBtn.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); deleteAllNotifications(); });
+      loadNotifications();
+      setInterval(loadNotifications, 15000);
+    })();
+
+    function showPage(id) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      var navPage = (id === 'course-detail') ? 'courses' : id;
+      document.querySelectorAll('.nav-links a').forEach(function(a) { a.classList.toggle('active', a.getAttribute('data-page') === navPage); });
+      var el = document.getElementById('section-' + id);
+      if (el) el.classList.add('active');
+    }
+
+    let pedagogyTree = [];
+    let levelsOrderedCache = [];
+    let currentChaptersListCache = [];
+    const CHAPTERS_PER_PAGE = 6;
+    const PARCOURS_STORAGE_KEY = 'jungleLastParcours';
+
+    function saveParcoursPosition(levelId, chapterId, levelName, chapterName) {
+      try { localStorage.setItem(PARCOURS_STORAGE_KEY, JSON.stringify({ levelId: levelId, chapterId: chapterId, levelName: levelName || '', chapterName: chapterName || '' })); } catch (_) {}
+    }
+    function showResumeCardIfAny() {
+      var el = document.getElementById('parcours-resume');
+      if (!el) return;
+      try {
+        var raw = localStorage.getItem(PARCOURS_STORAGE_KEY);
+        if (!raw) { el.style.display = 'none'; return; }
+        var data = JSON.parse(raw);
+        var levelId = data.levelId, chapterId = data.chapterId;
+        var level = pedagogyTree.find(function(l) { return l.id === levelId; });
+        var chapter = level && (level.chapters || []).find(function(c) { return c.id === chapterId; });
+        if (!chapter) { el.style.display = 'none'; return; }
+        document.getElementById('parcours-resume-title').textContent = (data.levelName || level.code) + ' → ' + (data.chapterName || chapter.title);
+        el.style.display = 'flex';
+        document.getElementById('parcours-resume-btn').onclick = function() { showChapterDetail(levelId, chapterId); };
+      } catch (_) { el.style.display = 'none'; }
+    }
+    function setParcoursBreadcrumb(items) {
+      var el = document.getElementById('parcours-breadcrumb');
+      if (!el) return;
+      if (!items || !items.length) { el.innerHTML = ''; return; }
+      el.innerHTML = items.map(function(it, i) {
+        var isLast = i === items.length - 1;
+        var text = escapeHtml(it.label || '');
+        if (it.href && !isLast) return '<a href="#" data-breadcrumb-href="' + escapeHtml(it.href) + '">' + text + '</a>';
+        return '<span class="' + (isLast ? 'current' : '') + '">' + text + '</span>';
+      }).join('<span style="margin:0 0.25rem;">›</span>');
+      el.querySelectorAll('a[data-breadcrumb-href]').forEach(function(a) {
+        a.onclick = function(e) { e.preventDefault(); var h = a.getAttribute('data-breadcrumb-href'); if (h === 'levels') { document.getElementById('parcours-chapters').classList.add('hidden'); document.getElementById('parcours-chapter-detail').classList.add('hidden'); document.getElementById('parcours-levels').classList.remove('hidden'); loadParcours(); } else if (h.indexOf('chapters:') === 0) { showChapters(parseInt(h.split(':')[1], 10)); } else if (h.indexOf('detail:') === 0) { var p = h.split(':'); showChapterDetail(parseInt(p[1], 10), parseInt(p[2], 10)); } };
+      });
+    }
+    function setParcoursProgress(pct) {
+      var wrap = document.getElementById('parcours-progress-wrap');
+      var bar = document.getElementById('parcours-progress-bar');
+      if (wrap) wrap.style.display = pct != null && pct > 0 ? 'block' : 'none';
+      if (bar) bar.style.width = (pct != null ? Math.min(100, Math.max(0, pct)) : 0) + '%';
+    }
+    async function loadParcours() {
+      const levelsEl = document.getElementById('parcours-levels');
+      const chaptersEl = document.getElementById('parcours-chapters');
+      const detailEl = document.getElementById('parcours-chapter-detail');
+      chaptersEl.classList.add('hidden');
+      detailEl.classList.add('hidden');
+      levelsEl.innerHTML = '<span class="loading">Chargement du parcours...</span>';
+      setParcoursBreadcrumb([{ label: 'Niveaux' }]);
+      setParcoursProgress(25);
+      try {
+        pedagogyTree = await api('/api/pedagogy/tree') || [];
+        const sid = getStudentId();
+        if (sid) {
+          try {
+            const pts = await api('/api/students/' + sid + '/points');
+            document.getElementById('parcours-stats').innerHTML = '<div class="stat-card"><div class="num">' + (pts.totalPoints || 0) + '</div><div class="label">Points</div></div>';
+            document.getElementById('parcours-stats').style.display = 'grid';
+          } catch (_) { document.getElementById('parcours-stats').style.display = 'none'; }
+        } else {
+          document.getElementById('parcours-stats').style.display = 'none';
+        }
+        if (!pedagogyTree.length) { levelsEl.innerHTML = '<p>Aucun niveau pour le moment.</p>'; document.getElementById('parcours-search-levels').style.display = 'none'; return; }
+        levelsOrderedCache = pedagogyTree.slice().sort(function(a, b) { return (a.sortOrder || 0) - (b.sortOrder || 0) || (a.id - b.id); });
+        document.getElementById('parcours-search-levels').style.display = 'block';
+        document.getElementById('parcours-search-chapters').style.display = 'none';
+        document.getElementById('parcours-search-levels-input').value = '';
+        renderLevelsList(levelsOrderedCache);
+        showResumeCardIfAny();
+        document.getElementById('parcours-search-levels-input').oninput = function() {
+          var q = (this.value || '').trim().toLowerCase();
+          var list = q ? levelsOrderedCache.filter(function(l) { return ((l.code || '') + ' ' + (l.name || '')).toLowerCase().indexOf(q) >= 0; }) : levelsOrderedCache;
+          renderLevelsList(list);
+        };
+      } catch (e) {
+        var msg = (e && e.message) ? String(e.message).trim() : '';
+        try {
+          if (msg && (msg.startsWith('{') && msg.includes('"error"'))) {
+            var o = JSON.parse(msg);
+            if (o && (o.error === '' || o.error == null)) msg = '';
+          }
+        } catch (_) {}
+        if (!msg) msg = 'Impossible de charger le parcours. Vérifiez que le serveur est démarré.';
+        levelsEl.innerHTML = '<span class="error">' + escapeHtml(msg) + '</span>';
+      }
+    }
+    function escapeHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+    function renderLevelsList(levelsArray) {
+      var levelsEl = document.getElementById('parcours-levels');
+      if (!levelsArray || !levelsArray.length) { levelsEl.innerHTML = '<p style="color:var(--text-muted);">Aucun niveau ne correspond à la recherche.</p>'; return; }
+      levelsEl.innerHTML = '<p style="margin-bottom:1rem;color:var(--text-muted);">Choisissez un niveau :</p><div class="parcours-cards">' + levelsArray.map(function(l) { return '<div class="level-card" data-level-id="' + l.id + '"><span class="icon-parcours icon-level">📚</span><div><h3><span class="code">' + (l.code || '') + '</span> – ' + escapeHtml(l.name || '') + '</h3><p class="meta">' + (l.chapters && l.chapters.length ? l.chapters.length + ' chapitre(s)' : '') + '</p></div></div>'; }).join('') + '</div>';
+      levelsEl.querySelectorAll('.level-card').forEach(function(card) {
+        card.addEventListener('click', function() {
+          var levelId = parseInt(this.getAttribute('data-level-id'), 10);
+          this.classList.add('click-anim');
+          setTimeout(function() { showChapters(levelId); }, 220);
+        });
+      });
+    }
+    function renderChaptersPage(levelId, page, optionalChapters) {
+      var level = pedagogyTree.find(function(l) { return l.id === levelId; });
+      if (!level) return;
+      var chs = optionalChapters && optionalChapters.length >= 0 ? optionalChapters : (level.chapters || []).slice().sort(function(a, b) { return (a.sortOrder || 0) - (b.sortOrder || 0) || (a.id - b.id); });
+      var total = chs.length;
+      if (total === 0) {
+        var container = document.getElementById('parcours-chapters-list');
+        if (container) container.innerHTML = '<p class="loading">Aucun chapitre dans ce niveau.</p>';
+        return;
+      }
+      var totalPages = Math.max(1, Math.ceil(total / CHAPTERS_PER_PAGE));
+      var p = Math.max(1, Math.min(page, totalPages));
+      var start = (p - 1) * CHAPTERS_PER_PAGE;
+      var pageChs = chs.slice(start, start + CHAPTERS_PER_PAGE);
+      var cardsHtml = pageChs.map(function(c) {
+        var lessonCount = c.lessons && c.lessons.length ? c.lessons.length + ' leçon(s)' : '0 leçon';
+        var quizLabel = c.quiz ? ' · Quiz' : '';
+        return '<div class="chapter-card" data-chapter-id="' + c.id + '"><span class="icon-parcours icon-chapter">📑</span><div><h3>' + escapeHtml(c.title || '') + '</h3><p class="meta">' + lessonCount + quizLabel + '</p></div></div>';
+      }).join('');
+      var paginationHtml = totalPages > 1 ? '<div class="pagination-wrap"><span class="pagination-info">Page ' + p + ' / ' + totalPages + '</span><button type="button" class="btn-page" data-page="prev" ' + (p <= 1 ? 'disabled' : '') + '>‹</button>' + (function() { var out = []; for (var i = 1; i <= totalPages; i++) out.push('<button type="button" class="btn-page' + (i === p ? ' active' : '') + '" data-page="' + i + '">' + i + '</button>'); return out.join(''); })() + '<button type="button" class="btn-page" data-page="next" ' + (p >= totalPages ? 'disabled' : '') + '>›</button></div>' : '';
+      var container = document.getElementById('parcours-chapters-list');
+      if (container) {
+        container.innerHTML = '<div class="parcours-cards">' + cardsHtml + '</div>' + paginationHtml;
+        container.setAttribute('data-current-page', p);
+        container.querySelectorAll('.chapter-card').forEach(function(card) {
+          card.addEventListener('click', function() {
+            var chId = parseInt(this.getAttribute('data-chapter-id'), 10);
+            this.classList.add('click-anim');
+            setTimeout(function() { showChapterDetail(levelId, chId); }, 220);
+          });
+        });
+        container.querySelectorAll('.pagination-wrap .btn-page').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            if (btn.disabled) return;
+            var toPage = btn.getAttribute('data-page');
+            var next = toPage === 'prev' ? p - 1 : toPage === 'next' ? p + 1 : parseInt(toPage, 10);
+            if (next >= 1 && next <= totalPages) renderChaptersPage(levelId, next);
+          });
+        });
+      }
+    }
+    function showChapters(levelId) {
+      const level = pedagogyTree.find(l => l.id === levelId);
+      if (!level) return;
+      document.getElementById('parcours-resume').style.display = 'none';
+      document.getElementById('parcours-search-levels').style.display = 'none';
+      document.getElementById('parcours-search-chapters').style.display = 'block';
+      document.getElementById('parcours-search-chapters-input').value = '';
+      setParcoursBreadcrumb([{ label: 'Niveaux', href: 'levels' }, { label: (level.code || '') + ' – ' + (level.name || ''), href: 'chapters:' + levelId }]);
+      setParcoursProgress(50);
+      const levelsEl = document.getElementById('parcours-levels');
+      const chaptersEl = document.getElementById('parcours-chapters');
+      const detailEl = document.getElementById('parcours-chapter-detail');
+      detailEl.classList.add('hidden');
+      detailEl.classList.remove('parcours-visible');
+      levelsEl.style.opacity = '0';
+      setTimeout(function() {
+        levelsEl.classList.add('hidden');
+        levelsEl.style.opacity = '';
+        currentChaptersListCache = (level.chapters || []).slice().sort(function(a, b) { return (a.sortOrder || 0) - (b.sortOrder || 0) || (a.id - b.id); });
+        chaptersEl.innerHTML = '<div class="back-link"><a href="#" id="parcours-back-level">← Retour aux niveaux</a></div><h2 class="page-title">Chapitres – ' + escapeHtml(level.code || '') + '</h2><p class="page-subtitle">Choisissez un chapitre pour voir les leçons et passer le quiz.</p><div id="parcours-chapters-list"></div>';
+        chaptersEl.classList.remove('hidden');
+        chaptersEl.classList.add('parcours-visible');
+        renderChaptersPage(levelId, 1);
+        document.getElementById('parcours-search-chapters-input').oninput = function() {
+          var q = (this.value || '').trim().toLowerCase();
+          var list = q ? currentChaptersListCache.filter(function(c) { return (c.title || '').toLowerCase().indexOf(q) >= 0; }) : currentChaptersListCache;
+          renderChaptersPage(levelId, 1, list);
+        };
+        document.getElementById('parcours-back-level').onclick = function(e) {
+          e.preventDefault();
+          chaptersEl.classList.remove('parcours-visible');
+          chaptersEl.style.opacity = '0';
+          setTimeout(function() {
+            chaptersEl.classList.add('hidden');
+            chaptersEl.style.opacity = '';
+            levelsEl.classList.remove('hidden');
+            levelsEl.classList.add('parcours-visible');
+            loadParcours();
+          }, 250);
+        };
+      }, 250);
+    }
+    async function showChapterDetail(levelId, chapterId) {
+      const level = pedagogyTree.find(l => l.id === levelId);
+      const chapter = level && (level.chapters || []).find(c => c.id === chapterId);
+      if (!chapter) return;
+      saveParcoursPosition(levelId, chapterId, (level && (level.code + ' – ' + level.name)) || '', chapter.title || '');
+      setParcoursBreadcrumb([
+        { label: 'Niveaux', href: 'levels' },
+        { label: (level.code || '') + ' – ' + (level.name || ''), href: 'chapters:' + levelId },
+        { label: chapter.title || 'Chapitre' }
+      ]);
+      setParcoursProgress(100);
+      const chaptersEl = document.getElementById('parcours-chapters');
+      const detailEl = document.getElementById('parcours-chapter-detail');
+      chaptersEl.style.opacity = '0';
+      setTimeout(function() {
+        chaptersEl.classList.add('hidden');
+        chaptersEl.style.opacity = '';
+        detailEl.classList.remove('hidden');
+        detailEl.classList.add('parcours-visible');
+      }, 250);
+      var lessons = (chapter.lessons || []).slice().sort(function(a, b) { return (a.sortOrder || 0) - (b.sortOrder || 0) || (a.id - b.id); });
+      const baseUrl = API || window.location.origin;
+      var lessonIconClass = function(l) { return l.type === 'VIDEO' ? 'icon-lesson-video' : 'icon-lesson-pdf'; };
+      var lessonEmoji = function(l) { return l.type === 'VIDEO' ? '🎬' : '📄'; };
+      let lessonsHtml = lessons.length ? '<h3 style="margin-bottom:0.75rem;">Leçons du chapitre</h3>' + lessons.map(function(l) {
+        var isVideo = l.type === 'VIDEO';
+        var url = (l.url || '').startsWith('http') ? l.url : baseUrl + (l.url || '');
+        return '<div class="lesson-row"><span class="icon-parcours ' + lessonIconClass(l) + ' lesson-icon">' + lessonEmoji(l) + '</span><div><strong>' + escapeHtml(l.title || '') + '</strong>' + (l.durationMinutes ? ' <span class="meta">(' + l.durationMinutes + ' min)</span>' : '') + '<br><a href="' + url + '" target="_blank" rel="noopener" class="btn btn-secondary" style="margin-top:0.5rem;">' + (isVideo ? 'Voir la vidéo' : 'Ouvrir le PDF') + '</a></div></div>';
+      }).join('') : '<p>Aucune leçon dans ce chapitre.</p>';
+      var questions = [];
+      if (chapter.quiz) {
+        questions = await api('/api/quizzes/' + chapter.quiz.id + '/questions').catch(function() { return []; });
+      }
+      var quizPaneHtml = '';
+      if (chapter.quiz && questions.length) {
+        quizPaneHtml = '<div class="card"><h3><span class="icon-parcours icon-quiz">✏️</span> ' + escapeHtml(chapter.quiz.title || 'Quiz') + '</h3><p class="page-subtitle">Une question à la fois. Utilisez Précédent / Suivant puis Envoyer le quiz.</p><form id="parcours-quiz-form"><div id="parcours-quiz-steps"></div><div class="quiz-step-nav"><span class="quiz-step-info" id="parcours-quiz-step-info">Question 1 / ' + questions.length + '</span><div><button type="button" class="btn btn-secondary" id="parcours-quiz-prev">← Précédent</button> <button type="button" class="btn btn-primary" id="parcours-quiz-next">Suivant →</button> <button type="submit" class="btn btn-primary" id="parcours-quiz-submit" style="display:none;">Envoyer le quiz</button></div></div></form><div id="parcours-quiz-result"></div></div>';
+      } else if (chapter.quiz) {
+        quizPaneHtml = '<p class="loading">Aucune question pour ce quiz.</p>';
+      } else {
+        quizPaneHtml = '<p class="loading">Aucun quiz pour ce chapitre.</p>';
+      }
+      detailEl.innerHTML = '<div class="back-link"><a href="#" id="parcours-back-chapters">← Retour aux chapitres</a></div><div class="card"><h1>' + escapeHtml(chapter.title || '') + '</h1><p class="meta">Niveau ' + escapeHtml(level.code || '') + '</p><div class="parcours-tabs"><button type="button" class="parcours-tab active" data-tab="lessons">Leçons</button><button type="button" class="parcours-tab" data-tab="quiz">Quiz</button></div><div id="parcours-pane-lessons" class="parcours-pane active">' + lessonsHtml + '</div><div id="parcours-pane-quiz" class="parcours-pane">' + quizPaneHtml + '</div></div>';
+      document.getElementById('parcours-back-chapters').onclick = function(e) {
+        e.preventDefault();
+        detailEl.classList.remove('parcours-visible');
+        detailEl.style.opacity = '0';
+        setTimeout(function() {
+          detailEl.classList.add('hidden');
+          detailEl.style.opacity = '';
+          chaptersEl.classList.remove('hidden');
+        }, 250);
+      };
+      detailEl.querySelectorAll('.parcours-tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          detailEl.querySelectorAll('.parcours-tab').forEach(function(t) { t.classList.remove('active'); });
+          detailEl.querySelectorAll('.parcours-pane').forEach(function(p) { p.classList.remove('active'); });
+          tab.classList.add('active');
+          var pane = document.getElementById('parcours-pane-' + tab.getAttribute('data-tab'));
+          if (pane) pane.classList.add('active');
+        });
+      });
+      if (chapter.quiz && questions.length) {
+        var step = 0;
+        var totalQ = questions.length;
+        var stepsContainer = document.getElementById('parcours-quiz-steps');
+        var stepInfo = document.getElementById('parcours-quiz-step-info');
+        var btnPrev = document.getElementById('parcours-quiz-prev');
+        var btnNext = document.getElementById('parcours-quiz-next');
+        var btnSubmit = document.getElementById('parcours-quiz-submit');
+        function buildStepNodes() {
+          var html = questions.map(function(q, i) {
+            return '<div class="quiz-question-block parcours-quiz-step" data-step="' + i + '" style="display:' + (i === step ? 'block' : 'none') + '"><label>Q' + (i + 1) + ': ' + escapeHtml(q.questionText || '') + '</label><input type="text" name="q' + q.id + '" data-question-id="' + q.id + '" placeholder="Votre réponse"></div>';
+          }).join('');
+          stepsContainer.innerHTML = html;
+        }
+        function updateStep() {
+          detailEl.querySelectorAll('.parcours-quiz-step').forEach(function(blk) {
+            blk.style.display = parseInt(blk.getAttribute('data-step'), 10) === step ? 'block' : 'none';
+          });
+          if (stepInfo) stepInfo.textContent = 'Question ' + (step + 1) + ' / ' + totalQ;
+          if (btnPrev) btnPrev.style.display = step > 0 ? 'inline-block' : 'none';
+          if (btnNext) btnNext.style.display = step < totalQ - 1 ? 'inline-block' : 'none';
+          if (btnSubmit) btnSubmit.style.display = step === totalQ - 1 ? 'inline-block' : 'none';
+        }
+        buildStepNodes();
+        updateStep();
+        if (btnPrev) btnPrev.onclick = function() { if (step > 0) { step--; updateStep(); } };
+        if (btnNext) btnNext.onclick = function() { if (step < totalQ - 1) { step++; updateStep(); } };
+        var form = document.getElementById('parcours-quiz-form');
+        if (form) {
+          form.addEventListener('keydown', function(e) {
+            if (e.key !== 'Enter' || !e.target.matches('input, textarea')) return;
+            e.preventDefault();
+            if (step < totalQ - 1) { step++; updateStep(); } else if (step === totalQ - 1 && btnSubmit && btnSubmit.style.display !== 'none') form.requestSubmit();
+          });
+          form.onsubmit = async function(e) {
+            e.preventDefault();
+            var sid = getStudentId();
+            if (!sid) { alert('Choisissez un étudiant en haut de page.'); return; }
+            var answers = [];
+            form.querySelectorAll('input[data-question-id]').forEach(function(inp) { answers.push({ questionId: parseInt(inp.getAttribute('data-question-id'), 10), answerText: (inp.value || '').trim() }); });
+            try {
+              var result = await api('/api/quiz-attempts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId: parseInt(sid, 10), quizId: chapter.quiz.id, answers: answers }) });
+              var resultEl = document.getElementById('parcours-quiz-result');
+              resultEl.innerHTML = '<div class="quiz-result ' + (result.passed ? 'passed' : 'failed') + '"><span class="' + (result.passed ? 'icon-quiz-ok' : 'icon-quiz-ko') + '">' + (result.passed ? '✓' : '✗') + '</span> ' + (result.passed ? 'Réussi' : 'Échec') + ' – Score: ' + result.scorePercent + ' % · Points gagnés: ' + result.pointsEarned + ' · Total: ' + result.totalPoints + ' pts' + (result.newBadges && result.newBadges.length ? '<br>🏅 Nouveau(x) badge(s): ' + result.newBadges.map(function(b) { return b.badgeName; }).join(', ') : '') + '</div>';
+              loadParcours();
+            } catch (err) {
+              alert('Erreur: ' + err.message);
+            }
+          };
+        }
+      }
+    }
+
+    async function loadStudents() {
+      const list = await api('/api/students');
+      const sel = document.getElementById('studentSelect');
+      const students = Array.isArray(list) ? list : [];
+      if (!students.length) {
+        sel.innerHTML = '<option value="">Aucun étudiant</option>';
+        return;
+      }
+      const selectedStudentStorageKey = 'selectedStudentId';
+      const selectedStudentEmailKey = 'selectedStudentEmail';
+      const savedId = localStorage.getItem(selectedStudentStorageKey);
+      const savedEmail = localStorage.getItem(selectedStudentEmailKey) || '';
+      const emailFromUrl = new URLSearchParams(window.location.search).get('email') || '';
+      const byEmail = students.find(s => String((s.email || '')).toLowerCase() === String((emailFromUrl || savedEmail)).toLowerCase());
+      const byId = emailFromUrl ? null : students.find(s => String(s.id) === String(savedId));
+      const nonTest = emailFromUrl ? null : students.find(s => !String((s.firstName || '') + ' ' + (s.lastName || '')).toLowerCase().includes('test'));
+      const preferred = byEmail || byId || nonTest || students[0];
+      const options = students.map(s => '<option value="' + s.id + '">' + (s.firstName + ' ' + s.lastName) + '</option>').join('');
+      if (emailFromUrl && !byEmail) {
+        sel.innerHTML = '<option value="">Compte connecté non lié: ' + escapeHtml(emailFromUrl) + '</option>' + options;
+        sel.value = '';
+        localStorage.removeItem(selectedStudentStorageKey);
+      } else {
+        sel.innerHTML = options;
+        sel.value = String(preferred.id);
+        localStorage.setItem(selectedStudentStorageKey, String(preferred.id));
+        if (preferred.email) localStorage.setItem(selectedStudentEmailKey, String(preferred.email));
+      }
+      sel.addEventListener('change', () => {
+        const selected = students.find(s => String(s.id) === String(sel.value));
+        if (sel.value) localStorage.setItem(selectedStudentStorageKey, String(sel.value));
+        if (selected && selected.email) localStorage.setItem(selectedStudentEmailKey, String(selected.email));
+        loadEnrollments();
+        loadBadges();
+        updateStudentStats();
+      });
+    }
+
+    async function loadCourses() {
+      const el = document.getElementById('courses-list');
+      el.innerHTML = '<span class="loading">Chargement...</span>';
+      try {
+        var list = await api('/api/courses?t=' + Date.now()) || [];
+        var active = list.filter(function(c) { return (String(c.status || '').toUpperCase() === 'ACTIVE'); });
+        el.innerHTML = active.map(c => '<div class="course-card"><div class="thumb">📚</div><div class="body"><h3>' + (c.title || '') + '</h3><p class="meta">' + (c.teacherName || '') + ' · ' + (c.level || '') + '</p><p class="price">' + (c.price != null ? c.price + ' €' : 'Gratuit') + '</p><button class="btn btn-primary" onclick="showCourseDetail(' + c.id + ')">Voir & S\'inscrire</button></div></div>').join('') || '<p class="loading">Aucun cours disponible.</p>';
+        updateStudentStats();
+      } catch (e) { el.innerHTML = '<span class="error">' + e.message + '</span>'; }
+    }
+    async function updateStudentStats() {
+      const sid = getStudentId();
+      const box = document.getElementById('student-stats');
+      if (!sid) { box.style.display = 'none'; box.innerHTML = ''; return; }
+      try {
+        const [enrollments, badges] = await Promise.all([ api('/api/enrollments?studentId=' + sid).catch(() => []), api('/api/badges?studentId=' + sid).catch(() => []) ]);
+        const enr = Array.isArray(enrollments) ? enrollments : [];
+        const bad = Array.isArray(badges) ? badges : [];
+        box.innerHTML = '<div class="stat-card"><div class="num">' + enr.length + '</div><div class="label">Inscriptions</div></div><div class="stat-card"><div class="num">' + bad.length + '</div><div class="label">Badges</div></div>';
+        box.style.display = 'grid';
+      } catch (_) { box.style.display = 'none'; }
+    }
+
+    async function showCourseDetail(id) {
+      const [c, materials] = await Promise.all([ api('/api/courses/' + id), api('/api/courses/' + id + '/materials').catch(() => []) ]);
+      const box = document.getElementById('course-detail-content');
+      let materialsHtml = '';
+      if (materials && materials.length) {
+        materialsHtml = '<div class="card" style="margin-top:1rem;"><h3 style="margin-bottom:0.75rem;">📄 Ressources du cours (PDF / Vidéo)</h3><div class="materials-list">' + materials.map(m => {
+          const isVideo = m.type === 'VIDEO';
+          const ytId = (m.url || '').match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+          const vimeoId = (m.url || '').match(/vimeo\.com\/(?:video\/)?(\d+)/);
+          if (isVideo && ytId) return '<div class="material-item"><p style="font-weight:600;margin-bottom:0.35rem;">🎬 ' + (m.title || 'Vidéo') + '</p><div class="video-wrap"><iframe width="100%" height="315" src="https://www.youtube.com/embed/' + ytId[1] + '" frameborder="0" allowfullscreen></iframe></div><a href="' + (m.url || '#') + '" target="_blank" rel="noopener" style="font-size:0.85rem;color:var(--primary);">Ouvrir sur YouTube</a></div>';
+          if (isVideo && vimeoId) return '<div class="material-item"><p style="font-weight:600;margin-bottom:0.35rem;">🎬 ' + (m.title || 'Vidéo') + '</p><div class="video-wrap"><iframe width="100%" height="315" src="https://player.vimeo.com/video/' + vimeoId[1] + '" frameborder="0" allowfullscreen></iframe></div><a href="' + (m.url || '#') + '" target="_blank" rel="noopener" style="font-size:0.85rem;color:var(--primary);">Ouvrir sur Vimeo</a></div>';
+          if (isVideo) return '<div class="material-item"><p style="font-weight:600;">🎬 ' + (m.title || 'Vidéo') + '</p><a href="' + (m.url || '#') + '" target="_blank" rel="noopener" class="btn btn-secondary">Voir la vidéo</a></div>';
+          return '<div class="material-item"><p style="font-weight:600;">📄 ' + (m.title || 'PDF') + '</p><a href="' + (m.url || '#') + '" target="_blank" rel="noopener" class="btn btn-secondary">Ouvrir le PDF</a></div>';
+        }).join('') + '</div></div>';
+      }
+      box.innerHTML = '<div class="card"><div style="display:flex;align-items:flex-start;gap:1rem;flex-wrap:wrap;"><div style="width:120px;height:90px;border-radius:10px;background:linear-gradient(135deg, rgba(0,200,151,0.2), rgba(255,127,80,0.15));display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0;">📚</div><div style="flex:1;min-width:200px;"><h1>' + (c.title || '') + '</h1><p class="meta">' + (c.teacherName || '') + ' · ' + (c.level || '') + ' · ' + (c.durationHours || '') + ' h</p><p class="price" style="margin-top:0.5rem;">' + (c.price != null ? c.price + ' €' : 'Gratuit') + '</p></div></div><p style="margin-top:1rem;line-height:1.6;color:var(--text-muted);">' + (c.description || 'Aucune description.') + '</p><button class="btn btn-primary" id="btnEnroll" data-course-id="' + c.id + '" style="margin-top:1rem;">S\'inscrire à ce cours</button></div>' + materialsHtml;
+      document.getElementById('btnEnroll').onclick = () => enrollInCourse(c.id);
+      showPage('course-detail');
+    }
+
+    async function enrollInCourse(courseId) {
+      const studentId = getStudentId();
+      if (!studentId) { alert('Choisissez un étudiant dans le menu.'); return; }
+      try {
+        await api('/api/enrollments', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId: parseInt(studentId), courseId: parseInt(courseId), status: 'ACTIVE', completionPercentage: 0 }) });
+        alert('Inscription enregistrée.');
+        loadEnrollments();
+      } catch (e) { alert(e.message); }
+    }
+
+    async function loadEnrollments() {
+      const el = document.getElementById('enrollments-list');
+      const sid = getStudentId();
+      if (!sid) { el.innerHTML = '<p class="loading">Choisissez un étudiant.</p>'; return; }
+      el.innerHTML = '<span class="loading">Chargement...</span>';
+      try {
+        const list = await api('/api/enrollments?studentId=' + sid) || [];
+        el.innerHTML = list.map(e => '<div class="card"><h3>' + (e.courseTitle || 'Cours') + '</h3><p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:0.5rem;">Statut: <strong>' + (e.status || '') + '</strong> · Note: ' + (e.finalGrade != null ? e.finalGrade : '-') + '</p><div class="progress-bar"><span style="width:' + (e.completionPercentage || 0) + '%"></span></div><p style="font-size:0.8rem;margin-top:0.25rem;">' + (e.completionPercentage || 0) + '% complété</p><button class="btn btn-secondary" onclick="updateProgress(' + e.id + ',' + (e.completionPercentage || 0) + ')" style="margin-top:0.75rem;">Mettre à jour progression</button></div>').join('') || '<p class="loading">Aucune inscription.</p>';
+      } catch (e) { el.innerHTML = '<span class="error">' + e.message + '</span>'; }
+    }
+
+    async function updateProgress(enrollmentId, current) {
+      const v = prompt('Nouveau % (0-100)', current);
+      if (v == null) return;
+      const pct = Math.min(100, Math.max(0, parseFloat(v) || 0));
+      try {
+        await api('/api/enrollments/' + enrollmentId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'ACTIVE', completionPercentage: pct, finalGrade: null }) });
+        loadEnrollments();
+      } catch (e) { alert(e.message); }
+    }
+
+    async function loadBadges() {
+      const el = document.getElementById('badges-list');
+      const sid = getStudentId();
+      if (!sid) { el.innerHTML = '<p class="loading">Choisissez un étudiant.</p>'; return; }
+      el.innerHTML = '<span class="loading">Chargement...</span>';
+      try {
+        const list = await api('/api/badges?studentId=' + sid) || [];
+        el.innerHTML = list.length ? list.map(b => '<span class="badge-pill">🏅 ' + (b.badgeName || b.badgeType || 'Badge') + '</span>').join('') : '<p class="loading">Aucun badge pour le moment. Complétez des cours et des quiz pour en gagner.</p>';
+      } catch (e) { el.innerHTML = '<span class="error">' + e.message + '</span>'; }
+    }
+
+    async function loadQuizCourses() {
+      const sel = document.getElementById('quizCourseSelect');
+      const list = await api('/api/courses') || [];
+      sel.innerHTML = '<option value="">-- Choisir un cours --</option>' + list.filter(c => c.status === 'ACTIVE').map(c => '<option value="' + c.id + '">' + (c.title || '') + '</option>').join('');
+      sel.onchange = () => loadQuizQuestions(sel.value);
+    }
+
+    async function loadQuizQuestions(courseId) {
+      const box = document.getElementById('quiz-questions');
+      if (!courseId) { box.innerHTML = ''; return; }
+      box.innerHTML = '<span class="loading">Chargement des questions...</span>';
+      try {
+        const list = await api('/api/questions?courseId=' + courseId) || [];
+        if (!list.length) { box.innerHTML = '<p class="loading">Aucune question pour ce cours.</p>'; return; }
+        box.innerHTML = '<form id="quizForm">' + list.map((q, i) => '<div class="card quiz-question"><label>Q' + (i+1) + ': ' + (q.questionText || '') + '</label><input type="text" name="q' + q.id + '" placeholder="Votre réponse" data-question-id="' + q.id + '"></div>').join('') + '<button type="submit" class="btn btn-primary">Envoyer les réponses</button></form>';
+        document.getElementById('quizForm').onsubmit = submitQuiz;
+      } catch (e) { box.innerHTML = '<span class="error">' + e.message + '</span>'; }
+    }
+
+    async function submitQuiz(e) {
+      e.preventDefault();
+      const studentId = getStudentId();
+      if (!studentId) { alert('Choisissez un étudiant.'); return; }
+      const form = e.target;
+      const inputs = form.querySelectorAll('input[data-question-id]');
+      for (const input of inputs) {
+        const questionId = input.getAttribute('data-question-id');
+        const answerText = input.value.trim();
+        if (!answerText) continue;
+        try {
+          await api('/api/responses', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId: parseInt(studentId), questionId: parseInt(questionId), answerText }) });
+        } catch (err) { console.warn(err); }
+      }
+      alert('Réponses enregistrées.');
+    }
+
+    function initStudentChatbot() {
+      var panel = document.getElementById('chatbot-panel');
+      var fab = document.getElementById('chatbot-fab');
+      var closeBtn = document.getElementById('chatbot-close');
+      var form = document.getElementById('chatbot-form');
+      var input = document.getElementById('chatbot-input');
+      var body = document.getElementById('chatbot-body');
+      var STORAGE_KEY = 'jungleStudentChatHistoryV1';
+      if (!panel || !fab || !body || !form || !input) return;
+
+      function addMsg(role, text) {
+        var row = document.createElement('div');
+        row.className = 'chatbot-msg ' + role;
+        var bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        bubble.textContent = text;
+        row.appendChild(bubble);
+        body.appendChild(row);
+        body.scrollTop = body.scrollHeight;
+      }
+      function saveHistory() {
+        try {
+          var items = [];
+          body.querySelectorAll('.chatbot-msg').forEach(function(m) {
+            items.push({ role: m.classList.contains('user') ? 'user' : 'assistant', text: m.innerText || '' });
+          });
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(items.slice(-80)));
+        } catch (_) {}
+      }
+      function loadHistory() {
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return false;
+          var list = JSON.parse(raw);
+          if (!Array.isArray(list) || !list.length) return false;
+          list.forEach(function(m) { addMsg(m.role === 'user' ? 'user' : 'bot', m.text || ''); });
+          return true;
+        } catch (_) { return false; }
+      }
+      function getApiHistory() {
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return [];
+          var list = JSON.parse(raw);
+          if (!Array.isArray(list)) return [];
+          return list.slice(-12).map(function(m) {
+            return {
+              role: m && m.role === 'user' ? 'user' : 'assistant',
+              content: String(m && m.text ? m.text : '').slice(0, 900)
+            };
+          }).filter(function(m) { return m.content.trim().length > 0; });
+        } catch (_) { return []; }
+      }
+      async function askCoachApi(question) {
+        var payload = { message: question, history: getApiHistory() };
+        var bases = [];
+        if (API === '') bases.push('');
+        else bases.push(API);
+        [8083, 8084, 8085, 8086].forEach(function(p) { bases.push('http://localhost:' + p); });
+        var tested = {};
+        for (var i = 0; i < bases.length; i++) {
+          var base = bases[i];
+          if (tested[base]) continue;
+          tested[base] = true;
+          try {
+            var r = await fetch((base || '') + '/api/chatbot/student', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            var j = await r.json().catch(function() { return {}; });
+            if (r.ok && j && j.reply) return String(j.reply);
+          } catch (_) {}
+        }
+        throw new Error('Coach API unavailable');
+      }
+      function localCoachFallback() {
+        return "I cannot reach the coach service right now. Please try again in a few seconds, and keep your question in English.";
+      }
+      async function handleQuestion(q) {
+        addMsg('user', q);
+        addMsg('bot', 'Typing...');
+        try {
+          var reply = await askCoachApi(q);
+          var msgs = body.querySelectorAll('.chatbot-msg.bot .bubble');
+          if (msgs.length) msgs[msgs.length - 1].textContent = reply;
+          else addMsg('bot', reply);
+        } catch (_) {
+          var m = body.querySelectorAll('.chatbot-msg.bot .bubble');
+          if (m.length) m[m.length - 1].textContent = localCoachFallback();
+          else addMsg('bot', localCoachFallback());
+        }
+        saveHistory();
+      }
+
+      if (!loadHistory()) {
+        addMsg('bot', "Hi! I am Jungle English Coach. Ask me in English about courses, chapters, quizzes, grammar, or speaking practice.");
+      }
+
+      fab.addEventListener('click', function() {
+        panel.classList.toggle('hidden');
+        if (!panel.classList.contains('hidden')) input.focus();
+      });
+      closeBtn.addEventListener('click', function() { panel.classList.add('hidden'); });
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var q = (input.value || '').trim();
+        if (!q) return;
+        input.value = '';
+        handleQuestion(q);
+      });
+      document.querySelectorAll('[data-chat-tip]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var q = btn.getAttribute('data-chat-tip') || '';
+          if (!q) return;
+          handleQuestion(q);
+        });
+      });
+    }
+
+    initStudentChatbot();
+    var logoutBtn = document.getElementById('logout-student-btn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function() {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('selectedStudentId');
+        localStorage.removeItem('selectedStudentEmail');
+        window.location.href = 'index.html';
+      });
+    }
+    loadStudents().then(() => { loadParcours(); loadCourses(); });
+  </script>
+</body>
+</html>

@@ -31,6 +31,10 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/register`, request);
   }
 
+  getUserByEmail(email: string): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/user-by-email?email=${encodeURIComponent(email)}`);
+  }
+
   // Login with Keycloak (using email)
   login(request: LoginRequest): Observable<TokenResponse> {
     // First, get the username from email
@@ -47,7 +51,6 @@ export class AuthService {
         body.set('password', request.password);
         body.set('grant_type', 'password');
         body.set('client_id', 'wordly-client');
-        body.set('client_secret', 'wBCcaBhZbarCcZovTzSniLtjCrYoidvl');
 
         const headers = new HttpHeaders({
           'Content-Type': 'application/x-www-form-urlencoded'

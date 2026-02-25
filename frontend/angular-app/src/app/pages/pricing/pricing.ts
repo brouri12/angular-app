@@ -243,6 +243,7 @@ export class Pricing implements OnInit {
           next: () => {
             alert(`Payment successful! Transaction: ${paymentIntent.id}`);
             this.closePurchaseModal();
+            this.redirectToStudentPage();
           },
           error: (err) => {
             console.error('Error saving payment:', err);
@@ -335,5 +336,11 @@ export class Pricing implements OnInit {
   cancelReceiptUpload() {
     this.showReceiptUpload.set(false);
     this.selectedReceipt.set(null);
+  }
+
+  private redirectToStudentPage() {
+    const email = encodeURIComponent(this.currentUser()?.email || this.purchaseForm.email_client || '');
+    const targetUrl = `${window.location.protocol}//${window.location.hostname}:8083/front-office/student.html${email ? `?email=${email}` : ''}`;
+    window.location.href = targetUrl;
   }
 }

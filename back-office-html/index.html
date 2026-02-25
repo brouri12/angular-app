@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel – Jungle in English</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary: rgb(0, 200, 151);
+      --secondary: rgb(255, 127, 80);
+      --sidebar-bg: #fff;
+      --sidebar-border: #e2e8f0;
+      --main-bg: #f8fafc;
+      --card-bg: #fff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--main-bg); color: var(--text); min-height: 100vh; display: flex; }
+    .sidebar {
+      width: 260px; min-height: 100vh; background: var(--sidebar-bg); border-right: 1px solid var(--sidebar-border); display: flex; flex-direction: column;
+    }
+    .sidebar-logo {
+      padding: 1.5rem; display: flex; align-items: center; gap: 0.75rem; border-bottom: 1px solid var(--sidebar-border);
+    }
+    .sidebar-logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
+    .sidebar-logo img { width: 40px; height: 40px; object-fit: contain; border-radius: 10px; }
+    .sidebar-logo-text { font-weight: 700; font-size: 1.1rem; color: var(--text); }
+    .sidebar-logo-sub { font-size: 0.75rem; color: var(--text-muted); }
+    .sidebar-nav { flex: 1; padding: 1rem 0; }
+    .nav-item {
+      display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.5rem; color: var(--text-muted); cursor: pointer; transition: all 0.2s; text-decoration: none; color: inherit;
+    }
+    .nav-item:hover { background: #f1f5f9; color: var(--text); }
+    .nav-item.active { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; font-weight: 600; }
+    .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
+    .sidebar-user {
+      padding: 1rem 1.5rem; border-top: 1px solid var(--sidebar-border); display: flex; align-items: center; gap: 0.75rem;
+    }
+    .sidebar-user-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; }
+    .sidebar-user-name { font-weight: 600; font-size: 0.9rem; }
+    .sidebar-user-email { font-size: 0.75rem; color: var(--text-muted); }
+    .main { flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+    .topbar {
+      height: 64px; background: var(--card-bg); border-bottom: 1px solid var(--sidebar-border); display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem;
+    }
+    .search-box { display: flex; align-items: center; gap: 0.5rem; background: #f1f5f9; border-radius: 8px; padding: 0.5rem 1rem; width: 280px; }
+    .search-box input { border: none; background: none; outline: none; font-size: 0.875rem; width: 100%; }
+    .topbar-icons { display: flex; align-items: center; gap: 1rem; }
+    .topbar-icons button { background: none; border: none; cursor: pointer; padding: 0.5rem; color: var(--text-muted); position: relative; }
+    .topbar-icons button:hover { color: var(--text); }
+    .topbar-icons .dot { position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; background: var(--secondary); border-radius: 50%; }
+    .content { padding: 1.5rem; flex: 1; }
+    .page-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .page-subtitle { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 1.5rem; }
+    .kpi-card {
+      background: var(--card-bg); border-radius: 12px; padding: 1.25rem; border: 1px solid var(--sidebar-border); display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    .kpi-card .label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.25rem; }
+    .kpi-card .value { font-size: 1.5rem; font-weight: 700; }
+    .kpi-card .change { font-size: 0.75rem; color: var(--primary); margin-top: 0.25rem; }
+    .kpi-card .icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
+    .kpi-card .icon.green { background: rgba(0,200,151,0.15); color: var(--primary); }
+    .kpi-card .icon.orange { background: rgba(255,127,80,0.15); color: var(--secondary); }
+    .kpi-card .icon.purple { background: rgba(139,92,246,0.15); color: #7c3aed; }
+    .kpi-card .icon.blue { background: rgba(59,130,246,0.15); color: #2563eb; }
+    .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    .chart-card { background: var(--card-bg); border-radius: 12px; padding: 1.25rem; border: 1px solid var(--sidebar-border); }
+    .chart-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; }
+    .chart-card .chart-wrap { height: 220px; }
+    .section { display: none; }
+    .section.active { display: block; }
+    .btn { padding: 0.5rem 1rem; border: none; border-radius: 8px; font-weight: 600; font-size: 0.8rem; cursor: pointer; font-family: inherit; }
+    .btn-primary { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid var(--sidebar-border); }
+    th { background: #f8fafc; font-weight: 600; color: var(--text-muted); }
+    tr:hover { background: #f8fafc; }
+    .card .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.75rem; margin: 1rem 0; }
+    .card label { font-size: 0.8rem; font-weight: 500; color: var(--text-muted); display: block; margin-bottom: 0.25rem; }
+    .card input, .card select, .card textarea { padding: 0.5rem; border: 1px solid var(--sidebar-border); border-radius: 6px; font-size: 0.875rem; transition: border-color 0.2s, box-shadow 0.2s; }
+    .card input:focus, .card select:focus, .card textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,200,151,0.2); }
+    @keyframes validationFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes validationShake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
+    .input-error, .card input.input-error, .card select.input-error, .card textarea.input-error { border-color: #dc2626 !important; background: #fef2f2 !important; box-shadow: 0 0 0 2px rgba(220,38,38,0.15); animation: validationShake 0.4s ease; }
+    .validation-msg { font-size: 0.8rem; margin-top: 0.4rem; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; border-radius: 8px; animation: validationFadeIn 0.3s ease; line-height: 1.35; }
+    .validation-msg.error { color: #b91c1c; background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border: 1px solid #fecaca; box-shadow: 0 2px 8px rgba(220,38,38,0.12); }
+    .validation-msg.error::before { content: '⚠'; font-size: 1rem; font-weight: 700; flex-shrink: 0; width: 1.25rem; height: 1.25rem; display: inline-flex; align-items: center; justify-content: center; background: #dc2626; color: white; border-radius: 50%; }
+    .hidden { display: none !important; }
+    .error { color: #dc2626; font-size: 0.875rem; }
+    @media (max-width: 1200px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } .charts-row { grid-template-columns: 1fr; } }
+    @media (max-width: 768px) { .kpi-grid { grid-template-columns: 1fr; } .sidebar { width: 72px; } .sidebar-logo-text, .sidebar-logo-sub, .nav-item span, .sidebar-user-name, .sidebar-user-email { display: none; } }
+    #splash { position: fixed; inset: 0; z-index: 9999; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.6s ease-out; pointer-events: none; }
+    #splash.hide { opacity: 0; }
+    #splash.remove { display: none; }
+    .splash-logo { width: 130px; height: 130px; object-fit: contain; animation: splashLogo 1.2s ease-out forwards; filter: drop-shadow(0 0 24px rgba(0,200,151,0.3)); }
+    .splash-name { font-size: 2rem; font-weight: 800; color: #fff; letter-spacing: 0.08em; margin-top: 1rem; opacity: 0; animation: splashText 0.8s ease-out 0.4s forwards; }
+    .splash-tagline { font-size: 0.9rem; color: rgba(255,255,255,0.7); margin-top: 0.5rem; opacity: 0; animation: splashText 0.8s ease-out 0.7s forwards; }
+    .splash-loader { width: 110px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 4px; margin-top: 1.5rem; overflow: hidden; opacity: 0; animation: splashText 0.5s ease-out 1s forwards; }
+    .splash-loader-bar { height: 100%; width: 0; background: linear-gradient(90deg, rgb(0,200,151), rgb(255,127,80)); border-radius: 4px; animation: splashLoad 2s ease-in-out 1.2s forwards; }
+    @keyframes splashLogo { 0% { transform: scale(0.6); opacity: 0; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes splashText { to { opacity: 1; } }
+    @keyframes splashLoad { to { width: 100%; } }
+  </style>
+</head>
+<body>
+  <div id="splash">
+    <img src="logo.png" alt="Jungle" class="splash-logo">
+    <div class="splash-name">JUNGLE</div>
+    <div class="splash-tagline">in English · Admin Panel</div>
+    <div class="splash-loader"><div class="splash-loader-bar"></div></div>
+  </div>
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <img src="logo.png" alt="Jungle">
+      <div>
+        <div class="sidebar-logo-text">Jungle in English</div>
+        <div class="sidebar-logo-sub">Admin Panel</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" data-page="dashboard">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a class="nav-item" data-page="courses">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        <span>Courses</span>
+      </a>
+      <a class="nav-item" data-page="users">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        <span>Users</span>
+      </a>
+      <a class="nav-item" data-page="analytics">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <span>Analytics</span>
+      </a>
+      <a class="nav-item" data-page="materials">
+        <span>📄</span>
+        <span>PDF / Vidéo</span>
+      </a>
+      <a class="nav-item" data-page="questions">
+        <span>❓</span>
+        <span>Manage Questions</span>
+      </a>
+      <a class="nav-item" data-page="responses">
+        <span>📝</span>
+        <span>View Responses</span>
+      </a>
+      <a class="nav-item" data-page="enrollments-list">
+        <span>📋</span>
+        <span>Enrollments</span>
+      </a>
+      <a class="nav-item" data-page="award-badge">
+        <span>🏅</span>
+        <span>Award Badge</span>
+      </a>
+    </nav>
+    <div class="sidebar-user">
+      <div class="sidebar-user-avatar">A</div>
+      <div>
+        <div class="sidebar-user-name">Admin User</div>
+        <div class="sidebar-user-email">admin@elearning.com</div>
+      </div>
+    </div>
+    <a href="../front-office/student.html" style="display:block;margin-top:auto;padding:0.75rem 1rem;border-top:1px solid #e2e8f0;color:var(--text-muted);text-decoration:none;font-size:0.9rem;">🎓 Espace Étudiant</a>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div class="search-box">
+        <span>🔍</span>
+        <input type="text" placeholder="Search..." id="searchInput" />
+      </div>
+      <div class="topbar-icons">
+        <button title="Notifications"><span class="dot"></span>🔔</button>
+        <button title="Dark mode">🌙</button>
+      </div>
+    </header>
+    <div class="content">
+      <!-- Dashboard (Analytics) -->
+      <section id="page-dashboard" class="section active">
+        <h1 class="page-title">Analytics Dashboard</h1>
+        <p class="page-subtitle">Track performance and insights</p>
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div>
+              <div class="label">Total Revenue</div>
+              <div class="value" id="kpi-revenue">-</div>
+              <div class="change">↑ <span id="kpi-revenue-change">-</span> from last month</div>
+            </div>
+            <div class="icon green">$</div>
+          </div>
+          <div class="kpi-card">
+            <div>
+              <div class="label">New Enrollments</div>
+              <div class="value" id="kpi-enrollments">-</div>
+              <div class="change">↑ <span id="kpi-enrollments-change">-</span> from last month</div>
+            </div>
+            <div class="icon orange">👥</div>
+          </div>
+          <div class="kpi-card">
+            <div>
+              <div class="label">Avg. Completion</div>
+              <div class="value" id="kpi-completion">-</div>
+              <div class="change">↑ <span id="kpi-completion-change">-</span> from last month</div>
+            </div>
+            <div class="icon purple">✓</div>
+          </div>
+          <div class="kpi-card">
+            <div>
+              <div class="label">Active Users</div>
+              <div class="value" id="kpi-users">-</div>
+              <div class="change">↑ <span id="kpi-users-change">-</span> from last month</div>
+            </div>
+            <div class="icon blue">⚡</div>
+          </div>
+        </div>
+        <div class="charts-row">
+          <div class="chart-card">
+            <h3>Monthly Enrollments</h3>
+            <div class="chart-wrap"><canvas id="chart-enrollments"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <h3>Monthly Revenue</h3>
+            <div class="chart-wrap"><canvas id="chart-revenue"></canvas></div>
+          </div>
+        </div>
+      </section>
+      <!-- Courses -->
+      <section id="page-courses" class="section">
+        <h1 class="page-title">Courses</h1>
+        <p class="page-subtitle">Manage courses</p>
+        <button class="btn btn-primary" onclick="showFormCourse()">+ New Course</button>
+        <div id="form-course" class="hidden" style="margin-top:1rem;padding:1rem;background:#f8fafc;border-radius:8px;"></div>
+        <div id="list-courses" style="margin-top:1rem;"></div>
+      </section>
+      <!-- Users -->
+      <section id="page-users" class="section">
+        <h1 class="page-title">Users</h1>
+        <p class="page-subtitle">Manage students</p>
+        <button class="btn btn-primary" onclick="showFormUser()">+ New User</button>
+        <div id="form-user" class="hidden" style="margin-top:1rem;padding:1rem;background:#f8fafc;border-radius:8px;"></div>
+        <div id="list-users" style="margin-top:1rem;"></div>
+      </section>
+      <!-- Analytics avancés -->
+      <section id="page-analytics" class="section">
+        <h1 class="page-title">Analytics avancés</h1>
+        <p class="page-subtitle">Taux inscription → démarrage → complétion, temps moyen, questions ratées, quiz vs complétion, performance enseignants.</p>
+        <button type="button" class="btn btn-primary" onclick="loadAnalytics()" style="margin-bottom:1rem;">🔄 Actualiser</button>
+        <div id="analytics-funnel" class="chart-card" style="margin-bottom:1rem;"><h3>📊 Funnel : Inscription → Démarrage → Complétion</h3><div id="analytics-funnel-content" class="loading">Chargement…</div></div>
+        <div id="analytics-avg-time" class="chart-card" style="margin-bottom:1rem;"><h3>⏱️ Temps moyen pour compléter un cours</h3><div id="analytics-avg-time-content" class="loading">Chargement…</div></div>
+        <div id="analytics-questions-failed" class="chart-card" style="margin-bottom:1rem;"><h3>❌ Questions les plus ratées (par question_id)</h3><div id="analytics-questions-failed-content" class="loading">Chargement…</div></div>
+        <div id="analytics-quiz-vs-completion" class="chart-card" style="margin-bottom:1rem;"><h3>📈 Corrélation Quiz score vs Complétion</h3><div id="analytics-quiz-vs-content" class="loading">Chargement…</div><div class="chart-wrap" style="height:260px;"><canvas id="chart-quiz-vs-completion"></canvas></div></div>
+        <div id="analytics-teacher-perf" class="chart-card" style="margin-bottom:1rem;"><h3>👨‍🏫 Performance par enseignant (teacher_id)</h3><div id="analytics-teacher-perf-content" class="loading">Chargement…</div></div>
+        <div id="analytics-daily" class="chart-card" style="margin-bottom:1rem;"><h3>📅 Agrégats quotidiens (CourseAnalyticsDaily)</h3><button type="button" class="btn" style="margin-bottom:0.5rem;" onclick="aggregateDaily()">Calculer / Mettre à jour aujourd’hui</button><div id="analytics-daily-content" class="loading">Chargement…</div></div>
+      </section>
+      <!-- PDF / Video (course materials) -->
+      <section id="page-materials" class="section">
+        <h1 class="page-title">PDF / Vidéo (ressources cours)</h1>
+        <p class="page-subtitle">Ajouter des PDF ou liens vidéo aux cours (type Blackboard).</p>
+        <div class="card">
+          <label>Cours :</label>
+          <select id="materialsCourseSelect"><option value="">-- Choisir un cours --</option></select>
+        </div>
+        <button class="btn btn-primary" id="btnAddMaterial" style="display:none">+ Ajouter PDF ou Vidéo</button>
+        <div id="form-material" class="hidden" style="margin-top:1rem;padding:1rem;background:#f8fafc;border-radius:8px;"></div>
+        <div id="list-materials" style="margin-top:1rem;"></div>
+      </section>
+      <!-- Manage Questions (Teacher) -->
+      <section id="page-questions" class="section">
+        <h1 class="page-title">Manage Questions</h1>
+        <p class="page-subtitle">CRUD questions par cours</p>
+        <div class="card">
+          <label>Cours :</label>
+          <select id="questionsCourseSelect"><option value="">-- Choisir un cours --</option></select>
+        </div>
+        <button class="btn btn-primary" id="btnNewQuestion" style="display:none">+ New Question</button>
+        <div id="form-question" class="hidden" style="margin-top:1rem;padding:1rem;background:#f8fafc;border-radius:8px;"></div>
+        <div id="list-questions" style="margin-top:1rem;"></div>
+      </section>
+      <!-- View Responses (Teacher) -->
+      <section id="page-responses" class="section">
+        <h1 class="page-title">View Answers / Responses</h1>
+        <p class="page-subtitle">Réponses des étudiants aux quiz</p>
+        <div id="list-responses"></div>
+      </section>
+      <!-- Enrollments list (Teacher) -->
+      <section id="page-enrollments-list" class="section">
+        <h1 class="page-title">Enrollments List</h1>
+        <p class="page-subtitle">Inscriptions par cours / étudiant</p>
+        <div id="list-enrollments-full"></div>
+      </section>
+      <!-- Award Badge (Teacher) -->
+      <section id="page-award-badge" class="section">
+        <h1 class="page-title">Award Badge</h1>
+        <p class="page-subtitle">Attribuer un badge à un étudiant</p>
+        <div class="card" style="max-width:480px">
+          <div class="form-grid">
+            <div><label>Étudiant</label><select id="badgeStudentSelect"><option value="">-- Choisir --</option></select></div>
+            <div><label>Nom du badge</label><input id="badgeName" placeholder="Course completed" /></div>
+            <div><label>Type</label><select id="badgeType"><option value="COURSE_COMPLETION">Course Completion</option><option value="QUIZ_MASTER">Quiz Master</option><option value="PERFECT_SCORE">Perfect Score</option><option value="EXPERT">Expert</option></select></div>
+            <div><label>Cours (optionnel)</label><select id="badgeCourseSelect"><option value="">-- Aucun --</option></select></div>
+          </div>
+          <button class="btn btn-primary" onclick="submitAwardBadge()">Attribuer le badge</button>
+        </div>
+      </section>
+    </div>
+  </main>
+  <div id="api-status" style="position:fixed;bottom:10px;right:10px;padding:6px 10px;border-radius:8px;font-size:12px;background:#f1f5f9;color:#64748b;display:none;"></div>
+  <script>
+    (function(){ var s=document.getElementById('splash'); if(s){ setTimeout(function(){ s.classList.add('hide'); setTimeout(function(){ s.classList.add('remove'); }, 600); }, 3200); } })();
+    // Même origine que la page = requêtes relatives. Sinon utiliser le port du serveur (8083 par défaut).
+    const API_BASE = (['8081','8083','8084','8085','8086','8087'].indexOf(window.location.port) >= 0 ? '' : 'http://localhost:8083');
+
+    function parseResponseError(r, text) {
+      let msg = r.status + ' ' + r.statusText;
+      try { const j = JSON.parse(text); msg = j.error || j.message || msg; } catch (_) {}
+      return msg;
+    }
+    async function apiRequest(url, options = {}) {
+      const r = await fetch(url, options);
+      const text = await r.text();
+      if (!r.ok) throw new Error(parseResponseError(r, text));
+      return text ? JSON.parse(text) : null;
+    }
+    var Validator = {
+      required: function(v) { var s = (v || '').toString().trim(); return s.length > 0 ? null : 'Champ obligatoire.'; },
+      minLen: function(min) { return function(v) { var s = (v || '').toString().trim(); return s.length >= min ? null : 'Minimum ' + min + ' caractère(s) requis.'; }; },
+      maxLen: function(max) { return function(v) { var s = (v || '').toString(); return s.length <= max ? null : 'Maximum ' + max + ' caractères autorisés.'; }; },
+      showError: function(input, message) {
+        if (!input) return;
+        input.classList.remove('input-valid'); input.classList.add('input-error');
+        var next = input.nextElementSibling;
+        if (next && next.classList && next.classList.contains('validation-msg')) next.remove();
+        var span = document.createElement('span');
+        span.className = 'validation-msg error';
+        span.textContent = message;
+        span.style.display = 'block';
+        if (input.nextSibling) input.parentNode.insertBefore(span, input.nextSibling); else input.parentNode.appendChild(span);
+      },
+      clearError: function(input) {
+        if (!input) return;
+        input.classList.remove('input-error');
+        var next = input.nextElementSibling;
+        if (next && next.classList && next.classList.contains('validation-msg')) next.remove();
+      },
+      validate: function(value, rules) { for (var i = 0; i < rules.length; i++) { var err = typeof rules[i] === 'function' ? rules[i](value) : null; if (err) return err; } return null; }
+    };
+    let chartEnrollments, chartRevenue, chartQuizVsCompletion;
+
+    async function loadAnalytics() {
+      const api = API_BASE + '/api/analytics';
+      try {
+        const [funnel, avgTime, questionsFailed, quizVs, teacherPerf, daily] = await Promise.all([
+          fetch(api + '/funnel').then(r => r.ok ? r.json() : {}).catch(() => ({})),
+          fetch(api + '/avg-completion-time').then(r => r.ok ? r.json() : {}).catch(() => ({})),
+          fetch(api + '/questions-most-failed').then(r => r.ok ? r.json() : []).catch(() => []),
+          fetch(api + '/quiz-vs-completion').then(r => r.ok ? r.json() : {}).catch(() => ({})),
+          fetch(api + '/teacher-performance').then(r => r.ok ? r.json() : []).catch(() => []),
+          fetch(api + '/daily').then(r => r.ok ? r.json() : []).catch(() => [])
+        ]);
+
+        document.getElementById('analytics-funnel-content').innerHTML =
+          '<div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);">' +
+          '<div class="kpi-card"><div class="label">Inscriptions</div><div class="value">' + (funnel.inscription ?? '-') + '</div></div>' +
+          '<div class="kpi-card"><div class="label">Démarrage (au moins 1% ou statut)</div><div class="value">' + (funnel.demarrage ?? '-') + '</div><div class="change">' + (funnel.tauxDemarrage != null ? funnel.tauxDemarrage + '%' : '') + '</div></div>' +
+          '<div class="kpi-card"><div class="label">Complétion (100% ou COMPLETED)</div><div class="value">' + (funnel.completion ?? '-') + '</div><div class="change">' + (funnel.tauxCompletion != null ? funnel.tauxCompletion + '%' : '') + '</div></div>' +
+          '</div>';
+
+        document.getElementById('analytics-avg-time-content').innerHTML =
+          (avgTime.avgDaysToComplete != null)
+            ? '<p><strong>' + avgTime.avgDaysToComplete + '</strong> jours (moyenne pour les inscriptions complétées)</p>'
+            : '<p>Aucune donnée (inscriptions complétées avec dates requises).</p>';
+
+        const qList = Array.isArray(questionsFailed) ? questionsFailed : [];
+        document.getElementById('analytics-questions-failed-content').innerHTML = qList.length
+          ? '<table><thead><tr><th>question_id</th><th>Cours</th><th>Question (extrait)</th><th>Réponses incorrectes</th><th>Total réponses</th><th>Taux échec %</th></tr></thead><tbody>' +
+            qList.slice(0, 20).map(q => '<tr><td>' + (q.question_id || q.questionId) + '</td><td>' + (q.courseTitle || q.courseId || '-') + '</td><td>' + (q.questionText || '').substring(0, 50) + '…</td><td>' + (q.fail_count || 0) + '</td><td>' + (q.total_answers || 0) + '</td><td>' + (q.fail_rate_percent != null ? q.fail_rate_percent + '%' : '-') + '</td></tr>').join('') + '</tbody></table>'
+          : '<p>Aucune réponse incorrecte enregistrée (questions des cours, pas quiz parcours).</p>';
+
+        document.getElementById('analytics-quiz-vs-content').innerHTML =
+          (quizVs.correlation != null)
+            ? '<p><strong>Corrélation de Pearson</strong> (quiz score parcours vs % complétion cours) : <strong>' + quizVs.correlation + '</strong></p><p class="page-subtitle">' + (quizVs.description || '') + '</p>'
+            : '<p>Données insuffisantes pour calculer la corrélation (au moins 2 points avec quiz + complétion).</p>';
+        if (quizVs.points && quizVs.points.length && typeof Chart !== 'undefined') {
+          const pts = quizVs.points.filter(p => p.avgQuizScore != null && p.completionPercentage != null);
+          if (chartQuizVsCompletion) chartQuizVsCompletion.destroy();
+          chartQuizVsCompletion = new Chart(document.getElementById('chart-quiz-vs-completion'), {
+            type: 'scatter',
+            data: {
+              datasets: [{
+                label: 'Complétion % vs Quiz score',
+                data: pts.map(p => ({ x: p.completionPercentage, y: p.avgQuizScore })),
+                backgroundColor: 'rgba(0,200,151,0.6)',
+                borderColor: 'rgb(0,200,151)'
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                x: { title: { display: true, text: 'Complétion %' }, min: 0, max: 100 },
+                y: { title: { display: true, text: 'Score quiz %' }, min: 0, max: 100 }
+              }
+            }
+          });
+        }
+
+        const tList = Array.isArray(teacherPerf) ? teacherPerf : [];
+        document.getElementById('analytics-teacher-perf-content').innerHTML = tList.length
+          ? '<table><thead><tr><th>teacher_id</th><th>Enseignant</th><th>Nb cours</th><th>Nb inscriptions</th><th>Complétion moy. %</th><th>Note moy.</th></tr></thead><tbody>' +
+            tList.map(t => '<tr><td>' + (t.teacher_id || '-') + '</td><td>' + (t.teacher_name || '-') + '</td><td>' + (t.course_count || 0) + '</td><td>' + (t.enrollment_count || 0) + '</td><td>' + (t.avg_completion != null ? t.avg_completion + '%' : '-') + '</td><td>' + (t.avg_grade != null ? t.avg_grade : '-') + '</td></tr>').join('') + '</tbody></table>'
+          : '<p>Aucun enseignant avec cours.</p>';
+
+        const dList = Array.isArray(daily) ? daily : [];
+        document.getElementById('analytics-daily-content').innerHTML = dList.length
+          ? '<table><thead><tr><th>Date</th><th>Cours</th><th>Inscriptions</th><th>Complétions</th><th>Progression moy. %</th><th>Note moy.</th></tr></thead><tbody>' +
+            dList.slice(0, 30).map(d => '<tr><td>' + (d.date || '') + '</td><td>' + (d.courseTitle || d.course_id || '') + '</td><td>' + (d.enrollments || 0) + '</td><td>' + (d.completions || 0) + '</td><td>' + (d.avg_progress != null ? parseFloat(d.avg_progress).toFixed(1) : '-') + '</td><td>' + (d.avg_grade != null ? parseFloat(d.avg_grade).toFixed(1) : '-') + '</td></tr>').join('') + '</tbody></table>'
+          : '<p>Aucun agrégat. Cliquez sur « Calculer / Mettre à jour aujourd’hui » pour remplir la table.</p>';
+      } catch (e) {
+        document.getElementById('analytics-funnel-content').innerHTML = '<span class="error">' + (e.message || 'Erreur') + '</span>';
+      }
+    }
+
+    async function aggregateDaily() {
+      try {
+        const r = await fetch(API_BASE + '/api/analytics/aggregate-daily', { method: 'POST' });
+        const data = await r.json().catch(() => ({}));
+        if (r.ok && data.ok) {
+          alert('Agrégats mis à jour pour le ' + (data.date || '') + ' (' + (data.coursesUpdated || 0) + ' cours).');
+          loadAnalytics();
+        } else {
+          alert('Erreur : ' + (data.error || r.statusText));
+        }
+      } catch (e) {
+        alert('Erreur : ' + e.message);
+      }
+    }
+
+    document.querySelectorAll('.nav-item').forEach(el => {
+      el.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        this.classList.add('active');
+        const page = this.getAttribute('data-page');
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById('page-' + page).classList.add('active');
+        if (page === 'dashboard') loadDashboard();
+        if (page === 'courses') loadCourses();
+        if (page === 'users') loadUsers();
+        if (page === 'analytics') loadAnalytics();
+        if (page === 'materials') loadMaterialsPage();
+        if (page === 'questions') loadQuestionsPage();
+        if (page === 'responses') loadResponses();
+        if (page === 'enrollments-list') loadEnrollmentsFull();
+        if (page === 'award-badge') loadAwardBadgePage();
+      });
+    });
+
+    // --- Manage Questions (Teacher) ---
+    async function loadQuestionsPage() {
+      const sel = document.getElementById('questionsCourseSelect');
+      if (sel.options.length <= 1) {
+        try {
+          const courses = await apiRequest(API_BASE + '/api/courses') || [];
+          sel.innerHTML = '<option value="">-- Choisir un cours --</option>' + courses.map(c => '<option value="' + c.id + '">' + (c.title || c.courseCode) + '</option>').join('');
+        } catch (_) {}
+      }
+      sel.onchange = async () => {
+        const courseId = sel.value;
+        document.getElementById('btnNewQuestion').style.display = courseId ? 'inline-block' : 'none';
+        document.getElementById('form-question').classList.add('hidden');
+        if (!courseId) { document.getElementById('list-questions').innerHTML = ''; return; }
+        const el = document.getElementById('list-questions');
+        el.innerHTML = '<span class="loading">Chargement...</span>';
+        try {
+          const list = await apiRequest(API_BASE + '/api/questions?courseId=' + courseId + '&includeInactive=1') || [];
+          if (!list.length) { el.innerHTML = '<p>Aucune question. Cliquez sur "New Question".</p>'; return; }
+          el.innerHTML = '<table><thead><tr><th>#</th><th>Question</th><th>Type</th><th>Points</th><th>Difficulté</th><th>Réponse correcte</th><th>Actions</th></tr></thead><tbody>' +
+            list.map(q => '<tr><td>' + q.id + '</td><td>' + (q.questionText || '').substring(0, 60) + (q.questionText && q.questionText.length > 60 ? '…' : '') + '</td><td>' + (q.questionType || '') + '</td><td>' + (q.points ?? '') + '</td><td>' + (q.difficultyLevel || '') + '</td><td>' + (q.correctAnswer || '').substring(0, 30) + '</td><td><button class="btn btn-primary" onclick="editQuestion(' + q.id + ')">Edit</button> <button class="btn" style="background:#fee2e2;color:#dc2626" onclick="deleteQuestion(' + q.id + ')">Delete</button></td></tr>').join('') + '</tbody></table>';
+        } catch (e) { el.innerHTML = '<span class="error">' + e.message + '</span>'; }
+      };
+      if (sel.value) sel.onchange();
+    }
+    function showFormQuestion(isNew) {
+      const courseId = document.getElementById('questionsCourseSelect').value;
+      if (!courseId && isNew) { alert('Choisissez d\'abord un cours.'); return; }
+      const form = document.getElementById('form-question');
+      form.classList.remove('hidden');
+      form.innerHTML = '<h3>' + (isNew ? 'Nouvelle question' : 'Modifier la question') + '</h3><div class="form-grid"><div><label>Texte</label><textarea id="q-text" rows="2" placeholder="Question text"></textarea></div><div><label>Type</label><select id="q-type"><option value="MULTIPLE_CHOICE">Multiple choice</option><option value="TRUE_FALSE">True/False</option><option value="SHORT_ANSWER">Short answer</option><option value="ESSAY">Essay</option></select></div><div><label>Points</label><input type="number" id="q-points" value="10"/></div><div><label>Difficulté</label><select id="q-difficulty"><option value="EASY">Easy</option><option value="MEDIUM">Medium</option><option value="HARD">Hard</option></select></div><div><label>Réponse correcte</label><input id="q-correct" placeholder="Correct answer"/></div><div><label>Explication</label><input id="q-explanation" placeholder="Explanation (optional)"/></div><div><label>Ordre</label><input type="number" id="q-order" placeholder="0"/></div><div><label>Active</label><select id="q-active"><option value="1">Oui</option><option value="0">Non</option></select></div></div><button class="btn btn-primary" onclick="submitQuestion()">Enregistrer</button> <button class="btn" onclick="document.getElementById(\'form-question\').classList.add(\'hidden\')">Annuler</button>';
+      form.removeAttribute('data-edit-id');
+      if (!isNew) return;
+      document.getElementById('q-order').value = '0';
+    }
+    async function submitQuestion() {
+      var qText = document.getElementById('q-text');
+      var qCorrect = document.getElementById('q-correct');
+      var qPoints = document.getElementById('q-points');
+      Validator.clearError(qText); Validator.clearError(qCorrect); Validator.clearError(qPoints);
+      var questionText = (qText && qText.value || '').trim();
+      var correctAnswer = (qCorrect && qCorrect.value || '').trim();
+      var err = Validator.validate(questionText, [Validator.required, Validator.minLen(5), Validator.maxLen(500)]);
+      if (err) { Validator.showError(qText, err); return; }
+      err = Validator.validate(correctAnswer, [Validator.required, Validator.minLen(1), Validator.maxLen(200)]);
+      if (err) { Validator.showError(qCorrect, err); return; }
+      const form = document.getElementById('form-question');
+      const editId = form.getAttribute('data-edit-id');
+      const courseId = document.getElementById('questionsCourseSelect').value;
+      const body = { questionText: questionText, questionType: document.getElementById('q-type').value, points: parseInt(qPoints && qPoints.value, 10) || 10, difficultyLevel: document.getElementById('q-difficulty').value, correctAnswer: correctAnswer, explanation: document.getElementById('q-explanation').value || null, orderNumber: parseInt(document.getElementById('q-order').value, 10) || 0, isActive: document.getElementById('q-active').value === '1' };
+      if (editId) {
+        try {
+          await apiRequest(API_BASE + '/api/questions/' + editId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+          form.classList.add('hidden');
+          document.getElementById('questionsCourseSelect').dispatchEvent(new Event('change'));
+        } catch (e) { alert('Erreur : ' + e.message); }
+      } else {
+        body.courseId = parseInt(courseId, 10);
+        try {
+          await apiRequest(API_BASE + '/api/questions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+          form.classList.add('hidden');
+          document.getElementById('questionsCourseSelect').dispatchEvent(new Event('change'));
+        } catch (e) { alert('Erreur : ' + e.message); }
+      }
+    }
+    async function editQuestion(id) {
+      try {
+        const q = await apiRequest(API_BASE + '/api/questions/' + id);
+        showFormQuestion(false);
+        document.getElementById('q-text').value = q.questionText || '';
+        document.getElementById('q-type').value = q.questionType || 'MULTIPLE_CHOICE';
+        document.getElementById('q-points').value = q.points ?? 10;
+        document.getElementById('q-difficulty').value = q.difficultyLevel || 'EASY';
+        document.getElementById('q-correct').value = q.correctAnswer || '';
+        document.getElementById('q-explanation').value = q.explanation || '';
+        document.getElementById('q-order').value = q.orderNumber ?? '';
+        document.getElementById('q-active').value = q.isActive ? '1' : '0';
+        document.getElementById('form-question').querySelector('h3').textContent = 'Modifier la question';
+        document.getElementById('form-question').setAttribute('data-edit-id', id);
+      } catch (e) { alert('Erreur : ' + e.message); }
+    }
+    async function deleteQuestion(id) {
+      if (!confirm('Supprimer cette question ?')) return;
+      try {
+        await apiRequest(API_BASE + '/api/questions/' + id, { method: 'DELETE' });
+        document.getElementById('questionsCourseSelect').dispatchEvent(new Event('change'));
+      } catch (e) { alert('Erreur : ' + e.message); }
+    }
+    document.getElementById('btnNewQuestion').addEventListener('click', () => showFormQuestion(true));
+
+    // --- PDF / Video (course materials) ---
+    async function loadMaterialsPage() {
+      const sel = document.getElementById('materialsCourseSelect');
+      if (sel.options.length <= 1) {
+        try {
+          const courses = await apiRequest(API_BASE + '/api/courses') || [];
+          sel.innerHTML = '<option value="">-- Choisir un cours --</option>' + courses.map(c => '<option value="' + c.id + '">' + (c.title || c.courseCode) + '</option>').join('');
+        } catch (_) {}
+      }
+      sel.onchange = async () => {
+        const courseId = sel.value;
+        document.getElementById('btnAddMaterial').style.display = courseId ? 'inline-block' : 'none';
+        document.getElementById('form-material').classList.add('hidden');
+        if (!courseId) { document.getElementById('list-materials').innerHTML = ''; return; }
+        const el = document.getElementById('list-materials');
+        el.innerHTML = '<span class="loading">Chargement...</span>';
+        try {
+          const list = await apiRequest(API_BASE + '/api/courses/' + courseId + '/materials') || [];
+          if (!list.length) { el.innerHTML = '<p>Aucune ressource. Cliquez sur "Ajouter PDF ou Vidéo".</p>'; return; }
+          const baseUrl = (API_BASE || window.location.origin);
+          el.innerHTML = '<table><thead><tr><th>Type</th><th>Titre</th><th>Fichier</th><th>Actions</th></tr></thead><tbody>' +
+            list.map(m => '<tr><td>' + (m.type === 'VIDEO' ? '🎬 Vidéo' : '📄 PDF') + '</td><td>' + (m.title || '') + '</td><td><a href="' + baseUrl + (m.url || '') + '" target="_blank" rel="noopener">Ouvrir / Télécharger</a></td><td><button class="btn" style="background:#fee2e2;color:#dc2626" onclick="deleteMaterial(' + m.id + ')">Supprimer</button></td></tr>').join('') + '</tbody></table>';
+        } catch (e) { el.innerHTML = '<span class="error">' + e.message + '</span>'; }
+      };
+      if (sel.value) sel.onchange();
+    }
+    function showFormMaterial() {
+      const courseId = document.getElementById('materialsCourseSelect').value;
+      if (!courseId) { alert('Choisissez un cours.'); return; }
+      const form = document.getElementById('form-material');
+      form.classList.remove('hidden');
+      form.innerHTML = '<h3>Uploader un document (PDF ou Vidéo)</h3><div class="form-grid"><div><label>Type</label><select id="m-type"><option value="PDF">PDF</option><option value="VIDEO">Vidéo</option></select></div><div><label>Titre</label><input id="m-title" placeholder="Ex: Chapitre 1"/></div><div style="grid-column:1/-1"><label>Fichier (PDF ou vidéo, max 100 Mo)</label><input type="file" id="m-file" accept=".pdf,application/pdf,video/*"/></div></div><button class="btn btn-primary" onclick="submitMaterial()">Uploader</button> <button class="btn" onclick="form.classList.add(\'hidden\')">Annuler</button>';
+    }
+    async function submitMaterial() {
+      const courseId = document.getElementById('materialsCourseSelect').value;
+      const type = document.getElementById('m-type').value;
+      const titleEl = document.getElementById('m-title');
+      const fileInput = document.getElementById('m-file');
+      Validator.clearError(fileInput);
+      if (!fileInput || !fileInput.files || !fileInput.files.length) { Validator.showError(fileInput, 'Choisissez un fichier PDF ou une vidéo.'); return; }
+      const title = (titleEl && titleEl.value.trim()) || (fileInput.files[0] && fileInput.files[0].name) || 'Document';
+      if (!fileInput || !fileInput.files || !fileInput.files.length) { alert('Choisissez un fichier PDF ou vidéo.'); return; }
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+      formData.append('type', type);
+      formData.append('title', title);
+      try {
+        const r = await fetch(API_BASE + '/api/courses/' + courseId + '/materials/upload', { method: 'POST', body: formData });
+        const text = await r.text();
+        if (!r.ok) throw new Error(text || r.statusText);
+        document.getElementById('form-material').classList.add('hidden');
+        document.getElementById('materialsCourseSelect').dispatchEvent(new Event('change'));
+      } catch (e) { alert('Erreur : ' + e.message); }
+    }
+    async function deleteMaterial(id) {
+      if (!confirm('Supprimer cette ressource ?')) return;
+      try {
+        await apiRequest(API_BASE + '/api/materials/' + id, { method: 'DELETE' });
+        document.getElementById('materialsCourseSelect').dispatchEvent(new Event('change'));
+      } catch (e) { alert('Erreur : ' + e.message); }
+    }
+    document.getElementById('btnAddMaterial').addEventListener('click', showFormMaterial);
+
+    // --- View Responses (Teacher) ---
+    async function loadResponses() {
+      const el = document.getElementById('list-responses');
+      el.innerHTML = '<span class="loading">Chargement...</span>';
+      try {
+        const list = await apiRequest(API_BASE + '/api/responses') || [];
+        if (!list.length) { el.innerHTML = '<p>Aucune réponse.</p>'; return; }
+        el.innerHTML = '<table><thead><tr><th>Étudiant</th><th>Cours (id)</th><th>Question</th><th>Réponse</th><th>Correct</th><th>Points</th><th>Date</th></tr></thead><tbody>' +
+          list.map(r => '<tr><td>' + (r.studentFirstName || '') + ' ' + (r.studentLastName || '') + '</td><td>' + (r.courseId || '') + '</td><td>' + (r.questionText || '').substring(0, 50) + '…</td><td>' + (r.answerText || '').substring(0, 40) + (r.answerText && r.answerText.length > 40 ? '…' : '') + '</td><td>' + (r.isCorrect === true ? '✓' : r.isCorrect === false ? '✗' : '-') + '</td><td>' + (r.pointsEarned != null ? r.pointsEarned : '-') + '</td><td>' + (r.submittedAt || '') + '</td></tr>').join('') + '</tbody></table>';
+      } catch (e) { el.innerHTML = '<span class="error">' + e.message + '</span>'; }
+    }
+
+    // --- Enrollments list (Teacher) ---
+    async function loadEnrollmentsFull() {
+      const el = document.getElementById('list-enrollments-full');
+      el.innerHTML = '<span class="loading">Chargement...</span>';
+      try {
+        const list = await apiRequest(API_BASE + '/api/enrollments') || [];
+        if (!list.length) { el.innerHTML = '<p>Aucune inscription.</p>'; return; }
+        el.innerHTML = '<table><thead><tr><th>Id</th><th>Étudiant</th><th>Cours</th><th>Statut</th><th>Progression %</th><th>Note</th><th>Date</th></tr></thead><tbody>' +
+          list.map(e => '<tr><td>' + e.id + '</td><td>' + (e.studentFirstName || '') + ' ' + (e.studentLastName || '') + '</td><td>' + (e.courseTitle || e.courseCode || e.courseId) + '</td><td>' + (e.status || '') + '</td><td>' + (e.completionPercentage != null ? e.completionPercentage + '%' : '-') + '</td><td>' + (e.finalGrade != null ? e.finalGrade : '-') + '</td><td>' + (e.enrollmentDate || '') + '</td></tr>').join('') + '</tbody></table>';
+      } catch (e) { el.innerHTML = '<span class="error">' + e.message + '</span>'; }
+    }
+
+    // --- Award Badge (Teacher) ---
+    async function loadAwardBadgePage() {
+      const studentSel = document.getElementById('badgeStudentSelect');
+      const courseSel = document.getElementById('badgeCourseSelect');
+      if (studentSel.options.length <= 1) {
+        try {
+          const [students, courses] = await Promise.all([ apiRequest(API_BASE + '/api/students') || [], apiRequest(API_BASE + '/api/courses') || [] ]);
+          studentSel.innerHTML = '<option value="">-- Choisir --</option>' + students.map(s => '<option value="' + s.id + '">' + (s.firstName || '') + ' ' + (s.lastName || '') + '</option>').join('');
+          courseSel.innerHTML = '<option value="">-- Aucun --</option>' + courses.map(c => '<option value="' + c.id + '">' + (c.title || c.courseCode) + '</option>').join('');
+        } catch (_) {}
+      }
+    }
+    async function submitAwardBadge() {
+      const studentId = document.getElementById('badgeStudentSelect').value;
+      const badgeName = document.getElementById('badgeName').value.trim() || 'Course completed';
+      const badgeType = document.getElementById('badgeType').value;
+      const courseId = document.getElementById('badgeCourseSelect').value || null;
+      if (!studentId) { alert('Choisissez un étudiant.'); return; }
+      const body = { studentId: parseInt(studentId, 10), badgeName, badgeType, description: badgeName, courseId: courseId ? parseInt(courseId, 10) : null, badgeLevel: 'GOLD', earnedDate: new Date().toISOString().slice(0, 10) };
+      try {
+        await apiRequest(API_BASE + '/api/badges', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        alert('Badge attribué.');
+        document.getElementById('badgeName').value = '';
+      } catch (e) { alert('Erreur : ' + e.message); }
+    }
+
+    async function loadDashboard() {
+      try {
+        const [coursesR, studentsR, enrollmentsR, dbR] = await Promise.all([
+          apiRequest(API_BASE + '/api/courses').catch(() => []),
+          apiRequest(API_BASE + '/api/students').catch(() => []),
+          apiRequest(API_BASE + '/api/enrollments').catch(() => []),
+          apiRequest(API_BASE + '/api/database/info').catch(() => ({}))
+        ]);
+        const courses = Array.isArray(coursesR) ? coursesR : [];
+        const students = Array.isArray(studentsR) ? studentsR : [];
+        const enrollments = Array.isArray(enrollmentsR) ? enrollmentsR : [];
+        const totalRevenue = courses.reduce((s, c) => s + (parseFloat(c.price) || 0), 0) * (enrollments.length || 1) * 0.5;
+        document.getElementById('kpi-revenue').textContent = '€' + Math.round(totalRevenue).toLocaleString();
+        document.getElementById('kpi-revenue-change').textContent = '12.5%';
+        document.getElementById('kpi-enrollments').textContent = enrollments.length;
+        document.getElementById('kpi-enrollments-change').textContent = '8.2%';
+        document.getElementById('kpi-completion').textContent = '78.5%';
+        document.getElementById('kpi-completion-change').textContent = '3.1%';
+        document.getElementById('kpi-users').textContent = students.length;
+        document.getElementById('kpi-users-change').textContent = '15.3%';
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+        const enrollData = [120, 180, 250, 320, 280, Math.max(400, enrollments.length * 20)];
+        const revenueData = [12, 18, 25, 32, 28, Math.round(totalRevenue / 1000) || 40];
+        if (chartEnrollments) chartEnrollments.destroy();
+        chartEnrollments = new Chart(document.getElementById('chart-enrollments'), {
+          type: 'bar',
+          data: { labels: months, datasets: [{ label: 'Enrollments', data: enrollData, backgroundColor: 'rgba(0,200,151,0.8)' }] },
+          options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
+        });
+        if (chartRevenue) chartRevenue.destroy();
+        chartRevenue = new Chart(document.getElementById('chart-revenue'), {
+          type: 'bar',
+          data: { labels: months, datasets: [{ label: 'Revenue (k€)', data: revenueData, backgroundColor: 'rgba(255,127,80,0.8)' }] },
+          options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
+        });
+      } catch (e) {
+        document.getElementById('kpi-enrollments').textContent = '0';
+        document.getElementById('kpi-users').textContent = '0';
+        document.getElementById('kpi-revenue').textContent = '€0';
+        document.getElementById('kpi-completion').textContent = '-';
+      }
+    }
+
+    async function loadCourses() {
+      const el = document.getElementById('list-courses');
+      el.innerHTML = '<span class="loading">Loading...</span>';
+      try {
+        const data = await apiRequest(API_BASE + '/api/courses') || [];
+        if (!data.length) { el.innerHTML = '<p>No courses.</p>'; return; }
+        el.innerHTML = '<table><thead><tr><th>Id</th><th>Code</th><th>Title</th><th>Teacher</th><th>Price</th><th>Level</th><th>Actions</th></tr></thead><tbody>' +
+          data.map(c => '<tr><td>' + c.id + '</td><td>' + (c.courseCode || '') + '</td><td>' + (c.title || '') + '</td><td>' + (c.teacherName || '') + '</td><td>' + (c.price != null ? c.price + '€' : '') + '</td><td>' + (c.level || '') + '</td><td><button class="btn btn-primary" onclick="editCourse(' + c.id + ')">Edit</button> <button class="btn" style="background:#fee2e2;color:#dc2626" onclick="deleteCourse(' + c.id + ')">Delete</button></td></tr>').join('') + '</tbody></table>';
+      } catch (e) { el.innerHTML = '<span class="error">' + e.message + '</span>'; }
+    }
+
+    async function loadUsers() {
+      const el = document.getElementById('list-users');
+      el.innerHTML = '<span class="loading">Loading...</span>';
+      try {
+        const data = await apiRequest(API_BASE + '/api/students') || [];
+        if (!data.length) { el.innerHTML = '<p>No users.</p>'; return; }
+        el.innerHTML = '<table><thead><tr><th>Id</th><th>First name</th><th>Last name</th><th>Email</th><th>City</th><th>Actions</th></tr></thead><tbody>' +
+          data.map(s => '<tr><td>' + s.id + '</td><td>' + (s.firstName || '') + '</td><td>' + (s.lastName || '') + '</td><td>' + (s.email || '') + '</td><td>' + (s.city || '') + '</td><td><button class="btn btn-primary" onclick="editUser(' + s.id + ')">Edit</button> <button class="btn" style="background:#fee2e2;color:#dc2626" onclick="deleteUser(' + s.id + ')">Delete</button></td></tr>').join('') + '</tbody></table>';
+      } catch (e) { el.innerHTML = '<span class="error">' + e.message + '</span>'; }
+    }
+
+    function showFormCourse() {
+      document.getElementById('form-course').classList.remove('hidden');
+      document.getElementById('form-course').innerHTML = '<h3>New course</h3><div class="form-grid"><div><label>Code</label><input id="c-code" placeholder="JAVA101"/></div><div><label>Title</label><input id="c-title" placeholder="Title"/></div><div><label>Teacher</label><input id="c-teacher" placeholder="Name"/></div><div><label>Price</label><input type="number" id="c-price" placeholder="299"/></div><div><label>Level</label><select id="c-level"><option value="BEGINNER">Beginner</option><option value="INTERMEDIATE">Intermediate</option><option value="ADVANCED">Advanced</option></select></div></div><button class="btn btn-primary" onclick="submitCourse()">Save</button> <button class="btn" onclick="document.getElementById(\'form-course\').classList.add(\'hidden\')">Cancel</button>';
+      document.getElementById('form-course').removeAttribute('data-edit-id');
+    }
+    async function submitCourse() {
+      var cCode = document.getElementById('c-code');
+      var cTitle = document.getElementById('c-title');
+      var cTeacher = document.getElementById('c-teacher');
+      var cPrice = document.getElementById('c-price');
+      Validator.clearError(cCode); Validator.clearError(cTitle); Validator.clearError(cTeacher); Validator.clearError(cPrice);
+      var code = (cCode && cCode.value || '').trim();
+      var title = (cTitle && cTitle.value || '').trim();
+      var teacher = (cTeacher && cTeacher.value || '').trim();
+      var err = Validator.validate(code, [Validator.required, Validator.minLen(1), Validator.maxLen(30)]);
+      if (err) { Validator.showError(cCode, err); return; }
+      err = Validator.validate(title, [Validator.required, Validator.minLen(2), Validator.maxLen(150)]);
+      if (err) { Validator.showError(cTitle, err); return; }
+      err = Validator.validate(teacher, [Validator.required, Validator.minLen(1), Validator.maxLen(100)]);
+      if (err) { Validator.showError(cTeacher, err); return; }
+      const editId = document.getElementById('form-course').getAttribute('data-edit-id');
+      const body = { courseCode: code, title: title, teacherName: teacher, price: parseFloat(cPrice && cPrice.value) || 0, level: document.getElementById('c-level').value, description: '', teacherId: 1, teacherLocation: '', durationHours: 40, maxStudents: 30, status: 'ACTIVE', city: 'Paris', country: 'France', latitude: null, longitude: null };
+      const url = editId ? API_BASE + '/api/courses/' + editId : API_BASE + '/api/courses';
+      try {
+        await apiRequest(url, { method: editId ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        document.getElementById('form-course').classList.add('hidden');
+        loadCourses();
+      } catch (e) { alert('Erreur : ' + e.message); }
+    }
+    async function editCourse(id) {
+      try {
+        const c = await apiRequest(API_BASE + '/api/courses/' + id);
+        showFormCourse();
+        document.getElementById('c-code').value = c.courseCode || '';
+        document.getElementById('c-title').value = c.title || '';
+        document.getElementById('c-teacher').value = c.teacherName || '';
+        document.getElementById('c-price').value = c.price ?? '';
+        document.getElementById('c-level').value = c.level || 'BEGINNER';
+        document.getElementById('form-course').querySelector('h3').textContent = 'Edit course';
+        document.getElementById('form-course').setAttribute('data-edit-id', id);
+      } catch (e) { alert('Erreur : ' + e.message); }
+    }
+    async function deleteCourse(id) {
+      if (!confirm('Delete this course?')) return;
+      try {
+        await apiRequest(API_BASE + '/api/courses/' + id, { method: 'DELETE' });
+        loadCourses();
+      } catch (e) { alert('Erreur : ' + e.message); }
+    }
+
+    function showFormUser() {
+      document.getElementById('form-user').classList.remove('hidden');
+      document.getElementById('form-user').innerHTML = '<h3>New user</h3><div class="form-grid"><div><label>First name</label><input id="u-first" placeholder="Jean"/></div><div><label>Last name</label><input id="u-last" placeholder="Dupont"/></div><div><label>Email</label><input type="email" id="u-email" placeholder="jean@email.com"/></div><div><label>City</label><input id="u-city" placeholder="Paris"/></div><div><label>Country</label><input id="u-country" placeholder="France"/></div></div><button class="btn btn-primary" onclick="submitUser()">Save</button> <button class="btn" onclick="document.getElementById(\'form-user\').classList.add(\'hidden\')">Cancel</button>';
+    }
+    async function submitUser() {
+      var uFirst = document.getElementById('u-first');
+      var uLast = document.getElementById('u-last');
+      var uEmail = document.getElementById('u-email');
+      Validator.clearError(uFirst); Validator.clearError(uLast); Validator.clearError(uEmail);
+      var first = (uFirst && uFirst.value || '').trim();
+      var last = (uLast && uLast.value || '').trim();
+      var email = (uEmail && uEmail.value || '').trim();
+      var err = Validator.validate(first, [Validator.required, Validator.minLen(1), Validator.maxLen(80)]);
+      if (err) { Validator.showError(uFirst, err); return; }
+      err = Validator.validate(last, [Validator.required, Validator.minLen(1), Validator.maxLen(80)]);
+      if (err) { Validator.showError(uLast, err); return; }
+      err = Validator.validate(email, [Validator.required, Validator.minLen(5), Validator.maxLen(120)]);
+      if (err) { Validator.showError(uEmail, err); return; }
+      const editId = document.getElementById('form-user').dataset.editId;
+      const body = { firstName: first, lastName: last, email: email, city: document.getElementById('u-city').value, country: document.getElementById('u-country').value, latitude: null, longitude: null };
+      const url = editId ? API_BASE + '/api/students/' + editId : API_BASE + '/api/students';
+      try {
+        await apiRequest(url, { method: editId ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        document.getElementById('form-user').classList.add('hidden');
+        delete document.getElementById('form-user').dataset.editId;
+        loadUsers();
+      } catch (e) { alert('Erreur : ' + e.message); }
+    }
+    async function editUser(id) {
+      try {
+        const s = await apiRequest(API_BASE + '/api/students/' + id);
+        showFormUser();
+        document.getElementById('u-first').value = s.firstName || '';
+        document.getElementById('u-last').value = s.lastName || '';
+        document.getElementById('u-email').value = s.email || '';
+        document.getElementById('u-city').value = s.city || '';
+        document.getElementById('u-country').value = s.country || '';
+        document.getElementById('form-user').querySelector('h3').textContent = 'Edit user';
+        document.getElementById('form-user').dataset.editId = id;
+      } catch (e) { alert('Erreur : ' + e.message); }
+    }
+    async function deleteUser(id) {
+      if (!confirm('Delete this user?')) return;
+      try {
+        await apiRequest(API_BASE + '/api/students/' + id, { method: 'DELETE' });
+        loadUsers();
+      } catch (e) { alert('Erreur : ' + e.message); }
+    }
+
+    loadDashboard();
+
+    // Vérifier que l'API répond (affiche en bas à droite)
+    (async function checkApi() {
+      const el = document.getElementById('api-status');
+      el.style.display = 'block';
+      try {
+        const r = await fetch(API_BASE + '/api/ping');
+        const text = await r.text();
+        let data = {};
+        try { data = text && text.trim().startsWith('{') ? JSON.parse(text) : {}; } catch (_) {}
+        if (r.ok && data.server === 'xampp-mysql-dashboard') {
+          el.textContent = 'API OK';
+          el.style.background = 'rgba(0,200,151,0.2)';
+          el.style.color = '#0d9488';
+        } else {
+          if (text && text.trim().startsWith('<')) {
+            el.textContent = 'API: serveur renvoie du HTML (relancer node xampp-mysql-dashboard.js)';
+          } else {
+            el.textContent = 'API: ' + (r.ok ? 'mauvais serveur' : r.status + ' ' + r.statusText);
+          }
+          el.style.background = '#fee2e2';
+          el.style.color = '#dc2626';
+        }
+      } catch (e) {
+        el.textContent = 'API: ' + e.message;
+        el.style.background = '#fee2e2';
+        el.style.color = '#dc2626';
+      }
+    })();
+  </script>
+</body>
+</html>

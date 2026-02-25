@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Espace Enseignant – Jungle in English</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: rgb(0, 200, 151);
+      --secondary: rgb(255, 127, 80);
+      --bg: #ffffff;
+      --card: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --footer-bg: #0f172a;
+    }
+    body.dark-theme {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --footer-bg: #020617;
+    }
+    body.dark-theme .stat-card, body.dark-theme table th { background: #1e293b; border-color: #334155; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); transition: background 0.3s, color 0.3s; }
+
+    .nav {
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+      max-width: 1200px; margin: 0 auto; padding: 1rem 1.5rem;
+      background: var(--card); border-bottom: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-weight: 700; font-size: 1.25rem; color: var(--text); text-decoration: none;
+    }
+    .nav-logo:hover { color: var(--secondary); }
+    .nav-logo img { width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; }
+    .nav-logo svg { width: 28px; height: 28px; flex-shrink: 0; }
+    .nav-links { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .nav-links a {
+      padding: 0.5rem 1rem; border-radius: 8px; font-weight: 500; text-decoration: none; color: var(--text);
+      font-size: 0.9rem; transition: background 0.2s, color 0.2s;
+    }
+    .nav-links a:hover { background: rgba(255,127,80,0.1); color: var(--secondary); }
+    .nav-links a.active { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; }
+    .nav-dark-toggle { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 0.4rem 0.6rem; cursor: pointer; font-size: 1.1rem; }
+    .nav-dark-toggle:hover { background: rgba(255,127,80,0.1); }
+    .pedagogy-search-wrap { margin-bottom: 1rem; max-width: 320px; position: relative; }
+    .pedagogy-search-wrap input { width: 100%; padding: 0.6rem 1rem 0.6rem 2.25rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; background: var(--card); color: var(--text); }
+    .pedagogy-search-wrap::before { content: '🔍'; position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 0.9rem; opacity: 0.7; }
+    .btn-duplicate { background: #fef3c7; color: #b45309; }
+    .btn-duplicate:hover { background: #fde68a; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+    .page-hero { margin-bottom: 2rem; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(255,127,80,0.12); color: var(--secondary); padding: 0.35rem 0.75rem;
+      border-radius: 999px; font-size: 0.8rem; font-weight: 500; margin-bottom: 0.75rem;
+    }
+    .page-title { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text); }
+    .page-title .green { color: var(--primary); }
+    .page-title .orange { color: var(--secondary); }
+    .page-subtitle { color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem; max-width: 560px; }
+
+    .stats-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card {
+      background: var(--card); border-radius: 12px; padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid var(--border); text-align: center;
+    }
+    .stat-card .num { font-size: 1.75rem; font-weight: 700; color: var(--secondary); }
+    .stat-card .label { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+    .section { display: none; }
+    .section.active { display: block; }
+    .card {
+      background: var(--card); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid var(--border);
+    }
+    .card h3 { font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text); }
+    .btn { padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; font-family: inherit; border: none; text-decoration: none; display: inline-block; transition: opacity 0.2s; }
+    .btn:hover { opacity: 0.95; }
+    .btn-primary { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; }
+    .btn-secondary { background: #f1f5f9; color: var(--text); border: 1px solid var(--border); }
+    .btn-danger { background: #fee2e2; color: #dc2626; }
+    .btn-edit { background: #e0f2fe; color: #0369a1; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: rgba(255,127,80,0.1); font-weight: 600; color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+    .form-grid label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.25rem; }
+    .form-grid input, .form-grid select, .form-grid textarea { width: 100%; padding: 0.6rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; font-family: inherit; }
+    .hidden { display: none !important; }
+    .back-link { font-size: 0.9rem; }
+    .back-link a { color: var(--primary); text-decoration: none; font-weight: 500; }
+    .back-link a:hover { text-decoration: underline; }
+    .loading { color: var(--text-muted); font-size: 0.9rem; }
+    .loading-wrap { display: inline-flex; align-items: center; gap: 0.5rem; }
+    .error { color: #dc2626; font-size: 0.875rem; }
+
+    /* Modal question quiz (graphique) */
+    .quiz-modal-overlay {
+      position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem;
+    }
+    .quiz-modal-card {
+      background: linear-gradient(180deg, #f8fafc 0%, #fff 24%);
+      border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.2);
+      max-width: 520px; width: 100%; max-height: 90vh; overflow-y: auto;
+      border: 1px solid var(--border);
+    }
+    .quiz-modal-header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white; padding: 1.25rem 1.5rem; border-radius: 16px 16px 0 0;
+      font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;
+    }
+    .quiz-modal-body { padding: 1.5rem; }
+    .quiz-type-tabs {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 1.25rem;
+    }
+    .quiz-type-tab {
+      padding: 0.75rem; border-radius: 12px; border: 2px solid var(--border);
+      text-align: center; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s;
+      background: #f8fafc;
+    }
+    .quiz-type-tab:hover { border-color: var(--primary); background: rgba(0,200,151,0.08); }
+    .quiz-type-tab.active { border-color: var(--primary); background: rgba(0,200,151,0.15); color: var(--primary); }
+    .quiz-type-tab .icon { font-size: 1.25rem; display: block; margin-bottom: 0.25rem; }
+    .quiz-answer-vf { display: flex; gap: 1rem; margin-top: 0.5rem; }
+    .quiz-answer-vf label { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.5rem 1rem; border-radius: 8px; border: 2px solid var(--border); }
+    .quiz-answer-vf input:checked + span { font-weight: 700; }
+    .quiz-answer-vf label:has(input:checked) { border-color: var(--primary); background: rgba(0,200,151,0.1); }
+    .quiz-modal-actions { display: flex; gap: 0.75rem; margin-top: 1.25rem; flex-wrap: wrap; }
+
+    /* ========== ANIMATIONS GLOBALES ========== */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInScale {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(12px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
+    .section.active { animation: fadeIn 0.35s ease-out; }
+    .card {
+      transition: box-shadow 0.25s ease, transform 0.25s ease;
+      animation: fadeIn 0.4s ease-out backwards;
+    }
+    .card:nth-child(1) { animation-delay: 0.05s; }
+    .card:nth-child(2) { animation-delay: 0.1s; }
+    .card:nth-child(3) { animation-delay: 0.15s; }
+    .card:nth-child(4) { animation-delay: 0.2s; }
+    .card:nth-child(5) { animation-delay: 0.25s; }
+    .card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+    .btn {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn:active { transform: scale(0.97); }
+    table tbody tr { animation: slideInRight 0.3s ease-out backwards; }
+    table tbody tr:nth-child(1) { animation-delay: 0.02s; }
+    table tbody tr:nth-child(2) { animation-delay: 0.04s; }
+    table tbody tr:nth-child(3) { animation-delay: 0.06s; }
+    table tbody tr:nth-child(4) { animation-delay: 0.08s; }
+    table tbody tr:nth-child(5) { animation-delay: 0.1s; }
+    table tbody tr:nth-child(n+6) { animation-delay: 0.12s; }
+    .quiz-modal-overlay { animation: fadeIn 0.2s ease-out; }
+    .quiz-modal-overlay .quiz-modal-card { animation: fadeInScale 0.3s ease-out; }
+    .nav-links a { transition: transform 0.2s ease, background 0.2s, color 0.2s; }
+    .nav-links a:hover { transform: translateY(-2px); }
+    .nav-links a:active { transform: scale(0.97); }
+    .stat-card { transition: transform 0.2s ease, box-shadow 0.2s ease; animation: fadeIn 0.35s ease-out backwards; }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+
+    /* Cartes cliquables Niveaux & Chapitres (pédagogie) */
+    .pedagogy-level-row, .pedagogy-chapter-row {
+      display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;
+      border-radius: 10px; overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s;
+    }
+    .pedagogy-level-row .level-card, .pedagogy-chapter-row .chapter-label {
+      flex: 1; padding: 0.75rem; cursor: pointer; border-radius: 10px;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    .pedagogy-level-row .level-card:hover, .pedagogy-chapter-row .chapter-label:hover {
+      background: rgba(0,200,151,0.08);
+    }
+    .pedagogy-level-row .level-card:active, .pedagogy-chapter-row .chapter-label:active {
+      transform: scale(0.98);
+    }
+    .pedagogy-level-row .level-card.click-anim, .pedagogy-chapter-row .chapter-label.click-anim {
+      animation: teacherCardClick 0.35s ease;
+    }
+    @keyframes teacherCardClick {
+      0% { transform: scale(1); }
+      50% { transform: scale(0.98); }
+      100% { transform: scale(1); }
+    }
+    /* Apparition des blocs Chapitres / Leçons / Quiz */
+    #pedagogy-chapters-block, #pedagogy-lessons-block, #pedagogy-quiz-block {
+      animation: pedagogyBlockIn 0.4s ease-out forwards;
+    }
+    @keyframes pedagogyBlockIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ========== Fil d'Ariane, pagination, icônes (enseignant = étudiant) ========== */
+    .pedagogy-breadcrumb {
+      display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 1.25rem;
+      font-size: 0.9rem; color: var(--text-muted);
+    }
+    .pedagogy-breadcrumb a { color: var(--primary); text-decoration: none; font-weight: 500; }
+    .pedagogy-breadcrumb a:hover { text-decoration: underline; }
+    .pedagogy-breadcrumb span.current { color: var(--text); font-weight: 600; }
+    .pedagogy-progress {
+      height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 1.25rem; overflow: hidden;
+    }
+    .pedagogy-progress-bar { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 3px; transition: width 0.4s ease; }
+    .icon-pedagogy {
+      display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem;
+      border-radius: 10px; font-size: 1rem; margin-right: 0.6rem; flex-shrink: 0;
+    }
+    .icon-pedagogy.icon-level { background: linear-gradient(135deg, rgba(0,200,151,0.2), rgba(0,200,151,0.35)); }
+    .icon-pedagogy.icon-chapter { background: linear-gradient(135deg, rgba(255,127,80,0.2), rgba(255,127,80,0.35)); }
+    .icon-pedagogy.icon-lesson-video { background: rgba(59,130,246,0.2); }
+    .icon-pedagogy.icon-lesson-pdf { background: rgba(139,92,246,0.2); }
+    .icon-pedagogy.icon-quiz { background: linear-gradient(135deg, rgba(0,200,151,0.2), rgba(255,127,80,0.2)); }
+    .pedagogy-pagination { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+    .pedagogy-pagination .btn-page {
+      min-width: 2.25rem; height: 2.25rem; padding: 0 0.5rem; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--card); color: var(--text); font-weight: 600; font-size: 0.875rem; cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .pedagogy-pagination .btn-page:hover:not(:disabled) { background: rgba(0,200,151,0.1); border-color: var(--primary); color: var(--primary); }
+    .pedagogy-pagination .btn-page.active { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; border-color: transparent; }
+    .pedagogy-pagination .btn-page:disabled { opacity: 0.5; cursor: not-allowed; }
+    .pedagogy-pagination .pagination-info { font-size: 0.85rem; color: var(--text-muted); margin-right: 0.5rem; }
+    .pedagogy-tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 2px solid var(--border); }
+    .pedagogy-tab {
+      padding: 0.6rem 1.25rem; border: none; background: none; cursor: pointer; font-weight: 600; font-size: 0.9rem;
+      color: var(--text-muted); border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s;
+    }
+    .pedagogy-tab:hover { color: var(--primary); }
+    .pedagogy-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .pedagogy-pane { display: none; animation: pedagogyBlockIn 0.35s ease-out; }
+    .pedagogy-pane.active { display: block; }
+    .pedagogy-cards .pedagogy-level-row, .pedagogy-cards .pedagogy-chapter-row {
+      animation: cardSlideIn 0.35s ease-out backwards;
+    }
+    .pedagogy-cards .pedagogy-level-row:nth-child(1), .pedagogy-cards .pedagogy-chapter-row:nth-child(1) { animation-delay: 0.05s; }
+    .pedagogy-cards .pedagogy-level-row:nth-child(2), .pedagogy-cards .pedagogy-chapter-row:nth-child(2) { animation-delay: 0.1s; }
+    .pedagogy-cards .pedagogy-level-row:nth-child(3), .pedagogy-cards .pedagogy-chapter-row:nth-child(3) { animation-delay: 0.15s; }
+    .pedagogy-cards .pedagogy-level-row:nth-child(4), .pedagogy-cards .pedagogy-chapter-row:nth-child(4) { animation-delay: 0.2s; }
+    .pedagogy-cards .pedagogy-level-row:nth-child(5), .pedagogy-cards .pedagogy-chapter-row:nth-child(5) { animation-delay: 0.25s; }
+    .pedagogy-cards .pedagogy-level-row:nth-child(n+6), .pedagogy-cards .pedagogy-chapter-row:nth-child(n+6) { animation-delay: 0.3s; }
+    @keyframes cardSlideIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .pedagogy-lesson-row {
+      display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; padding: 0.75rem;
+      background: linear-gradient(135deg, #f8fafc 0%, #fff 100%); border-radius: 10px; border: 1px solid var(--border);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .pedagogy-lesson-row:hover { transform: translateX(4px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+
+    /* ========== CONTRÔLE DE SAISIE AVANCÉ ========== */
+    .input-wrapper { position: relative; margin-bottom: 0.5rem; }
+    .form-grid input, .form-grid select, .form-grid textarea {
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+    .form-grid input:focus, .form-grid select:focus, .form-grid textarea:focus {
+      outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0, 200, 151, 0.2);
+    }
+    .input-error, .form-grid input.input-error, .form-grid textarea.input-error {
+      border-color: #dc2626 !important; background: #fef2f2;
+      box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
+      animation: shake 0.4s ease;
+    }
+    .input-valid, .form-grid input.input-valid, .form-grid textarea.input-valid {
+      border-color: var(--primary); background: #f0fdf9;
+    }
+    /* Messages d'erreur jolis et avancés */
+    .validation-msg {
+      font-size: 0.8rem; margin-top: 0.4rem; display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.5rem 0.75rem; border-radius: 8px; max-width: 100%;
+      animation: fadeIn 0.3s ease, slideInRight 0.25s ease;
+      line-height: 1.35;
+    }
+    .validation-msg.error {
+      color: #b91c1c; background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+      border: 1px solid #fecaca; box-shadow: 0 2px 8px rgba(220, 38, 38, 0.12);
+    }
+    .validation-msg.error::before {
+      content: '⚠'; font-size: 1rem; font-weight: 700; flex-shrink: 0;
+      width: 1.25rem; height: 1.25rem; display: inline-flex; align-items: center; justify-content: center;
+      background: #dc2626; color: white; border-radius: 50%;
+    }
+    .validation-msg.success { color: var(--primary); }
+    .validation-msg.success::before { content: '✓'; background: var(--primary); color: white; width: 1rem; height: 1rem; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; }
+    .char-count { font-size: 0.7rem; color: var(--text-muted); text-align: right; margin-top: 0.15rem; }
+    .char-count.warn { color: #f59e0b; }
+    .char-count.over { color: #dc2626; }
+    .loading-overlay {
+      position: absolute; inset: 0; background: rgba(255,255,255,0.85); display: flex; align-items: center; justify-content: center;
+      border-radius: inherit; animation: fadeIn 0.2s ease;
+    }
+    .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+
+    .footer-mini { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center; }
+    .footer-mini a { color: var(--primary); text-decoration: none; font-weight: 500; font-size: 0.9rem; }
+    .footer-mini a:hover { text-decoration: underline; }
+
+    @media (max-width: 768px) {
+      .nav { flex-direction: column; align-items: stretch; }
+      .nav-links { justify-content: center; }
+      .stats-strip { grid-template-columns: repeat(2, 1fr); }
+    }
+    #splash { position: fixed; inset: 0; z-index: 9999; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.6s ease-out; pointer-events: none; }
+    #splash.hide { opacity: 0; }
+    #splash.remove { display: none; }
+    .splash-logo { width: 120px; height: 120px; object-fit: contain; animation: splashLogo 1.2s ease-out forwards; filter: drop-shadow(0 0 20px rgba(255,127,80,0.3)); }
+    .splash-name { font-size: 1.75rem; font-weight: 800; color: #fff; letter-spacing: 0.08em; margin-top: 1rem; opacity: 0; animation: splashText 0.8s ease-out 0.4s forwards; }
+    .splash-tagline { font-size: 0.9rem; color: rgba(255,255,255,0.7); margin-top: 0.5rem; opacity: 0; animation: splashText 0.8s ease-out 0.7s forwards; }
+    .splash-loader { width: 100px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 4px; margin-top: 1.5rem; overflow: hidden; opacity: 0; animation: splashText 0.5s ease-out 1s forwards; }
+    .splash-loader-bar { height: 100%; width: 0; background: linear-gradient(90deg, rgb(0,200,151), rgb(255,127,80)); border-radius: 4px; animation: splashLoad 2s ease-in-out 1.2s forwards; }
+    @keyframes splashLogo { 0% { transform: scale(0.6); opacity: 0; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes splashText { to { opacity: 1; } }
+    @keyframes splashLoad { to { width: 100%; } }
+  </style>
+</head>
+<body>
+  <div id="splash">
+    <img src="logo.png" alt="Jungle" class="splash-logo">
+    <div class="splash-name">JUNGLE</div>
+    <div class="splash-tagline">in English · Espace Enseignant</div>
+    <div class="splash-loader"><div class="splash-loader-bar"></div></div>
+  </div>
+  <header class="nav">
+    <a href="index.html" class="nav-logo">
+      <img src="logo.png" alt="Jungle">
+      Jungle in English – <span class="orange">Espace Enseignant</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#" class="active" data-page="pedagogy">📖 Niveaux & Chapitres</a>
+      <a href="#" data-page="courses">📚 My Courses</a>
+      <a href="#" data-page="materials">📄 PDF / Vidéo</a>
+      <a href="#" data-page="questions">❓ Questions</a>
+      <a href="#" data-page="responses">📝 Responses</a>
+      <a href="#" data-page="enrollments">📋 Enrollments</a>
+      <a href="#" data-page="award-badge">🏅 Award Badge</a>
+      <button type="button" id="toggle-dark-teacher" class="nav-dark-toggle" title="Mode sombre" aria-label="Mode sombre">🌙</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- Pédagogie: Niveaux → Chapitres → Leçons → Quiz -->
+    <section id="section-pedagogy" class="section active">
+      <div class="page-hero">
+        <div class="hero-badge">Pédagogie</div>
+        <h1 class="page-title">Niveaux & <span class="green">Chapitres</span></h1>
+        <p class="page-subtitle">Créez les niveaux (A1–C2), les chapitres, les leçons (vidéo/PDF) et les quiz. C’est ce que l’étudiant voit dans « Parcours ».</p>
+      </div>
+      <div id="pedagogy-breadcrumb" class="pedagogy-breadcrumb"></div>
+      <div id="pedagogy-progress-wrap" class="pedagogy-progress" style="display:none;"><div id="pedagogy-progress-bar" class="pedagogy-progress-bar" style="width:0%"></div></div>
+      <!-- Un seul bloc visible à la fois : niveaux OU chapitres OU détail chapitre (à la même position) -->
+      <div class="card" id="pedagogy-levels-block">
+        <h3>Niveaux</h3>
+        <div id="pedagogy-search-levels" class="pedagogy-search-wrap" style="display:none;"><input type="text" id="pedagogy-search-levels-input" placeholder="Rechercher un niveau (code ou nom)…"></div>
+        <button class="btn btn-primary" onclick="pedagogyAddLevel()">+ Nouveau niveau</button>
+        <div id="pedagogy-form-level" class="hidden" style="margin-top:1rem;"></div>
+        <div id="pedagogy-levels" style="margin-top:1rem;"></div>
+        <div id="pedagogy-levels-pagination" class="pedagogy-pagination"></div>
+      </div>
+      <div class="card" id="pedagogy-chapters-block" style="display:none;">
+        <div class="back-link" style="margin-bottom:0.75rem;"><a href="#" id="pedagogy-back-to-levels">← Retour aux niveaux</a></div>
+        <h3>Chapitres du niveau <span id="pedagogy-level-name"></span></h3>
+        <div id="pedagogy-search-chapters" class="pedagogy-search-wrap" style="display:none;"><input type="text" id="pedagogy-search-chapters-input" placeholder="Rechercher un chapitre…"></div>
+        <button class="btn btn-primary" onclick="pedagogyAddChapter()">+ Nouveau chapitre</button>
+        <div id="pedagogy-form-chapter" class="hidden" style="margin-top:1rem;"></div>
+        <div id="pedagogy-chapters" style="margin-top:1rem;"></div>
+        <div id="pedagogy-chapters-pagination" class="pedagogy-pagination"></div>
+      </div>
+      <div id="pedagogy-detail-block" style="display:none;">
+        <div class="back-link" style="margin-bottom:0.75rem;"><a href="#" id="pedagogy-back-to-chapters">← Retour aux chapitres</a></div>
+        <div class="pedagogy-tabs" style="margin-bottom:1rem;">
+          <button type="button" class="pedagogy-tab active" data-pedagogy-tab="lessons">Leçons</button>
+          <button type="button" class="pedagogy-tab" data-pedagogy-tab="quiz">Quiz</button>
+        </div>
+        <div class="card" id="pedagogy-lessons-block">
+          <h3>Leçons du chapitre <span id="pedagogy-chapter-name"></span></h3>
+          <button class="btn btn-primary" onclick="pedagogyAddLesson()">+ Nouvelle leçon (vidéo/PDF)</button>
+          <div id="pedagogy-form-lesson" class="hidden" style="margin-top:1rem;"></div>
+          <div id="pedagogy-lessons" style="margin-top:1rem;"></div>
+        </div>
+        <div class="card" id="pedagogy-quiz-block" style="display:none;">
+          <h3>Quiz du chapitre</h3>
+          <div id="pedagogy-quiz-form-or-list"></div>
+          <div id="pedagogy-quiz-questions" style="margin-top:1rem;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- My Courses (CRUD) -->
+    <section id="section-courses" class="section">
+      <div class="page-hero">
+        <div class="hero-badge">CRUD</div>
+        <h1 class="page-title">My <span class="orange">Courses</span></h1>
+        <p class="page-subtitle">Créer, modifier et supprimer vos cours. Publiez ensuite des questions pour les quiz.</p>
+      </div>
+      <div id="teacher-stats" class="stats-strip"></div>
+      <button class="btn btn-primary" onclick="showFormCourse()">+ New Course</button>
+      <div id="form-course" class="hidden card"></div>
+      <div id="list-courses"></div>
+    </section>
+
+    <!-- Manage Questions -->
+    <section id="section-questions" class="section">
+      <div class="page-hero">
+        <div class="hero-badge">Quiz</div>
+        <h1 class="page-title">Manage <span class="green">Questions</span></h1>
+        <p class="page-subtitle">Gérer les questions par cours. Choisissez un cours puis ajoutez ou modifiez les questions.</p>
+      </div>
+      <div class="card">
+        <label style="display:block;margin-bottom:0.5rem;font-weight:600;">Cours :</label>
+        <select id="questionsCourseSelect" style="max-width:400px;padding:0.6rem;border-radius:8px;border:1px solid var(--border);"><option value="">-- Choisir un cours --</option></select>
+      </div>
+      <button class="btn btn-primary" id="btnNewQuestion" style="display:none">+ New Question</button>
+      <div id="form-question" class="hidden card"></div>
+      <div id="list-questions"></div>
+    </section>
+
+    <!-- PDF / Video (ressources de cours) -->
+    <section id="section-materials" class="section">
+      <div class="page-hero">
+        <div class="hero-badge">Ressources</div>
+        <h1 class="page-title">PDF / <span class="orange">Vidéo</span></h1>
+        <p class="page-subtitle">Ajoutez des documents PDF ou des liens vidéo (YouTube, Vimeo, etc.) à vos cours, comme sur Blackboard.</p>
+      </div>
+      <div class="card">
+        <label style="display:block;margin-bottom:0.5rem;font-weight:600;">Cours :</label>
+        <select id="materialsCourseSelect" style="max-width:400px;padding:0.6rem;border-radius:8px;border:1px solid var(--border);"><option value="">-- Choisir un cours --</option></select>
+      </div>
+      <button class="btn btn-primary" id="btnAddMaterial" style="display:none">+ Ajouter PDF ou Vidéo</button>
+      <div id="form-material" class="hidden card"></div>
+      <div id="list-materials"></div>
+    </section>
+
+    <!-- View Responses -->
+    <section id="section-responses" class="section">
+      <div class="page-hero">
+        <div class="hero-badge">Réponses</div>
+        <h1 class="page-title">View <span class="green">Answers</span> / Responses</h1>
+        <p class="page-subtitle">Consultez les réponses des étudiants aux quiz.</p>
+      </div>
+      <div id="list-responses"></div>
+    </section>
+
+    <!-- Enrollments -->
+    <section id="section-enrollments" class="section">
+      <div class="page-hero">
+        <div class="hero-badge">Inscriptions</div>
+        <h1 class="page-title">Enrollments <span class="orange">List</span></h1>
+        <p class="page-subtitle">Liste des inscriptions par cours et par étudiant.</p>
+      </div>
+      <div id="list-enrollments"></div>
+    </section>
+
+    <!-- Award Badge -->
+    <section id="section-award-badge" class="section">
+      <div class="page-hero">
+        <div class="hero-badge">Récompenses</div>
+        <h1 class="page-title">Award <span class="orange">Badge</span></h1>
+        <p class="page-subtitle">Attribuer un badge à un étudiant (manuel ou après validation).</p>
+      </div>
+      <div class="card" style="max-width:520px">
+        <div class="form-grid">
+          <div><label>Étudiant</label><select id="badgeStudentSelect"><option value="">-- Choisir --</option></select></div>
+          <div><label>Nom du badge</label><input id="badgeName" placeholder="Course completed" /></div>
+          <div><label>Type</label><select id="badgeType"><option value="COURSE_COMPLETION">Course Completion</option><option value="QUIZ_MASTER">Quiz Master</option><option value="PERFECT_SCORE">Perfect Score</option><option value="EXPERT">Expert</option></select></div>
+          <div><label>Cours (optionnel)</label><select id="badgeCourseSelect"><option value="">-- Aucun --</option></select></div>
+        </div>
+        <button class="btn btn-primary" onclick="submitAwardBadge()">Attribuer le badge</button>
+      </div>
+    </section>
+
+    <!-- Modal création/édition question quiz (graphique, types V/F, QCM, etc.) -->
+    <div id="pedagogy-quiz-question-modal" class="quiz-modal-overlay hidden">
+      <div class="quiz-modal-card">
+        <div class="quiz-modal-header" id="pedagogy-quiz-modal-title">📝 Nouvelle question</div>
+        <div class="quiz-modal-body">
+          <label style="display:block;font-weight:600;color:var(--text-muted);margin-bottom:0.35rem;">Type de question</label>
+          <div class="quiz-type-tabs" id="pedagogy-quiz-type-tabs">
+            <div class="quiz-type-tab active" data-type="TRUE_FALSE"><span class="icon">✓✗</span> Vrai / Faux</div>
+            <div class="quiz-type-tab" data-type="MULTIPLE_CHOICE"><span class="icon">☐</span> QCM</div>
+            <div class="quiz-type-tab" data-type="SHORT_ANSWER"><span class="icon">✎</span> Réponse courte</div>
+          </div>
+          <input type="hidden" id="pq-question-type" value="TRUE_FALSE"/>
+          <label style="display:block;font-weight:600;color:var(--text-muted);margin-bottom:0.35rem;">Texte de la question</label>
+          <textarea id="pq-question-text" rows="3" placeholder="Écrivez votre question..." style="width:100%;padding:0.6rem;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;font-family:inherit;margin-bottom:1rem;"></textarea>
+          <div id="pq-answer-zone">
+            <label style="display:block;font-weight:600;color:var(--text-muted);margin-bottom:0.35rem;">Réponse correcte</label>
+            <div class="quiz-answer-vf">
+              <label><input type="radio" name="pq-vf" value="true"/><span>Vrai</span></label>
+              <label><input type="radio" name="pq-vf" value="false"/><span>Faux</span></label>
+            </div>
+          </div>
+          <label style="display:block;font-weight:600;color:var(--text-muted);margin-top:1rem;margin-bottom:0.35rem;">Points</label>
+          <input type="number" id="pq-question-points" value="10" min="1" max="100" style="width:100%;max-width:120px;padding:0.6rem;border:1px solid var(--border);border-radius:8px;"/>
+          <div class="quiz-modal-actions">
+            <button class="btn btn-primary" id="pedagogy-quiz-modal-submit">Enregistrer</button>
+            <button class="btn btn-secondary" id="pedagogy-quiz-modal-cancel">Annuler</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer-mini">
+      <a href="index.html">← Retour à l'accueil Wordly</a> · <a href="student.html">Espace Étudiant</a>
+    </footer>
+  </main>
+
+  <script>
+    (function(){ var s=document.getElementById('splash'); if(s){ setTimeout(function(){ s.classList.add('hide'); setTimeout(function(){ s.classList.add('remove'); }, 600); }, 3200); } })();
+    (function initDarkThemeTeacher() {
+      var dark = localStorage.getItem('jungleDarkTheme') === '1';
+      if (dark) document.body.classList.add('dark-theme');
+      var btn = document.getElementById('toggle-dark-teacher');
+      if (btn) btn.addEventListener('click', function() { document.body.classList.toggle('dark-theme'); var on = document.body.classList.contains('dark-theme'); localStorage.setItem('jungleDarkTheme', on ? '1' : '0'); btn.textContent = on ? '☀️' : '🌙'; btn.title = on ? 'Mode clair' : 'Mode sombre'; });
+      if (btn && document.body.classList.contains('dark-theme')) btn.textContent = '☀️';
+    })();
+    const API = (window.location.port === '8083' || window.location.port === '8081') ? '' : 'http://localhost:8083';
+    function parseErr(r, text) { let msg = r.status + ' ' + r.statusText; try { const j = JSON.parse(text); msg = j.error || j.message || msg; } catch (_) {} return msg; }
+    async function api(url, options = {}) {
+      const r = await fetch(API + url, options);
+      const text = await r.text();
+      if (!r.ok) throw new Error(parseErr(r, text));
+      return text ? JSON.parse(text) : null;
+    }
+
+    /* ========== CONTRRÔLE DE SAISIE AVANCÉ ========== */
+    var Validator = {
+      rules: {
+        required: function(v) { var s = (v || '').toString().trim(); return s.length > 0 ? null : 'Champ obligatoire.'; },
+        minLen: function(min) { return function(v) { var s = (v || '').toString().trim(); return s.length >= min ? null : 'Minimum ' + min + ' caractère(s) requis.'; }; },
+        maxLen: function(max) { return function(v) { var s = (v || '').toString(); return s.length <= max ? null : 'Maximum ' + max + ' caractères autorisés.'; }; },
+        number: function(min, max) { return function(v) { var n = parseFloat(v); if (isNaN(n)) return 'Saisie numérique requise.'; if (min != null && n < min) return 'Minimum ' + min + '.'; if (max != null && n > max) return 'Maximum ' + max + '.'; return null; }; },
+        integer: function(min, max) { return function(v) { var n = parseInt(v, 10); if (isNaN(n) || (v !== '' && (v|0) !== n)) return 'Ce champ doit être un nombre entier.'; if (min != null && n < min) return 'Minimum ' + min + '.'; if (max != null && n > max) return 'Maximum ' + max + '.'; return null; }; },
+        pattern: function(regex, msg) { return function(v) { return (regex.test((v || '').toString().trim())) ? null : (msg || 'Format invalide.'); }; },
+        code: function() { return Validator.rules.pattern(/^[A-Za-z0-9\-_]+$/, 'Ce champ accepte uniquement des lettres, chiffres, tirets et underscores.'); },
+        lettersOnly: function() { return Validator.rules.pattern(/^[A-Za-zÀ-ÿ\s\-']+$/, 'Ce champ accepte uniquement des lettres (pas de chiffres ni de caractères spéciaux).'); },
+        digitsOnly: function() { return Validator.rules.pattern(/^\d+$/, 'Ce champ accepte uniquement des chiffres (0-9).'); },
+        noNumbers: function() { return Validator.rules.pattern(/^[^0-9]*$/, 'Ce champ ne doit pas contenir de chiffres.'); }
+      },
+      validate: function(value, ruleList) {
+        for (var i = 0; i < ruleList.length; i++) {
+          var r = ruleList[i];
+          if (typeof r !== 'function') continue;
+          var ruleFn = (r.length === 0) ? r() : r;
+          var err = (typeof ruleFn === 'function') ? ruleFn(value) : null;
+          if (err && typeof err === 'string') return err;
+        }
+        return null;
+      },
+      showError: function(input, message) {
+        if (!input) return;
+        input.classList.remove('input-valid');
+        input.classList.add('input-error');
+        var wrap = input.closest('.input-wrapper');
+        var msgEl = wrap ? wrap.querySelector('.validation-msg.error') : (input.nextElementSibling && input.nextElementSibling.classList.contains('validation-msg') ? input.nextElementSibling : null);
+        if (msgEl) msgEl.remove();
+        msgEl = document.createElement('span');
+        msgEl.className = 'validation-msg error';
+        msgEl.textContent = message;
+        msgEl.style.display = 'block';
+        if (wrap) wrap.appendChild(msgEl); else { if (input.nextSibling) input.parentNode.insertBefore(msgEl, input.nextSibling); else input.parentNode.appendChild(msgEl); }
+      },
+      clearError: function(input) {
+        if (!input) return;
+        input.classList.remove('input-error');
+        var wrap = input.closest('.input-wrapper');
+        if (wrap) { var msg = wrap.querySelector('.validation-msg.error'); if (msg) msg.remove(); }
+        if (input.nextElementSibling && input.nextElementSibling.classList.contains('validation-msg')) input.nextElementSibling.remove();
+      },
+      setValid: function(input) {
+        if (!input) return;
+        input.classList.remove('input-error');
+        input.classList.add('input-valid');
+        var wrap = input.closest('.input-wrapper') || input.parentElement;
+        var msg = wrap && wrap.querySelector('.validation-msg.error');
+        if (msg) msg.remove();
+      },
+      bindLive: function(input, rules) {
+        if (!input || !rules.length) return;
+        var self = this;
+        function run() {
+          var err = self.validate(input.value, rules);
+          if (err) { self.showError(input, err); } else { self.clearError(input); self.setValid(input); }
+        }
+        input.addEventListener('blur', run);
+        input.addEventListener('input', function() { self.clearError(input); if (input.value.trim()) run(); });
+      }
+    };
+
+    document.querySelectorAll('.nav-links a').forEach(el => {
+      el.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (this.classList.contains('nav-logo')) return;
+        document.querySelectorAll('.nav-links a').forEach(n => n.classList.remove('active'));
+        this.classList.add('active');
+        const page = this.getAttribute('data-page');
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById('section-' + page).classList.add('active');
+        if (page === 'pedagogy') loadPedagogyPage();
+        if (page === 'courses') loadCourses();
+        if (page === 'materials') loadMaterialsPage();
+        if (page === 'questions') loadQuestionsPage();
+        if (page === 'responses') loadResponses();
+        if (page === 'enrollments') loadEnrollments();
+        if (page === 'award-badge') loadAwardBadgePage();
+      });
+    });
+
+    async function updateTeacherStats() {
+      const box = document.getElementById('teacher-stats');
+      try {
+        const [courses, responses, enr] = await Promise.all([
+          api('/api/courses').catch(() => []),
+          api('/api/responses').catch(() => []),
+          api('/api/enrollments').catch(() => [])
+        ]);
+        const coursesArr = Array.isArray(courses) ? courses : [];
+        const enrArr = Array.isArray(enr) ? enr : [];
+        const respCount = Array.isArray(responses) ? responses.length : 0;
+        box.innerHTML = '<div class="stat-card"><div class="num">' + coursesArr.length + '</div><div class="label">Cours</div></div><div class="stat-card"><div class="num">' + respCount + '</div><div class="label">Réponses reçues</div></div><div class="stat-card"><div class="num">' + enrArr.length + '</div><div class="label">Inscriptions</div></div>';
+      } catch (_) { document.getElementById('teacher-stats').innerHTML = ''; }
+    }
+
+    // --- My Courses (CRUD) ---
+    async function loadCourses() {
+      const el = document.getElementById('list-courses');
+      el.innerHTML = '<span class="loading-wrap"><span class="spinner"></span><span class="loading">Chargement...</span></span>';
+      try {
+        const data = await api('/api/courses') || [];
+        updateTeacherStats();
+        if (!data.length) { el.innerHTML = '<p>Aucun cours. Cliquez sur "New Course".</p>'; return; }
+        el.innerHTML = '<table><thead><tr><th>Id</th><th>Code</th><th>Titre</th><th>Enseignant</th><th>Prix</th><th>Niveau</th><th>Actions</th></tr></thead><tbody>' +
+          data.map(c => '<tr><td>' + c.id + '</td><td>' + (c.courseCode || '') + '</td><td>' + (c.title || '') + '</td><td>' + (c.teacherName || '') + '</td><td>' + (c.price != null ? c.price + ' €' : '') + '</td><td>' + (c.level || '') + '</td><td><button class="btn btn-edit" onclick="editCourse(' + c.id + ')">Modifier</button> <button class="btn btn-danger" onclick="deleteCourse(' + c.id + ')">Supprimer</button></td></tr>').join('') + '</tbody></table>';
+      } catch (e) { el.innerHTML = '<span class="error">' + e.message + '</span>'; }
+    }
+    function showFormCourse() {
+      const form = document.getElementById('form-course');
+      form.classList.remove('hidden');
+      form.innerHTML = '<h3>Nouveau cours</h3><div class="form-grid"><div><label>Code</label><input id="c-code" placeholder="JAVA101"/></div><div><label>Titre</label><input id="c-title" placeholder="Titre"/></div><div><label>Enseignant</label><input id="c-teacher" placeholder="Nom"/></div><div><label>Prix</label><input type="number" id="c-price" placeholder="299"/></div><div><label>Niveau</label><select id="c-level"><option value="BEGINNER">Débutant</option><option value="INTERMEDIATE">Intermédiaire</option><option value="ADVANCED">Avancé</option></select></div></div><button class="btn btn-primary" onclick="submitCourse()">Enregistrer</button> <button class="btn btn-secondary" onclick="form.classList.add(\'hidden\')">Annuler</button>';
+      form.removeAttribute('data-edit-id');
+    }
+    async function submitCourse() {
+      const form = document.getElementById('form-course');
+      const editId = form.getAttribute('data-edit-id');
+      const body = { courseCode: document.getElementById('c-code').value, title: document.getElementById('c-title').value, teacherName: document.getElementById('c-teacher').value, price: parseFloat(document.getElementById('c-price').value) || 0, level: document.getElementById('c-level').value, description: '', teacherId: 1, teacherLocation: '', durationHours: 40, maxStudents: 30, status: 'ACTIVE', city: 'Paris', country: 'France', latitude: null, longitude: null };
+      const url = editId ? '/api/courses/' + editId : '/api/courses';
+      try {
+        await api(url, { method: editId ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        form.classList.add('hidden');
+        loadCourses();
+      } catch (e) { alert('Erreur : ' + e.message); }
+    }
+    async function editCourse(id) {
+      try {
+        const c = await api('/api/courses/' + id);
+        showFormCourse();
+        document.getElementById('c-code').value = c.courseCode || '';
+        document.getElementById('c-title').value = c.title || '';
+        document.getElementById('c-teacher').value = c.teacherName || '';
+        document.getElementById('c-price').value = c.price ?? '';
+        document.getElementById('c-level').value = c.level || 'BEGINNER';
+        document.getElementById('form-course').querySelector('h3').textContent = 'Modifier le cours';
+        document.getElementById('form-course').setAttribute('data-edit-id', id);
+      } catch (e) { alert('Erreur : ' + e.message); }
+    }
+    async function deleteCourse(id) {
+      if (!confirm('Supprimer ce cours ?')) return;
+      try {
+        await api('/api/courses/' + id, { method: 'DELETE' });
+        loadCourses();
+      } catch (e) { alert('Erreur : ' + e.message); }
+    }
+
+    // --- Pédagogie (niveaux, chapitres, leçons, quiz) ---
+    let pedagogyLevelId = null, pedagogyChapterId = null, pedagogyLevelName = '', pedagogyChapterName = '';
+    let pedagogyEditingLevelId = null, pedagogyEditingChapterId = null, pedagogyEditingLessonId = null;
+    const PEDAGOGY_LEVELS_PER_PAGE = 6;
+    const PEDAGOGY_CHAPTERS_PER_PAGE = 6;
+    let pedagogyLevelsList = [];
+    let pedagogyChaptersList = [];
+
+    function teEsc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+    function setPedagogyBreadcrumb(items) {
+      var el = document.getElementById('pedagogy-breadcrumb');
+      if (!el) return;
+      if (!items || !items.length) { el.innerHTML = ''; return; }
+      el.innerHTML = items.map(function(it, i) {
+        var isLast = i === items.length - 1;
+        var text = teEsc(it.label || '');
+        if (it.href && !isLast) return '<a href="#" data-pedagogy-breadcrumb="' + teEsc(it.href) + '">' + text + '</a>';
+        return '<span class="' + (isLast ? 'current' : '') + '">' + text + '</span>';
+      }).join('<span style="margin:0 0.25rem;">›</span>');
+      el.querySelectorAll('a[data-pedagogy-breadcrumb]').forEach(function(a) {
+        a.onclick = function(e) { e.preventDefault(); var h = a.getAttribute('data-pedagogy-breadcrumb'); if (h === 'levels') { pedagogyLevelId = null; pedagogyChapterId = null; document.getElementById('pedagogy-levels-block').style.display = 'block'; document.getElementById('pedagogy-chapters-block').style.display = 'none'; document.getElementById('pedagogy-detail-block').style.display = 'none'; loadPedagogyPage(); } else if (h.indexOf('chapters:') === 0) { pedagogyChapterId = null; pedagogyLevelId = parseInt(h.split(':')[1], 10); document.getElementById('pedagogy-levels-block').style.display = 'none'; document.getElementById('pedagogy-chapters-block').style.display = 'block'; document.getElementById('pedagogy-detail-block').style.display = 'none'; loadPedagogyChapters(); } };
+      });
+    }
+    function setPedagogyProgress(pct) {
+      var wrap = document.getElementById('pedagogy-progress-wrap');
+      var bar = document.getElementById('pedagogy-progress-bar');
+      if (wrap) wrap.style.display = (pct != null && pct > 0) ? 'block' : 'none';
+      if (bar) bar.style.width = (pct != null ? Math.min(100, Math.max(0, pct)) : 0) + '%';
+    }
+
+    function renderPedagogyLevelsPage(page, optionalList) {
+      var list = optionalList && optionalList.length >= 0 ? optionalList : pedagogyLevelsList;
+      var total = list.length;
+      if (total === 0) {
+        document.getElementById('pedagogy-levels').innerHTML = '<p class="loading">Aucun niveau ne correspond à la recherche.</p>';
+        document.getElementById('pedagogy-levels-pagination').innerHTML = '';
+        return;
+      }
+      var totalPages = Math.max(1, Math.ceil(total / PEDAGOGY_LEVELS_PER_PAGE));
+      var p = Math.max(1, Math.min(page, totalPages));
+      var start = (p - 1) * PEDAGOGY_LEVELS_PER_PAGE;
+      var pageLevels = list.slice(start, start + PEDAGOGY_LEVELS_PER_PAGE);
+      var el = document.getElementById('pedagogy-levels');
+      el.innerHTML = '<div class="pedagogy-cards">' + pageLevels.map(function(l) {
+        return '<div class="pedagogy-level-row"><span class="icon-pedagogy icon-level">📚</span><span class="level-card" data-level-id="' + l.id + '"><strong>' + teEsc(l.code || '') + '</strong> – ' + teEsc(l.name || '') + '</span><button class="btn btn-edit" onclick="pedagogyEditLevel(' + l.id + ')">Modifier</button><button class="btn btn-danger" onclick="pedagogyDeleteLevel(' + l.id + ')">Supprimer</button></div>';
+      }).join('') + '</div>';
+      el.querySelectorAll('[data-level-id]').forEach(function(n) {
+        n.addEventListener('click', function(ev) {
+          if (ev.target.closest('button')) return;
+          var levelId = parseInt(this.getAttribute('data-level-id'), 10);
+          this.classList.add('click-anim');
+          setTimeout(function() {
+            pedagogyLevelId = levelId;
+            var lvl = pedagogyLevelsList.find(function(l) { return l.id === pedagogyLevelId; }) || {};
+            pedagogyLevelName = lvl.name || '';
+            document.getElementById('pedagogy-level-name').textContent = (lvl.code || '') + (lvl.name ? ' – ' + lvl.name : '');
+            document.getElementById('pedagogy-levels-block').style.display = 'none';
+            document.getElementById('pedagogy-chapters-block').style.display = 'block';
+            document.getElementById('pedagogy-detail-block').style.display = 'none';
+            setPedagogyBreadcrumb([{ label: 'Niveaux', href: 'levels' }, { label: (lvl.code || '') + ' – ' + (lvl.name || ''), href: 'chapters:' + levelId }]);
+            setPedagogyProgress(50);
+            loadPedagogyChapters();
+            var backBtn = document.getElementById('pedagogy-back-to-levels');
+            if (backBtn) backBtn.onclick = function(ev) { ev.preventDefault(); document.getElementById('pedagogy-levels-block').style.display = 'block'; document.getElementById('pedagogy-chapters-block').style.display = 'none'; document.getElementById('pedagogy-detail-block').style.display = 'none'; setPedagogyBreadcrumb([{ label: 'Niveaux' }]); setPedagogyProgress(25); loadPedagogyPage(); };
+          }, 200);
+        });
+      });
+      var pagEl = document.getElementById('pedagogy-levels-pagination');
+      if (totalPages > 1 && pagEl) {
+        var pagHtml = '<span class="pagination-info">Page ' + p + ' / ' + totalPages + '</span><button type="button" class="btn-page" data-page="prev"' + (p <= 1 ? ' disabled' : '') + '>‹</button>';
+        for (var i = 1; i <= totalPages; i++) pagHtml += '<button type="button" class="btn-page' + (i === p ? ' active' : '') + '" data-page="' + i + '">' + i + '</button>';
+        pagHtml += '<button type="button" class="btn-page" data-page="next"' + (p >= totalPages ? ' disabled' : '') + '>›</button>';
+        pagEl.innerHTML = pagHtml;
+        pagEl.querySelectorAll('.btn-page').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            if (btn.disabled) return;
+            var toPage = btn.getAttribute('data-page');
+            var next = toPage === 'prev' ? p - 1 : toPage === 'next' ? p + 1 : parseInt(toPage, 10);
+            if (next >= 1 && next <= totalPages) renderPedagogyLevelsPage(next, list);
+          });
+        });
+      } else if (pagEl) pagEl.innerHTML = '';
+    }
+
+    async function loadPedagogyPage() {
+      const el = document.getElementById('pedagogy-levels');
+      el.innerHTML = '<span class="loading-wrap"><span class="spinner"></span><span class="loading">Chargement...</span></span>';
+      document.getElementById('pedagogy-search-levels').style.display = 'none';
+      setPedagogyBreadcrumb([{ label: 'Niveaux' }]);
+      setPedagogyProgress(25);
+      try {
+        pedagogyLevelsList = await api('/api/levels') || [];
+        if (!pedagogyLevelsList.length) { el.innerHTML = '<p>Aucun niveau. Cliquez sur "+ Nouveau niveau".</p>'; return; }
+        document.getElementById('pedagogy-search-levels').style.display = 'block';
+        document.getElementById('pedagogy-search-levels-input').value = '';
+        renderPedagogyLevelsPage(1);
+        document.getElementById('pedagogy-search-levels-input').oninput = function() {
+          var q = (this.value || '').trim().toLowerCase();
+          var filtered = q ? pedagogyLevelsList.filter(function(l) { return ((l.code || '') + ' ' + (l.name || '')).toLowerCase().indexOf(q) >= 0; }) : pedagogyLevelsList;
+          renderPedagogyLevelsPage(1, filtered);
+        };
+      } catch (e) { el.innerHTML = '<span class="error">' + e.message + '</span>'; }
+    }
+    function pedagogyAddLevel() {
+      pedagogyEditingLevelId = null;
+      const box = document.getElementById('pedagogy-form-level');
+      box.classList.remove('hidden');
+      box.innerHTML = '<div class="form-grid"><label>Code (ex. A1)</label><input id="pl-code" placeholder="A1"/><label>Titre</label><input id="pl-name" placeholder="Débutant"/></div><button class="btn btn-primary" onclick="pedagogySubmitLevel()">Enregistrer</button> <button class="btn btn-secondary" onclick="box.classList.add(\'hidden\')">Annuler</button>';
+    }
+    async function pedagogyEditLevel(id) {
+      pedagogyEditingLevelId = id;
+      try {
+        const lvl = await api('/api/levels/' + id);
+        const box = document.getElementById('pedagogy-form-level');
+        box.classList.remove('hidden');
+        box.innerHTML = '<div class="form-grid"><label>Code</label><input id="pl-code" value="' + (lvl.code || '').replace(/"/g, '&quot;') + '"/><label>Titre</label><input id="pl-name" value="' + (lvl.name || '').replace(/"/g, '&quot;') + '"/></div><button class="btn btn-primary" onclick="pedagogySubmitLevel()">Enregistrer</button> <button class="btn btn-secondary" onclick="document.getElementById(\'pedagogy-form-level\').classList.add(\'hidden\'); pedagogyEditingLevelId=null">Annuler</button>';
+      } catch (e) { alert(e.message); pedagogyEditingLevelId = null; }
+    }
+    async function pedagogySubmitLevel() {
+      var plCode = document.getElementById('pl-code');
+      var plName = document.getElementById('pl-name');
+      Validator.clearError(plCode); Validator.clearError(plName);
+      var code = (plCode && plCode.value || '').trim();
+      var name = (plName && plName.value || '').trim();
+      var err = Validator.validate(code, [Validator.rules.required, Validator.rules.minLen(1), Validator.rules.maxLen(20), Validator.rules.code()]);
+      if (err) { Validator.showError(plCode, err); return; }
+      err = Validator.validate(name, [Validator.rules.required, Validator.rules.minLen(1), Validator.rules.maxLen(100)]);
+      if (err) { Validator.showError(plName, err); return; }
+      try {
+        if (pedagogyEditingLevelId) {
+          await api('/api/levels/' + pedagogyEditingLevelId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code, name }) });
+          pedagogyEditingLevelId = null;
+        } else {
+          await api('/api/levels', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code, name }) });
+        }
+        document.getElementById('pedagogy-form-level').classList.add('hidden');
+        loadPedagogyPage();
+      } catch (e) { alert(e.message); }
+    }
+    async function pedagogyDeleteLevel(id) {
+      if (!confirm('Supprimer ce niveau et tous ses chapitres ?')) return;
+      try { await api('/api/levels/' + id, { method: 'DELETE' }); document.getElementById('pedagogy-levels-block').style.display = 'block'; document.getElementById('pedagogy-chapters-block').style.display = 'none'; document.getElementById('pedagogy-detail-block').style.display = 'none'; loadPedagogyPage(); } catch (e) { alert(e.message); }
+    }
+    function renderPedagogyChaptersPage(page, optionalChapters) {
+      var list = optionalChapters && optionalChapters.length >= 0 ? optionalChapters : pedagogyChaptersList;
+      var total = list.length;
+      var el = document.getElementById('pedagogy-chapters');
+      var pagContainer = document.getElementById('pedagogy-chapters-pagination');
+      if (total === 0) {
+        el.innerHTML = '<p class="loading">' + (optionalChapters ? 'Aucun chapitre ne correspond à la recherche.' : 'Aucun chapitre.') + '</p>';
+        if (pagContainer) pagContainer.innerHTML = '';
+        return;
+      }
+      var totalPages = Math.max(1, Math.ceil(total / PEDAGOGY_CHAPTERS_PER_PAGE));
+      var p = Math.max(1, Math.min(page, totalPages));
+      var start = (p - 1) * PEDAGOGY_CHAPTERS_PER_PAGE;
+      var pageChs = list.slice(start, start + PEDAGOGY_CHAPTERS_PER_PAGE);
+      el.innerHTML = '<div class="pedagogy-cards">' + pageChs.map(function(c) {
+        var titleEsc = teEsc(c.title || '');
+        return '<div class="pedagogy-chapter-row"><span class="icon-pedagogy icon-chapter">📑</span><span class="chapter-label" data-chapter-id="' + c.id + '"><strong>' + titleEsc + '</strong></span><button type="button" class="btn btn-duplicate" data-dup-chapter-id="' + c.id + '" data-dup-chapter-title="' + titleEsc + '">Dupliquer</button><button class="btn btn-edit" onclick="pedagogyEditChapter(' + c.id + ')">Modifier</button><button class="btn btn-danger" onclick="pedagogyDeleteChapter(' + c.id + ')">Supprimer</button></div>';
+      }).join('') + '</div>';
+      el.querySelectorAll('[data-chapter-id]').forEach(function(n) {
+        n.addEventListener('click', function(ev) {
+          if (ev.target.closest('button')) return;
+          var chId = parseInt(this.getAttribute('data-chapter-id'), 10);
+          this.classList.add('click-anim');
+          setTimeout(function() {
+            pedagogyChapterId = chId;
+            pedagogyChapterName = (pedagogyChaptersList.find(function(ch) { return ch.id === pedagogyChapterId; }) || {}).title || '';
+            document.getElementById('pedagogy-chapter-name').textContent = pedagogyChapterName;
+            setPedagogyBreadcrumb([{ label: 'Niveaux', href: 'levels' }, { label: document.getElementById('pedagogy-level-name').textContent, href: 'chapters:' + pedagogyLevelId }, { label: pedagogyChapterName }]);
+            setPedagogyProgress(100);
+            document.getElementById('pedagogy-levels-block').style.display = 'none';
+            document.getElementById('pedagogy-chapters-block').style.display = 'none';
+            document.getElementById('pedagogy-detail-block').style.display = 'block';
+            document.getElementById('pedagogy-lessons-block').style.display = 'block';
+            document.getElementById('pedagogy-quiz-block').style.display = 'none';
+            document.querySelectorAll('#pedagogy-detail-block .pedagogy-tab').forEach(function(t) { t.classList.remove('active'); if (t.getAttribute('data-pedagogy-tab') === 'lessons') t.classList.add('active'); });
+            loadPedagogyLessons();
+            loadPedagogyQuiz();
+            var backCh = document.getElementById('pedagogy-back-to-chapters');
+            if (backCh) backCh.onclick = function(ev) { ev.preventDefault(); document.getElementById('pedagogy-levels-block').style.display = 'none'; document.getElementById('pedagogy-chapters-block').style.display = 'block'; document.getElementById('pedagogy-detail-block').style.display = 'none'; setPedagogyBreadcrumb([{ label: 'Niveaux', href: 'levels' }, { label: document.getElementById('pedagogy-level-name').textContent, href: 'chapters:' + pedagogyLevelId }]); setPedagogyProgress(50); loadPedagogyChapters(); };
+          }, 200);
+        });
+      });
+      el.querySelectorAll('.btn-duplicate').forEach(function(btn) {
+        btn.onclick = function(ev) { ev.preventDefault(); ev.stopPropagation(); var id = parseInt(btn.getAttribute('data-dup-chapter-id'), 10); var title = btn.getAttribute('data-dup-chapter-title') || 'Chapitre'; pedagogyDuplicateChapter(id, title); };
+      });
+      if (totalPages > 1 && pagContainer) {
+        var pagHtml = '<span class="pagination-info">Page ' + p + ' / ' + totalPages + '</span><button type="button" class="btn-page" data-page="prev"' + (p <= 1 ? ' disabled' : '') + '>‹</button>';
+        for (var i = 1; i <= totalPages; i++) pagHtml += '<button type="button" class="btn-page' + (i === p ? ' active' : '') + '" data-page="' + i + '">' + i + '</button>';
+        pagHtml += '<button type="button" class="btn-page" data-page="next"' + (p >= totalPages ? ' disabled' : '') + '>›</button>';
+        pagContainer.innerHTML = pagHtml;
+        pagContainer.querySelectorAll('.btn-page').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            if (btn.disabled) return;
+            var toPage = btn.getAttribute('data-page');
+            var next = toPage === 'prev' ? p - 1 : toPage === 'next' ? p + 1 : parseInt(toPage, 10);
+            if (next >= 1 && next <= totalPages) renderPedagogyChaptersPage(next, list);
+          });
+        });
+      } else if (pagContainer) pagContainer.innerHTML = '';
+    }
+
+    async function pedagogyDuplicateChapter(chapterId, chapterTitle) {
+      if (!pedagogyLevelId) return;
+      var newTitle = 'Copie de ' + (chapterTitle || 'Chapitre');
+      try {
+        await api('/api/levels/' + pedagogyLevelId + '/chapters', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: newTitle }) });
+        loadPedagogyChapters();
+      } catch (e) { alert('Erreur : ' + e.message); }
+    }
+
+    async function loadPedagogyChapters() {
+      if (!pedagogyLevelId) return;
+      const el = document.getElementById('pedagogy-chapters');
+      el.innerHTML = '<span class="loading-wrap"><span class="spinner"></span><span class="loading">Chargement...</span></span>';
+      document.getElementById('pedagogy-chapters-pagination').innerHTML = '';
+      document.getElementById('pedagogy-search-chapters').style.display = 'none';
+      try {
+        pedagogyChaptersList = await api('/api/levels/' + pedagogyLevelId + '/chapters') || [];
+        document.getElementById('pedagogy-search-chapters').style.display = 'block';
+        document.getElementById('pedagogy-search-chapters-input').value = '';
+        renderPedagogyChaptersPage(1);
+        document.getElementById('pedagogy-search-chapters-input').oninput = function() {
+          var q = (this.value || '').trim().toLowerCase();
+          var filtered = q ? pedagogyChaptersList.filter(function(c) { return (c.title || '').toLowerCase().indexOf(q) >= 0; }) : pedagogyChaptersList;
+          renderPedagogyChaptersPage(1, filtered);
+        };
+      } catch (e) { el.innerHTML = '<span class="error">' + e.message + '</span>'; }
+    }
+    function pedagogyAddChapter() {
+      pedagogyEditingChapterId = null;
+      const box = document.getElementById('pedagogy-form-chapter');
+      box.classList.remove('hidden');
+      box.innerHTML = '<div class="form-grid"><label>Titre du chapitre</label><input id="pc-title" placeholder="Present Simple"/></div><button class="btn btn-primary" onclick="pedagogySubmitChapter()">Enregistrer</button> <button class="btn btn-secondary" onclick="box.classList.add(\'hidden\')">Annuler</button>';
+    }
+    async function pedagogyEditChapter(id) {
+      pedagogyEditingChapterId = id;
+      try {
+        const ch = await api('/api/chapters/' + id);
+        const box = document.getElementById('pedagogy-form-chapter');
+        box.classList.remove('hidden');
+        box.innerHTML = '<div class="form-grid"><label>Titre du chapitre</label><input id="pc-title" value="' + (ch.title || '').replace(/"/g, '&quot;').replace(/</g, '&lt;') + '"/></div><button class="btn btn-primary" onclick="pedagogySubmitChapter()">Enregistrer</button> <button class="btn btn-secondary" onclick="document.getElementById(\'pedagogy-form-chapter\').classList.add(\'hidden\'); pedagogyEditingChapterId=null">Annuler</button>';
+      } catch (e) { alert(e.message); pedagogyEditingChapterId = null; }
+    }
+    async function pedagogySubmitChapter() {
+      var pcTitle = document.getElementById('pc-title');
+      Validator.clearError(pcTitle);
+      var title = (pcTitle && pcTitle.value || '').trim();
+      var err = Validator.validate(title, [Validator.rules.required, Validator.rules.minLen(2), Validator.rules.maxLen(200)]);
+      if (err) { Validator.showError(pcTitle, err); return; }
+      try {
+        if (pedagogyEditingChapterId) {
+          await api('/api/chapters/' + pedagogyEditingChapterId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title }) });
+          pedagogyEditingChapterId = null;
+        } else {
+          await api('/api/levels/' + pedagogyLevelId + '/chapters', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title }) });
+        }
+        document.getElementById('pedagogy-form-chapter').classList.add('hidden');
+        loadPedagogyChapters();
+      } catch (e) { alert(e.message); }
+    }
+    async function pedagogyDeleteChapter(id) {
+      if (!confirm('Supprimer ce chapitre ?')) return;
+      try { await api('/api/chapters/' + id, { method: 'DELETE' }); document.getElementById('pedagogy-detail-block').style.display = 'none'; document.getElementById('pedagogy-chapters-block').style.display = 'block'; loadPedagogyChapters(); } catch (e) { alert(e.message); }
+    }
+    async function loadPedagogyLessons() {
+      if (!pedagogyChapterId) return;
+      const el = document.getElementById('pedagogy-lessons');
+      el.innerHTML = '<span class="loading-wrap"><span class="spinner"></span><span class="loading">Chargement...</span></span>';
+      try {
+        const lessons = await api('/api/chapters/' + pedagogyChapterId + '/lessons') || [];
+        el.innerHTML = lessons.length ? lessons.map(function(l) {
+          var iconClass = l.type === 'VIDEO' ? 'icon-lesson-video' : 'icon-lesson-pdf';
+          var emoji = l.type === 'VIDEO' ? '🎬' : '📄';
+          return '<div class="pedagogy-lesson-row"><span class="icon-pedagogy ' + iconClass + '">' + emoji + '</span><span style="flex:1">' + teEsc(l.title || '') + '</span><button class="btn btn-edit" onclick="pedagogyEditLesson(' + l.id + ')">Modifier</button><button class="btn btn-danger" onclick="pedagogyDeleteLesson(' + l.id + ')">Supprimer</button></div>';
+        }).join('') : '<p>Aucune leçon.</p>';
+      } catch (e) { el.innerHTML = '<span class="error">' + e.message + '</span>'; }
+    }
+    function pedagogyAddLesson() {
+      pedagogyEditingLessonId = null;
+      const box = document.getElementById('pedagogy-form-lesson');
+      box.classList.remove('hidden');
+      box.innerHTML = '<div class="form-grid"><label>Titre</label><input id="pless-title" placeholder="Ex: Introduction"/><label>Type</label><select id="pless-type"><option value="VIDEO">Vidéo</option><option value="PDF">PDF</option></select><label>Fichier (PDF ou vidéo)</label><input type="file" id="pless-file" accept=".pdf,application/pdf,video/*"/><label>Durée (min)</label><input type="number" id="pless-dur" value="10" min="0"/></div><button class="btn btn-primary" onclick="pedagogySubmitLesson()">Enregistrer</button> <button class="btn btn-secondary" onclick="box.classList.add(\'hidden\')">Annuler</button>';
+    }
+    async function pedagogyEditLesson(id) {
+      pedagogyEditingLessonId = id;
+      try {
+        const less = await api('/api/lessons/' + id);
+        const box = document.getElementById('pedagogy-form-lesson');
+        box.classList.remove('hidden');
+        const urlEsc = (less.url || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+        box.innerHTML = '<div class="form-grid"><label>Titre</label><input id="pless-title" value="' + (less.title || '').replace(/"/g, '&quot;').replace(/</g, '&lt;') + '"/><label>Type</label><select id="pless-type"><option value="VIDEO"' + (less.type === 'VIDEO' ? ' selected' : '') + '>Vidéo</option><option value="PDF"' + (less.type === 'PDF' ? ' selected' : '') + '>PDF</option></select><label>URL (lien actuel ou nouveau)</label><input id="pless-url" value="' + urlEsc + '"/><label>Durée (min)</label><input type="number" id="pless-dur" value="' + (less.durationMinutes || 0) + '" min="0"/></div><button class="btn btn-primary" onclick="pedagogySubmitLesson()">Enregistrer</button> <button class="btn btn-secondary" onclick="document.getElementById(\'pedagogy-form-lesson\').classList.add(\'hidden\'); pedagogyEditingLessonId=null">Annuler</button>';
+      } catch (e) { alert(e.message); pedagogyEditingLessonId = null; }
+    }
+    async function pedagogySubmitLesson() {
+      var plessTitle = document.getElementById('pless-title');
+      var plessDur = document.getElementById('pless-dur');
+      var plessUrl = document.getElementById('pless-url');
+      Validator.clearError(plessTitle); if (plessDur) Validator.clearError(plessDur); if (plessUrl) Validator.clearError(plessUrl);
+      var title = (plessTitle && plessTitle.value || '').trim();
+      var type = document.getElementById('pless-type') ? document.getElementById('pless-type').value : 'VIDEO';
+      var durationMinutes = parseInt(plessDur && plessDur.value, 10) || 0;
+      var err = Validator.validate(title, [Validator.rules.required, Validator.rules.minLen(2), Validator.rules.maxLen(200)]);
+      if (err) { Validator.showError(plessTitle, err); return; }
+      var box = document.getElementById('pedagogy-form-lesson');
+      if (pedagogyEditingLessonId) {
+        var url = (plessUrl && plessUrl.value) ? plessUrl.value.trim() : '';
+        try {
+          await api('/api/lessons/' + pedagogyEditingLessonId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, type, url, durationMinutes }) });
+          pedagogyEditingLessonId = null;
+          box.classList.add('hidden');
+          loadPedagogyLessons();
+        } catch (e) { alert(e.message); }
+        return;
+      }
+      var fileInput = document.getElementById('pless-file');
+      if (!fileInput || !fileInput.files || !fileInput.files.length) { Validator.showError(fileInput, 'Choisissez un fichier PDF ou une vidéo.'); return; }
+      var errDur = Validator.validate(durationMinutes, [Validator.rules.integer(0, 999)]);
+      if (errDur) { Validator.showError(plessDur, errDur); return; }
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+      formData.append('title', title);
+      formData.append('type', type);
+      formData.append('durationMinutes', String(durationMinutes));
+      try {
+        const r = await fetch(API + '/api/chapters/' + pedagogyChapterId + '/lessons/upload', { method: 'POST', body: formData });
+        const text = await r.text();
+        if (!r.ok) throw new Error(text || r.statusText);
+        box.classList.add('hidden');
+        loadPedagogyLessons();
+      } catch (e) { alert(e.message); }
+    }
+    async function pedagogyDeleteLesson(id) {
+      if (!confirm('Supprimer cette leçon ?')) return;
+      try { await api('/api/lessons/' + id, { method: 'DELETE' }); loadPedagogyLessons(); } catch (e) { alert(e.message); }
+    }
+    async function loadPedagogyQuiz() {
+      const box = document.getElementById('pedagogy-quiz-form-or-list');
+      const qlist = document.getElementById('pedagogy-quiz-questions');
+      try {
+        let quiz = await api('/api/chapters/' + pedagogyChapterId + '/quiz');
+        if (!quiz) {
+          box.innerHTML = '<p>Aucun quiz. <button class="btn btn-primary" onclick="pedagogyCreateQuiz()">Créer un quiz pour ce chapitre</button></p>';
+          qlist.innerHTML = '';
+          return;
+        }
+        var esc = function(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
+        box.innerHTML = '<p>Quiz: <strong>' + esc(quiz.title) + '</strong> (seuil ' + (quiz.passingScorePercent || 50) + ' %) <button type="button" class="btn btn-edit" data-pedagogy-edit-quiz="' + quiz.id + '">Modifier le quiz</button></p>';
+        box.querySelector('[data-pedagogy-edit-quiz]').addEventListener('click', function() { pedagogyEditQuiz(parseInt(this.getAttribute('data-pedagogy-edit-quiz'), 10)); });
+        const questions = await api('/api/quizzes/' + quiz.id + '/questions') || [];
+        pedagogyQuizQuestionsList = questions;
+        const typeLabel = function(t) { return t === 'TRUE_FALSE' ? 'V/F' : t === 'MULTIPLE_CHOICE' ? 'QCM' : t === 'SHORT_ANSWER' ? 'Court' : t || '-'; };
+        qlist.innerHTML = '<button type="button" class="btn btn-primary" onclick="pedagogyAddQuizQuestion(' + quiz.id + ')">+ Ajouter une question</button>' + (questions.length ? '<table style="margin-top:0.5rem"><thead><tr><th>Question</th><th>Type</th><th>Réponse correcte</th><th>Points</th><th></th></tr></thead><tbody>' + questions.map(q => '<tr><td>' + esc((q.questionText || '').substring(0, 45)) + (q.questionText && q.questionText.length > 45 ? '…' : '') + '</td><td>' + typeLabel(q.questionType) + '</td><td>' + esc((q.correctAnswer || '').substring(0, 25)) + (q.correctAnswer && q.correctAnswer.length > 25 ? '…' : '') + '</td><td>' + (q.points || 0) + '</td><td><button type="button" class="btn btn-edit" data-pedagogy-edit-question="' + q.id + '">Modifier</button> <button type="button" class="btn btn-danger" onclick="pedagogyDeleteQuizQuestion(' + q.id + ')">Supprimer</button></td></tr>').join('') + '</tbody></table>' : '');
+        qlist.querySelectorAll('[data-pedagogy-edit-question]').forEach(function(btn) { btn.addEventListener('click', function() { pedagogyEditQuizQuestion(parseInt(this.getAttribute('data-pedagogy-edit-question'), 10)); }); });
+      } catch (e) { box.innerHTML = '<span class="error">' + e.message + '</span>'; qlist.innerHTML = ''; }
+    }
+    async function pedagogyCreateQuiz() {
+      try {
+        await api('/api/chapters/' + pedagogyChapterId + '/quizzes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: 'Quiz ' + pedagogyChapterName, passingScorePercent: 50 }) });
+        loadPedagogyQuiz();
+      } catch (e) { alert(e.message); }
+    }
+    async function pedagogyEditQuiz(quizId) {
+      try {
+        const quiz = await api('/api/quizzes/' + quizId);
+        const box = document.getElementById('pedagogy-quiz-form-or-list');
+        const titleEsc = (quiz.title || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+        box.innerHTML = '<div class="form-grid"><label>Titre du quiz</label><input id="pq-title" value="' + titleEsc + '"/><label>Seuil de réussite (%)</label><input type="number" id="pq-seuil" value="' + (quiz.passingScorePercent || 50) + '" min="0" max="100"/></div><button class="btn btn-primary" onclick="pedagogySubmitQuizEdit(' + quizId + ')">Enregistrer</button> <button class="btn btn-secondary" onclick="loadPedagogyQuiz()">Annuler</button>';
+      } catch (e) { alert(e.message); }
+    }
+    async function pedagogySubmitQuizEdit(quizId) {
+      var pqTitle = document.getElementById('pq-title');
+      var pqSeuil = document.getElementById('pq-seuil');
+      Validator.clearError(pqTitle); Validator.clearError(pqSeuil);
+      var title = (pqTitle && pqTitle.value || '').trim();
+      var passingScorePercent = parseInt(pqSeuil && pqSeuil.value, 10);
+      var err = Validator.validate(title, [Validator.rules.required, Validator.rules.minLen(2), Validator.rules.maxLen(150)]);
+      if (err) { Validator.showError(pqTitle, err); return; }
+      err = Validator.validate(passingScorePercent, [Validator.rules.integer(0, 100)]);
+      if (err) { Validator.showError(pqSeuil, err); return; }
+      try {
+        await api('/api/quizzes/' + quizId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, passingScorePercent: isNaN(passingScorePercent) ? 50 : passingScorePercent }) });
+        loadPedagogyQuiz();
+      } catch (e) { alert(e.message); }
+    }
+    let pedagogyQuizQuestionQuizId = null;
+    let pedagogyQuizQuestionEditId = null;
+    let pedagogyQuizQuestionsList = [];
+    function pedagogyAddQuizQuestion(quizId) {
+      pedagogyQuizQuestionQuizId = quizId;
+      pedagogyQuizQuestionEditId = null;
+      document.getElementById('pedagogy-quiz-modal-title').textContent = '📝 Nouvelle question';
+      document.getElementById('pq-question-text').value = '';
+      document.getElementById('pq-question-points').value = '10';
+      document.getElementById('pq-question-type').value = 'TRUE_FALSE';
+      pedagogyQuizQuestionSetType('TRUE_FALSE');
+      document.querySelectorAll('#pedagogy-quiz-type-tabs .quiz-type-tab').forEach(t => { t.classList.toggle('active', t.getAttribute('data-type') === 'TRUE_FALSE'); });
+      document.querySelectorAll('input[name="pq-vf"]').forEach(r => { r.checked = false; });
+      document.getElementById('pedagogy-quiz-question-modal').classList.remove('hidden');
+    }
+    async function pedagogyEditQuizQuestion(id) {
+      var q = pedagogyQuizQuestionsList.find(function(x) { return x.id == id; });
+      if (!q) {
+        try { q = await api('/api/quiz-questions/' + id); } catch (_) { q = null; }
+        if (!q) { alert('Question introuvable.'); return; }
+      }
+      pedagogyQuizQuestionEditId = typeof id === 'number' ? id : parseInt(id, 10);
+      pedagogyQuizQuestionQuizId = null;
+      document.getElementById('pedagogy-quiz-modal-title').textContent = '✏️ Modifier la question';
+      document.getElementById('pq-question-text').value = q.questionText || '';
+      document.getElementById('pq-question-points').value = q.points || 10;
+      const qt = (q.questionType || 'MULTIPLE_CHOICE').toUpperCase();
+      const type = qt === 'TRUE_FALSE' ? 'TRUE_FALSE' : qt === 'SHORT_ANSWER' ? 'SHORT_ANSWER' : 'MULTIPLE_CHOICE';
+      document.getElementById('pq-question-type').value = type;
+      pedagogyQuizQuestionSetType(type);
+      document.querySelectorAll('#pedagogy-quiz-type-tabs .quiz-type-tab').forEach(t => { t.classList.toggle('active', t.getAttribute('data-type') === type); });
+      if (type === 'TRUE_FALSE') {
+        const v = (q.correctAnswer || '').toLowerCase();
+        document.querySelectorAll('input[name="pq-vf"]').forEach(r => { r.checked = (r.value === 'true' && (v === 'true' || v === 'vrai')) || (r.value === 'false' && (v === 'false' || v === 'faux')); });
+      } else {
+        const inp = document.getElementById('pq-answer-text');
+        if (inp) inp.value = q.correctAnswer || '';
+      }
+      document.getElementById('pedagogy-quiz-question-modal').classList.remove('hidden');
+    }
+    function pedagogyQuizQuestionSetType(type) {
+      const zone = document.getElementById('pq-answer-zone');
+      if (type === 'TRUE_FALSE') {
+        zone.innerHTML = '<label style="display:block;font-weight:600;color:var(--text-muted);margin-bottom:0.35rem;">Réponse correcte</label><div class="quiz-answer-vf"><label><input type="radio" name="pq-vf" value="true"/><span>Vrai</span></label><label><input type="radio" name="pq-vf" value="false"/><span>Faux</span></label></div>';
+      } else {
+        const label = type === 'MULTIPLE_CHOICE' ? 'Réponse correcte (texte de l\'option choisie)' : 'Réponse correcte';
+        zone.innerHTML = '<label style="display:block;font-weight:600;color:var(--text-muted);margin-bottom:0.35rem;">' + label + '</label><input type="text" id="pq-answer-text" placeholder="' + (type === 'MULTIPLE_CHOICE' ? 'Ex: Paris' : 'Ex: Réponse courte') + '" style="width:100%;padding:0.6rem;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;"/>';
+      }
+    }
+    function pedagogyQuizQuestionGetCorrectAnswer() {
+      const type = document.getElementById('pq-question-type').value;
+      if (type === 'TRUE_FALSE') {
+        const r = document.querySelector('input[name="pq-vf"]:checked');
+        return r ? r.value : '';
+      }
+      const inp = document.getElementById('pq-answer-text');
+      return inp ? inp.value.trim() : '';
+    }
+    async function pedagogyQuizQuestionSubmit() {
+      var questionTextEl = document.getElementById('pq-question-text');
+      var pointsEl = document.getElementById('pq-question-points');
+      Validator.clearError(questionTextEl); if (pointsEl) Validator.clearError(pointsEl);
+      var questionText = (questionTextEl && questionTextEl.value || '').trim();
+      var correctAnswer = pedagogyQuizQuestionGetCorrectAnswer();
+      var questionType = document.getElementById('pq-question-type').value;
+      var points = parseInt(pointsEl && pointsEl.value, 10) || 10;
+      var err = Validator.validate(questionText, [Validator.rules.required, Validator.rules.minLen(5), Validator.rules.maxLen(500)]);
+      if (err) { Validator.showError(questionTextEl, err); return; }
+      if (!correctAnswer) { var answerEl = document.querySelector('input[name="pq-vf"]:checked') || document.getElementById('pq-answer-text'); if (answerEl) Validator.showError(answerEl, 'Indiquez la réponse correcte.'); else alert('Veuillez indiquer la réponse correcte.'); return; }
+      err = Validator.validate(points, [Validator.rules.integer(1, 100)]);
+      if (err) { Validator.showError(pointsEl, err); return; }
+      try {
+        const body = { questionText, questionType, correctAnswer, points };
+        if (pedagogyQuizQuestionEditId) {
+          await api('/api/quiz-questions/' + pedagogyQuizQuestionEditId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        } else {
+          await api('/api/quizzes/' + pedagogyQuizQuestionQuizId + '/questions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        }
+        document.getElementById('pedagogy-quiz-question-modal').classList.add('hidden');
+        loadPedagogyQuiz();
+      } catch (e) { alert(e.message); }
+    }
+    (function initPedagogyDetailTabs() {
+      var wrap = document.getElementById('pedagogy-detail-block');
+      if (!wrap) return;
+      wrap.querySelectorAll('.pedagogy-tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          var t = this.getAttribute('data-pedagogy-tab');
+          wrap.querySelectorAll('.pedagogy-tab').forEach(function(x) { x.classList.toggle('active', x.getAttribute('data-pedagogy-tab') === t); });
+          document.getElementById('pedagogy-lessons-block').style.display = t === 'lessons' ? 'block' : 'none';
+          document.getElementById('pedagogy-quiz-block').style.display = t === 'quiz' ? 'block' : 'none';
+        });
+      });
+    })();
+    (function initQuizQuestionModal() {
+      document.getElementById('pedagogy-quiz-type-tabs').addEventListener('click', function(e) {
+        const tab = e.target.closest('.quiz-type-tab');
+        if (!tab) return;
+        const type = tab.getAttribute('data-type');
+        document.getElementById('pq-question-type').value = type;
+        document.querySelectorAll('#pedagogy-quiz-type-tabs .quiz-type-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        pedagogyQuizQuestionSetType(type);
+      });
+      document.getElementById('pedagogy-quiz-modal-submit').addEventListener('click', pedagogyQuizQuestionSubmit);
+      document.getElementById('pedagogy-quiz-modal-cancel').addEventListener('click', function() {
+        document.getElementById('pedagogy-quiz-question-modal').classList.add('hidden');
+        if (pedagogyQuizQuestionEditId) loadPedagogyQuiz();
+      });
+      document.getElementById('pedagogy-quiz-question-modal').addEventListener('click', function(e) {
+        if (e.target === this) this.classList.add('hidden');
+      });
+    })();
+    async function pedagogyDeleteQuizQuestion(id) {
+      if (!confirm('Supprimer cette question ?')) return;
+      try { await api('/api/quiz-questions/' + id, { method: 'DELETE' }); loadPedagogyQuiz(); } catch (e) { alert(e.message); }
+    }
+
+    // --- Manage Questions ---
+    async function loadQuestionsPage() {
+      const sel = document.getElementById('questionsCourseSelect');
+      if (sel.options.length <= 1) {
+        try {
+          const courses = await api('/api/courses') || [];
+          sel.innerHTML = '<option value="">-- Choisir un cours --</option>' + courses.map(c => '<option value="' + c.id + '">' + (c.title || c.courseCode) + '</option>').join('');
+        } catch (_) {}
+      }
+      sel.onchange = async () => {
+        const courseId = sel.value;
+        document.getElementById('btnNewQuestion').style.display = courseId ? 'inline-block' : 'none';
+        document.getElementById('form-question').classList.add('hidden');
+        if (!courseId) { document.getElementById('list-questions').innerHTML = ''; return; }
+        const el = document.getElementById('list-questions');
+        el.innerHTML = '<span class="loading-wrap"><span class="spinner"></span><span class="loading">Chargement...</span></span>';
+        try {
+          const list = await api('/api/questions?courseId=' + courseId + '&includeInactive=1') || [];
+          if (!list.length) { el.innerHTML = '<p>Aucune question. Cliquez sur "New Question".</p>'; return; }
+          el.innerHTML = '<table><thead><tr><th>#</th><th>Question</th><th>Type</th><th>Points</th><th>Difficulté</th><th>Réponse correcte</th><th>Actions</th></tr></thead><tbody>' +
+            list.map(q => '<tr><td>' + q.id + '</td><td>' + (q.questionText || '').substring(0, 60) + (q.questionText && q.questionText.length > 60 ? '…' : '') + '</td><td>' + (q.questionType || '') + '</td><td>' + (q.points ?? '') + '</td><td>' + (q.difficultyLevel || '') + '</td><td>' + (q.correctAnswer || '').substring(0, 30) + '</td><td><button class="btn btn-edit" onclick="editQuestion(' + q.id + ')">Modifier</button> <button class="btn btn-danger" onclick="deleteQuestion(' + q.id + ')">Supprimer</button></td></tr>').join('') + '</tbody></table>';
+        } catch (e) { el.innerHTML = '<span class="error">' + e.message + '</span>'; }
+      };
+      if (sel.value) sel.onchange();
+    }
+    function showFormQuestion(isNew) {
+      const courseId = document.getElementById('questionsCourseSelect').value;
+      if (!courseId && isNew) { alert('Choisissez d\'abord un cours.'); return; }
+      const form = document.getElementById('form-question');
+      form.classList.remove('hidden');
+      form.innerHTML = '<h3>' + (isNew ? 'Nouvelle question' : 'Modifier la question') + '</h3><div class="form-grid"><div style="grid-column:1/-1"><label>Texte</label><textarea id="q-text" rows="2" placeholder="Question"></textarea></div><div><label>Type</label><select id="q-type"><option value="MULTIPLE_CHOICE">Multiple choice</option><option value="TRUE_FALSE">True/False</option><option value="SHORT_ANSWER">Short answer</option><option value="ESSAY">Essay</option></select></div><div><label>Points</label><input type="number" id="q-points" value="10"/></div><div><label>Difficulté</label><select id="q-difficulty"><option value="EASY">Easy</option><option value="MEDIUM">Medium</option><option value="HARD">Hard</option></select></div><div><label>Réponse correcte</label><input id="q-correct" placeholder="Réponse correcte"/></div><div><label>Explication</label><input id="q-explanation" placeholder="Optionnel"/></div><div><label>Ordre</label><input type="number" id="q-order" placeholder="0"/></div><div><label>Active</label><select id="q-active"><option value="1">Oui</option><option value="0">Non</option></select></div></div><button class="btn btn-primary" onclick="submitQuestion()">Enregistrer</button> <button class="btn btn-secondary" onclick="form.classList.add(\'hidden\')">Annuler</button>';
+      form.removeAttribute('data-edit-id');
+      if (!isNew) return;
+      document.getElementById('q-order').value = '0';
+    }
+    async function submitQuestion() {
+      const form = document.getElementById('form-question');
+      const editId = form.getAttribute('data-edit-id');
+      const courseId = document.getElementById('questionsCourseSelect').value;
+      const body = { questionText: document.getElementById('q-text').value, questionType: document.getElementById('q-type').value, points: parseInt(document.getElementById('q-points').value, 10) || 10, difficultyLevel: document.getElementById('q-difficulty').value, correctAnswer: document.getElementById('q-correct').value, explanation: document.getElementById('q-explanation').value || null, orderNumber: parseInt(document.getElementById('q-order').value, 10) || 0, isActive: document.getElementById('q-active').value === '1' };
+      if (editId) {
+        try {
+          await api('/api/questions/' + editId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+          form.classList.add('hidden');
+          document.getElementById('questionsCourseSelect').dispatchEvent(new Event('change'));
+        } catch (e) { alert('Erreur : ' + e.message); }
+      } else {
+        body.courseId = parseInt(courseId, 10);
+        try {
+          await api('/api/questions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+          form.classList.add('hidden');
+          document.getElementById('questionsCourseSelect').dispatchEvent(new Event('change'));
+        } catch (e) { alert('Erreur : ' + e.message); }
+      }
+    }
+    async function editQuestion(id) {
+      try {
+        const q = await api('/api/questions/' + id);
+        showFormQuestion(false);
+        document.getElementById('q-text').value = q.questionText || '';
+        document.getElementById('q-type').value = q.questionType || 'MULTIPLE_CHOICE';
+        document.getElementById('q-points').value = q.points ?? 10;
+        document.getElementById('q-difficulty').value = q.difficultyLevel || 'EASY';
+        document.getElementById('q-correct').value = q.correctAnswer || '';
+        document.getElementById('q-explanation').value = q.explanation || '';
+        document.getElementById('q-order').value = q.orderNumber ?? '';
+        document.getElementById('q-active').value = q.isActive ? '1' : '0';
+        document.getElementById('form-question').querySelector('h3').textContent = 'Modifier la question';
+        document.getElementById('form-question').setAttribute('data-edit-id', id);
+      } catch (e) { alert('Erreur : ' + e.message); }
+    }
+    async function deleteQuestion(id) {
+      if (!confirm('Supprimer cette question ?')) return;
+      try {
+        await api('/api/questions/' + id, { method: 'DELETE' });
+        document.getElementById('questionsCourseSelect').dispatchEvent(new Event('change'));
+      } catch (e) { alert('Erreur : ' + e.message); }
+    }
+    document.getElementById('btnNewQuestion').addEventListener('click', () => showFormQuestion(true));
+
+    // --- PDF / Video (course materials) ---
+    async function loadMaterialsPage() {
+      const sel = document.getElementById('materialsCourseSelect');
+      if (sel.options.length <= 1) {
+        try {
+          const courses = await api('/api/courses') || [];
+          sel.innerHTML = '<option value="">-- Choisir un cours --</option>' + courses.map(c => '<option value="' + c.id + '">' + (c.title || c.courseCode) + '</option>').join('');
+        } catch (_) {}
+      }
+      sel.onchange = async () => {
+        const courseId = sel.value;
+        document.getElementById('btnAddMaterial').style.display = courseId ? 'inline-block' : 'none';
+        document.getElementById('form-material').classList.add('hidden');
+        if (!courseId) { document.getElementById('list-materials').innerHTML = ''; return; }
+        const el = document.getElementById('list-materials');
+        el.innerHTML = '<span class="loading-wrap"><span class="spinner"></span><span class="loading">Chargement...</span></span>';
+        try {
+          const list = await api('/api/courses/' + courseId + '/materials') || [];
+          if (!list.length) { el.innerHTML = '<p>Aucune ressource. Cliquez sur "Ajouter PDF ou Vidéo" (lien direct vers un fichier PDF ou une vidéo YouTube/Vimeo).</p>'; return; }
+          const base = (API || window.location.origin);
+          el.innerHTML = '<table><thead><tr><th>Type</th><th>Titre</th><th>Fichier</th><th>Actions</th></tr></thead><tbody>' +
+            list.map(m => '<tr><td><span style="font-weight:600;">' + (m.type === 'VIDEO' ? '🎬 Vidéo' : '📄 PDF') + '</span></td><td>' + (m.title || '') + '</td><td><a href="' + base + (m.url || '') + '" target="_blank" rel="noopener" style="color:var(--primary);font-size:0.85rem;">Ouvrir / Télécharger</a></td><td><button class="btn btn-danger" onclick="deleteMaterial(' + m.id + ')">Supprimer</button></td></tr>').join('') + '</tbody></table>';
+        } catch (e) { el.innerHTML = '<span class="error">' + e.message + '</span>'; }
+      };
+      if (sel.value) sel.onchange();
+    }
+    function showFormMaterial() {
+      const courseId = document.getElementById('materialsCourseSelect').value;
+      if (!courseId) { alert('Choisissez un cours.'); return; }
+      const form = document.getElementById('form-material');
+      form.classList.remove('hidden');
+      form.innerHTML = '<h3>Uploader un document (PDF ou Vidéo)</h3><div class="form-grid"><div><label>Type</label><select id="m-type"><option value="PDF">📄 PDF</option><option value="VIDEO">🎬 Vidéo</option></select></div><div style="grid-column:1/-1"><label>Titre</label><input id="m-title" placeholder="Ex: Chapitre 1 - Introduction"/></div><div style="grid-column:1/-1"><label>Fichier (PDF ou vidéo, max 100 Mo)</label><input type="file" id="m-file" accept=".pdf,application/pdf,video/*"/></div></div><button class="btn btn-primary" onclick="submitMaterial()">Uploader</button> <button class="btn btn-secondary" onclick="form.classList.add(\'hidden\')">Annuler</button>';
+    }
+    async function submitMaterial() {
+      const courseId = document.getElementById('materialsCourseSelect').value;
+      const type = document.getElementById('m-type').value;
+      const title = document.getElementById('m-title').value.trim() || document.getElementById('m-file').files[0]?.name || 'Document';
+      const fileInput = document.getElementById('m-file');
+      if (!fileInput?.files?.length) { alert('Choisissez un fichier PDF ou vidéo.'); return; }
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+      formData.append('type', type);
+      formData.append('title', title);
+      try {
+        const r = await fetch(API + '/api/courses/' + courseId + '/materials/upload', { method: 'POST', body: formData });
+        const text = await r.text();
+        if (!r.ok) throw new Error(text || r.statusText);
+        document.getElementById('form-material').classList.add('hidden');
+        document.getElementById('materialsCourseSelect').dispatchEvent(new Event('change'));
+      } catch (e) { alert('Erreur : ' + e.message); }
+    }
+    async function deleteMaterial(id) {
+      if (!confirm('Supprimer cette ressource ?')) return;
+      try {
+        await api('/api/materials/' + id, { method: 'DELETE' });
+        document.getElementById('materialsCourseSelect').dispatchEvent(new Event('change'));
+      } catch (e) { alert('Erreur : ' + e.message); }
+    }
+    document.getElementById('btnAddMaterial').addEventListener('click', showFormMaterial);
+
+    // --- View Responses ---
+    async function loadResponses() {
+      const el = document.getElementById('list-responses');
+      el.innerHTML = '<span class="loading-wrap"><span class="spinner"></span><span class="loading">Chargement...</span></span>';
+      try {
+        const list = await api('/api/responses') || [];
+        if (!list.length) { el.innerHTML = '<p>Aucune réponse.</p>'; return; }
+        el.innerHTML = '<table><thead><tr><th>Étudiant</th><th>Cours (id)</th><th>Question</th><th>Réponse</th><th>Correct</th><th>Points</th><th>Date</th></tr></thead><tbody>' +
+          list.map(r => '<tr><td>' + (r.studentFirstName || '') + ' ' + (r.studentLastName || '') + '</td><td>' + (r.courseId || '') + '</td><td>' + (r.questionText || '').substring(0, 50) + '…</td><td>' + (r.answerText || '').substring(0, 40) + (r.answerText && r.answerText.length > 40 ? '…' : '') + '</td><td>' + (r.isCorrect === true ? '✓' : r.isCorrect === false ? '✗' : '-') + '</td><td>' + (r.pointsEarned != null ? r.pointsEarned : '-') + '</td><td>' + (r.submittedAt || '') + '</td></tr>').join('') + '</tbody></table>';
+      } catch (e) { el.innerHTML = '<span class="error">' + e.message + '</span>'; }
+    }
+
+    // --- Enrollments ---
+    async function loadEnrollments() {
+      const el = document.getElementById('list-enrollments');
+      el.innerHTML = '<span class="loading-wrap"><span class="spinner"></span><span class="loading">Chargement...</span></span>';
+      try {
+        const list = await api('/api/enrollments') || [];
+        if (!list.length) { el.innerHTML = '<p>Aucune inscription.</p>'; return; }
+        el.innerHTML = '<table><thead><tr><th>Id</th><th>Étudiant</th><th>Cours</th><th>Statut</th><th>Progression %</th><th>Note</th><th>Date</th></tr></thead><tbody>' +
+          list.map(e => '<tr><td>' + e.id + '</td><td>' + (e.studentFirstName || '') + ' ' + (e.studentLastName || '') + '</td><td>' + (e.courseTitle || e.courseCode || e.courseId) + '</td><td>' + (e.status || '') + '</td><td>' + (e.completionPercentage != null ? e.completionPercentage + '%' : '-') + '</td><td>' + (e.finalGrade != null ? e.finalGrade : '-') + '</td><td>' + (e.enrollmentDate || '') + '</td></tr>').join('') + '</tbody></table>';
+      } catch (e) { el.innerHTML = '<span class="error">' + e.message + '</span>'; }
+    }
+
+    // --- Award Badge ---
+    async function loadAwardBadgePage() {
+      const studentSel = document.getElementById('badgeStudentSelect');
+      const courseSel = document.getElementById('badgeCourseSelect');
+      if (studentSel.options.length <= 1) {
+        try {
+          const [students, courses] = await Promise.all([ api('/api/students') || [], api('/api/courses') || [] ]);
+          studentSel.innerHTML = '<option value="">-- Choisir --</option>' + students.map(s => '<option value="' + s.id + '">' + (s.firstName || '') + ' ' + (s.lastName || '') + '</option>').join('');
+          courseSel.innerHTML = '<option value="">-- Aucun --</option>' + courses.map(c => '<option value="' + c.id + '">' + (c.title || c.courseCode) + '</option>').join('');
+        } catch (_) {}
+      }
+    }
+    async function submitAwardBadge() {
+      const studentId = document.getElementById('badgeStudentSelect').value;
+      const badgeName = document.getElementById('badgeName').value.trim() || 'Course completed';
+      const badgeType = document.getElementById('badgeType').value;
+      const courseId = document.getElementById('badgeCourseSelect').value || null;
+      if (!studentId) { alert('Choisissez un étudiant.'); return; }
+      const body = { studentId: parseInt(studentId, 10), badgeName, badgeType, description: badgeName, courseId: courseId ? parseInt(courseId, 10) : null, badgeLevel: 'GOLD', earnedDate: new Date().toISOString().slice(0, 10) };
+      try {
+        await api('/api/badges', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        alert('Badge attribué.');
+        document.getElementById('badgeName').value = '';
+      } catch (e) { alert('Erreur : ' + e.message); }
+    }
+
+    updateTeacherStats();
+    loadCourses();
+  </script>
+</body>
+</html>
