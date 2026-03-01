@@ -1,4 +1,4 @@
-import { Component, signal, OnInit, inject, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, signal, OnInit, OnDestroy, inject, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AbonnementService } from '../../services/abonnement.service';
@@ -29,14 +29,18 @@ export class Pricing implements OnInit {
   showPurchaseModal = signal(false);
   showReceiptUpload = signal(false);
   showStripeForm = signal(false);
+  showPaymentSuccess = signal(false);
   selectedAbonnement = signal<Abonnement | null>(null);
   currentUser = signal<User | null>(null);
   selectedReceipt = signal<File | null>(null);
   processingPayment = signal(false);
+  paymentSuccessTransaction = signal('');
+  confettiPieces = Array.from({ length: 28 }, (_, i) => i);
   
   private stripe: Stripe | null = null;
   private elements: StripeElements | null = null;
   private card: StripeCardElement | null = null;
+  private successRedirectTimer: ReturnType<typeof setTimeout> | null = null;
   
   purchaseForm = {
     nom_client: '',
@@ -66,6 +70,13 @@ export class Pricing implements OnInit {
   ngOnInit() {
     this.loadAbonnements();
     this.loadCurrentUser();
+  }
+
+  ngOnDestroy() {
+    if (this.successRedirectTimer) {
+      clearTimeout(this.successRedirectTimer);
+      this.successRedirectTimer = null;
+    }
   }
 
   loadCurrentUser() {
@@ -241,9 +252,8 @@ export class Pricing implements OnInit {
 
         this.paymentService.createPayment(paymentRequest).subscribe({
           next: () => {
-            alert(`Payment successful! Transaction: ${paymentIntent.id}`);
             this.closePurchaseModal();
-            this.redirectToStudentPage();
+            this.showPaymentSuccessExperience(paymentIntent.id);
           },
           error: (err) => {
             console.error('Error saving payment:', err);
@@ -342,5 +352,47 @@ export class Pricing implements OnInit {
     const email = encodeURIComponent(this.currentUser()?.email || this.purchaseForm.email_client || '');
     const targetUrl = `${window.location.protocol}//${window.location.hostname}:8083/front-office/student.html${email ? `?email=${email}` : ''}`;
     window.location.href = targetUrl;
+  }
+
+  closeSuccessAndRedirectNow() {
+    this.showPaymentSuccess.set(false);
+    this.redirectToStudentPage();
+  }
+
+  private showPaymentSuccessExperience(transactionId: string) {
+    this.paymentSuccessTransaction.set(transactionId || '');
+    this.showPaymentSuccess.set(true);
+    this.playPaymentSuccessSound();
+    if (this.successRedirectTimer) clearTimeout(this.successRedirectTimer);
+    this.successRedirectTimer = setTimeout(() => {
+      this.closeSuccessAndRedirectNow();
+    }, 3200);
+  }
+
+  private playPaymentSuccessSound() {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const now = ctx.currentTime;
+      const notes = [523.25, 659.25, 783.99];
+      notes.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        const start = now + idx * 0.11;
+        const stop = start + 0.22;
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(0.14, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, stop);
+        osc.start(start);
+        osc.stop(stop);
+      });
+    } catch (_) {
+      // no-op when audio is blocked by browser policy
+    }
   }
 }

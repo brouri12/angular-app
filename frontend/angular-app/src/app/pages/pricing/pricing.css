@@ -1,0 +1,158 @@
+.payment-success-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(0, 200, 151, 0.25), transparent 42%),
+    radial-gradient(circle at 80% 30%, rgba(255, 127, 80, 0.22), transparent 45%),
+    linear-gradient(145deg, rgba(6, 16, 35, 0.95), rgba(17, 29, 58, 0.97));
+  animation: successOverlayIn 350ms ease-out;
+}
+
+.payment-success-glow {
+  position: absolute;
+  width: 70vmax;
+  height: 70vmax;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(0, 200, 151, 0.22), rgba(0, 0, 0, 0));
+  filter: blur(14px);
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.payment-success-card {
+  position: relative;
+  z-index: 2;
+  width: min(92vw, 560px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+  backdrop-filter: blur(12px);
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  color: #fff;
+  animation: successCardIn 480ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.payment-success-icon-wrap {
+  margin: 0 auto 1rem;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, rgba(0, 200, 151, 0.95), rgba(255, 127, 80, 0.95));
+  box-shadow: 0 0 0 8px rgba(0, 200, 151, 0.18), 0 20px 40px rgba(0, 0, 0, 0.35);
+  animation: successIconPop 540ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.payment-success-icon {
+  font-size: 2.3rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.payment-success-title {
+  margin: 0;
+  font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.payment-success-subtitle {
+  margin: 0.85rem auto 0;
+  max-width: 460px;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 1rem;
+}
+
+.payment-success-tx {
+  margin: 1rem auto 0;
+  max-width: 100%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 12px;
+  background: rgba(7, 12, 25, 0.5);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.payment-success-btn {
+  margin-top: 1.25rem;
+  border: none;
+  border-radius: 12px;
+  padding: 0.8rem 1.2rem;
+  min-width: 180px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  background: linear-gradient(90deg, rgb(0, 200, 151), rgb(255, 127, 80));
+  box-shadow: 0 8px 26px rgba(0, 200, 151, 0.35);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.payment-success-btn:hover {
+  transform: translateY(-2px);
+  opacity: 0.95;
+}
+
+.payment-confetti {
+  --left: calc((var(--i) * 13) % 100);
+  --delay: calc(var(--i) * 0.04s);
+  --dur: calc(2.4s + (var(--i) % 5) * 0.2s);
+  position: absolute;
+  left: calc(var(--left) * 1%);
+  top: -12px;
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  opacity: 0.9;
+  background: hsl(calc((var(--i) * 23) % 360), 90%, 62%);
+  transform: rotate(calc((var(--i) * 17) * 1deg));
+  animation: confettiFall var(--dur) linear var(--delay) infinite;
+}
+
+@keyframes successOverlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes successCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes successIconPop {
+  0% { transform: scale(0.4); }
+  60% { transform: scale(1.14); }
+  100% { transform: scale(1); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { transform: scale(0.9); opacity: 0.7; }
+  50% { transform: scale(1.04); opacity: 1; }
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translateY(-5vh) rotate(0deg);
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) rotate(520deg);
+    opacity: 0.95;
+  }
+}

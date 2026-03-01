@@ -418,3 +418,30 @@
     </div>
   </div>
 }
+
+<!-- Advanced Payment Success Fullscreen Effect -->
+@if (showPaymentSuccess()) {
+  <div class="payment-success-overlay">
+    <div class="payment-success-glow"></div>
+    @for (piece of confettiPieces; track piece) {
+      <span class="payment-confetti" [style.--i]="piece"></span>
+    }
+    <div class="payment-success-card">
+      <div class="payment-success-icon-wrap">
+        <div class="payment-success-icon">✓</div>
+      </div>
+      <h2 class="payment-success-title">Payment Success</h2>
+      <p class="payment-success-subtitle">
+        Your payment has been confirmed. Preparing your student space...
+      </p>
+      @if (paymentSuccessTransaction()) {
+        <p class="payment-success-tx">
+          Transaction: <strong>{{ paymentSuccessTransaction() }}</strong>
+        </p>
+      }
+      <button type="button" class="payment-success-btn" (click)="closeSuccessAndRedirectNow()">
+        Continue now
+      </button>
+    </div>
+  </div>
+}

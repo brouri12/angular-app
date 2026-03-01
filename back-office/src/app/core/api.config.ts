@@ -10,4 +10,5 @@ export const API_ENDPOINTS = {
   questions: '/api/questions',
   badges: '/api/badges',
   databaseInfo: '/api/database/info',
+  adminReviewsOverview: '/api/admin/reviews/overview',
 } as const;

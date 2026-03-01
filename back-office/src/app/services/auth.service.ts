@@ -75,6 +75,10 @@ export class AuthService {
     );
   }
 
+  getUserByEmail(email: string): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/user-by-email?email=${encodeURIComponent(email)}`);
+  }
+
   // Load current user (public method)
   loadUser(): void {
     this.loadCurrentUser();
