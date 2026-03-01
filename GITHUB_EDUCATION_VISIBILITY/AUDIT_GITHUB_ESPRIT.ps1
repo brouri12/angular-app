@@ -190,10 +190,10 @@ $mdPath  = Join-Path $OutputDir "github-audit-summary-$Org-$PI-$AcademicYear-$ti
 $rows | Export-Csv -NoTypeInformation -Encoding UTF8 -Path $csvPath
 
 $total = $rows.Count
-$namingOkCount = ($rows | Where-Object { $_.naming_ok }).Count
-$descOkCount = ($rows | Where-Object { $_.description_ok }).Count
-$topicsOkCount = ($rows | Where-Object { $_.topics_ok }).Count
-$readmeOkCount = ($rows | Where-Object { $_.readme_structured_ok -and $_.readme_brand_ok }).Count
+$namingOkCount = @($rows | Where-Object { $_.naming_ok }).Count
+$descOkCount = @($rows | Where-Object { $_.description_ok }).Count
+$topicsOkCount = @($rows | Where-Object { $_.topics_ok }).Count
+$readmeOkCount = @($rows | Where-Object { $_.readme_structured_ok -and $_.readme_brand_ok }).Count
 $totalStars = ($rows | Measure-Object -Property stars -Sum).Sum
 $totalForks = ($rows | Measure-Object -Property forks -Sum).Sum
 $avgCommits = if ($total -gt 0) { [math]::Round((($rows | Measure-Object -Property commits_count -Sum).Sum / $total), 2) } else { 0 }
