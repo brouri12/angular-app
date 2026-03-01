@@ -1,135 +1,143 @@
 <div class="p-6">
-  <!-- Header -->
-  <div class="mb-6">
-    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Analytics Dashboard</h1>
-    <p class="text-gray-600 dark:text-gray-400 mt-1">Track performance and insights</p>
+  <div class="mb-6 flex items-start justify-between gap-4 flex-wrap">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Review Analytics (Admin)</h1>
+      <p class="text-gray-600 dark:text-gray-400 mt-1">Vue consolidée des avis cours + parcours (chapitres).</p>
+    </div>
+    <button type="button" (click)="loadOverview()" class="px-4 py-2 rounded-lg bg-[rgb(0,200,151)] text-white hover:opacity-90 transition-opacity">
+      Actualiser
+    </button>
   </div>
 
-  <!-- Stats Grid -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-gray-600 dark:text-gray-400 text-sm">Total Revenue</p>
-          <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">$155,000</p>
-          <p class="text-green-500 text-sm mt-2">↑ 12.5% from last month</p>
-        </div>
-        <div class="w-12 h-12 bg-gradient-to-br from-[rgb(0,200,151)] to-[rgb(0,180,135)] rounded-lg flex items-center justify-center">
-          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-        </div>
+  @if (loading) {
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-10 text-center">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[rgb(0,200,151)]"></div>
+      <p class="mt-4 text-gray-600 dark:text-gray-400">Chargement des statistiques review...</p>
+    </div>
+  } @else if (error) {
+    <div class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-700 dark:text-red-200">
+      {{ error }}
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+        <p class="text-gray-600 dark:text-gray-400 text-sm">Total Reviews</p>
+        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ data.global.totalFeedbacks }}</p>
+      </div>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+        <p class="text-gray-600 dark:text-gray-400 text-sm">Moyenne Globale</p>
+        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ data.global.averageRating | number:'1.1-2' }} / 5</p>
+      </div>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+        <p class="text-gray-600 dark:text-gray-400 text-sm">Reviews Cours</p>
+        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ data.global.courseFeedbacks }}</p>
+      </div>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+        <p class="text-gray-600 dark:text-gray-400 text-sm">Reviews Chapitres</p>
+        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ data.global.chapterFeedbacks }}</p>
       </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-gray-600 dark:text-gray-400 text-sm">New Enrollments</p>
-          <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">1,370</p>
-          <p class="text-green-500 text-sm mt-2">↑ 8.2% from last month</p>
-        </div>
-        <div class="w-12 h-12 bg-gradient-to-br from-[rgb(255,127,80)] to-[rgb(255,107,60)] rounded-lg flex items-center justify-center">
-          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-          </svg>
-        </div>
-      </div>
-    </div>
-
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-gray-600 dark:text-gray-400 text-sm">Avg. Completion</p>
-          <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">78.5%</p>
-          <p class="text-green-500 text-sm mt-2">↑ 3.1% from last month</p>
-        </div>
-        <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
-          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-        </div>
-      </div>
-    </div>
-
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-gray-600 dark:text-gray-400 text-sm">Active Users</p>
-          <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">8,450</p>
-          <p class="text-green-500 text-sm mt-2">↑ 15.3% from last month</p>
-        </div>
-        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-          </svg>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Charts -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-    <!-- Enrollment Chart -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Monthly Enrollments</h3>
-      <div class="flex items-end justify-between h-64 gap-4">
-        <div *ngFor="let data of enrollmentData" class="flex-1 flex flex-col items-center">
-          <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-t-lg relative" style="height: 200px;">
-            <div class="absolute bottom-0 w-full bg-gradient-to-t from-[rgb(0,200,151)] to-[rgb(0,180,135)] rounded-t-lg transition-all duration-500 hover:opacity-80"
-                 [style.height]="getBarHeight(data.value, enrollmentData)">
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
+      <div class="xl:col-span-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Répartition des notes</h3>
+        @for (row of distributionRows(); track row.stars) {
+          <div class="mb-3 last:mb-0">
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-gray-700 dark:text-gray-300">{{ row.stars }} ★</span>
+              <span class="text-gray-500 dark:text-gray-400">{{ row.count }} ({{ row.pct }}%)</span>
+            </div>
+            <div class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded">
+              <div class="h-2 rounded bg-gradient-to-r from-[rgb(255,127,80)] to-[rgb(0,200,151)]" [style.width.%]="row.pct"></div>
             </div>
           </div>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{data.label}}</p>
-          <p class="text-xs font-semibold text-gray-900 dark:text-white">{{data.value}}</p>
-        </div>
+        }
       </div>
-    </div>
 
-    <!-- Revenue Chart -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Monthly Revenue</h3>
-      <div class="flex items-end justify-between h-64 gap-4">
-        <div *ngFor="let data of revenueData" class="flex-1 flex flex-col items-center">
-          <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-t-lg relative" style="height: 200px;">
-            <div class="absolute bottom-0 w-full bg-gradient-to-t from-[rgb(255,127,80)] to-[rgb(255,107,60)] rounded-t-lg transition-all duration-500 hover:opacity-80"
-                 [style.height]="getBarHeight(data.value, revenueData)">
-            </div>
+      <div class="xl:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Top cours (par reviews)</h3>
+        @if (data.topCourses.length === 0) {
+          <p class="text-gray-500 dark:text-gray-400">Aucune review cours pour le moment.</p>
+        } @else {
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50 dark:bg-gray-900">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cours</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Niveau</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reviews</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Moyenne</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                @for (course of data.topCourses; track course.id) {
+                  <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/40">
+                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ course.title }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ course.level }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ course.feedbackCount }}</td>
+                    <td class="px-4 py-3 text-sm text-yellow-600">{{ renderStars(course.averageRating) }} {{ course.averageRating | number:'1.1-2' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
           </div>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{data.label}}</p>
-          <p class="text-xs font-semibold text-gray-900 dark:text-white">${{data.value / 1000}}k</p>
-        </div>
+        }
       </div>
     </div>
-  </div>
 
-  <!-- Top Courses Table -->
-  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Top Performing Courses</h3>
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead class="bg-gray-50 dark:bg-gray-900">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Course Name</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Enrollments</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Revenue</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Rating</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-          <tr *ngFor="let course of topCourses" class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{{course.name}}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">{{course.enrollments}}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">${{course.revenue.toLocaleString()}}</td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="flex items-center">
-                <span class="text-yellow-400 mr-1">★</span>
-                <span class="text-sm text-gray-900 dark:text-white">{{course.rating}}</span>
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Top chapitres (Parcours)</h3>
+        @if (data.topChapters.length === 0) {
+          <p class="text-gray-500 dark:text-gray-400">Aucune review chapitre pour le moment.</p>
+        } @else {
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50 dark:bg-gray-900">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Chapitre</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Niveau</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reviews</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Moyenne</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                @for (chapter of data.topChapters; track chapter.id) {
+                  <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/40">
+                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ chapter.title }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ chapter.levelCode }} - {{ chapter.levelName }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ chapter.feedbackCount }}</td>
+                    <td class="px-4 py-3 text-sm text-yellow-600">{{ renderStars(chapter.averageRating) }} {{ chapter.averageRating | number:'1.1-2' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Dernières reviews</h3>
+        @if (data.recentFeedbacks.length === 0) {
+          <p class="text-gray-500 dark:text-gray-400">Aucune review récente.</p>
+        } @else {
+          <div class="space-y-3">
+            @for (review of data.recentFeedbacks; track review.sourceType + '-' + review.id) {
+              <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+                <div class="flex items-center justify-between gap-2 flex-wrap mb-1">
+                  <div class="text-sm font-semibold text-gray-900 dark:text-white">
+                    {{ review.sourceType === 'COURSE' ? 'Cours' : 'Chapitre' }}: {{ review.targetTitle }}
+                  </div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">{{ formatDate(review.createdAt) }}</div>
+                </div>
+                <div class="text-sm text-yellow-600 mb-1">{{ renderStars(review.rating) }} ({{ review.rating }})</div>
+                <div class="text-sm text-gray-700 dark:text-gray-300">{{ review.comment }}</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">par {{ review.author || 'Étudiant' }}</div>
               </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            }
+          </div>
+        }
+      </div>
     </div>
-  </div>
+  }
 </div>

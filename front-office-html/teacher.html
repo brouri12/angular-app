@@ -246,6 +246,10 @@
       border-radius: 10px; font-size: 1rem; margin-right: 0.6rem; flex-shrink: 0;
     }
     .icon-pedagogy.icon-level { background: linear-gradient(135deg, rgba(0,200,151,0.2), rgba(0,200,151,0.35)); }
+    .level-thumb {
+      width: 2rem; height: 2rem; border-radius: 10px; object-fit: cover; flex-shrink: 0; margin-right: 0.6rem;
+      border: 1px solid rgba(0,0,0,0.08); background: #f1f5f9;
+    }
     .icon-pedagogy.icon-chapter { background: linear-gradient(135deg, rgba(255,127,80,0.2), rgba(255,127,80,0.35)); }
     .icon-pedagogy.icon-lesson-video { background: rgba(59,130,246,0.2); }
     .icon-pedagogy.icon-lesson-pdf { background: rgba(139,92,246,0.2); }
@@ -755,7 +759,9 @@
       var pageLevels = list.slice(start, start + PEDAGOGY_LEVELS_PER_PAGE);
       var el = document.getElementById('pedagogy-levels');
       el.innerHTML = '<div class="pedagogy-cards">' + pageLevels.map(function(l) {
-        return '<div class="pedagogy-level-row"><span class="icon-pedagogy icon-level">📚</span><span class="level-card" data-level-id="' + l.id + '"><strong>' + teEsc(l.code || '') + '</strong> – ' + teEsc(l.name || '') + '</span><button class="btn btn-edit" onclick="pedagogyEditLevel(' + l.id + ')">Modifier</button><button class="btn btn-danger" onclick="pedagogyDeleteLevel(' + l.id + ')">Supprimer</button></div>';
+        var image = teEsc(l.imageUrl || '');
+        var media = image ? '<img class="level-thumb" src="' + image + '" alt="Niveau ' + teEsc(l.code || '') + '" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'inline-flex\';"/><span class="icon-pedagogy icon-level" style="display:none;">📚</span>' : '<span class="icon-pedagogy icon-level">📚</span>';
+        return '<div class="pedagogy-level-row">' + media + '<span class="level-card" data-level-id="' + l.id + '"><strong>' + teEsc(l.code || '') + '</strong> – ' + teEsc(l.name || '') + '</span><button class="btn btn-edit" onclick="pedagogyEditLevel(' + l.id + ')">Modifier</button><button class="btn btn-danger" onclick="pedagogyDeleteLevel(' + l.id + ')">Supprimer</button></div>';
       }).join('') + '</div>';
       el.querySelectorAll('[data-level-id]').forEach(function(n) {
         n.addEventListener('click', function(ev) {
@@ -818,7 +824,7 @@
       pedagogyEditingLevelId = null;
       const box = document.getElementById('pedagogy-form-level');
       box.classList.remove('hidden');
-      box.innerHTML = '<div class="form-grid"><label>Code (ex. A1)</label><input id="pl-code" placeholder="A1"/><label>Titre</label><input id="pl-name" placeholder="Débutant"/></div><button class="btn btn-primary" onclick="pedagogySubmitLevel()">Enregistrer</button> <button class="btn btn-secondary" onclick="box.classList.add(\'hidden\')">Annuler</button>';
+      box.innerHTML = '<div class="form-grid"><label>Code (ex. A1)</label><input id="pl-code" placeholder="A1"/><label>Titre</label><input id="pl-name" placeholder="Débutant"/><label>Image URL</label><input id="pl-image" placeholder="https://.../niveau-a1.jpg"/></div><button class="btn btn-primary" onclick="pedagogySubmitLevel()">Enregistrer</button> <button class="btn btn-secondary" onclick="box.classList.add(\'hidden\')">Annuler</button>';
     }
     async function pedagogyEditLevel(id) {
       pedagogyEditingLevelId = id;
@@ -826,25 +832,27 @@
         const lvl = await api('/api/levels/' + id);
         const box = document.getElementById('pedagogy-form-level');
         box.classList.remove('hidden');
-        box.innerHTML = '<div class="form-grid"><label>Code</label><input id="pl-code" value="' + (lvl.code || '').replace(/"/g, '&quot;') + '"/><label>Titre</label><input id="pl-name" value="' + (lvl.name || '').replace(/"/g, '&quot;') + '"/></div><button class="btn btn-primary" onclick="pedagogySubmitLevel()">Enregistrer</button> <button class="btn btn-secondary" onclick="document.getElementById(\'pedagogy-form-level\').classList.add(\'hidden\'); pedagogyEditingLevelId=null">Annuler</button>';
+        box.innerHTML = '<div class="form-grid"><label>Code</label><input id="pl-code" value="' + (lvl.code || '').replace(/"/g, '&quot;') + '"/><label>Titre</label><input id="pl-name" value="' + (lvl.name || '').replace(/"/g, '&quot;') + '"/><label>Image URL</label><input id="pl-image" value="' + ((lvl.imageUrl || '').replace(/"/g, '&quot;')) + '" placeholder="https://.../niveau.jpg"/></div><button class="btn btn-primary" onclick="pedagogySubmitLevel()">Enregistrer</button> <button class="btn btn-secondary" onclick="document.getElementById(\'pedagogy-form-level\').classList.add(\'hidden\'); pedagogyEditingLevelId=null">Annuler</button>';
       } catch (e) { alert(e.message); pedagogyEditingLevelId = null; }
     }
     async function pedagogySubmitLevel() {
       var plCode = document.getElementById('pl-code');
       var plName = document.getElementById('pl-name');
+      var plImage = document.getElementById('pl-image');
       Validator.clearError(plCode); Validator.clearError(plName);
       var code = (plCode && plCode.value || '').trim();
       var name = (plName && plName.value || '').trim();
+      var imageUrl = (plImage && plImage.value || '').trim();
       var err = Validator.validate(code, [Validator.rules.required, Validator.rules.minLen(1), Validator.rules.maxLen(20), Validator.rules.code()]);
       if (err) { Validator.showError(plCode, err); return; }
       err = Validator.validate(name, [Validator.rules.required, Validator.rules.minLen(1), Validator.rules.maxLen(100)]);
       if (err) { Validator.showError(plName, err); return; }
       try {
         if (pedagogyEditingLevelId) {
-          await api('/api/levels/' + pedagogyEditingLevelId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code, name }) });
+          await api('/api/levels/' + pedagogyEditingLevelId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code, name, imageUrl }) });
           pedagogyEditingLevelId = null;
         } else {
-          await api('/api/levels', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code, name }) });
+          await api('/api/levels', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code, name, imageUrl }) });
         }
         document.getElementById('pedagogy-form-level').classList.add('hidden');
         loadPedagogyPage();
@@ -1132,6 +1140,23 @@
       if (type === 'TRUE_FALSE') {
         const v = (q.correctAnswer || '').toLowerCase();
         document.querySelectorAll('input[name="pq-vf"]').forEach(r => { r.checked = (r.value === 'true' && (v === 'true' || v === 'vrai')) || (r.value === 'false' && (v === 'false' || v === 'faux')); });
+      } else if (type === 'MULTIPLE_CHOICE') {
+        var raw = (q && q.explanation ? String(q.explanation) : '');
+        var opts = [];
+        if (raw.indexOf('QCM_OPTIONS::') === 0) opts = raw.replace('QCM_OPTIONS::', '').split('||').slice(0, 3);
+        while (opts.length < 3) opts.push('');
+        if (q.correctAnswer && opts.indexOf(q.correctAnswer) === -1) {
+          var emptyIdx = opts.findIndex(function(v) { return !v; });
+          if (emptyIdx >= 0) opts[emptyIdx] = q.correctAnswer;
+          else opts[0] = q.correctAnswer;
+        }
+        [1, 2, 3].forEach(function(i) {
+          var el = document.getElementById('pq-option-' + i);
+          if (el) el.value = opts[i - 1] || '';
+        });
+        var selected = Math.max(1, opts.indexOf(q.correctAnswer || '') + 1);
+        var radio = document.querySelector('input[name="pq-qcm-correct"][value="' + selected + '"]');
+        if (radio) radio.checked = true;
       } else {
         const inp = document.getElementById('pq-answer-text');
         if (inp) inp.value = q.correctAnswer || '';
@@ -1142,16 +1167,29 @@
       const zone = document.getElementById('pq-answer-zone');
       if (type === 'TRUE_FALSE') {
         zone.innerHTML = '<label style="display:block;font-weight:600;color:var(--text-muted);margin-bottom:0.35rem;">Réponse correcte</label><div class="quiz-answer-vf"><label><input type="radio" name="pq-vf" value="true"/><span>Vrai</span></label><label><input type="radio" name="pq-vf" value="false"/><span>Faux</span></label></div>';
+      } else if (type === 'MULTIPLE_CHOICE') {
+        zone.innerHTML = '<label style="display:block;font-weight:600;color:var(--text-muted);margin-bottom:0.35rem;">Options QCM (3 réponses)</label><div class="form-grid" style="grid-template-columns: 1fr auto; gap:0.5rem; align-items:center;"><input type="text" id="pq-option-1" placeholder="Option 1" style="width:100%;padding:0.6rem;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;"/><label style="display:flex;align-items:center;gap:0.4rem;"><input type="radio" name="pq-qcm-correct" value="1"/> Correcte</label><input type="text" id="pq-option-2" placeholder="Option 2" style="width:100%;padding:0.6rem;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;"/><label style="display:flex;align-items:center;gap:0.4rem;"><input type="radio" name="pq-qcm-correct" value="2"/> Correcte</label><input type="text" id="pq-option-3" placeholder="Option 3" style="width:100%;padding:0.6rem;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;"/><label style="display:flex;align-items:center;gap:0.4rem;"><input type="radio" name="pq-qcm-correct" value="3"/> Correcte</label></div>';
       } else {
-        const label = type === 'MULTIPLE_CHOICE' ? 'Réponse correcte (texte de l\'option choisie)' : 'Réponse correcte';
-        zone.innerHTML = '<label style="display:block;font-weight:600;color:var(--text-muted);margin-bottom:0.35rem;">' + label + '</label><input type="text" id="pq-answer-text" placeholder="' + (type === 'MULTIPLE_CHOICE' ? 'Ex: Paris' : 'Ex: Réponse courte') + '" style="width:100%;padding:0.6rem;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;"/>';
+        zone.innerHTML = '<label style="display:block;font-weight:600;color:var(--text-muted);margin-bottom:0.35rem;">Réponse correcte</label><input type="text" id="pq-answer-text" placeholder="Ex: Réponse courte" style="width:100%;padding:0.6rem;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;"/>';
       }
+    }
+    function pedagogyQuizQuestionGetMcqOptions() {
+      return [1, 2, 3].map(function(i) {
+        var el = document.getElementById('pq-option-' + i);
+        return (el && el.value ? el.value : '').trim();
+      });
     }
     function pedagogyQuizQuestionGetCorrectAnswer() {
       const type = document.getElementById('pq-question-type').value;
       if (type === 'TRUE_FALSE') {
         const r = document.querySelector('input[name="pq-vf"]:checked');
         return r ? r.value : '';
+      }
+      if (type === 'MULTIPLE_CHOICE') {
+        var selected = document.querySelector('input[name="pq-qcm-correct"]:checked');
+        if (!selected) return '';
+        var opt = document.getElementById('pq-option-' + selected.value);
+        return opt && opt.value ? opt.value.trim() : '';
       }
       const inp = document.getElementById('pq-answer-text');
       return inp ? inp.value.trim() : '';
@@ -1166,11 +1204,22 @@
       var points = parseInt(pointsEl && pointsEl.value, 10) || 10;
       var err = Validator.validate(questionText, [Validator.rules.required, Validator.rules.minLen(5), Validator.rules.maxLen(500)]);
       if (err) { Validator.showError(questionTextEl, err); return; }
-      if (!correctAnswer) { var answerEl = document.querySelector('input[name="pq-vf"]:checked') || document.getElementById('pq-answer-text'); if (answerEl) Validator.showError(answerEl, 'Indiquez la réponse correcte.'); else alert('Veuillez indiquer la réponse correcte.'); return; }
+      var mcqOptions = [];
+      if (questionType === 'MULTIPLE_CHOICE') {
+        mcqOptions = pedagogyQuizQuestionGetMcqOptions();
+        for (var oi = 0; oi < mcqOptions.length; oi++) {
+          if (!mcqOptions[oi]) {
+            var emptyEl = document.getElementById('pq-option-' + (oi + 1));
+            if (emptyEl) Validator.showError(emptyEl, 'Les 3 options sont obligatoires.');
+            return;
+          }
+        }
+      }
+      if (!correctAnswer) { var answerEl = document.querySelector('input[name="pq-vf"]:checked') || document.querySelector('input[name="pq-qcm-correct"]:checked') || document.getElementById('pq-answer-text'); if (answerEl) Validator.showError(answerEl, 'Indiquez la réponse correcte.'); else alert('Veuillez indiquer la réponse correcte.'); return; }
       err = Validator.validate(points, [Validator.rules.integer(1, 100)]);
       if (err) { Validator.showError(pointsEl, err); return; }
       try {
-        const body = { questionText, questionType, correctAnswer, points };
+        const body = { questionText, questionType, correctAnswer, points, explanation: questionType === 'MULTIPLE_CHOICE' ? ('QCM_OPTIONS::' + mcqOptions.join('||')) : undefined };
         if (pedagogyQuizQuestionEditId) {
           await api('/api/quiz-questions/' + pedagogyQuizQuestionEditId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
         } else {

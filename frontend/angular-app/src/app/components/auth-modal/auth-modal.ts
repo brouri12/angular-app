@@ -39,6 +39,11 @@ export class AuthModal implements OnInit {
   successMessage = '';
   isLoading = false;
 
+  private hasRole(roles: string[], role: string): boolean {
+    const upper = String(role || '').toUpperCase();
+    return roles.includes(upper) || roles.includes(`ROLE_${upper}`);
+  }
+
   constructor(
     private modalService: ModalService,
     private authService: AuthService,
@@ -102,11 +107,12 @@ export class AuthModal implements OnInit {
     ).subscribe({
       next: () => {
         console.log('Login successful!');
+        const loginEmail = this.loginData.email || '';
         this.closeModal();
         this.cdr.detectChanges();
 
         // Prefer role from backend profile (more reliable), token as fallback
-        this.authService.getUserByEmail(this.loginData.email).subscribe({
+        this.authService.getUserByEmail(loginEmail).subscribe({
           next: (user) => {
             const role = String(user?.role || '').toUpperCase();
             if (role === 'ADMIN') {
@@ -115,6 +121,10 @@ export class AuthModal implements OnInit {
             }
             if (role === 'TEACHER') {
               window.location.href = 'http://localhost:8083/front-office/teacher.html';
+              return;
+            }
+            if (role === 'STUDENT') {
+              window.location.href = 'http://localhost:4201/pricing';
               return;
             }
             this.authService.loadUser();
@@ -126,12 +136,16 @@ export class AuthModal implements OnInit {
               try {
                 const payload = JSON.parse(atob(token.split('.')[1]));
                 const roles = payload.realm_access?.roles || [];
-                if (roles.includes('ADMIN')) {
+                if (this.hasRole(roles, 'ADMIN')) {
                   window.location.href = 'http://localhost:8083/back-office/';
                   return;
                 }
-                if (roles.includes('TEACHER')) {
+                if (this.hasRole(roles, 'TEACHER')) {
                   window.location.href = 'http://localhost:8083/front-office/teacher.html';
+                  return;
+                }
+                if (this.hasRole(roles, 'STUDENT')) {
+                  window.location.href = 'http://localhost:4201/pricing';
                   return;
                 }
               } catch (e) {

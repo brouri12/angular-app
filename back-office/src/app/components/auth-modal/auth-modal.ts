@@ -39,6 +39,11 @@ export class AuthModal implements OnInit {
   successMessage = '';
   isLoading = false;
 
+  private hasRole(roles: string[], role: string): boolean {
+    const upper = String(role || '').toUpperCase();
+    return roles.includes(upper) || roles.includes(`ROLE_${upper}`);
+  }
+
   constructor(
     private modalService: ModalService,
     private authService: AuthService,
@@ -102,33 +107,47 @@ export class AuthModal implements OnInit {
     ).subscribe({
       next: () => {
         console.log('Login successful!');
+        const loginEmail = this.loginData.email || '';
         this.closeModal();
         this.cdr.detectChanges();
         
-        // Get user role and redirect accordingly
-        const token = this.authService.getToken();
-        if (token) {
-          try {
-            // Decode token to get role
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            const roles = payload.realm_access?.roles || [];
-            
-            // Check if user is TEACHER or STUDENT
-            if (roles.includes('TEACHER') || roles.includes('STUDENT')) {
-              // Redirect to frontend
-              window.location.href = 'http://localhost:4200';
-            } else {
-              // ADMIN - stay on back-office and navigate to dashboard
-              this.authService.loadUser();
-              setTimeout(() => {
-                this.router.navigate(['/dashboard']).then(() => {
-                  window.location.reload();
-                });
-              }, 100);
+        // Role from backend profile first, token as fallback
+        this.authService.getUserByEmail(loginEmail).subscribe({
+          next: (user) => {
+            const role = String(user?.role || '').toUpperCase();
+            if (role === 'TEACHER') {
+              window.location.href = 'http://localhost:8083/front-office/teacher.html';
+              return;
             }
-          } catch (e) {
-            console.error('Error decoding token:', e);
-            // Fallback: navigate to dashboard
+            if (role === 'STUDENT') {
+              window.location.href = 'http://localhost:4201/pricing';
+              return;
+            }
+            this.authService.loadUser();
+            setTimeout(() => {
+              this.router.navigate(['/dashboard']).then(() => {
+                window.location.reload();
+              });
+            }, 100);
+          },
+          error: () => {
+            const token = this.authService.getToken();
+            if (token) {
+              try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const roles = payload.realm_access?.roles || [];
+                if (this.hasRole(roles, 'TEACHER')) {
+                  window.location.href = 'http://localhost:8083/front-office/teacher.html';
+                  return;
+                }
+                if (this.hasRole(roles, 'STUDENT')) {
+                  window.location.href = 'http://localhost:4201/pricing';
+                  return;
+                }
+              } catch (e) {
+                console.error('Error decoding token:', e);
+              }
+            }
             this.authService.loadUser();
             setTimeout(() => {
               this.router.navigate(['/dashboard']).then(() => {
@@ -136,7 +155,7 @@ export class AuthModal implements OnInit {
               });
             }, 100);
           }
-        }
+        });
       },
       error: (error) => {
         console.error('Login error:', error);

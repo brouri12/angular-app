@@ -38,31 +38,19 @@ export class AuthService {
   // Login with Keycloak (using email)
   login(request: LoginRequest): Observable<TokenResponse> {
     // First, get the username from email
-    return this.http.get<User>(`${this.apiUrl}/user-by-email?email=${request.email}`).pipe(
+    return this.http.get<User>(`${this.apiUrl}/user-by-email?email=${encodeURIComponent(request.email)}`).pipe(
       timeout(10000), // 10 second timeout
       catchError(error => {
         console.error('Error fetching user by email:', error);
         return throwError(() => error);
       }),
       switchMap(user => {
-        // Now login with username to Keycloak
-        const body = new URLSearchParams();
-        body.set('username', user.username);
-        body.set('password', request.password);
-        body.set('grant_type', 'password');
-        body.set('client_id', 'wordly-client');
-
-        const headers = new HttpHeaders({
-          'Content-Type': 'application/x-www-form-urlencoded'
-        });
-
-        return this.http.post<TokenResponse>(this.keycloakUrl, body.toString(), { headers }).pipe(
-          timeout(10000), // 10 second timeout
-          catchError(error => {
-            console.error('Error logging in to Keycloak:', error);
-            return throwError(() => error);
-          })
-        );
+        // Try multiple username candidates to handle MySQL/Keycloak desync.
+        const localPart = (request.email || '').split('@')[0] || '';
+        const candidates = [user.username, localPart, request.email]
+          .map(v => (v || '').trim())
+          .filter((v, i, arr) => !!v && arr.indexOf(v) === i);
+        return this.tryLoginCandidates(candidates, request.password);
       }),
       tap(response => {
         this.saveToken(response.access_token);
@@ -73,6 +61,38 @@ export class AuthService {
       catchError(error => {
         console.error('Login failed:', error);
         return throwError(() => error);
+      })
+    );
+  }
+
+  private requestKeycloakToken(username: string, password: string): Observable<TokenResponse> {
+    const body = new URLSearchParams();
+    body.set('username', username);
+    body.set('password', password);
+    body.set('grant_type', 'password');
+    body.set('client_id', 'wordly-client');
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    return this.http.post<TokenResponse>(this.keycloakUrl, body.toString(), { headers }).pipe(
+      timeout(10000)
+    );
+  }
+
+  private tryLoginCandidates(candidates: string[], password: string, index = 0): Observable<TokenResponse> {
+    if (index >= candidates.length) {
+      return throwError(() => new Error('Invalid email or password'));
+    }
+    const username = candidates[index];
+    return this.requestKeycloakToken(username, password).pipe(
+      catchError(err => {
+        const status = err?.status;
+        if (status === 400 || status === 401 || status === 404 || status === 0) {
+          return this.tryLoginCandidates(candidates, password, index + 1);
+        }
+        return throwError(() => err);
       })
     );
   }

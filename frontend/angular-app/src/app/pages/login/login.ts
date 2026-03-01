@@ -21,6 +21,11 @@ export class Login {
   errorMessage = '';
   isLoading = false;
 
+  private hasRole(roles: string[], role: string): boolean {
+    const upper = String(role || '').toUpperCase();
+    return roles.includes(upper) || roles.includes(`ROLE_${upper}`);
+  }
+
   constructor(
     private authService: AuthService,
     private router: Router
@@ -49,6 +54,10 @@ export class Login {
               window.location.href = 'http://localhost:8083/front-office/teacher.html';
               return;
             }
+            if (role === 'STUDENT') {
+              window.location.href = 'http://localhost:4201/pricing';
+              return;
+            }
             this.router.navigate(['/']);
           },
           error: () => {
@@ -57,12 +66,16 @@ export class Login {
               try {
                 const payload = JSON.parse(atob(token.split('.')[1]));
                 const roles = payload.realm_access?.roles || [];
-                if (roles.includes('ADMIN')) {
+                if (this.hasRole(roles, 'ADMIN')) {
                   window.location.href = 'http://localhost:8083/back-office/';
                   return;
                 }
-                if (roles.includes('TEACHER')) {
+                if (this.hasRole(roles, 'TEACHER')) {
                   window.location.href = 'http://localhost:8083/front-office/teacher.html';
+                  return;
+                }
+                if (this.hasRole(roles, 'STUDENT')) {
+                  window.location.href = 'http://localhost:4201/pricing';
                   return;
                 }
               } catch (e) {
