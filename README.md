@@ -166,7 +166,7 @@ The **English Proficiency Evaluation System** is a comprehensive platform design
 │           MySQL DB            │
 │  - evaluation                 │
 │  - answer                     │
-│  - note                       │
+│  - note                       │     
 └───────────────────────────────┘
 
 ### Data Flow - Automatic Scoring
