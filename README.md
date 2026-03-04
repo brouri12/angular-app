@@ -123,65 +123,51 @@ The **English Proficiency Evaluation System** is a comprehensive platform design
 ## 🏗️ Architecture
 
 ### System Architecture
-┌─────────────────────────────────────────────────────────────┐
-│                     Client Layer                            │
-├─────────────────────────────────────────────────────────────┤
-│  Back-Office (Port 4200)    │    Front-Office (Port 4201)  │
-│  - Teacher Dashboard         │    - Student Portal          │
-│  - Evaluation Creation       │    - Exam Taking             │
-│  - Scheduler Management      │    - Score Viewing           │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                            │ HTTP/REST (Port 8085)
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│                     API Gateway (Port 8085)                 │
-├─────────────────────────────────────────────────────────────┤
-│  - Routes requests to backend services                      │
-│  - Can implement:                                          │
-│    • Load Balancing                                        │
-│    • Authentication / Authorization                        │
-│    • Logging & Monitoring                                  │
-│  - Example routing:                                        │
-│    • /evaluation → Backend:8087/evaluation                │
-│    • /answer     → Backend:8087/answer                    │
-│    • /note       → Backend:8087/note                      │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                            │ HTTP/REST (Port 8087)
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   Backend Layer (Port 8087)                 │
-├─────────────────────────────────────────────────────────────┤
-│  Controllers (REST API)                                     │
-│  ├─ EvaluationController                                    │
-│  ├─ AnswerController                                        │
-│  ├─ NoteController                                          │
-│  └─ FileUploadController                                    │
-├─────────────────────────────────────────────────────────────┤
-│  Services (Business Logic)                                  │
-│  ├─ EvaluationService                                       │
-│  ├─ AnswerService                                           │
-│  ├─ NoteService                                             │
-│  ├─ AutomaticScoringService ⭐                              │
-│  └─ EvaluationSchedulerService                              │
-├─────────────────────────────────────────────────────────────┤
-│  Repositories (Data Access)                                 │
-│  ├─ EvaluationRepo                                          │
-│  ├─ AnswerRepo                                              │
-│  └─ NoteRepo                                                │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                            │ JPA/Hibernate
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   Database Layer (MySQL)                    │
-├─────────────────────────────────────────────────────────────┤
-│  Tables:                                                    │
-│  ├─ evaluation (exams + correct answers)                   │
-│  ├─ answer (student submissions)                           │
-│  └─ note (calculated scores)                               │
-└─────────────────────────────────────────────────────────────┘
+┌───────────────────────────────┐
+│           Client              │
+│  Back-Office (4200)           │
+│  Front-Office (4201)          │
+└─────────────┬─────────────────┘
+              │ HTTP/REST
+              ▼
+┌───────────────────────────────┐
+│        API Gateway            │
+│          Port 8085            │
+│  - Routes requests            │
+│  - Auth / Logging / Proxy     │
+└─────────────┬─────────────────┘
+              │ Forward requests
+              ▼
+┌───────────────────────────────┐
+│           Backend             │
+│          Port 8087            │
+│ ┌─ Controllers ────────────┐ │
+│ │ EvaluationController      │ │
+│ │ AnswerController          │ │
+│ │ NoteController            │ │
+│ │ FileUploadController      │ │
+│ └───────────────────────────┘ │
+│ ┌─ Services ───────────────┐ │
+│ │ EvaluationService         │ │
+│ │ AnswerService             │ │
+│ │ NoteService               │ │
+│ │ AutomaticScoringService ⭐ │ │
+│ │ EvaluationScheduler       │ │
+│ └───────────────────────────┘ │
+│ ┌─ Repositories ────────────┐ │
+│ │ EvaluationRepo            │ │
+│ │ AnswerRepo                │ │
+│ │ NoteRepo                  │ │
+│ └───────────────────────────┘ │
+└─────────────┬─────────────────┘
+              │ JPA/Hibernate
+              ▼
+┌───────────────────────────────┐
+│           MySQL DB            │
+│  - evaluation                 │
+│  - answer                     │
+│  - note                       │
+└───────────────────────────────┘
 
 ### Data Flow - Automatic Scoring
 
