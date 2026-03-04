@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="8f632fc6-e262-414d-b5c1-5f40b921cb89" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/pidev/angular-app/back-office/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/pidev/angular-app/back-office/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pidev/angular-app/back-office/src/app/app.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/pidev/angular-app/back-office/src/app/app.config.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pidev/angular-app/back-office/src/app/app.routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/pidev/angular-app/back-office/src/app/app.routes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pidev/angular-app/back-office/src/app/components/sidebar/sidebar.ts" beforeDir="false" afterPath="$PROJECT_DIR$/pidev/angular-app/back-office/src/app/components/sidebar/sidebar.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pidev/angular-app/frontend/angular-app/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/pidev/angular-app/frontend/angular-app/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pidev/angular-app/frontend/angular-app/src/app/app.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/pidev/angular-app/frontend/angular-app/src/app/app.config.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pidev/angular-app/frontend/angular-app/src/app/app.routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/pidev/angular-app/frontend/angular-app/src/app/app.routes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pidev/angular-app/frontend/angular-app/src/app/components/header/header.ts" beforeDir="false" afterPath="$PROJECT_DIR$/pidev/angular-app/frontend/angular-app/src/app/components/header/header.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pidev/angular-app/frontend/angular-app/src/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/pidev/angular-app/frontend/angular-app/src/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pidev/angular-app/frontend/angular-app/src/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/pidev/angular-app/frontend/angular-app/src/styles.css" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/pidev/angular-app" />
+  </component>
+  <component name="MavenRunner">
+    <option name="jreName" value="jbr-17" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
+  <component name="ProjectId" id="39oQERfK5AAFDpFMrEPZhQHoRik" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "reference.settings.project.maven.runner"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.26199.169" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="8f632fc6-e262-414d-b5c1-5f40b921cb89" name="Changes" comment="" />
+      <created>1771359832062</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1771359832062</updated>
+    </task>
+    <servers />
+  </component>
+</project>
