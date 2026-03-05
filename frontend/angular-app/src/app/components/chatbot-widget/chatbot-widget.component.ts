@@ -69,7 +69,8 @@ import { ChatbotImprovedService, ChatMessage } from '../../services/chatbot-impr
             [(ngModel)]="userMessage"
             (keyup.enter)="sendMessage()"
             placeholder="Tapez votre message..."
-            class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+            class="chat-input-field flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            style="color: #000000 !important; background-color: #ffffff !important;"
             [disabled]="isTyping"
           />
           <button
@@ -226,18 +227,33 @@ import { ChatbotImprovedService, ChatMessage } from '../../services/chatbot-impr
       background: white;
     }
 
-    .chat-input input {
-      color: #1f2937 !important;
-      background-color: white !important;
+    .chat-input-field {
+      color: #000000 !important;
+      background-color: #ffffff !important;
+      border: 1px solid #d1d5db !important;
     }
 
-    .chat-input input::placeholder {
+    .chat-input-field::placeholder {
       color: #9ca3af !important;
     }
 
-    .chat-input input:disabled {
+    .chat-input-field:focus {
+      color: #000000 !important;
+      background-color: #ffffff !important;
+    }
+
+    .chat-input-field:disabled {
       background-color: #f3f4f6 !important;
-      color: #6b7280 !important;
+      color: #374151 !important;
+    }
+
+    /* Force text color in all states */
+    input.chat-input-field,
+    input.chat-input-field:focus,
+    input.chat-input-field:active,
+    input.chat-input-field:hover {
+      color: #000000 !important;
+      background-color: #ffffff !important;
     }
 
     .confirm-overlay {
