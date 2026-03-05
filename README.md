@@ -1,768 +1,741 @@
-# 🎓 Plateforme Éducative - Frontend Angular
+# PLATEFORME ÉDUCATIVE - E-Learning Platform
 
-Application frontend moderne développée avec Angular 18 pour la plateforme éducative. Comprend une interface publique et un back-office d'administration.
+[![Esprit](https://img.shields.io/badge/Esprit-School%20of%20Engineering-red)](https://esprit.tn)
+[![Academic Year](https://img.shields.io/badge/Academic%20Year-2025--2026-blue)](https://esprit.tn)
+[![PIDEV](https://img.shields.io/badge/Project-PIDEV-green)](https://esprit.tn)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-brightgreen)](https://spring.io/projects/spring-boot)
+[![Angular](https://img.shields.io/badge/Angular-18.0-red)](https://angular.io/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-blue)](https://www.mysql.com/)
 
----
+## Overview
 
-## 📋 Table des Matières
+Plateforme Éducative is a comprehensive e-learning platform designed to provide an interactive and engaging learning experience. The platform features a microservices architecture with separate frontend applications for users and administrators, offering advanced forum discussions, multimedia content sharing, recruitment management, and real-time notifications.
 
-- [Vue d'ensemble](#vue-densemble)
-- [Applications](#applications)
-- [Fonctionnalités](#fonctionnalités)
-- [Technologies](#technologies)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Utilisation](#utilisation)
-- [Structure](#structure)
+*Developed at Esprit School of Engineering – Tunisia*
 
----
+## Features
 
-## 🎯 Vue d'ensemble
+### User Features
+- **Authentication & Authorization**
+  - Secure login and registration system
+  - Role-based access control (Student, Teacher, Admin)
+  
+- **Interactive Forums**
+  - Create and participate in discussion forums
+  - Like, reply, and share messages
+  - Report inappropriate content
+  - Real-time message updates
+  
+- **Multimedia Content**
+  - Upload images (JPG, PNG, GIF, WebP - max 5MB)
+  - Upload audio files (MP3, WAV, OGG - max 10MB)
+  - Upload documents (PDF, ZIP, DOC, XLS - max 20MB)
+  - Embed YouTube/Vimeo videos
+  - Automatic thumbnail generation
+  
+- **Intelligent Chatbot**
+  - AI-powered virtual assistant
+  - Context-aware responses
+  - Local knowledge base
+  - Conversation history
+  
+- **Email Notifications**
+  - Customizable notification preferences
+  - New message alerts
+  - Reply notifications
+  - Like notifications
+  - Mention alerts (@username)
+  
+- **Recruitment System**
+  - Browse job offers
+  - Submit applications with CV upload
+  - Track application status
+  - Automated validation
+  
+- **Internationalization**
+  - French (default)
+  - English
+  - Real-time language switching
+  
+- **User Interface**
+  - Dark mode / Light mode
+  - Responsive design (mobile, tablet, desktop)
+  - Modern and intuitive interface
 
-Ce projet contient deux applications Angular distinctes:
-1. **Frontend Public** (port 4300) - Interface utilisateur pour étudiants
-2. **Back-Office** (port 4301) - Interface d'administration
+### Admin Features
+- **Analytics Dashboard**
+  - Real-time forum statistics
+  - User engagement metrics
+  - Interactive charts and graphs
+  
+- **Forum Management**
+  - Create and manage forums
+  - Moderate messages
+  - Handle user reports
+  - Archive/delete content
+  
+- **Recruitment Management**
+  - Create job offers
+  - Review applications
+  - Manage candidate CVs
+  - Update application status
+  
+- **User Management**
+  - User administration
+  - Role assignment
+  - Activity monitoring
+  
+- **Content Moderation**
+  - Review reported content
+  - Automated content filtering
+  - Manual moderation tools
 
-### Architecture Frontend
+### Technical Features
+- **Microservices Architecture**
+  - Scalable and maintainable service-oriented design
+  - Independent service deployment
+  
+- **API Gateway**
+  - Centralized routing and load balancing
+  - CORS configuration
+  
+- **Service Discovery**
+  - Eureka server for service registration
+  - Dynamic service discovery
+  
+- **Database Per Service**
+  - Independent data management
+  - MySQL databases
+  
+- **File Storage**
+  - Secure file upload and storage
+  - Automatic file validation
+  - Thumbnail generation for images
+  
+- **Email System**
+  - SMTP integration (Gmail)
+  - HTML email templates
+  - Automated retry mechanism
+  
+- **Scheduled Tasks**
+  - Automated subscription checks
+  - Periodic data cleanup
+  
+- **API Documentation**
+  - Swagger/OpenAPI 3.0
+  - Interactive API testing
+
+## Tech Stack
+
+### Frontend
+- **Framework**: Angular 18
+- **Language**: TypeScript 5.5
+- **Styling**: Tailwind CSS 3.4
+- **Charts**: Chart.js (for analytics)
+- **HTTP Client**: Angular HttpClient
+- **State Management**: RxJS Observables
+- **Internationalization**: ngx-translate
+- **Icons**: Font Awesome
+
+### Backend
+- **Framework**: Spring Boot 3.2.0
+- **Language**: Java 17
+- **API Gateway**: Spring Cloud Gateway
+- **Service Discovery**: Eureka Server
+- **Security**: Spring Security
+- **Database**: MySQL 8.0
+- **ORM**: Spring Data JPA / Hibernate
+- **Email**: Spring Mail + Thymeleaf
+- **File Storage**: Local file system
+- **Validation**: Bean Validation
+- **Documentation**: SpringDoc OpenAPI
+
+### DevOps & Tools
+- **Build Tool**: Maven 3.8+
+- **Version Control**: Git / GitHub
+- **API Testing**: Postman
+- **Database Management**: MySQL Workbench
+- **IDE**: IntelliJ IDEA, VS Code
+
+## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Angular Applications                     │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  ┌─────────────────────┐      ┌─────────────────────┐     │
-│  │   Public Frontend   │      │    Back-Office      │     │
-│  │     (Port 4300)     │      │    (Port 4301)      │     │
-│  ├─────────────────────┤      ├─────────────────────┤     │
-│  │ - Forums publics    │      │ - Gestion forums    │     │
-│  │ - Recrutement       │      │ - Gestion offres    │     │
-│  │ - Chatbot           │      │ - Modération        │     │
-│  │ - Préférences email │      │ - Analytics         │     │
-│  │ - Multimédia        │      │ - Statistiques      │     │
-│  └─────────────────────┘      └─────────────────────┘     │
-│                                                             │
+│                    CLIENT APPLICATIONS                       │
+│  ┌──────────────────┐         ┌──────────────────┐         │
+│  │  User Frontend   │         │  Admin Backend   │         │
+│  │  (Angular)       │         │  (Angular)       │         │
+│  │  Port: 4300      │         │  Port: 4301      │         │
+│  └──────────────────┘         └──────────────────┘         │
 └─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-                    ┌──────────────────┐
-                    │   API Gateway    │
-                    │   (Port 8888)    │
-                    └──────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│                      API GATEWAY                             │
+│         Spring Cloud Gateway (Port: 8888)                    │
+│                CORS + Routing + Load Balancing               │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│                   EUREKA SERVER                              │
+│              Service Discovery (Port: 8761)                  │
+│              Service Registration & Health Check             │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│                     MICROSERVICES                            │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
+│  │ Forum        │  │ Recrutement  │  │   Config     │     │
+│  │ Service      │  │ Service      │  │   Server     │     │
+│  │ Port: 8082   │  │ Port: 8083   │  │   Port: 8888 │     │
+│  │              │  │              │  │              │     │
+│  │ - Forums     │  │ - Offres     │  │ - Central    │     │
+│  │ - Messages   │  │ - Candidats  │  │   Config     │     │
+│  │ - Multimedia │  │ - CV Upload  │  │              │     │
+│  │ - Email      │  │ - Validation │  │              │     │
+│  │ - Chatbot    │  │              │  │              │     │
+│  └──────────────┘  └──────────────┘  └──────────────┘     │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│                      DATABASES                               │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
+│  │   forum_db   │  │ recrutement  │  │   config_db  │     │
+│  │   (MySQL)    │  │     _db      │  │   (MySQL)    │     │
+│  │              │  │   (MySQL)    │  │              │     │
+│  └──────────────┘  └──────────────┘  └──────────────┘     │
+└─────────────────────────────────────────────────────────────┘
 ```
 
----
+### Microservices
 
-## 🚀 Applications
+1. **Forum Service** (Port 8082)
+   - Forum and message management
+   - Multimedia file handling (images, audio, documents, videos)
+   - Email notification system
+   - Like and reply system
+   - Content moderation
+   - Analytics and statistics
+   - Database: forum_db
 
-### 1. Frontend Public (Port 4300)
+2. **Recrutement Service** (Port 8083)
+   - Job offer management
+   - Application processing
+   - CV upload and storage (BLOB)
+   - Candidate validation
+   - Application status tracking
+   - Database: recrutement_db
 
-Interface utilisateur principale pour les étudiants et visiteurs.
+3. **API Gateway** (Port 8888)
+   - Request routing
+   - CORS configuration
+   - Load balancing
+   - Rate limiting
 
-#### Pages Principales
-- 🏠 **Accueil** - Page d'accueil avec présentation
-- 🗣️ **Forums** - Forums de discussion interactifs
-- 👔 **Recrutement** - Consultation et candidature aux offres
-- 📚 **Cours** - Catalogue des cours disponibles
-- 📧 **Préférences Email** - Gestion des notifications
+4. **Eureka Server** (Port 8761)
+   - Service discovery
+   - Service registration
+   - Health monitoring
+   - Load balancing support
 
-#### Composants Spéciaux
-- 💬 **Chatbot Widget** - Assistant virtuel flottant
-- 🌐 **Language Switcher** - Changement de langue FR/EN
-- 🎨 **Theme Switcher** - Dark mode / Light mode
+## Getting Started
 
-### 2. Back-Office (Port 4301)
+### Prerequisites
 
-Interface d'administration pour la gestion de la plateforme.
+- Java 17 or higher
+- Node.js 18+ and npm
+- MySQL 8.0
+- Maven 3.8+
+- Git
 
-#### Modules d'Administration
-- 📊 **Dashboard** - Vue d'ensemble et statistiques
-- 🗣️ **Gestion Forums** - CRUD forums et messages
-- 👔 **Gestion Recrutement** - CRUD offres et candidatures
-- 📈 **Analytics** - Statistiques détaillées
-- 👥 **Utilisateurs** - Gestion des utilisateurs
-- ⚙️ **Paramètres** - Configuration de la plateforme
+### Installation
 
----
-
-## ✨ Fonctionnalités
-
-### 🗣️ Forums Interactifs
-
-#### Affichage des Messages
-- ✅ Liste des forums par catégorie
-- ✅ Messages avec auteur, date, contenu
-- ✅ Système de likes et réactions
-- ✅ Compteur de réponses
-- ✅ Statuts visuels (actif, archivé, modéré)
-
-#### Création de Messages
-- ✅ Formulaire de création avec validation
-- ✅ Éditeur de texte enrichi
-- ✅ Upload de médias multiples
-- ✅ Prévisualisation avant publication
-- ✅ Brouillons automatiques
-
-#### Interactions
-- ✅ Liker/Unliker un message
-- ✅ Répondre à un message
-- ✅ Signaler un contenu inapproprié
-- ✅ Partager un message
-- ✅ Suivre un forum
-
-### 📸 Système Multimédia
-
-#### Upload de Fichiers
-- 📷 **Images** (JPG, PNG, GIF, WebP)
-  - Taille max: 5MB
-  - Prévisualisation instantanée
-  - Compression automatique
-  - Génération de miniatures
-
-- 🎵 **Audio** (MP3, WAV, OGG)
-  - Taille max: 10MB
-  - Lecteur intégré
-  - Contrôles de lecture
-
-- 📄 **Documents** (PDF, ZIP, DOC, XLS)
-  - Taille max: 20MB
-  - Icônes par type
-  - Téléchargement sécurisé
-
-- 🎬 **Vidéos** (YouTube, Vimeo)
-  - Intégration par URL
-  - Lecteur intégré
-  - Responsive
-
-#### Affichage des Médias
-- ✅ Grille responsive sous chaque message
-- ✅ Section "📎 Fichiers joints (X)"
-- ✅ Prévisualisation d'images en modal
-- ✅ Lecteur audio HTML5
-- ✅ Boutons de téléchargement
-- ✅ Lecteur YouTube intégré
-
-### 💬 Chatbot Intelligent
-
-#### Fonctionnalités
-- 🤖 Assistant virtuel frontend-only
-- 💾 Historique sauvegardé (localStorage)
-- 🎯 Réponses contextuelles
-- 🎨 Interface moderne et fluide
-- 📱 Responsive mobile
-
-#### Base de Connaissances
-Le chatbot peut répondre sur:
-- Comment créer un forum
-- Comment postuler à une offre
-- Où trouver les cours
-- Comment s'inscrire
-- Navigation sur la plateforme
-- Fonctionnalités disponibles
-
-#### Interface
-- Widget flottant en bas à droite
-- Bouton d'ouverture/fermeture
-- Zone de chat avec historique
-- Input avec envoi par Enter
-- Bouton "Effacer l'historique"
-- Popup personnalisé (pas natif)
-
-### 📧 Préférences Email
-
-#### Types de Notifications
-- ✉️ Nouveaux messages dans forums suivis
-- 💬 Réponses à vos messages
-- ❤️ Likes sur vos publications
-- 🔔 Mentions (@utilisateur)
-- 📢 Annonces importantes
-- 🎓 Nouveaux cours disponibles
-- 👔 Nouvelles offres d'emploi
-
-#### Gestion
-- ✅ Activation/désactivation par type
-- ✅ Sauvegarde automatique
-- ✅ Synchronisation avec le backend
-- ✅ Interface intuitive avec checkboxes
-
-### 👔 Système de Recrutement
-
-#### Consultation des Offres
-- ✅ Liste des offres disponibles
-- ✅ Filtrage par département
-- ✅ Recherche par mots-clés
-- ✅ Tri par date
-- ✅ Détails complets de l'offre
-
-#### Candidature
-- ✅ Formulaire de candidature
-- ✅ Upload de CV (PDF, DOC, DOCX)
-- ✅ Lettre de motivation
-- ✅ Validation en temps réel
-- ✅ Confirmation de soumission
-
-### 🌐 Internationalisation
-
-#### Langues Supportées
-- 🇫🇷 **Français** (langue par défaut)
-- 🇬🇧 **Anglais**
-
-#### Fonctionnalités i18n
-- ✅ Changement de langue en temps réel
-- ✅ Traductions complètes de l'interface
-- ✅ Persistance du choix (localStorage)
-- ✅ Bouton de changement dans le header
-- ✅ Support ngx-translate
-
-#### Fichiers de Traduction
-```
-public/i18n/
-├── en.json  # Traductions anglaises
-└── fr.json  # Traductions françaises
-```
-
-### 🎨 Interface Utilisateur
-
-#### Design System
-- ✅ **Tailwind CSS** - Utility-first CSS
-- ✅ **Dark Mode** - Thème sombre/clair
-- ✅ **Responsive** - Mobile, tablet, desktop
-- ✅ **Animations** - Transitions fluides
-- ✅ **Composants réutilisables**
-
-#### Composants Personnalisés
-- ✅ **Modals** - Popups personnalisés
-- ✅ **Notifications** - Toast messages
-- ✅ **Forms** - Formulaires avec validation
-- ✅ **Tables** - Tables de données interactives
-- ✅ **Cards** - Cartes d'information
-- ✅ **Buttons** - Boutons stylisés
-
-#### Navigation
-- ✅ Header avec menu principal
-- ✅ Footer avec liens utiles
-- ✅ Sidebar pour back-office
-- ✅ Breadcrumbs
-- ✅ Pagination
-
----
-
-## 🛠️ Technologies
-
-### Framework & Core
-- **Angular 18.0** - Framework TypeScript
-- **TypeScript 5.5** - Langage typé
-- **RxJS 7.8** - Programmation réactive
-- **Zone.js** - Change detection
-
-### UI & Styling
-- **Tailwind CSS 3.4** - Framework CSS
-- **PostCSS** - Transformations CSS
-- **Autoprefixer** - Préfixes CSS automatiques
-
-### Internationalisation
-- **@ngx-translate/core 15.0** - Core i18n
-- **@ngx-translate/http-loader** - Chargement traductions
-
-### HTTP & State
-- **HttpClient** - Requêtes HTTP
-- **Observables** - Gestion asynchrone
-- **Interceptors** - Gestion des requêtes/réponses
-
-### Routing & Navigation
-- **Angular Router** - Navigation
-- **Route Guards** - Protection des routes
-- **Lazy Loading** - Chargement à la demande
-
-### Build & Dev Tools
-- **Angular CLI 18.0** - Ligne de commande
-- **Vite** - Build tool rapide
-- **ESLint** - Linting TypeScript
-- **Prettier** - Formatage du code
-
-### Testing
-- **Jasmine** - Framework de test
-- **Karma** - Test runner
-- **Protractor** - Tests E2E
-
----
-
-## 📦 Installation
-
-### Prérequis
-
-- **Node.js 18+** - [Télécharger](https://nodejs.org/)
-- **npm 9+** - Inclus avec Node.js
-- **Angular CLI 18** - `npm install -g @angular/cli`
-
-### Installation Frontend Public
+1. **Clone the repositories**
 
 ```bash
-# Cloner le repository
+# Backend (Spring Boot)
+git clone https://github.com/brouri12/spring-app.git
+cd spring-app
+git checkout rahma
+
+# Frontend (Angular)
 git clone https://github.com/brouri12/angular-app.git
 cd angular-app
 git checkout rahma
+```
 
-# Installer les dépendances
-cd frontend/angular-app
+2. **Setup MySQL Databases**
+
+```sql
+-- Create databases
+CREATE DATABASE forum_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE recrutement_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- Create user (optional)
+CREATE USER 'pidev_user'@'localhost' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON forum_db.* TO 'pidev_user'@'localhost';
+GRANT ALL PRIVILEGES ON recrutement_db.* TO 'pidev_user'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+3. **Configure Backend Services**
+
+Update `application.properties` in each service:
+
+**Forum Service**:
+```properties
+# Server
+server.port=8082
+spring.application.name=forum-service
+
+# Database
+spring.datasource.url=jdbc:mysql://localhost:3306/forum_db?useSSL=false&serverTimezone=UTC
+spring.datasource.username=root
+spring.datasource.password=YOUR_PASSWORD
+spring.jpa.hibernate.ddl-auto=update
+
+# Eureka
+eureka.client.service-url.defaultZone=http://localhost:8761/eureka/
+
+# File Upload
+spring.servlet.multipart.max-file-size=50MB
+spring.servlet.multipart.max-request-size=50MB
+
+# Email (Gmail)
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=YOUR_EMAIL@gmail.com
+spring.mail.password=YOUR_APP_PASSWORD
+```
+
+**Recrutement Service**:
+```properties
+# Server
+server.port=8083
+spring.application.name=recrutement-service
+
+# Database
+spring.datasource.url=jdbc:mysql://localhost:3306/recrutement_db?useSSL=false&serverTimezone=UTC
+spring.datasource.username=root
+spring.datasource.password=YOUR_PASSWORD
+spring.jpa.hibernate.ddl-auto=update
+
+# Eureka
+eureka.client.service-url.defaultZone=http://localhost:8761/eureka/
+```
+
+4. **Start Backend Services**
+
+**Terminal 1 - Eureka Server**:
+```bash
+cd eureka-server
+mvn spring-boot:run
+# Access: http://localhost:8761
+```
+
+**Terminal 2 - API Gateway**:
+```bash
+cd api-gateway
+mvn spring-boot:run
+# Access: http://localhost:8888
+```
+
+**Terminal 3 - Forum Service**:
+```bash
+cd forum-service
+mvn spring-boot:run
+# Access: http://localhost:8082
+```
+
+**Terminal 4 - Recrutement Service**:
+```bash
+cd recrutement-service
+mvn spring-boot:run
+# Access: http://localhost:8083
+```
+
+5. **Start Frontend Applications**
+
+**Terminal 5 - User Frontend**:
+```bash
+cd angular-app/frontend/angular-app
 npm install
-
-# Démarrer le serveur de développement
 ng serve --port 4300
+# Access: http://localhost:4300
 ```
 
-**URL**: http://localhost:4300
-
-### Installation Back-Office
-
+**Terminal 6 - Admin Back-Office**:
 ```bash
-# Depuis la racine du projet
-cd back-office
-
-# Installer les dépendances
+cd angular-app/back-office
 npm install
-
-# Démarrer le serveur de développement
 ng serve --port 4301
+# Access: http://localhost:4301
 ```
 
-**URL**: http://localhost:4301
+### Quick Start Script
 
----
-
-## ⚙️ Configuration
-
-### Environment Configuration
-
-#### frontend/angular-app/src/environments/environment.ts
-
-```typescript
-export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:8082/api/forum',
-  recrutementApiUrl: 'http://localhost:8083/api/recrutement',
-  gatewayUrl: 'http://localhost:8888',
-  defaultLanguage: 'fr',
-  supportedLanguages: ['fr', 'en']
-};
+**Windows** (create `start-all.bat`):
+```batch
+@echo off
+start cmd /k "cd eureka-server && mvn spring-boot:run"
+timeout /t 30
+start cmd /k "cd api-gateway && mvn spring-boot:run"
+timeout /t 20
+start cmd /k "cd forum-service && mvn spring-boot:run"
+start cmd /k "cd recrutement-service && mvn spring-boot:run"
+timeout /t 30
+start cmd /k "cd angular-app\frontend\angular-app && ng serve --port 4300"
+start cmd /k "cd angular-app\back-office && ng serve --port 4301"
 ```
 
-#### frontend/angular-app/src/environments/environment.prod.ts
-
-```typescript
-export const environment = {
-  production: true,
-  apiUrl: 'https://api.votre-domaine.com/forum',
-  recrutementApiUrl: 'https://api.votre-domaine.com/recrutement',
-  gatewayUrl: 'https://api.votre-domaine.com',
-  defaultLanguage: 'fr',
-  supportedLanguages: ['fr', 'en']
-};
-```
-
-### App Configuration
-
-#### frontend/angular-app/src/app/app.config.ts
-
-```typescript
-import { ApplicationConfig } from '@angular/core';
-import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-
-export const appConfig: ApplicationConfig = {
-  providers: [
-    provideRouter(routes),
-    provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
-    // Configuration ngx-translate
-    importProvidersFrom(
-      TranslateModule.forRoot({
-        defaultLang: 'fr',
-        fallbackLang: 'fr',
-        loader: {
-          provide: TranslateLoader,
-          useFactory: HttpLoaderFactory,
-          deps: [HttpClient]
-        }
-      })
-    )
-  ]
-};
-```
-
----
-
-## 🚀 Utilisation
-
-### Démarrage Rapide
-
-#### 1. Démarrer le Backend
+**Linux/Mac** (create `start-all.sh`):
 ```bash
-# Assurez-vous que les services backend sont démarrés
-# Forum Service: http://localhost:8082
-# Recrutement Service: http://localhost:8083
-# API Gateway: http://localhost:8888
+#!/bin/bash
+gnome-terminal -- bash -c "cd eureka-server && mvn spring-boot:run; exec bash"
+sleep 30
+gnome-terminal -- bash -c "cd api-gateway && mvn spring-boot:run; exec bash"
+sleep 20
+gnome-terminal -- bash -c "cd forum-service && mvn spring-boot:run; exec bash"
+gnome-terminal -- bash -c "cd recrutement-service && mvn spring-boot:run; exec bash"
+sleep 30
+gnome-terminal -- bash -c "cd angular-app/frontend/angular-app && ng serve --port 4300; exec bash"
+gnome-terminal -- bash -c "cd angular-app/back-office && ng serve --port 4301; exec bash"
 ```
 
-#### 2. Démarrer le Frontend Public
-```bash
-cd frontend/angular-app
-ng serve --port 4300
-```
-
-#### 3. Démarrer le Back-Office (optionnel)
-```bash
-cd back-office
-ng serve --port 4301
-```
-
-### Commandes Utiles
-
-```bash
-# Développement
-ng serve                    # Démarrer le serveur de dev
-ng serve --port 4300        # Spécifier un port
-ng serve --open             # Ouvrir le navigateur automatiquement
-
-# Build
-ng build                    # Build de production
-ng build --configuration=production  # Build optimisé
-
-# Tests
-ng test                     # Tests unitaires
-ng e2e                      # Tests end-to-end
-
-# Linting
-ng lint                     # Vérifier le code
-
-# Génération
-ng generate component nom   # Créer un composant
-ng generate service nom     # Créer un service
-ng generate module nom      # Créer un module
-```
-
-### Utilisation des Fonctionnalités
-
-#### 1. Utiliser le Chatbot
-```typescript
-// Le chatbot est automatiquement disponible sur toutes les pages
-// Cliquez sur l'icône en bas à droite pour l'ouvrir
-
-// Pour personnaliser les réponses, modifiez:
-// src/app/services/chatbot.service.ts
-```
-
-#### 2. Ajouter des Traductions
-```json
-// public/i18n/fr.json
-{
-  "NOUVELLE_CLE": "Nouveau texte en français"
-}
-
-// public/i18n/en.json
-{
-  "NOUVELLE_CLE": "New text in English"
-}
-```
-
-```html
-<!-- Dans le template -->
-<p>{{ 'NOUVELLE_CLE' | translate }}</p>
-```
-
-#### 3. Créer un Nouveau Service
-```bash
-ng generate service services/mon-service
-```
-
-```typescript
-// src/app/services/mon-service.service.ts
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
-
-@Injectable({
-  providedIn: 'root'
-})
-export class MonService {
-  private apiUrl = environment.apiUrl;
-
-  constructor(private http: HttpClient) {}
-
-  getData(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/endpoint`);
-  }
-}
-```
-
----
-
-## 📁 Structure du Projet
-
-### Frontend Public
+## Project Structure
 
 ```
-frontend/angular-app/
-├── public/
-│   ├── i18n/                      # Fichiers de traduction
-│   │   ├── en.json               # Anglais
-│   │   └── fr.json               # Français
-│   └── favicon.ico
+plateforme-educative/
+├── eureka-server/              # Service Discovery
+│   ├── src/main/java/
+│   └── src/main/resources/
+│       └── application.properties
 │
-├── src/
-│   ├── app/
-│   │   ├── components/           # Composants réutilisables
-│   │   │   ├── chatbot-widget/
-│   │   │   │   └── chatbot-widget.component.ts
-│   │   │   ├── email-preferences/
-│   │   │   │   └── email-preferences.component.ts
-│   │   │   ├── language-switcher/
-│   │   │   │   └── language-switcher.component.ts
-│   │   │   ├── modal/
-│   │   │   │   └── modal.component.ts
-│   │   │   ├── header/
-│   │   │   │   ├── header.html
-│   │   │   │   └── header.ts
-│   │   │   └── footer/
-│   │   │       ├── footer.html
-│   │   │       └── footer.ts
-│   │   │
-│   │   ├── pages/                # Pages principales
-│   │   │   ├── home/
-│   │   │   │   ├── home.html
-│   │   │   │   └── home.ts
-│   │   │   ├── forums-public/
-│   │   │   │   ├── forums-public.html
-│   │   │   │   ├── forums-public.ts
-│   │   │   │   └── forums-public.css
-│   │   │   └── recrutement-public/
-│   │   │       ├── recrutement-public.html
-│   │   │       └── recrutement-public.ts
-│   │   │
-│   │   ├── services/             # Services Angular
-│   │   │   ├── forum.service.ts
-│   │   │   ├── multimedia.service.ts
-│   │   │   ├── chatbot.service.ts
-│   │   │   ├── email-preference.service.ts
-│   │   │   ├── recrutement.service.ts
-│   │   │   └── translation.service.ts
-│   │   │
-│   │   ├── models/               # Interfaces TypeScript
-│   │   │   ├── forum.model.ts
-│   │   │   └── recrutement.model.ts
-│   │   │
-│   │   ├── guards/               # Route Guards
-│   │   │   └── auth.guard.ts
-│   │   │
-│   │   ├── interceptors/         # HTTP Interceptors
-│   │   │   ├── auth.interceptor.ts
-│   │   │   └── error.interceptor.ts
-│   │   │
-│   │   ├── app.config.ts         # Configuration app
-│   │   ├── app.routes.ts         # Routes
-│   │   ├── app.html              # Template principal
-│   │   ├── app.ts                # Composant principal
-│   │   └── app.css               # Styles globaux
-│   │
-│   ├── environments/             # Configuration environnements
-│   │   ├── environment.ts        # Développement
-│   │   └── environment.prod.ts   # Production
-│   │
-│   ├── assets/                   # Ressources statiques
-│   │   ├── images/
-│   │   └── i18n/                 # Traductions (backup)
-│   │
-│   ├── styles.css                # Styles globaux
-│   ├── index.html                # Page HTML principale
-│   └── main.ts                   # Point d'entrée
+├── api-gateway/                # API Gateway
+│   ├── src/main/java/
+│   └── src/main/resources/
+│       └── application.properties
 │
-├── angular.json                  # Configuration Angular
-├── package.json                  # Dépendances npm
-├── tsconfig.json                 # Configuration TypeScript
-├── tailwind.config.js            # Configuration Tailwind
-└── README.md                     # Ce fichier
-```
-
-### Back-Office
-
-```
-back-office/
-├── src/
-│   ├── app/
-│   │   ├── components/
-│   │   │   ├── sidebar/          # Menu latéral
-│   │   │   ├── topbar/           # Barre supérieure
-│   │   │   ├── language-switcher/
-│   │   │   └── modal/
-│   │   │
-│   │   ├── pages/
-│   │   │   ├── dashboard/        # Tableau de bord
-│   │   │   ├── forum/            # Gestion forums
-│   │   │   ├── recrutement/      # Gestion recrutement
-│   │   │   ├── analytics/        # Statistiques
-│   │   │   └── courses/          # Gestion cours
-│   │   │
-│   │   ├── services/
-│   │   │   ├── forum.service.ts
-│   │   │   ├── recrutement.service.ts
-│   │   │   └── theme.service.ts
-│   │   │
-│   │   └── models/
-│   │       ├── forum.model.ts
-│   │       └── recrutement.model.ts
-│   │
-│   └── assets/
-│       └── i18n/
-│           ├── en.json
-│           └── fr.json
+├── forum-service/              # Forum Microservice
+│   ├── src/main/java/
+│   │   └── tn/esprit/forum/
+│   │       ├── controller/     # REST Controllers
+│   │       │   ├── ForumRestAPI.java
+│   │       │   ├── MultimediaController.java
+│   │       │   ├── EmailController.java
+│   │       │   ├── InteractionController.java
+│   │       │   └── AnalyseController.java
+│   │       ├── service/        # Business Logic
+│   │       │   ├── ForumService.java
+│   │       │   ├── MultimediaService.java
+│   │       │   ├── EmailService.java
+│   │       │   └── FileStorageService.java
+│   │       ├── repository/     # Data Access
+│   │       │   ├── ForumRepository.java
+│   │       │   ├── MediaFileRepository.java
+│   │       │   └── EmailPreferenceRepository.java
+│   │       ├── entity/         # JPA Entities
+│   │       │   ├── Forum.java
+│   │       │   ├── MessageForum.java
+│   │       │   ├── MediaFile.java
+│   │       │   ├── EmailPreference.java
+│   │       │   └── EmailLog.java
+│   │       ├── dto/            # Data Transfer Objects
+│   │       ├── config/         # Configuration
+│   │       └── exception/      # Exception Handling
+│   └── src/main/resources/
+│       ├── application.properties
+│       └── templates/          # Email Templates
+│           └── email/
 │
-└── (fichiers de configuration similaires)
+├── recrutement-service/        # Recruitment Microservice
+│   ├── src/main/java/
+│   │   └── tn/esprit/recrutement/
+│   │       ├── controller/
+│   │       │   └── RecrutementRestAPI.java
+│   │       ├── service/
+│   │       │   ├── OffreService.java
+│   │       │   └── CandidatureService.java
+│   │       ├── repository/
+│   │       │   ├── OffreRepository.java
+│   │       │   └── CandidatureRepository.java
+│   │       └── entity/
+│   │           ├── OffreEmploi.java
+│   │           └── CandidatureEnseignant.java
+│   └── src/main/resources/
+│       └── application.properties
+│
+└── angular-app/                # Frontend Applications
+    ├── frontend/angular-app/   # User Frontend
+    │   ├── src/app/
+    │   │   ├── components/
+    │   │   │   ├── chatbot-widget/
+    │   │   │   ├── email-preferences/
+    │   │   │   ├── language-switcher/
+    │   │   │   ├── header/
+    │   │   │   └── footer/
+    │   │   ├── pages/
+    │   │   │   ├── home/
+    │   │   │   ├── forums-public/
+    │   │   │   └── recrutement-public/
+    │   │   ├── services/
+    │   │   │   ├── forum.service.ts
+    │   │   │   ├── multimedia.service.ts
+    │   │   │   ├── chatbot.service.ts
+    │   │   │   └── email-preference.service.ts
+    │   │   └── models/
+    │   └── public/i18n/
+    │       ├── en.json
+    │       └── fr.json
+    │
+    └── back-office/            # Admin Frontend
+        ├── src/app/
+        │   ├── components/
+        │   │   ├── sidebar/
+        │   │   └── topbar/
+        │   ├── pages/
+        │   │   ├── dashboard/
+        │   │   ├── forum/
+        │   │   ├── recrutement/
+        │   │   └── analytics/
+        │   └── services/
+        └── src/assets/i18n/
 ```
 
----
+## API Documentation
 
-## 🎨 Personnalisation
+### Forum Service Endpoints
 
-### Thème et Couleurs
-
-#### tailwind.config.js
-
-```javascript
-module.exports = {
-  content: ['./src/**/*.{html,ts}'],
-  darkMode: 'class',
-  theme: {
-    extend: {
-      colors: {
-        primary: {
-          50: '#f0f9ff',
-          500: '#3b82f6',
-          900: '#1e3a8a'
-        },
-        // Ajoutez vos couleurs personnalisées
-      }
-    }
-  }
-};
+#### Forums
+```http
+GET    /api/forum/forums              # Get all forums
+GET    /api/forum/forums/{id}         # Get forum by ID
+POST   /api/forum/forums              # Create forum
+PUT    /api/forum/forums/{id}         # Update forum
+DELETE /api/forum/forums/{id}         # Delete forum
 ```
 
-### Ajouter une Nouvelle Page
+#### Messages
+```http
+GET    /api/forum/messages             # Get all messages
+GET    /api/forum/messages/{id}        # Get message by ID
+POST   /api/forum/messages             # Create message
+PUT    /api/forum/messages/{id}        # Update message
+DELETE /api/forum/messages/{id}        # Delete message
+GET    /api/forum/forums/{id}/messages # Get messages by forum
+```
+
+#### Multimedia
+```http
+POST   /api/forum/multimedia/upload/image      # Upload image
+POST   /api/forum/multimedia/upload/audio      # Upload audio
+POST   /api/forum/multimedia/upload/document   # Upload document
+POST   /api/forum/multimedia/embed/video       # Embed video
+GET    /api/forum/multimedia/file/{id}         # Download file
+GET    /api/forum/multimedia/thumbnail/{id}    # Get thumbnail
+DELETE /api/forum/multimedia/file/{id}         # Delete file
+GET    /api/forum/multimedia/message/{id}      # Get media by message
+GET    /api/forum/multimedia/gallery/{forumId} # Get forum gallery
+```
+
+#### Email Notifications
+```http
+POST   /api/forum/email/preferences        # Create preferences
+GET    /api/forum/email/preferences/{id}   # Get preferences
+PUT    /api/forum/email/preferences/{id}   # Update preferences
+POST   /api/forum/email/test               # Send test email
+```
+
+#### Interactions
+```http
+POST   /api/forum/likes                    # Like message
+DELETE /api/forum/likes/{id}               # Unlike message
+GET    /api/forum/messages/{id}/likes      # Get message likes
+POST   /api/forum/replies                  # Reply to message
+GET    /api/forum/messages/{id}/replies    # Get message replies
+POST   /api/forum/signalements             # Report content
+```
+
+### Recrutement Service Endpoints
+
+#### Job Offers
+```http
+GET    /api/recrutement/offres             # Get all offers
+GET    /api/recrutement/offres/{id}        # Get offer by ID
+POST   /api/recrutement/offres             # Create offer
+PUT    /api/recrutement/offres/{id}        # Update offer
+DELETE /api/recrutement/offres/{id}        # Delete offer
+GET    /api/recrutement/offres/actives     # Get active offers
+```
+
+#### Applications
+```http
+GET    /api/recrutement/candidatures       # Get all applications
+GET    /api/recrutement/candidatures/{id}  # Get application by ID
+POST   /api/recrutement/candidatures       # Submit application
+PUT    /api/recrutement/candidatures/{id}  # Update application
+GET    /api/recrutement/candidatures/cv/{id} # Download CV
+GET    /api/recrutement/offres/{id}/candidatures # Get offer applications
+```
+
+### API Gateway Routes
+
+- **Base URL**: http://localhost:8888
+- **Forum Service**: `/forum-service/**` → http://localhost:8082
+- **Recrutement Service**: `/recrutement-service/**` → http://localhost:8083
+
+### Interactive API Documentation
+
+- **Swagger Forum**: http://localhost:8082/swagger-ui.html
+- **Swagger Recrutement**: http://localhost:8083/swagger-ui.html
+- **Eureka Dashboard**: http://localhost:8761
+
+## Testing
+
+### Run Backend Tests
 
 ```bash
-# Générer le composant
-ng generate component pages/ma-nouvelle-page
+# Forum Service
+cd forum-service
+mvn test
 
-# Ajouter la route dans app.routes.ts
-{
-  path: 'ma-page',
-  component: MaNouvellePageComponent
-}
+# Recrutement Service
+cd recrutement-service
+mvn test
 
-# Ajouter le lien dans le header
-<a routerLink="/ma-page">Ma Page</a>
+# Run all tests with coverage
+mvn clean test jacoco:report
 ```
 
----
-
-## 🧪 Tests
-
-### Tests Unitaires
+### Run Frontend Tests
 
 ```bash
-# Exécuter tous les tests
-ng test
+# User Frontend
+cd angular-app/frontend/angular-app
+npm test
 
-# Tests avec couverture
-ng test --code-coverage
+# Admin Back-Office
+cd angular-app/back-office
+npm test
 
-# Tests en mode watch
-ng test --watch
+# E2E Tests
+npm run e2e
 ```
 
-### Tests E2E
+### API Testing with Postman
 
+Import the Postman collection: `Microservices_Tests.postman_collection.json`
+
+1. Import collection in Postman
+2. Configure environment variables
+3. Run test suites
+
+## Deployment
+
+### Build for Production
+
+**Backend**:
 ```bash
-# Exécuter les tests end-to-end
-ng e2e
+# Build all services
+cd forum-service && mvn clean package
+cd recrutement-service && mvn clean package
+cd api-gateway && mvn clean package
+cd eureka-server && mvn clean package
 ```
 
----
-
-## 🚀 Déploiement
-
-### Build de Production
-
+**Frontend**:
 ```bash
-# Build optimisé
+# Build user frontend
+cd angular-app/frontend/angular-app
 ng build --configuration=production
 
-# Les fichiers sont générés dans dist/
+# Build admin back-office
+cd angular-app/back-office
+ng build --configuration=production
 ```
 
-### Déploiement sur Serveur
+### Docker Deployment (Optional)
 
-```bash
-# Copier les fichiers du dossier dist/ vers votre serveur
-scp -r dist/* user@server:/var/www/html/
+Create `docker-compose.yml`:
+```yaml
+version: '3.8'
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: forum_db
+    ports:
+      - "3306:3306"
+  
+  eureka-server:
+    build: ./eureka-server
+    ports:
+      - "8761:8761"
+  
+  forum-service:
+    build: ./forum-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - mysql
+      - eureka-server
 ```
+
+## Contributors
+
+- **Development Team** - Esprit School of Engineering Students
+- **Academic Supervisor** - [Supervisor Name]
+- **Project Manager** - [PM Name]
+
+## Academic Context
+
+**Developed at Esprit School of Engineering - Tunisia**
+
+- **Project Type**: PIDEV (Projet Intégré de Développement)
+- **Class**: 4A (Fourth Year)
+- **Academic Year**: 2025–2026
+- **Institution**: Esprit School of Engineering
+- **Location**: Tunisia
+- **Branch**: `rahma`
+
+This project was developed as part of the integrated development project curriculum at Esprit, focusing on building a complete full-stack application using modern technologies and microservices architecture.
+
+## Key Learning Outcomes
+
+- Microservices architecture design and implementation
+- RESTful API development with Spring Boot
+- Frontend development with Angular
+- Database design and management
+- File upload and storage systems
+- Email notification systems
+- Real-time communication
+- Security and authentication
+- API documentation with Swagger
+- Version control with Git
+- Agile development methodology
+
+## Acknowledgments
+
+- **Esprit School of Engineering** for providing the academic framework and resources
+- **Spring Boot** and **Angular** communities for excellent documentation
+- **MySQL** for reliable database management
+- **Tailwind CSS** for modern UI components
+- All open-source contributors whose libraries made this project possible
+
+## License
+
+This project is developed for academic purposes at Esprit School of Engineering.
+
+## Contact
+
+For questions or support:
+- **GitHub**: [brouri12](https://github.com/brouri12)
+- **Repositories**:
+  - Backend: https://github.com/brouri12/spring-app
+  - Frontend: https://github.com/brouri12/angular-app
 
 ---
 
-## 📊 Performance
+**© 2025-2026 Esprit School of Engineering - Tunisia**
 
-### Optimisations Appliquées
-
-- ✅ Lazy loading des modules
-- ✅ OnPush change detection
-- ✅ TrackBy dans les ngFor
-- ✅ Compression des images
-- ✅ Minification du code
-- ✅ Tree shaking
-- ✅ AOT compilation
-
----
-
-## 🐛 Dépannage
-
-### Problème: Port déjà utilisé
-```bash
-# Utiliser un autre port
-ng serve --port 4302
-```
-
-### Problème: Erreur de compilation
-```bash
-# Nettoyer et réinstaller
-rm -rf node_modules package-lock.json
-npm install
-```
-
-### Problème: Traductions non chargées
-```bash
-# Vérifier que les fichiers existent
-ls public/i18n/
-
-# Vérifier la configuration dans app.config.ts
-```
-
----
-
-## 📝 Contributeurs
-
-- **Équipe Frontend** - Développement Angular
-- **Branche**: `rahma`
-- **Repository**: https://github.com/brouri12/angular-app
-
----
-
-## 📞 Support
-
-Pour toute question:
-1. Consultez la documentation
-2. Vérifiez les issues GitHub
-3. Contactez l'équipe de développement
-
----
-
-**Développé avec ❤️ et Angular 18**
+*Developed with ❤️ for education*
