@@ -5,6 +5,7 @@ import { About } from './pages/about/about';
 import { Pricing } from './pages/pricing/pricing';
 import { ForumsPublicComponent } from './pages/forums-public/forums-public';
 import { RecrutementPublicComponent } from './pages/recrutement-public/recrutement-public';
+import { EmailPreferencesComponent } from './components/email-preferences/email-preferences.component';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -13,5 +14,6 @@ export const routes: Routes = [
   { path: 'pricing', component: Pricing },
   { path: 'forums', component: ForumsPublicComponent },
   { path: 'recrutement', component: RecrutementPublicComponent },
+  { path: 'preferences', component: EmailPreferencesComponent },
   { path: '**', redirectTo: '' }
 ];

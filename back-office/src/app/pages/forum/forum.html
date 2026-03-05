@@ -1,9 +1,50 @@
-<div class="container mx-auto p-6">
-  <h1 class="text-3xl font-bold mb-6">Gestion des Forums</h1>
+<div class="container mx-auto p-6 dark:bg-gray-900">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold dark:text-white">{{ 'FORUMS MANAGEMENT' | translate }}</h1>
+    <div class="flex gap-3">
+      <button
+        (click)="loadStatistiques()"
+        class="bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white px-6 py-2 rounded-xl hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2 font-medium"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+        </svg>
+        Statistiques
+      </button>
+      <button
+        (click)="loadUserBadge()"
+        class="bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white px-6 py-2 rounded-xl hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2 font-medium"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+        </svg>
+        Mon Badge
+      </button>
+      <button
+        (click)="showForumForm = true; editingForum = null"
+        class="bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white px-6 py-2 rounded-xl hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2 font-medium"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        Nouveau Forum
+      </button>
+    </div>
+  </div>
+
+  <!-- Success Message -->
+  @if (successMessage) {
+    <div class="bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-600 text-green-700 dark:text-green-200 px-4 py-3 rounded mb-4 flex items-center gap-3">
+      <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <span class="font-medium">{{ successMessage }}</span>
+    </div>
+  }
 
   <!-- Error Message -->
   @if (error) {
-    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+    <div class="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-200 px-4 py-3 rounded mb-4">
       <pre class="whitespace-pre-wrap text-sm">{{ error }}</pre>
     </div>
   }
@@ -11,195 +52,643 @@
   <!-- Loading -->
   @if (loading) {
     <div class="text-center py-8">
-      <p class="text-gray-600">Chargement...</p>
+      <p class="text-gray-600 dark:text-gray-400">Chargement...</p>
     </div>
   }
 
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <!-- Liste des Forums -->
-    <div class="md:col-span-1">
-      <div class="bg-white rounded-lg shadow p-4">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-semibold">Forums</h2>
-          <button
-            (click)="showForumForm = !showForumForm"
-            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            + Nouveau
-          </button>
-        </div>
-
-        <!-- Formulaire Nouveau Forum -->
-        @if (showForumForm) {
-          <div class="mb-4 p-4 bg-gray-50 rounded">
-            <input
-              [(ngModel)]="newForum.titre"
-              placeholder="Titre (5-100 caractères)"
-              class="w-full mb-2 px-3 py-2 border rounded"
-            />
-            <textarea
-              [(ngModel)]="newForum.description"
-              placeholder="Description (10-1000 caractères)"
-              class="w-full mb-2 px-3 py-2 border rounded"
-              rows="3"
-            ></textarea>
-            <select
-              [(ngModel)]="newForum.niveau"
-              class="w-full mb-2 px-3 py-2 border rounded"
-            >
-              <option value="">Sélectionner un niveau</option>
-              <option value="L1">L1</option>
-              <option value="L2">L2</option>
-              <option value="L3">L3</option>
-              <option value="M1">M1</option>
-              <option value="M2">M2</option>
-            </select>
-            <input
-              [(ngModel)]="newForum.groupe"
-              placeholder="Groupe (ex: INFO-A, MATH-B) - 2-50 caractères"
-              class="w-full mb-2 px-3 py-2 border rounded"
-            />
-            <input
-              [(ngModel)]="newForum.cours"
-              placeholder="Cours (3-100 caractères)"
-              class="w-full mb-2 px-3 py-2 border rounded"
-            />
-            <div class="flex gap-2">
-              <button
-                (click)="createForum()"
-                class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-              >
-                Créer
-              </button>
-              <button
-                (click)="showForumForm = false"
-                class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-              >
-                Annuler
-              </button>
-            </div>
-          </div>
-        }
-
-        <!-- Liste -->
-        <div class="space-y-2">
-          @for (forum of forums; track forum.id) {
-            <div
-              (click)="selectForum(forum)"
-              class="p-3 border rounded cursor-pointer hover:bg-gray-50"
-              [class.bg-blue-50]="selectedForum?.id === forum.id"
-            >
-              <h3 class="font-semibold">{{ forum.titre }}</h3>
-              <p class="text-sm text-gray-600">{{ forum.niveau }} - {{ forum.groupe }}</p>
+  <!-- Table des Forums -->
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden mb-6">
+    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+      <thead class="bg-gray-50 dark:bg-gray-700">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ID</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Titre</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Description</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Niveau</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Groupe</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Cours</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Statut</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Date</th>
+          <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+        @for (forum of forums; track forum.id) {
+          <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer" (click)="selectForum(forum)">
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ forum.id }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{{ forum.titre }}</td>
+            <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">{{ forum.description }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ forum.niveau }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ forum.groupe }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ forum.cours }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
               <span
-                class="text-xs px-2 py-1 rounded"
+                class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full"
                 [class.bg-green-100]="forum.statut === 'OUVERT'"
+                [class.text-green-800]="forum.statut === 'OUVERT'"
+                [class.dark:bg-green-900]="forum.statut === 'OUVERT'"
+                [class.dark:text-green-200]="forum.statut === 'OUVERT'"
                 [class.bg-red-100]="forum.statut === 'FERME'"
+                [class.text-red-800]="forum.statut === 'FERME'"
+                [class.dark:bg-red-900]="forum.statut === 'FERME'"
+                [class.dark:text-red-200]="forum.statut === 'FERME'"
+                [class.bg-yellow-100]="forum.statut === 'ARCHIVE'"
+                [class.text-yellow-800]="forum.statut === 'ARCHIVE'"
+                [class.dark:bg-yellow-900]="forum.statut === 'ARCHIVE'"
+                [class.dark:text-yellow-200]="forum.statut === 'ARCHIVE'"
               >
                 {{ forum.statut }}
               </span>
-              <div class="mt-2 flex gap-2">
-                @if (forum.statut === 'OUVERT') {
-                  <button
-                    (click)="fermerForum(forum.id!); $event.stopPropagation()"
-                    class="text-xs bg-orange-500 text-white px-2 py-1 rounded"
-                  >
-                    Fermer
-                  </button>
-                }
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+              {{ forum.date_creation | date: 'dd/MM/yyyy' }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <button
+                (click)="openUpdateForm(forum); $event.stopPropagation()"
+                class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3"
+                title="Modifier"
+              >
+                <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+              </button>
+              <button
+                (click)="showMessageForm = true; selectForum(forum); $event.stopPropagation()"
+                class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3"
+                title="Ajouter un message"
+              >
+                <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                </svg>
+              </button>
+              @if (forum.statut === 'OUVERT') {
                 <button
-                  (click)="deleteForum(forum.id!); $event.stopPropagation()"
-                  class="text-xs bg-red-500 text-white px-2 py-1 rounded"
+                  (click)="fermerForum(forum.id!); $event.stopPropagation()"
+                  class="text-orange-600 dark:text-orange-400 hover:text-orange-900 dark:hover:text-orange-300 mr-3"
+                  title="Fermer"
                 >
-                  Supprimer
+                  <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                  </svg>
                 </button>
+              } @else if (forum.statut === 'FERME') {
+                <button
+                  (click)="rouvrirForum(forum.id!); $event.stopPropagation()"
+                  class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 mr-3"
+                  title="Rouvrir"
+                >
+                  <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path>
+                  </svg>
+                </button>
+              }
+              <button
+                (click)="deleteForum(forum.id!); $event.stopPropagation()"
+                class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+                title="Supprimer"
+              >
+                <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+              </button>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="9" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+              Aucun forum disponible
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Table des Messages du Forum Sélectionné -->
+  @if (selectedForum) {
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+      <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600 flex justify-between items-center">
+        <div>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Messages - {{ selectedForum.titre }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ selectedForum.description }}</p>
+        </div>
+        <button
+          (click)="showMessageForm = true"
+          class="bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white px-4 py-2 rounded-lg hover:opacity-90 transition flex items-center gap-2 font-medium"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          Nouveau Message
+        </button>
+      </div>
+      
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead class="bg-gray-50 dark:bg-gray-700">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ID</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Contenu</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type Auteur</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Date</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Statut</th>
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Interactions</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          @for (message of messages; track message.id) {
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ message.id }}</td>
+              <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 max-w-md">{{ message.contenu }}</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span
+                  class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full"
+                  [class.bg-blue-100]="message.type_auteur === 'ETUDIANT'"
+                  [class.text-blue-800]="message.type_auteur === 'ETUDIANT'"
+                  [class.dark:bg-blue-900]="message.type_auteur === 'ETUDIANT'"
+                  [class.dark:text-blue-200]="message.type_auteur === 'ETUDIANT'"
+                  [class.bg-purple-100]="message.type_auteur === 'ENSEIGNANT'"
+                  [class.text-purple-800]="message.type_auteur === 'ENSEIGNANT'"
+                  [class.dark:bg-purple-900]="message.type_auteur === 'ENSEIGNANT'"
+                  [class.dark:text-purple-200]="message.type_auteur === 'ENSEIGNANT'"
+                  [class.bg-gray-100]="message.type_auteur === 'ADMIN'"
+                  [class.text-gray-800]="message.type_auteur === 'ADMIN'"
+                  [class.dark:bg-gray-700]="message.type_auteur === 'ADMIN'"
+                  [class.dark:text-gray-300]="message.type_auteur === 'ADMIN'"
+                >
+                  {{ message.type_auteur }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                {{ message.date_message | date: 'dd/MM/yyyy HH:mm' }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span
+                  class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full"
+                  [class.bg-green-100]="message.statut === 'ACTIF'"
+                  [class.text-green-800]="message.statut === 'ACTIF'"
+                  [class.dark:bg-green-900]="message.statut === 'ACTIF'"
+                  [class.dark:text-green-200]="message.statut === 'ACTIF'"
+                  [class.bg-gray-100]="message.statut === 'ARCHIVE'"
+                  [class.text-gray-800]="message.statut === 'ARCHIVE'"
+                  [class.dark:bg-gray-700]="message.statut === 'ARCHIVE'"
+                  [class.dark:text-gray-300]="message.statut === 'ARCHIVE'"
+                >
+                  {{ message.statut }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-center">
+                <div class="flex items-center justify-center gap-4">
+                  <!-- Like Button -->
+                  <button
+                    (click)="toggleLike(message.id!); $event.stopPropagation()"
+                    [class.text-red-600]="userLikes.get(message.id!)"
+                    [class.dark:text-red-400]="userLikes.get(message.id!)"
+                    [class.text-gray-500]="!userLikes.get(message.id!)"
+                    [class.dark:text-gray-400]="!userLikes.get(message.id!)"
+                    class="hover:scale-110 transition flex items-center gap-1"
+                    title="Liker"
+                  >
+                    <svg class="w-5 h-5" [class.fill-current]="userLikes.get(message.id!)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                    <span class="text-sm font-medium">{{ messageLikes.get(message.id!) || 0 }}</span>
+                  </button>
+                  
+                  <!-- Réponses Button -->
+                  <button
+                    (click)="toggleReponses(message.id!); $event.stopPropagation()"
+                    class="text-blue-600 dark:text-blue-400 hover:scale-110 transition flex items-center gap-1"
+                    title="Voir les réponses"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                    </svg>
+                    <span class="text-sm font-medium">{{ messageReponses.get(message.id!) || 0 }}</span>
+                  </button>
+                  
+                  <!-- Répondre Button -->
+                  <button
+                    (click)="openReponseForm(message.id!); $event.stopPropagation()"
+                    class="text-green-600 dark:text-green-400 hover:scale-110 transition"
+                    title="Répondre"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+                    </svg>
+                  </button>
+                  
+                  <!-- Signaler Button -->
+                  <button
+                    (click)="openSignalementForm(message.id!); $event.stopPropagation()"
+                    class="text-orange-600 dark:text-orange-400 hover:scale-110 transition"
+                    title="Signaler"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button
+                  (click)="openUpdateMessageForm(message); $event.stopPropagation()"
+                  class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3"
+                  title="Modifier"
+                >
+                  <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                  </svg>
+                </button>
+                <button
+                  (click)="deleteMessage(message.id!); $event.stopPropagation()"
+                  class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+                  title="Supprimer"
+                >
+                  <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                </button>
+              </td>
+            </tr>
+            
+            <!-- Affichage des réponses -->
+            @if (showReponsesFor === message.id && reponses.length > 0) {
+              <tr>
+                <td colspan="7" class="px-6 py-4 bg-gray-50 dark:bg-gray-900">
+                  <div class="space-y-3">
+                    <h4 class="font-semibold text-gray-900 dark:text-white mb-3">💬 Réponses ({{ reponses.length }})</h4>
+                    @for (reponse of reponses; track reponse.id) {
+                      <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between items-start">
+                          <div class="flex-1">
+                            <p class="text-sm text-gray-900 dark:text-gray-100">{{ reponse.contenu }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                              Par utilisateur #{{ reponse.auteurId }} • {{ reponse.dateReponse | date: 'dd/MM/yyyy HH:mm' }}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          } @empty {
+            <tr>
+              <td colspan="7" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                Aucun message dans ce forum
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+<!-- Modal Nouveau/Modifier Forum -->
+<app-modal
+  [isOpen]="showForumForm"
+  [title]="editingForum ? 'Modifier le Forum' : 'Créer un Nouveau Forum'"
+  (closeModal)="showForumForm = false; editingForum = null"
+>
+  <form (ngSubmit)="createForum()" class="space-y-4">
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Titre *</label>
+      <input
+        [(ngModel)]="newForum.titre"
+        name="titre"
+        placeholder="Titre du forum (5-100 caractères)"
+        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+        required
+      />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description *</label>
+      <textarea
+        [(ngModel)]="newForum.description"
+        name="description"
+        placeholder="Description du forum (10-1000 caractères)"
+        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+        rows="4"
+        required
+      ></textarea>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Niveau *</label>
+      <select
+        [(ngModel)]="newForum.niveau"
+        name="niveau"
+        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+        required
+      >
+        <option value="">Sélectionner un niveau</option>
+        <option value="L1">L1</option>
+        <option value="L2">L2</option>
+        <option value="L3">L3</option>
+        <option value="M1">M1</option>
+        <option value="M2">M2</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Groupe *</label>
+      <input
+        [(ngModel)]="newForum.groupe"
+        name="groupe"
+        placeholder="Ex: INFO-A, MATH-B (2-50 caractères)"
+        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+        required
+      />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cours *</label>
+      <input
+        [(ngModel)]="newForum.cours"
+        name="cours"
+        placeholder="Nom du cours (3-100 caractères)"
+        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+        required
+      />
+    </div>
+
+    <div class="flex gap-3 pt-4">
+      <button
+        type="submit"
+        [disabled]="!newForum.titre || !newForum.description || !newForum.niveau || !newForum.groupe || !newForum.cours"
+        class="flex-1 bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white px-4 py-2 rounded-lg hover:opacity-90 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {{ editingForum ? 'Mettre à jour' : 'Créer le Forum' }}
+      </button>
+      <button
+        type="button"
+        (click)="showForumForm = false; editingForum = null"
+        class="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition font-medium"
+      >
+        Annuler
+      </button>
+    </div>
+  </form>
+</app-modal>
+
+<!-- Modal Réponse -->
+<app-modal
+  [isOpen]="showReponseForm"
+  [title]="'💬 Répondre au message'"
+  (closeModal)="showReponseForm = false"
+>
+  <form (ngSubmit)="creerReponse()" class="space-y-4">
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Votre réponse *</label>
+      <textarea
+        [(ngModel)]="newReponse.contenu"
+        name="contenu"
+        placeholder="Écrivez votre réponse..."
+        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+        rows="4"
+        required
+      ></textarea>
+    </div>
+
+    <div class="flex gap-3 pt-4">
+      <button
+        type="submit"
+        [disabled]="!newReponse.contenu"
+        class="flex-1 bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white px-4 py-2 rounded-lg hover:opacity-90 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Publier la réponse
+      </button>
+      <button
+        type="button"
+        (click)="showReponseForm = false"
+        class="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition font-medium"
+      >
+        Annuler
+      </button>
+    </div>
+  </form>
+</app-modal>
+
+<!-- Modal Signalement -->
+<app-modal
+  [isOpen]="showSignalementForm"
+  [title]="'🚨 Signaler un message'"
+  (closeModal)="showSignalementForm = false"
+>
+  <form (ngSubmit)="creerSignalement()" class="space-y-4">
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Motif *</label>
+      <select
+        [(ngModel)]="newSignalement.motif"
+        name="motif"
+        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+        required
+      >
+        <option value="">Sélectionner un motif</option>
+        <option value="SPAM">Spam</option>
+        <option value="INAPPROPRIE">Contenu inapproprié</option>
+        <option value="HARCÈLEMENT">Harcèlement</option>
+        <option value="AUTRE">Autre</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+      <textarea
+        [(ngModel)]="newSignalement.description"
+        name="description"
+        placeholder="Décrivez le problème..."
+        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+        rows="3"
+      ></textarea>
+    </div>
+
+    <div class="flex gap-3 pt-4">
+      <button
+        type="submit"
+        [disabled]="!newSignalement.motif"
+        class="flex-1 bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white px-4 py-2 rounded-lg hover:opacity-90 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Envoyer le signalement
+      </button>
+      <button
+        type="button"
+        (click)="showSignalementForm = false"
+        class="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition font-medium"
+      >
+        Annuler
+      </button>
+    </div>
+  </form>
+</app-modal>
+
+<!-- Modal Statistiques -->
+<app-modal
+  [isOpen]="showStatistiques"
+  [title]="'📊 Statistiques Globales'"
+  (closeModal)="showStatistiques = false"
+>
+  @if (statistiquesGlobales) {
+    <div class="space-y-6">
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+          <p class="text-sm text-gray-600 dark:text-gray-400">Forums</p>
+          <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ statistiquesGlobales.nombreForums }}</p>
+        </div>
+        <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+          <p class="text-sm text-gray-600 dark:text-gray-400">Messages</p>
+          <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ statistiquesGlobales.nombreMessages }}</p>
+        </div>
+        <div class="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+          <p class="text-sm text-gray-600 dark:text-gray-400">Likes</p>
+          <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ statistiquesGlobales.nombreLikes }}</p>
+        </div>
+        <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+          <p class="text-sm text-gray-600 dark:text-gray-400">Réponses</p>
+          <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ statistiquesGlobales.nombreReponses }}</p>
+        </div>
+      </div>
+
+      <!-- Top Contributeurs -->
+      <div>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">🏆 Top Contributeurs</h3>
+        <div class="space-y-2">
+          @for (contributeur of topContributeurs; track contributeur.utilisateurId; let i = $index) {
+            <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div class="flex items-center gap-3">
+                <span class="text-2xl">{{ i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '🏅' }}</span>
+                <div>
+                  <p class="font-medium text-gray-900 dark:text-white">Utilisateur #{{ contributeur.utilisateurId }}</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">
+                    {{ contributeur.nombreMessages }} messages • {{ contributeur.nombreLikesRecus }} likes
+                  </p>
+                </div>
+              </div>
+              <div class="text-right">
+                <span [class]="'px-3 py-1 rounded-full text-white text-sm font-semibold ' + getBadgeColor(contributeur.niveauBadge)">
+                  {{ contributeur.niveauBadge }}
+                </span>
+                <p class="text-lg font-bold text-gray-900 dark:text-white mt-1">{{ contributeur.points }} pts</p>
               </div>
             </div>
           }
         </div>
       </div>
     </div>
+  }
+</app-modal>
 
-    <!-- Messages du Forum -->
-    <div class="md:col-span-2">
-      @if (selectedForum) {
-        <div class="bg-white rounded-lg shadow p-4">
-          <div class="flex justify-between items-center mb-4">
-            <div>
-              <h2 class="text-xl font-semibold">{{ selectedForum.titre }}</h2>
-              <p class="text-gray-600">{{ selectedForum.description }}</p>
-            </div>
-            <button
-              (click)="showMessageForm = !showMessageForm"
-              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            >
-              + Message
-            </button>
+<!-- Modal Badge Utilisateur -->
+<app-modal
+  [isOpen]="showBadges"
+  [title]="'🏆 Mon Badge'"
+  (closeModal)="showBadges = false"
+>
+  @if (userBadge) {
+    <div class="space-y-6">
+      <!-- Badge Principal -->
+      <div class="text-center p-6 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg">
+        <div class="text-6xl mb-4">
+          {{ userBadge.niveauBadge === 'BRONZE' ? '🥉' : 
+             userBadge.niveauBadge === 'ARGENT' ? '🥈' : 
+             userBadge.niveauBadge === 'OR' ? '🥇' : '💎' }}
+        </div>
+        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">{{ userBadge.niveauBadge }}</h3>
+        <p class="text-3xl font-bold text-purple-600 dark:text-purple-400">{{ userBadge.points }} points</p>
+      </div>
+
+      <!-- Statistiques -->
+      <div class="grid grid-cols-3 gap-4">
+        <div class="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ userBadge.nombreMessages }}</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Messages</p>
+        </div>
+        <div class="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
+          <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ userBadge.nombreLikesRecus }}</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Likes reçus</p>
+        </div>
+        <div class="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+          <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ userBadge.nombreReponses }}</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Réponses</p>
+        </div>
+      </div>
+
+      <!-- Progression -->
+      <div>
+        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Progression vers le prochain niveau</h4>
+        <div class="space-y-2">
+          <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400">
+            <span>BRONZE (0-99)</span>
+            <span>ARGENT (100-499)</span>
+            <span>OR (500-999)</span>
+            <span>PLATINE (1000+)</span>
           </div>
-
-          <!-- Formulaire Nouveau Message -->
-          @if (showMessageForm) {
-            <div class="mb-4 p-4 bg-gray-50 rounded">
-              <textarea
-                [(ngModel)]="newMessage.contenu"
-                placeholder="Votre message (1-2000 caractères)..."
-                class="w-full mb-2 px-3 py-2 border rounded"
-                rows="4"
-              ></textarea>
-              <select
-                [(ngModel)]="newMessage.type_auteur"
-                class="w-full mb-2 px-3 py-2 border rounded"
-              >
-                <option value="ETUDIANT">Étudiant</option>
-                <option value="ENSEIGNANT">Enseignant</option>
-                <option value="ADMIN">Admin</option>
-              </select>
-              <div class="flex gap-2">
-                <button
-                  (click)="createMessage()"
-                  class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                >
-                  Envoyer
-                </button>
-                <button
-                  (click)="showMessageForm = false"
-                  class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-                >
-                  Annuler
-                </button>
-              </div>
-            </div>
-          }
-
-          <!-- Liste des Messages -->
-          <div class="space-y-4">
-            @for (message of messages; track message.id) {
-              <div class="p-4 border rounded">
-                <div class="flex justify-between items-start mb-2">
-                  <span
-                    class="text-xs px-2 py-1 rounded"
-                    [class.bg-blue-100]="message.type_auteur === 'ETUDIANT'"
-                    [class.bg-purple-100]="message.type_auteur === 'ENSEIGNANT'"
-                  >
-                    {{ message.type_auteur }}
-                  </span>
-                  <span class="text-xs text-gray-500">
-                    {{ message.date_message | date: 'dd/MM/yyyy HH:mm' }}
-                  </span>
-                </div>
-                <p class="text-gray-800">{{ message.contenu }}</p>
-              </div>
-            }
-            @empty {
-              <p class="text-center text-gray-500 py-8">Aucun message</p>
-            }
+          <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+            <div 
+              class="bg-gradient-to-r from-purple-600 to-blue-600 h-3 rounded-full transition-all duration-500"
+              [style.width.%]="(userBadge.points / 1000) * 100"
+            ></div>
           </div>
         </div>
-      } @else {
-        <div class="bg-white rounded-lg shadow p-8 text-center text-gray-500">
-          Sélectionnez un forum pour voir les messages
-        </div>
-      }
+      </div>
     </div>
-  </div>
-</div>
+  }
+</app-modal>
+
+<!-- Modal Nouveau/Modifier Message -->
+<app-modal
+  [isOpen]="showMessageForm"
+  [title]="editingMessage ? 'Modifier le Message' : 'Publier un Message'"
+  (closeModal)="showMessageForm = false; editingMessage = null"
+>
+  <form (ngSubmit)="createMessage()" class="space-y-4">
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Message *</label>
+      <textarea
+        [(ngModel)]="newMessage.contenu"
+        name="contenu"
+        placeholder="Votre message (1-2000 caractères)..."
+        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+        rows="6"
+        required
+      ></textarea>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type d'auteur *</label>
+      <select
+        [(ngModel)]="newMessage.type_auteur"
+        name="type_auteur"
+        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+        required
+      >
+        <option value="ETUDIANT">Étudiant</option>
+        <option value="ENSEIGNANT">Enseignant</option>
+        <option value="ADMIN">Admin</option>
+      </select>
+    </div>
+
+    <div class="flex gap-3 pt-4">
+      <button
+        type="submit"
+        [disabled]="!newMessage.contenu || !newMessage.type_auteur"
+        class="flex-1 bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white px-4 py-2 rounded-lg hover:opacity-90 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {{ editingMessage ? 'Mettre à jour' : 'Publier' }}
+      </button>
+      <button
+        type="button"
+        (click)="showMessageForm = false; editingMessage = null"
+        class="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition font-medium"
+      >
+        Annuler
+      </button>
+    </div>
+  </form>
+</app-modal>

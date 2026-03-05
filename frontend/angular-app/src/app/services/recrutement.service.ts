@@ -31,7 +31,7 @@ export class RecrutementService {
   // Candidatures
   postuler(offreId: number, candidature: CandidatureEnseignant): Observable<CandidatureEnseignant> {
     return this.http.post<CandidatureEnseignant>(
-      `${this.apiUrl}/candidatures?offreId=${offreId}`,
+      `${this.apiUrl}/candidatures/offre/${offreId}`,
       candidature
     );
   }

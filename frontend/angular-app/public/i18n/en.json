@@ -1,0 +1,12 @@
+{
+  "HEADER": {
+    "SIGN_IN": "Sign In",
+    "GET_STARTED": "Get Started"
+  },
+  "FORUMS": {
+    "TITLE": "Forums",
+    "SUBTITLE": "Discuss with the community",
+    "STATISTICS": "Statistics",
+    "MY_BADGE": "My Badge"
+  }
+}

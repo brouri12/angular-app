@@ -2,17 +2,39 @@
   <!-- Header -->
   <header class="bg-white dark:bg-gray-900 shadow-lg border-b border-gray-200 dark:border-gray-800">
     <div class="container mx-auto px-4 py-8">
-      <div class="flex items-center gap-4">
-        <div class="bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] rounded-xl p-3">
-          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
-          </svg>
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] rounded-xl p-3">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] bg-clip-text text-transparent">
+              {{ 'FORUMS.TITLE' | translate }}
+            </h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-1">{{ 'FORUMS.SUBTITLE' | translate }}</p>
+          </div>
         </div>
-        <div>
-          <h1 class="text-3xl font-bold bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] bg-clip-text text-transparent">
-            Forums de Discussion
-          </h1>
-          <p class="text-gray-600 dark:text-gray-400 mt-1">Posez vos questions et partagez vos connaissances</p>
+        <div class="flex gap-3">
+          <button
+            (click)="loadStatistiques()"
+            class="bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white px-6 py-2 rounded-xl hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2 font-medium"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+            {{ 'FORUMS.STATISTICS' | translate }}
+          </button>
+          <button
+            (click)="loadUserBadge()"
+            class="bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white px-6 py-2 rounded-xl hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2 font-medium"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+            </svg>
+            {{ 'FORUMS.MY_BADGE' | translate }}
+          </button>
         </div>
       </div>
     </div>
@@ -115,55 +137,15 @@
             <!-- Bouton Nouveau Message -->
             <div class="mb-6">
               <button
-                (click)="showMessageForm = !showMessageForm"
+                (click)="openMessageForm()"
                 class="w-full px-6 py-4 bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white rounded-xl hover:shadow-xl hover:-translate-y-1 transition-all font-semibold text-lg flex items-center justify-center gap-2"
               >
-                @if (showMessageForm) {
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                  </svg>
-                  Annuler
-                } @else {
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                  </svg>
-                  Nouveau Message
-                }
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Nouveau Message
               </button>
             </div>
-
-            <!-- Formulaire Nouveau Message -->
-            @if (showMessageForm) {
-              <div class="mb-6 p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl border-2 border-[rgb(0,200,151)]/30">
-                <h3 class="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                  <span class="w-2 h-2 bg-[rgb(0,200,151)] rounded-full animate-pulse"></span>
-                  Votre message
-                </h3>
-                <textarea
-                  [(ngModel)]="newMessage.contenu"
-                  placeholder="Écrivez votre message ici..."
-                  class="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent transition-all"
-                  rows="5"
-                ></textarea>
-                <div class="mt-4 flex gap-3">
-                  <button
-                    (click)="createMessage()"
-                    class="flex-1 px-6 py-3 bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white rounded-xl hover:shadow-lg transition-all font-medium"
-                    [disabled]="!newMessage.contenu.trim()"
-                    [class.opacity-50]="!newMessage.contenu.trim()"
-                    [class.cursor-not-allowed]="!newMessage.contenu.trim()"
-                  >
-                    Envoyer
-                  </button>
-                  <button
-                    (click)="showMessageForm = false"
-                    class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-all font-medium"
-                  >
-                    Annuler
-                  </button>
-                </div>
-              </div>
-            }
 
             <!-- Liste des Messages -->
             <div class="space-y-4">
@@ -191,14 +173,207 @@
                         </span>
                       </div>
                     </div>
-                    <span class="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                      </svg>
-                      {{ message.date_message | date: 'dd/MM/yyyy HH:mm' }}
-                    </span>
+                    <div class="flex items-center gap-3">
+                      <span class="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        {{ message.date_message | date: 'dd/MM/yyyy HH:mm' }}
+                      </span>
+                      <!-- Boutons d'action -->
+                      <div class="flex gap-2">
+                        <button
+                          (click)="openEditForm(message); $event.stopPropagation()"
+                          class="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                          title="Modifier"
+                        >
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                          </svg>
+                        </button>
+                        <button
+                          (click)="deleteMessage(message.id!); $event.stopPropagation()"
+                          class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                          title="Supprimer"
+                        >
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                  <p class="text-gray-800 dark:text-gray-200 leading-relaxed">{{ message.contenu }}</p>
+                  <p class="text-gray-800 dark:text-gray-200 leading-relaxed mb-4">{{ message.contenu }}</p>
+                  
+                  <!-- Médias Attachés -->
+                  @if (messageMedia.get(message.id!) && messageMedia.get(message.id!)!.length > 0) {
+                    <div class="mb-4 space-y-3">
+                      <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                        </svg>
+                        Fichiers joints ({{ messageMedia.get(message.id!)!.length }})
+                      </h4>
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        @for (media of messageMedia.get(message.id!); track media.id) {
+                          <div class="border-2 border-gray-200 dark:border-gray-700 rounded-lg p-3 hover:border-[rgb(0,200,151)] transition-colors">
+                            <!-- Image -->
+                            @if (media.mediaType === 'IMAGE') {
+                              <div class="space-y-2">
+                                <div class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                  <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                  </svg>
+                                  📷 Image
+                                </div>
+                                <img [src]="getMediaUrl(media.id!)" [alt]="media.originalFilename" class="w-full h-48 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity" (click)="openMediaPreview(media)">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ media.originalFilename }}</p>
+                                <p class="text-xs text-gray-400">{{ formatFileSize(media.fileSize) }}</p>
+                              </div>
+                            }
+                            
+                            <!-- Audio -->
+                            @if (media.mediaType === 'AUDIO') {
+                              <div class="space-y-2">
+                                <div class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                  <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+                                  </svg>
+                                  🎵 Audio
+                                </div>
+                                <audio controls class="w-full">
+                                  <source [src]="getMediaUrl(media.id!)" [type]="media.mimeType">
+                                  Votre navigateur ne supporte pas l'audio.
+                                </audio>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ media.originalFilename }}</p>
+                                <p class="text-xs text-gray-400">{{ formatFileSize(media.fileSize) }}</p>
+                              </div>
+                            }
+                            
+                            <!-- Document -->
+                            @if (media.mediaType === 'DOCUMENT') {
+                              <div class="space-y-2">
+                                <div class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                  <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                  </svg>
+                                  📄 Document
+                                </div>
+                                <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 text-center">
+                                  <svg class="w-12 h-12 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                  </svg>
+                                  <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">{{ media.originalFilename }}</p>
+                                  <a [href]="getMediaUrl(media.id!)" download class="inline-flex items-center gap-2 px-4 py-2 bg-[rgb(0,200,151)] text-white rounded-lg hover:bg-[rgb(0,180,135)] transition-colors text-sm">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                    </svg>
+                                    Télécharger
+                                  </a>
+                                </div>
+                                <p class="text-xs text-gray-400">{{ formatFileSize(media.fileSize) }}</p>
+                              </div>
+                            }
+                            
+                            <!-- Video -->
+                            @if (media.mediaType === 'VIDEO') {
+                              <div class="space-y-2">
+                                <div class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                  <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                  </svg>
+                                  🎬 Vidéo YouTube
+                                </div>
+                                <div class="aspect-video">
+                                  <iframe 
+                                    [src]="getYouTubeEmbedUrl(media.videoIdentifier!)" 
+                                    class="w-full h-full rounded-lg"
+                                    frameborder="0" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                    allowfullscreen>
+                                  </iframe>
+                                </div>
+                              </div>
+                            }
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                  
+                  <!-- Interactions -->
+                  <div class="flex items-center gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <!-- Like Button -->
+                    <button
+                      (click)="toggleLike(message.id!); $event.stopPropagation()"
+                      class="flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-gray-700"
+                      [class.text-red-500]="userLikes.get(message.id!)"
+                      [class.text-gray-500]="!userLikes.get(message.id!)"
+                    >
+                      <svg class="w-5 h-5" [class.fill-current]="userLikes.get(message.id!)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                      </svg>
+                      <span class="font-medium">{{ messageLikes.get(message.id!) || 0 }}</span>
+                    </button>
+
+                    <!-- View Replies Button -->
+                    <button
+                      (click)="toggleReponses(message.id!); $event.stopPropagation()"
+                      class="flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500"
+                    >
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                      </svg>
+                      <span class="font-medium">{{ messageReponses.get(message.id!) || 0 }}</span>
+                    </button>
+
+                    <!-- Reply Button -->
+                    <button
+                      (click)="openReponseForm(message); $event.stopPropagation()"
+                      class="flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-green-50 dark:hover:bg-green-900/20 text-green-600"
+                    >
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+                      </svg>
+                      <span class="font-medium">Répondre</span>
+                    </button>
+
+                    <!-- Report Button -->
+                    <button
+                      (click)="openSignalementForm(message); $event.stopPropagation()"
+                      class="flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-orange-50 dark:hover:bg-orange-900/20 text-orange-600"
+                    >
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path>
+                      </svg>
+                      <span class="font-medium">Signaler</span>
+                    </button>
+                  </div>
+
+                  <!-- Réponses Section -->
+                  @if (showReponsesFor === message.id) {
+                    <div class="mt-4 pl-6 border-l-4 border-[rgb(0,200,151)] bg-gray-50 dark:bg-gray-800 rounded-r-lg p-4">
+                      <h4 class="font-bold text-gray-900 dark:text-white mb-3">Réponses ({{ reponses.length }})</h4>
+                      @if (reponses.length > 0) {
+                        <div class="space-y-3">
+                          @for (reponse of reponses; track reponse.id) {
+                            <div class="bg-white dark:bg-gray-700 p-3 rounded-lg">
+                              <div class="flex items-center gap-2 mb-2">
+                                <span class="text-xs font-bold px-2 py-1 rounded-full bg-[rgb(0,200,151)]/20 text-[rgb(0,200,151)]">
+                                  {{ reponse.typeAuteur || 'ETUDIANT' }}
+                                </span>
+                                <span class="text-xs text-gray-500">{{ reponse.dateReponse | date: 'dd/MM/yyyy HH:mm' }}</span>
+                              </div>
+                              <p class="text-sm text-gray-700 dark:text-gray-300">{{ reponse.contenu }}</p>
+                            </div>
+                          }
+                        </div>
+                      } @else {
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Aucune réponse pour le moment</p>
+                      }
+                    </div>
+                  }
                 </div>
               }
               @empty {
@@ -228,3 +403,331 @@
     }
   </div>
 </div>
+
+<!-- Modal Nouveau/Modifier Message -->
+<app-modal
+  [isOpen]="showMessageForm"
+  [title]="editingMessage ? 'Modifier le Message' : 'Nouveau Message'"
+  (closeModal)="showMessageForm = false; editingMessage = null; clearMediaSelection()"
+>
+  <form (ngSubmit)="createMessage()" class="space-y-4">
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type d'auteur *</label>
+      <select
+        [(ngModel)]="newMessage.type_auteur"
+        name="type_auteur"
+        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+        required
+      >
+        <option value="ETUDIANT">Étudiant</option>
+        <option value="ENSEIGNANT">Enseignant</option>
+        <option value="ADMIN">Admin</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Message *</label>
+      <textarea
+        [(ngModel)]="newMessage.contenu"
+        name="contenu"
+        placeholder="Écrivez votre message ici..."
+        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+        rows="8"
+        required
+      ></textarea>
+      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+        Minimum 10 caractères
+      </p>
+    </div>
+
+    <!-- Section Multimédia -->
+    @if (!editingMessage) {
+      <div class="border-t pt-4 space-y-3">
+        <h3 class="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+          <svg class="w-5 h-5 text-[rgb(0,200,151)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+          Ajouter des médias (optionnel)
+        </h3>
+
+        <!-- Upload Image -->
+        <div>
+          <label class="block text-sm text-gray-600 dark:text-gray-400 mb-1">📷 Image (JPG, PNG, GIF - max 5MB)</label>
+          <input
+            type="file"
+            accept="image/*"
+            (change)="onImageSelected($event)"
+            class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[rgb(0,200,151)] file:text-white hover:file:bg-[rgb(0,180,135)]"
+          />
+          @if (selectedImageFile) {
+            <p class="text-xs text-green-600 mt-1">✓ {{ selectedImageFile.name }}</p>
+          }
+        </div>
+
+        <!-- Upload Audio -->
+        <div>
+          <label class="block text-sm text-gray-600 dark:text-gray-400 mb-1">🎵 Audio (MP3, WAV - max 10MB)</label>
+          <input
+            type="file"
+            accept="audio/*"
+            (change)="onAudioSelected($event)"
+            class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[rgb(0,200,151)] file:text-white hover:file:bg-[rgb(0,180,135)]"
+          />
+          @if (selectedAudioFile) {
+            <p class="text-xs text-green-600 mt-1">✓ {{ selectedAudioFile.name }}</p>
+          }
+        </div>
+
+        <!-- Upload Document -->
+        <div>
+          <label class="block text-sm text-gray-600 dark:text-gray-400 mb-1">📄 Document (PDF, ZIP, DOC - max 20MB)</label>
+          <input
+            type="file"
+            accept=".pdf,.zip,.rar,.doc,.docx,.xls,.xlsx"
+            (change)="onDocumentSelected($event)"
+            class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[rgb(0,200,151)] file:text-white hover:file:bg-[rgb(0,180,135)]"
+          />
+          @if (selectedDocumentFile) {
+            <p class="text-xs text-green-600 mt-1">✓ {{ selectedDocumentFile.name }}</p>
+          }
+        </div>
+
+        <!-- Video URL -->
+        <div>
+          <label class="block text-sm text-gray-600 dark:text-gray-400 mb-1">🎬 Vidéo YouTube (URL)</label>
+          <input
+            type="url"
+            [(ngModel)]="videoUrl"
+            name="videoUrl"
+            placeholder="https://www.youtube.com/watch?v=..."
+            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm"
+          />
+        </div>
+      </div>
+    }
+
+    <div class="flex gap-3 pt-4">
+      <button
+        type="submit"
+        [disabled]="!newMessage.contenu || newMessage.contenu.length < 10 || uploadingMedia"
+        class="flex-1 px-6 py-3 bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white rounded-lg hover:opacity-90 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {{ uploadingMedia ? 'Upload en cours...' : (editingMessage ? 'Mettre à jour' : 'Publier') }}
+      </button>
+      <button
+        type="button"
+        (click)="showMessageForm = false; editingMessage = null; clearMediaSelection()"
+        class="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium"
+      >
+        Annuler
+      </button>
+    </div>
+  </form>
+</app-modal>
+
+
+<!-- Modal Réponse -->
+<app-modal
+  [isOpen]="showReponseForm"
+  [title]="'Répondre au Message'"
+  (closeModal)="showReponseForm = false; selectedMessageForReponse = null"
+>
+  <form (ngSubmit)="creerReponse()" class="space-y-4">
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Votre réponse *</label>
+      <textarea
+        [(ngModel)]="newReponse.contenu"
+        name="contenu"
+        placeholder="Écrivez votre réponse ici..."
+        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+        rows="6"
+        required
+      ></textarea>
+      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+        Minimum 10 caractères
+      </p>
+    </div>
+
+    <div class="flex gap-3 pt-4">
+      <button
+        type="submit"
+        [disabled]="!newReponse.contenu || newReponse.contenu.length < 10"
+        class="flex-1 px-6 py-3 bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white rounded-lg hover:opacity-90 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Publier la réponse
+      </button>
+      <button
+        type="button"
+        (click)="showReponseForm = false; selectedMessageForReponse = null"
+        class="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium"
+      >
+        Annuler
+      </button>
+    </div>
+  </form>
+</app-modal>
+
+<!-- Modal Signalement -->
+<app-modal
+  [isOpen]="showSignalementForm"
+  [title]="'Signaler un Message'"
+  (closeModal)="showSignalementForm = false; selectedMessageForSignalement = null"
+>
+  <form (ngSubmit)="creerSignalement()" class="space-y-4">
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type de signalement *</label>
+      <select
+        [(ngModel)]="newSignalement.type"
+        name="type"
+        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+        required
+      >
+        <option value="SPAM">Spam</option>
+        <option value="INAPPROPRIE">Contenu inapproprié</option>
+        <option value="HARCÈLEMENT">Harcèlement</option>
+        <option value="AUTRE">Autre</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Motif du signalement *</label>
+      <textarea
+        [(ngModel)]="newSignalement.motif"
+        name="motif"
+        placeholder="Expliquez pourquoi vous signalez ce message..."
+        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+        rows="6"
+        required
+      ></textarea>
+      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+        Minimum 10 caractères
+      </p>
+    </div>
+
+    <div class="flex gap-3 pt-4">
+      <button
+        type="submit"
+        [disabled]="!newSignalement.motif || newSignalement.motif.length < 10"
+        class="flex-1 px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:opacity-90 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Envoyer le signalement
+      </button>
+      <button
+        type="button"
+        (click)="showSignalementForm = false; selectedMessageForSignalement = null"
+        class="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium"
+      >
+        Annuler
+      </button>
+    </div>
+  </form>
+</app-modal>
+
+<!-- Modal Statistiques -->
+<app-modal
+  [isOpen]="showStatistiquesModal"
+  [title]="'Statistiques Globales'"
+  (closeModal)="showStatistiquesModal = false"
+>
+  @if (statistiquesGlobales) {
+    <div class="space-y-6">
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4 rounded-lg">
+          <p class="text-sm text-gray-600 dark:text-gray-400">Forums</p>
+          <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">{{ statistiquesGlobales.nombreForums }}</p>
+        </div>
+        <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-4 rounded-lg">
+          <p class="text-sm text-gray-600 dark:text-gray-400">Messages</p>
+          <p class="text-3xl font-bold text-green-600 dark:text-green-400">{{ statistiquesGlobales.nombreMessages }}</p>
+        </div>
+        <div class="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 p-4 rounded-lg">
+          <p class="text-sm text-gray-600 dark:text-gray-400">Likes</p>
+          <p class="text-3xl font-bold text-red-600 dark:text-red-400">{{ statistiquesGlobales.nombreLikes }}</p>
+        </div>
+        <div class="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-4 rounded-lg">
+          <p class="text-sm text-gray-600 dark:text-gray-400">Réponses</p>
+          <p class="text-3xl font-bold text-purple-600 dark:text-purple-400">{{ statistiquesGlobales.nombreReponses }}</p>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3">🏆 Top Contributeurs</h3>
+        <div class="space-y-2">
+          @for (contributeur of topContributeurs; track contributeur.id; let i = $index) {
+            <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div class="flex items-center gap-3">
+                <span class="text-2xl">{{ i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '🏅' }}</span>
+                <div>
+                  <p class="font-bold text-gray-900 dark:text-white">Utilisateur #{{ contributeur.utilisateurId }}</p>
+                  <p class="text-sm text-gray-600 dark:text-gray-400">
+                    {{ contributeur.nombreMessages }} messages • {{ contributeur.nombreLikesRecus }} likes
+                  </p>
+                </div>
+              </div>
+              <span class="px-3 py-1 rounded-full text-sm font-bold bg-gradient-to-r text-white"
+                [ngClass]="getBadgeColor(contributeur.niveauBadge)">
+                {{ contributeur.niveauBadge }}
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</app-modal>
+
+<!-- Modal Badge Utilisateur -->
+<app-modal
+  [isOpen]="showBadgeModal"
+  [title]="'Mon Badge'"
+  (closeModal)="showBadgeModal = false"
+>
+  @if (userBadge) {
+    <div class="text-center space-y-6">
+      <div class="inline-block p-8 rounded-full bg-gradient-to-br shadow-2xl"
+        [ngClass]="getBadgeColor(userBadge.niveauBadge)">
+        <svg class="w-24 h-24 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+        </svg>
+      </div>
+      
+      <div>
+        <h2 class="text-3xl font-bold bg-gradient-to-r bg-clip-text text-transparent mb-2"
+          [ngClass]="getBadgeColor(userBadge.niveauBadge)">
+          {{ userBadge.niveauBadge }}
+        </h2>
+        <p class="text-5xl font-bold text-gray-900 dark:text-white">{{ userBadge.points }} points</p>
+      </div>
+
+      <div class="grid grid-cols-3 gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <div>
+          <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ userBadge.nombreMessages }}</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400">Messages</p>
+        </div>
+        <div>
+          <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ userBadge.nombreLikesRecus }}</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400">Likes reçus</p>
+        </div>
+        <div>
+          <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ userBadge.nombreReponses }}</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400">Réponses</p>
+        </div>
+      </div>
+
+      <div class="bg-gradient-to-r from-[rgb(0,200,151)]/10 to-[rgb(255,127,80)]/10 p-4 rounded-lg">
+        <p class="text-sm text-gray-700 dark:text-gray-300">
+          <strong>Prochain niveau:</strong>
+          @if (userBadge.niveauBadge === 'BRONZE') {
+            ARGENT (100 points)
+          } @else if (userBadge.niveauBadge === 'ARGENT') {
+            OR (500 points)
+          } @else if (userBadge.niveauBadge === 'OR') {
+            PLATINE (1000 points)
+          } @else {
+            Niveau maximum atteint ! 🎉
+          }
+        </p>
+      </div>
+    </div>
+  }
+</app-modal>

@@ -1,13 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Theme } from '../../services/theme';
+import { ThemeService } from '../../services/theme.service';
+import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
 
 @Component({
   selector: 'app-topbar',
-  imports: [CommonModule],
+  imports: [CommonModule, LanguageSwitcherComponent],
   templateUrl: './topbar.html',
   styleUrl: './topbar.css'
 })
 export class Topbar {
-  constructor(public themeService: Theme) {}
+  themeService = inject(ThemeService);
 }

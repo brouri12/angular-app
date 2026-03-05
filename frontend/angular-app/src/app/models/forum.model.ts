@@ -19,3 +19,65 @@ export interface MessageForum {
   statut: string;
   forum?: Forum;
 }
+
+export interface LikeMessage {
+  id?: number;
+  messageId: number;
+  utilisateurId: number;
+  dateLike?: string | Date;
+}
+
+export interface ReponseMessage {
+  id?: number;
+  messageParentId: number;
+  auteurId: number;
+  contenu: string;
+  typeAuteur: string;
+  dateReponse?: string | Date;
+  statut?: string;
+}
+
+export interface Signalement {
+  id?: number;
+  messageId: number;
+  signalePar: number;
+  motif: string;
+  type: string;
+  dateSignalement?: string | Date;
+  statut?: string;
+  traitePar?: number;
+  dateTraitement?: string | Date;
+  commentaireModerateur?: string;
+}
+
+export interface NotificationForum {
+  id?: number;
+  destinataireId: number;
+  type: string;
+  message: string;
+  messageId?: number;
+  forumId?: number;
+  dateCreation?: string | Date;
+  lu?: boolean;
+  dateLecture?: string | Date;
+}
+
+export interface BadgeUtilisateur {
+  id?: number;
+  utilisateurId: number;
+  points: number;
+  niveauBadge: string;
+  nombreMessages: number;
+  nombreLikesRecus: number;
+  nombreReponses: number;
+  derniereMiseAJour?: string | Date;
+}
+
+export interface StatistiquesGlobales {
+  nombreForums: number;
+  nombreMessages: number;
+  nombreLikes: number;
+  nombreReponses: number;
+  nombreUtilisateurs: number;
+  topContributeurs: BadgeUtilisateur[];
+}

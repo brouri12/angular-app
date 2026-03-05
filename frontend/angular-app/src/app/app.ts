@@ -3,11 +3,12 @@ import { RouterOutlet } from '@angular/router';
 import { Header } from './components/header/header';
 import { Footer } from './components/footer/footer';
 import { NotificationComponent } from './components/notification/notification';
+import { ChatbotWidgetComponent } from './components/chatbot-widget/chatbot-widget.component';
 import { Theme } from './services/theme';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Header, Footer, NotificationComponent],
+  imports: [RouterOutlet, Header, Footer, NotificationComponent, ChatbotWidgetComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

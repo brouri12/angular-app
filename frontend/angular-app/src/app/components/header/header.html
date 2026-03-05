@@ -10,25 +10,31 @@
           </svg>
         </div>
         <span class="text-xl font-bold bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] bg-clip-text text-transparent">
-          Jungle
+          Jungle in english
         </span>
       </a>
 
       <!-- Desktop Navigation -->
-      <nav class="hidden md:flex items-center gap-8">
-        @for (link of navLinks; track link.path) {
-          <a 
-            [routerLink]="link.path" 
-            routerLinkActive="text-[rgb(0,200,151)]"
-            [routerLinkActiveOptions]="{exact: false}"
-            class="transition-colors duration-200 hover:text-[rgb(0,200,151)]">
-            {{ link.name }}
-          </a>
+      <nav class="flex items-center gap-4 flex-1 justify-center">
+        @for (link of navLinks; track link.anchor) {
+          <button 
+            (click)="scrollToSection(link.anchor)"
+            class="text-gray-700 dark:text-gray-300 text-sm font-medium transition-colors duration-200 hover:text-[rgb(0,200,151)] cursor-pointer whitespace-nowrap">
+            {{ link.name | translate }}
+          </button>
         }
       </nav>
 
       <!-- Desktop Actions -->
-      <div class="hidden md:flex items-center gap-4">
+      <div class="flex items-center gap-3">
+        <a 
+          routerLink="/preferences"
+          class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          title="Préférences Email">
+          <svg class="w-5 h-5 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+        </a>
         <button 
           (click)="themeService.toggleTheme()"
           class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -43,16 +49,17 @@
             </svg>
           }
         </button>
-        <button class="px-4 py-2 text-sm font-medium hover:bg-[rgb(255,127,80)] hover:text-white rounded-lg transition-colors">
-          Sign In
+        <app-language-switcher></app-language-switcher>
+        <button class="hidden md:block px-4 py-2 text-sm font-medium hover:bg-[rgb(255,127,80)] hover:text-white rounded-lg transition-colors">
+          {{ 'HEADER.SIGN_IN' | translate }}
         </button>
-        <button class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white rounded-lg hover:opacity-90 transition-opacity">
-          Get Started
+        <button class="hidden md:block px-4 py-2 text-sm font-medium bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white rounded-lg hover:opacity-90 transition-opacity">
+          {{ 'HEADER.GET_STARTED' | translate }}
         </button>
       </div>
 
-      <!-- Mobile Menu Button -->
-      <div class="flex md:hidden items-center gap-2">
+      <!-- Mobile Menu Button (Hidden since nav is always visible) -->
+      <div class="hidden items-center gap-2">
         <button 
           (click)="themeService.toggleTheme()"
           class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -67,6 +74,7 @@
             </svg>
           }
         </button>
+        <app-language-switcher></app-language-switcher>
         <button 
           (click)="toggleMobileMenu()"
           class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -89,21 +97,19 @@
   @if (mobileMenuOpen) {
     <div class="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md">
       <div class="px-4 py-4 space-y-3">
-        @for (link of navLinks; track link.path) {
-          <a 
-            [routerLink]="link.path" 
-            (click)="toggleMobileMenu()"
-            routerLinkActive="bg-[rgb(0,200,151)]/10 text-[rgb(0,200,151)]"
-            class="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-            {{ link.name }}
-          </a>
+        @for (link of navLinks; track link.anchor) {
+          <button 
+            (click)="scrollToSection(link.anchor)"
+            class="block w-full text-left px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+            {{ link.name | translate }}
+          </button>
         }
         <div class="pt-4 border-t border-gray-200 dark:border-gray-800 flex flex-col gap-2">
           <button class="w-full px-4 py-2 text-sm font-medium border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-[rgb(255,127,80)] hover:text-white hover:border-[rgb(255,127,80)] transition-colors">
-            Sign In
+            {{ 'HEADER.SIGN_IN' | translate }}
           </button>
           <button class="w-full px-4 py-2 text-sm font-medium bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white rounded-lg hover:opacity-90 transition-opacity">
-            Get Started
+            {{ 'HEADER.GET_STARTED' | translate }}
           </button>
         </div>
       </div>

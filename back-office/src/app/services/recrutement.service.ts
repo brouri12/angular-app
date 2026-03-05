@@ -36,6 +36,10 @@ export class RecrutementService {
     return this.http.patch<OffreRecrutement>(`${this.apiUrl}/offres/${id}/fermer`, {});
   }
 
+  rouvrirOffre(id: number): Observable<OffreRecrutement> {
+    return this.http.patch<OffreRecrutement>(`${this.apiUrl}/offres/${id}/rouvrir`, {});
+  }
+
   getOffresByStatut(statut: string): Observable<OffreRecrutement[]> {
     return this.http.get<OffreRecrutement[]>(`${this.apiUrl}/offres/statut/${statut}`);
   }
@@ -51,7 +55,7 @@ export class RecrutementService {
 
   postuler(offreId: number, candidature: CandidatureEnseignant): Observable<CandidatureEnseignant> {
     return this.http.post<CandidatureEnseignant>(
-      `${this.apiUrl}/candidatures?offreId=${offreId}`,
+      `${this.apiUrl}/candidatures/offre/${offreId}`,
       candidature
     );
   }

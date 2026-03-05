@@ -18,8 +18,10 @@ export interface CandidatureEnseignant {
   nom_candidat: string;
   prenom_candidat: string;
   email: string;
-  cv_url: string;
+  cv_pdf?: string; // Base64 encoded PDF
+  cv_filename?: string;
+  cv_content_type?: string;
   lettre_motivation: string;
-  date_candidature?: Date;
+  date_candidature?: Date | string;
   statut: string;
 }

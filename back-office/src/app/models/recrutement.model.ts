@@ -6,8 +6,8 @@ export interface OffreRecrutement {
   niveau_requis: string;
   type_contrat: string;
   experience_min?: number;
-  date_publication?: Date;
-  date_limite: Date;
+  date_publication?: string | Date;
+  date_limite: string | Date;
   statut: string;
   salaire_min?: number;
   salaire_max?: number;
@@ -19,8 +19,10 @@ export interface CandidatureEnseignant {
   nom_candidat: string;
   prenom_candidat: string;
   email: string;
-  cv_url: string;
+  cv_pdf?: string; // Base64 encoded PDF for sending to backend
+  cv_filename?: string;
+  cv_content_type?: string;
   lettre_motivation: string;
-  date_candidature?: Date;
+  date_candidature?: string | Date;
   statut: string;
 }
