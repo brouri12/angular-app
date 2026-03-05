@@ -1,0 +1,55 @@
+═══════════════════════════════════════════════════════════
+  PAGE REGISTER - Configuration Finale
+═══════════════════════════════════════════════════════════
+
+✅ RÔLES DISPONIBLES:
+
+┌─────────────────────────────────────────────────────────┐
+│                                                         │
+│  ┌──────────────────────┐  ┌──────────────────────┐   │
+│  │      STUDENT         │  │      TEACHER         │   │
+│  │                      │  │                      │   │
+│  │  Learn new           │  │  Teach languages     │   │
+│  │  languages           │  │                      │   │
+│  └──────────────────────┘  └──────────────────────┘   │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════
+
+FORMULAIRE STUDENT:
+  - Username, Email, Password
+  - Nom, Prénom, Téléphone
+  - Date de naissance
+  - Niveau actuel (Beginner/Intermediate/Advanced)
+
+FORMULAIRE TEACHER:
+  - Username, Email, Password
+  - Nom, Prénom, Téléphone
+  - Spécialisation
+  - Années d'expérience
+  - Disponibilité
+
+═══════════════════════════════════════════════════════════
+
+ADMIN SUPPRIMÉ:
+  ✓ Plus simple pour les utilisateurs
+  ✓ Focus sur Student et Teacher
+  ✓ Interface plus claire
+
+═══════════════════════════════════════════════════════════
+
+POUR TESTER:
+  1. http://localhost:44510/register
+  2. Choisir Student ou Teacher
+  3. Remplir le formulaire
+  4. Créer le compte
+
+═══════════════════════════════════════════════════════════
+
+DOCUMENTATION:
+  - MODIFICATION_ROLES.md (détails de la modification)
+  - FRONTEND_AUTH_GUIDE.md (guide complet)
+  - TEST_AUTH_FRONTEND.md (tests)
+
+═══════════════════════════════════════════════════════════

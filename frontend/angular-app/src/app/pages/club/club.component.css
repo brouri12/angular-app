@@ -1,0 +1,244 @@
+/* ========== CLUBS (100% SAME AS EVENTS) ========== */
+
+/* Card */
+.event-card{
+  position: relative;
+  overflow: hidden;
+  border-radius: 34px;
+  border: 1px solid rgba(226,232,240,.9);
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  will-change: transform, box-shadow;
+  isolation: isolate;
+}
+
+:host-context(.dark) .event-card{
+  border-color: rgba(30,41,59,.7);
+  background: rgba(2,6,23,.55);
+  box-shadow: 0 14px 55px rgba(0,0,0,.35);
+}
+
+/* Glow */
+.event-card::before{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  background:
+    radial-gradient(620px circle at 18% 12%, rgba(0,200,151,.20), transparent 48%),
+    radial-gradient(520px circle at 92% 28%, rgba(255,127,80,.16), transparent 54%),
+    radial-gradient(720px circle at 50% 112%, rgba(99,102,241,.14), transparent 58%);
+  opacity: .75;
+  pointer-events:none;
+  z-index: 0;
+}
+
+.event-card::after{
+  content:"";
+  position:absolute;
+  top:0; left:0; right:0;
+  height: 130px;
+  background: linear-gradient(180deg, rgba(0,200,151,.08), transparent);
+  pointer-events:none;
+  z-index: 0;
+}
+
+.event-card > *{
+  position: relative;
+  z-index: 1;
+}
+
+.event-card:hover{
+  transform: translateY(-8px);
+  border-color: rgba(0,200,151,.55);
+  box-shadow: 0 30px 90px rgba(15, 23, 42, 0.16);
+}
+
+:host-context(.dark) .event-card:hover{
+  border-color: rgba(0,200,151,.5);
+  box-shadow: 0 40px 110px rgba(0,0,0,.55);
+}
+
+/* image hover */
+.club-image{
+  transition: transform .3s ease;
+}
+.event-card:hover .club-image{
+  transform: scale(1.05);
+}
+
+/* Badge base */
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  border: 1px solid rgba(226,232,240,.9);
+  background: rgba(248,250,252,.85);
+  color: rgb(15,23,42);
+  backdrop-filter: blur(10px);
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:host-context(.dark) .badge{
+  border-color: rgba(30,41,59,.8);
+  background: rgba(15,23,42,.55);
+  color: rgb(226,232,240);
+}
+
+/* Badge variants (same as events) */
+.badge-orange{
+  border-color: rgba(255,127,80,.35);
+  background: rgba(255,127,80,.14);
+  color: rgb(194,65,12);
+}
+:host-context(.dark) .badge-orange{
+  background: rgba(255,127,80,.18);
+  color: rgb(255,204,188);
+}
+
+.badge-blue{
+  border-color: rgba(59,130,246,.35);
+  background: rgba(59,130,246,.12);
+  color: rgb(29,78,216);
+}
+:host-context(.dark) .badge-blue{
+  background: rgba(59,130,246,.18);
+  color: rgb(191,219,254);
+}
+
+.badge-purple{
+  border-color: rgba(139,92,246,.35);
+  background: rgba(139,92,246,.12);
+  color: rgb(109,40,217);
+}
+:host-context(.dark) .badge-purple{
+  background: rgba(139,92,246,.18);
+  color: rgb(221,214,254);
+}
+
+.badge-gray{
+  border-color: rgba(148,163,184,.45);
+  background: rgba(148,163,184,.10);
+  color: rgb(51,65,85);
+}
+:host-context(.dark) .badge-gray{
+  background: rgba(148,163,184,.12);
+  color: rgb(226,232,240);
+}
+
+/* Register button (gradient) EXACT SAME */
+.btn-register{
+  position: relative;
+  height: 52px;
+  width: 100%;
+  border-radius: 18px;
+  border: 1px solid rgba(2,6,23,.12);
+  font-weight: 900;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: white;
+  background: linear-gradient(135deg, rgb(0,200,151), rgb(255,127,80));
+  box-shadow: 0 18px 40px rgba(0,200,151,.18);
+  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+  overflow: hidden;
+}
+
+.btn-register::before{
+  content:"";
+  position:absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,.22) 35%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform .7s ease;
+}
+
+.btn-register:hover::before{
+  transform: translateX(120%);
+}
+
+.btn-register:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 26px 60px rgba(0,200,151,.26);
+  filter: brightness(1.03);
+}
+
+.btn-register:active{
+  transform: translateY(0px);
+}
+
+.btn-register:focus{
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(0,200,151,.20), 0 26px 60px rgba(0,200,151,.20);
+}
+
+/* ✅ disabled style */
+.btn-register:disabled{
+  cursor: not-allowed;
+  filter: grayscale(.15);
+  opacity: .85;
+}
+
+/* ===========================
+   ✅ INFO CHIPS (like events)
+   =========================== */
+.club-infos{
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 6px 0 18px;
+}
+
+.info-chip{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: rgba(255,255,255,.92);
+  border: 1px solid rgba(226,232,240,.95);
+  box-shadow: 0 10px 26px rgba(15,23,42,.06);
+  font-size: 13px;
+  font-weight: 900;
+  color: rgb(15,23,42);
+  min-width: 180px;
+}
+
+.chip-ico{
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: rgba(0,200,151,.12);
+  border: 1px solid rgba(0,200,151,.25);
+}
+
+/* Dark mode for chips */
+:host-context(.dark) .info-chip{
+  background: rgba(15,23,42,.55);
+  border-color: rgba(30,41,59,.8);
+  color: rgb(226,232,240);
+  box-shadow: 0 16px 40px rgba(0,0,0,.35);
+}
+
+:host-context(.dark) .chip-ico{
+  background: rgba(0,200,151,.14);
+  border-color: rgba(0,200,151,.30);
+}
+
+/* Responsive */
+@media (max-width: 640px){
+  .event-card{ border-radius: 26px; }
+  .btn-register{ border-radius: 16px; height: 50px; letter-spacing: .18em; }
+  .badge{ padding: 9px 12px; max-width: 100%; }
+  .info-chip{ min-width: 100%; }
+}

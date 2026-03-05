@@ -1,0 +1,128 @@
+<div class="min-h-screen py-20">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- HERO -->
+    <div class="text-center mb-12">
+      <div class="tracking-[0.35em] text-xs font-extrabold text-[rgb(0,200,151)] mb-4">
+        MEMBERS
+      </div>
+
+      <h1 class="text-5xl md:text-6xl font-black leading-[1.05]">
+        Manage <span class="text-[rgb(255,127,80)]">Members</span>
+      </h1>
+
+      <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mt-4 text-lg leading-relaxed">
+        Add members, view list, and remove members easily.
+      </p>
+    </div>
+
+    <!-- FORM CARD (same style as event-card) -->
+    <section class="event-card p-7 mb-10">
+      <h2 class="text-2xl font-extrabold mb-6">Ajouter un membre</h2>
+
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="grid md:grid-cols-2 gap-4">
+
+          <div class="field">
+            <label>Id User</label>
+            <input type="number" formControlName="idUser" />
+          </div>
+
+          <div class="field">
+            <label>Nom</label>
+            <input type="text" formControlName="nom" />
+          </div>
+
+          <div class="field">
+            <label>Prénom</label>
+            <input type="text" formControlName="prenom" />
+          </div>
+
+          <div class="field">
+            <label>Email</label>
+            <input type="email" formControlName="email" />
+          </div>
+
+          <div class="field">
+            <label>Téléphone</label>
+            <input type="text" formControlName="telephone" />
+          </div>
+
+          <div class="field">
+            <label>Niveau Anglais</label>
+            <select formControlName="niveauAnglais">
+              <option *ngFor="let n of niveaux" [value]="n">{{ n }}</option>
+            </select>
+          </div>
+
+          <div class="field md:col-span-2">
+            <label>Date Join (optionnel)</label>
+            <input type="date" formControlName="dateJoin" />
+          </div>
+
+        </div>
+
+        <button class="btn-register mt-6" type="submit" [disabled]="loading">
+          {{ loading ? 'Saving...' : 'ADD MEMBER' }}
+        </button>
+      </form>
+    </section>
+
+    <!-- LIST CARD -->
+    <section class="event-card p-7">
+      <h2 class="text-2xl font-extrabold mb-6">Liste des membres</h2>
+
+      <div *ngIf="loading">Loading...</div>
+
+      <div class="table-wrap" *ngIf="!loading && members.length > 0">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>IdUser</th>
+              <th>Nom</th>
+              <th>Prénom</th>
+              <th>Email</th>
+              <th>Téléphone</th>
+              <th>Niveau</th>
+              <th>Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let m of members">
+              <td>{{ m.idMember }}</td>
+              <td>{{ m.idUser }}</td>
+              <td>{{ m.nom }}</td>
+              <td>{{ m.prenom }}</td>
+              <td>{{ m.email }}</td>
+              <td>{{ m.telephone }}</td>
+              <td>{{ m.niveauAnglais }}</td>
+              <td>{{ m.dateJoin }}</td>
+              <td>
+                <button class="btn-danger" type="button" (click)="remove(m.idMember)">
+                  Supprimer
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="!loading && members.length === 0" class="text-gray-600 dark:text-gray-400">
+        Aucun membre.
+      </div>
+    </section>
+
+    <!-- ✅ messages comme events -->
+    <div *ngIf="successMsg" class="mt-6 p-3 rounded-lg bg-green-100 text-green-700">
+      {{ successMsg }}
+    </div>
+
+    <div *ngIf="errorMsg" class="mt-3 p-3 rounded-lg bg-red-100 text-red-700">
+      {{ errorMsg }}
+    </div>
+
+  </div>
+</div>

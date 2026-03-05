@@ -1,0 +1,405 @@
+:host { display:block; }
+
+.page{
+  padding: 28px;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+/* HERO */
+.hero{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap: 16px;
+  padding: 18px 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(226,232,240,.9);
+  background:
+    radial-gradient(900px 260px at 10% 10%, rgba(0,200,151,.12), transparent 60%),
+    radial-gradient(900px 260px at 90% 20%, rgba(255,127,80,.10), transparent 60%),
+    rgba(255,255,255,.85);
+  box-shadow: 0 14px 44px rgba(15,23,42,.08);
+}
+
+.hero h1{
+  margin: 0;
+  font-size: 34px;
+  font-weight: 900;
+  letter-spacing: -.02em;
+  color: rgb(15,23,42);
+}
+.hero p{
+  margin: 6px 0 0;
+  color: rgb(100,116,139);
+  font-weight: 600;
+}
+
+/* BUTTONS */
+.btn-ghost{
+  border: 1px solid rgba(226,232,240,.95);
+  background: rgba(255,255,255,.8);
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-weight: 900;
+  color: rgb(15,23,42);
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.btn-ghost:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px rgba(15,23,42,.08);
+}
+.btn-ghost:disabled{
+  opacity: .7;
+  cursor: not-allowed;
+}
+
+/* STATES */
+.state{
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid;
+  font-weight: 800;
+}
+.state.loading{
+  background: rgba(148,163,184,.12);
+  border-color: rgba(148,163,184,.35);
+  color: rgb(51,65,85);
+}
+.state.error{
+  background: rgba(239,68,68,.10);
+  border-color: rgba(239,68,68,.35);
+  color: rgb(185,28,28);
+}
+.state.success{
+  background: rgba(0,200,151,.12);
+  border-color: rgba(0,200,151,.35);
+  color: rgb(0,120,90);
+}
+
+/* FILTERS ROW */
+.filters{
+  margin-top: 14px;
+  display:grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 14px;
+}
+@media (max-width: 768px){
+  .filters{ grid-template-columns: 1fr; }
+}
+
+.field label{
+  display:block;
+  font-size: 12px;
+  font-weight: 900;
+  color: rgb(71,85,105);
+  margin-bottom: 8px;
+}
+
+.select{
+  width:100%;
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(226,232,240,.95);
+  background: rgba(248,250,252,.9);
+  font-weight: 800;
+  font-size: 13px;
+  outline:none;
+  transition: box-shadow .15s ease, border-color .15s ease, transform .15s ease;
+}
+.select:focus{
+  transform: translateY(-1px);
+  border-color: rgba(0,200,151,.45);
+  box-shadow: 0 18px 45px rgba(0,0,0,.08);
+}
+
+/* LIST HEAD */
+.list-head{
+  margin-top: 18px;
+  display:flex;
+  justify-content: space-between;
+  align-items:center;
+  gap: 12px;
+}
+.list-title{
+  font-weight: 900;
+  color: rgb(15,23,42);
+  font-size: 16px;
+}
+.list-count{
+  font-weight: 800;
+  color: rgb(100,116,139);
+  font-size: 13px;
+}
+
+/* EMPTY */
+.empty{
+  margin-top: 14px;
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px dashed rgba(226,232,240,.95);
+  color: rgb(100,116,139);
+  font-weight: 700;
+  text-align:center;
+}
+
+/* GRID */
+.grid{
+  margin-top: 18px;
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+@media (max-width: 920px){
+  .grid{ grid-template-columns: 1fr; }
+}
+
+/* CARD */
+.card{
+  position: relative;
+  overflow:hidden;
+  border-radius: 20px;
+  border: 1px solid rgba(226,232,240,.9);
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 14px 44px rgba(15,23,42,.08);
+  padding: 16px 16px;
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+
+.card::before{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  background:
+    radial-gradient(520px circle at 18% 12%, rgba(0,200,151,.16), transparent 55%),
+    radial-gradient(520px circle at 92% 28%, rgba(255,127,80,.12), transparent 55%);
+  opacity: .9;
+  pointer-events:none;
+}
+
+.card:hover{
+  transform: translateY(-6px);
+  border-color: rgba(0,200,151,.45);
+  box-shadow: 0 26px 70px rgba(15,23,42,.14);
+}
+
+.card-top{
+  position: relative;
+  z-index: 1;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 14px;
+}
+
+.title h3{
+  margin: 0;
+  font-size: 18px;
+  font-weight: 900;
+  color: rgb(15,23,42);
+  letter-spacing: -.02em;
+}
+
+.subline{
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  color: rgb(100,116,139);
+}
+
+.truncate{
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+/* STATUS PILL */
+.pill{
+  display:inline-flex;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .10em;
+  text-transform: uppercase;
+  border: 1px solid rgba(226,232,240,.95);
+  background: rgba(248,250,252,.9);
+  white-space: nowrap;
+}
+
+/* match your statusClass() => pending/confirmed/canceled */
+.pill.pending{
+  background:#fff7ed;
+  border-color:#fdba74;
+  color:#9a3412;
+}
+.pill.confirmed{
+  background:#ecfdf5;
+  border-color:#6ee7b7;
+  color:#065f46;
+}
+.pill.canceled{
+  background:#fef2f2;
+  border-color:#fca5a5;
+  color:#991b1b;
+}
+
+/* META */
+.meta{
+  position: relative;
+  z-index: 1;
+  margin-top: 12px;
+  display: grid;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(226,232,240,.9);
+}
+
+.row{
+  display:flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.k{
+  color: rgb(100,116,139);
+  font-weight: 800;
+}
+.v{
+  color: rgb(15,23,42);
+  font-weight: 900;
+  text-align: right;
+  overflow:hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 60%;
+}
+
+/* ACTIONS */
+.actions{
+  position: relative;
+  z-index: 1;
+  margin-top: 14px;
+  display:flex;
+  justify-content:flex-end;
+}
+
+/* DANGER BUTTON */
+.btn-danger{
+  border: 1px solid rgba(239,68,68,.35);
+  background: rgba(239,68,68,.10);
+  color: rgb(185,28,28);
+  font-weight: 900;
+  font-size: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+  white-space: nowrap;
+}
+.btn-danger:hover{
+  background: rgba(239,68,68,.14);
+  box-shadow: 0 16px 34px rgba(239,68,68,.18);
+  transform: translateY(-1px);
+}
+
+button:disabled{
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+/* DARK MODE */
+:host-context(.dark) .hero,
+:host-context(.dark) .card{
+  border-color: rgba(30,41,59,.85);
+  background: rgba(2,6,23,.55);
+  box-shadow: 0 22px 70px rgba(0,0,0,.45);
+}
+
+:host-context(.dark) .hero h1,
+:host-context(.dark) .title h3,
+:host-context(.dark) .v{
+  color: rgb(226,232,240);
+}
+
+:host-context(.dark) .hero p,
+:host-context(.dark) .subline,
+:host-context(.dark) .k,
+:host-context(.dark) .list-count{
+  color: rgb(148,163,184);
+}
+
+:host-context(.dark) .meta{
+  border-top-color: rgba(30,41,59,.85);
+}
+
+:host-context(.dark) .btn-ghost{
+  border-color: rgba(30,41,59,.85);
+  background: rgba(15,23,42,.55);
+  color: rgb(226,232,240);
+}
+
+/* =========================================================
+   ✅ FIX DARK MODE INPUTS / SELECTS (BARRE DE RECHERCHE)
+   Ajouté pour que les champs deviennent dark aussi
+   ========================================================= */
+
+:host-context(.dark) .select{
+  background: rgba(15, 23, 42, 0.65) !important;
+  border-color: rgba(30, 41, 59, 0.85) !important;
+  color: rgb(226, 232, 240) !important;
+}
+
+:host-context(.dark) .select::placeholder{
+  color: rgba(148, 163, 184, 0.85) !important;
+}
+
+/* Focus state in dark */
+:host-context(.dark) .select:focus{
+  border-color: rgba(0, 200, 151, 0.55) !important;
+  box-shadow: 0 0 0 4px rgba(0, 200, 151, 0.18) !important;
+}
+
+/* Fix dropdown options background (important for select) */
+:host-context(.dark) select.select option{
+  background: rgb(15, 23, 42) !important;
+  color: rgb(226, 232, 240) !important;
+}
+/* =========================================
+   GLOBAL HEADER SEARCH DARK FIX
+   ========================================= */
+
+.dark .search-bar,
+.dark .search-input,
+.dark input[type="text"],
+.dark input[type="search"] {
+  background: rgba(15, 23, 42, 0.75) !important;
+  border-color: rgba(30, 41, 59, 0.85) !important;
+  color: rgb(226, 232, 240) !important;
+}
+
+.dark input[type="text"]::placeholder,
+.dark input[type="search"]::placeholder {
+  color: rgba(148, 163, 184, 0.85) !important;
+}
+
+.dark input[type="text"]:focus,
+.dark input[type="search"]:focus {
+  border-color: rgba(0, 200, 151, 0.55) !important;
+  box-shadow: 0 0 0 4px rgba(0, 200, 151, 0.18) !important;
+}
+
+/* Fix select globally */
+.dark select {
+  background: rgba(15, 23, 42, 0.75) !important;
+  color: rgb(226, 232, 240) !important;
+  border-color: rgba(30, 41, 59, 0.85) !important;
+}
+
+.dark select option {
+  background: rgb(15, 23, 42) !important;
+  color: rgb(226, 232, 240) !important;
+}

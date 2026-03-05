@@ -1,0 +1,127 @@
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="hero">
+    <div class="hero-left">
+      <h1>Registrations Back Office</h1>
+      <p>Gérez, filtrez et supprimez les inscriptions facilement.</p>
+    </div>
+
+    
+  </div>
+
+  <!-- ERROR -->
+  @if (errorMsg) {
+    <div class="state error">
+      <div class="font-bold">Erreur</div>
+      <div class="text-sm opacity-90">{{ errorMsg }}</div>
+    </div>
+  }
+
+  <!-- FILTERS (même style members) -->
+  <div class="filters">
+    <div class="field">
+      <label>Status</label>
+      <select class="select" [(ngModel)]="statusFilter" (ngModelChange)="applyFilters()">
+        <option value="">All status</option>
+        <option value="PENDING">PENDING</option>
+        <option value="CONFIRMED">CONFIRMED</option>
+        <option value="CANCELED">CANCELED</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Event Name (optionnel)</label>
+      <input
+        class="select"
+        type="text"
+        placeholder="Ex: Workshop AI"
+        [(ngModel)]="eventNameFilter"
+        (ngModelChange)="applyFilters()"
+      />
+    </div>
+  </div>
+
+  <!-- LIST WRAP -->
+  <div class="list-head">
+    <div class="list-title">📌 Inscriptions</div>
+    <div class="list-count">{{ filtered.length }} résultat(s)</div>
+  </div>
+
+  @if (loadingList) {
+    <div class="state loading">⏳ Chargement des registrations…</div>
+  } @else if (filtered.length === 0) {
+    <div class="empty">
+      <div class="text-3xl">🗂️</div>
+      <div class="font-bold mt-2">Aucune registration</div>
+      <div class="text-sm text-gray-500">Essayez d'ajuster vos filtres.</div>
+    </div>
+  } @else {
+
+    <!-- ✅ GRID LIKE MEMBERS -->
+    <div class="grid">
+      <article class="card" *ngFor="let r of filtered">
+
+        <div class="card-top">
+          <div class="title">
+            <h3 class="truncate">
+              {{ r.eventTitle || ('Event #' + r.eventId) }}
+            </h3>
+
+            <div class="subline truncate">
+              {{ r.userName || ('User #' + r.userId) }}
+            </div>
+          </div>
+
+          <span class="pill" [ngClass]="statusClass(r.status)">
+            {{ r.status }}
+          </span>
+        </div>
+
+        <div class="meta">
+          <div class="row">
+            <span class="k">Date</span>
+            <span class="v">{{ r.registrationDate || '—' }}</span>
+          </div>
+
+          
+
+          <div class="row">
+            <span class="k">Event</span>
+            <span class="v">{{ r.eventTitle || ('Event #' + r.eventId) }}</span>
+          </div>
+
+          <div class="row">
+            <span class="k">User</span>
+            <span class="v">{{ r.userName || ('User #' + r.userId) }}</span>
+          </div>
+        </div>
+
+        <!-- ✅ ACTIONS LIKE MEMBERS -->
+        <div class="actions">
+          <button
+            class="btn-danger"
+            type="button"
+            (click)="openDeleteModal(r)"
+            [disabled]="loadingAction"
+          >
+            🗑 Supprimer
+          </button>
+        </div>
+
+      </article>
+    </div>
+  }
+
+</div>
+
+<!-- ✅ MODAL CONFIRM DELETE -->
+<app-join-confirm-modal
+  [open]="confirmOpen"
+  title="Supprimer la registration"
+  [message]="'Voulez-vous vraiment supprimer Registration #' + (selectedRegistration?.idRegistration || '') + ' ?'"
+  (cancel)="cancelDelete()"
+  (confirm)="confirmDelete()">
+</app-join-confirm-modal>
+
+<router-outlet></router-outlet>

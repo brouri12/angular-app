@@ -1,0 +1,85 @@
+<div class="overlay" (click)="close()">
+  <div class="window animate-fade-in" (click)="$event.stopPropagation()">
+
+    <div class="titlebar">
+      <div class="title-left">
+        <span class="app-dot"></span>
+        <span class="title-text">
+          {{ isEdit ? ('Edit Club #' + idClub) : 'Create Club' }} — BackOffice
+        </span>
+      </div>
+
+      <div class="title-actions">
+        <button class="win-btn close" type="button" (click)="close()">✕</button>
+      </div>
+    </div>
+
+    <div class="content">
+      @if (errorMsg) {
+        <div class="alert">{{ errorMsg }}</div>
+      }
+
+      <div class="grid">
+        <div class="field">
+          <label>Nom *</label>
+          <input class="input" [(ngModel)]="form.nomClub" placeholder="Nom du club" />
+        </div>
+
+        <div class="field">
+          <label>Type *</label>
+          <select class="input" [(ngModel)]="form.type">
+            @for (t of types; track t) { <option [value]="t">{{ t }}</option> }
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Ville</label>
+          <input class="input" [(ngModel)]="form.ville" placeholder="Tunis, Sfax..." />
+        </div>
+
+        <div class="field full">
+          <label>Description</label>
+          <textarea class="input" rows="4" [(ngModel)]="form.description" placeholder="Description..."></textarea>
+        </div>
+
+        <div class="field full">
+          <label>Logo (PNG/JPG) (optionnel)</label>
+          <input type="file" class="input" (change)="onFileChange($event)" />
+          @if (selectedFile) {
+            <div class="file-hint">📎 {{ selectedFile.name }}</div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="hint">💡 Cliquez en dehors pour fermer.</div>
+
+      <div class="footer-actions">
+        @if (!isEdit) {
+          <!-- ✅ confirm instead of direct create -->
+          <button class="btn-primary" (click)="openConfirmCreate()" [disabled]="loadingAction || !form.nomClub">
+            {{ loadingAction ? '⏳ Création…' : 'Créer' }}
+          </button>
+        } @else {
+          <!-- ✅ confirm instead of direct update -->
+          <button class="btn-primary" (click)="openConfirmUpdate()" [disabled]="loadingAction || !form.nomClub">
+            {{ loadingAction ? '⏳ Sauvegarde…' : 'Enregistrer' }}
+          </button>
+        }
+
+        <button class="btn-secondary" (click)="close()">Annuler</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ✅ CONFIRM MODAL (comme delete) -->
+<app-join-confirm-modal
+  [open]="confirmOpen"
+  [title]="confirmTitle"
+  [message]="confirmMessage"
+  (cancel)="cancelAction()"
+  (confirm)="confirmAction()">
+</app-join-confirm-modal>

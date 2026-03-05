@@ -1,0 +1,312 @@
+/* =====================================
+   ANIMATION
+===================================== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px) scale(.985); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-fade-in { animation: fadeIn .18s ease-out; }
+
+/* =====================================
+   OVERLAY
+===================================== */
+.overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.55);
+  backdrop-filter: blur(8px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index: 9999;
+  padding: 18px;
+}
+.error{
+  margin-top: 6px;
+  font-size: 12px;
+  color: #ff4d4f;
+}
+.error{
+  margin-top: 6px;
+  font-size: 12px;
+  color: #ff4d4f;
+}
+
+/* ✅ Location row (input + button) */
+.location-row{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.btn-map{
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(30,41,59,.8);
+  background: rgba(15,23,42,.8);
+  color: rgb(226,232,240);
+  font-weight: 900;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .18s ease;
+}
+.map-wrap {
+  margin-top: 10px;
+}
+
+#map {
+  width: 100%;
+  height: 260px;       /* ✅ OBLIGATOIRE */
+  min-height: 260px;   /* ✅ au cas où */
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04); /* si map pas chargée tu vois un fond */
+}
+
+.map-hint {
+  margin-top: 6px;
+  font-size: 12px;
+  opacity: 0.75;
+}
+.btn-map:hover{
+  transform: translateY(-1px);
+  background: rgba(30,41,59,.9);
+}
+/* =====================================
+   WINDOW
+===================================== */
+.window{
+  width: min(980px, 96vw);
+  height: min(660px, 88vh);
+  border-radius: 20px;
+  overflow: hidden;
+  display:flex;
+  flex-direction: column;
+  border: 1px solid rgba(30,41,59,.7);
+  background:
+    radial-gradient(900px 400px at 10% 10%, rgba(0,200,151,.15), transparent 60%),
+    radial-gradient(900px 400px at 90% 20%, rgba(59,130,246,.12), transparent 60%),
+    rgba(2,6,23,.95);
+  box-shadow:
+    0 30px 80px rgba(0,0,0,.55),
+    0 8px 20px rgba(0,0,0,.35);
+}
+
+/* =====================================
+   TITLEBAR
+===================================== */
+.titlebar{
+  height: 56px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(30,41,59,.7);
+}
+
+.title-left{
+  display:flex;
+  align-items:center;
+  gap: 12px;
+  font-weight: 900;
+  color: rgb(226,232,240);
+}
+
+.app-dot{
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #22c55e;
+  box-shadow: 0 0 0 4px rgba(34,197,94,.18);
+}
+
+.title-text{
+  font-size: 13px;
+  letter-spacing: .2px;
+}
+
+.win-btn{
+  width: 36px;
+  height: 32px;
+  border-radius: 12px;
+  border: 1px solid rgba(30,41,59,.8);
+  background: rgba(15,23,42,.7);
+  color: #fff;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.win-btn:hover{
+  background: rgba(239,68,68,.9);
+  border-color: rgba(239,68,68,.9);
+}
+
+/* =====================================
+   CONTENT
+===================================== */
+.content{
+  padding: 20px;
+  overflow: auto;
+  flex: 1;
+}
+
+.alert{
+  background: rgba(239,68,68,.12);
+  border: 1px solid rgba(239,68,68,.35);
+  color: rgb(248,113,113);
+  border-radius: 16px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  font-weight: 900;
+  font-size: 13px;
+}
+
+/* =====================================
+   GRID
+===================================== */
+.grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.full{ grid-column: 1 / -1; }
+
+@media (max-width: 820px){
+  .grid{ grid-template-columns: 1fr; }
+}
+
+/* =====================================
+   FIELD
+===================================== */
+.field label{
+  display:block;
+  font-size: 12px;
+  color: rgb(148,163,184);
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+/* =====================================
+   INPUTS DARK PREMIUM
+===================================== */
+.input{
+  width:100%;
+  border: 1px solid rgba(30,41,59,.8);
+  border-radius: 14px;
+  padding: 12px 14px;
+  outline:none;
+  background: rgba(15,23,42,.75);
+  font-weight: 800;
+  font-size: 13px;
+  color: rgb(226,232,240);
+  transition: all .18s ease;
+}
+
+.input::placeholder{
+  color: rgba(148,163,184,.6);
+}
+
+.input:focus{
+  transform: translateY(-1px);
+  border-color: rgba(0,200,151,.6);
+  box-shadow: 0 18px 45px rgba(0,200,151,.18);
+  background: rgba(15,23,42,.95);
+}
+
+/* =====================================
+   FOOTER
+===================================== */
+.footer{
+  border-top: 1px solid rgba(30,41,59,.7);
+  padding: 14px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 12px;
+}
+
+.hint{
+  font-size: 12px;
+  color: rgb(148,163,184);
+  font-weight: 800;
+}
+
+.footer-actions{
+  display:flex;
+  gap: 12px;
+}
+
+/* =====================================
+   PRIMARY BUTTON
+===================================== */
+.btn-primary{
+  border-radius: 14px;
+  padding: 12px 18px;
+  font-weight: 900;
+  border: none;
+  cursor:pointer;
+  color:#fff;
+  background: linear-gradient(135deg, rgb(0,200,151), rgb(59,130,246));
+  box-shadow: 0 18px 45px rgba(0,200,151,.35);
+  transition: all .18s ease;
+}
+
+.btn-primary:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 26px 70px rgba(0,200,151,.45);
+}
+
+.btn-primary:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+  transform:none;
+  box-shadow:none;
+}
+
+/* =====================================
+   SECONDARY BUTTON
+===================================== */
+.btn-secondary{
+  background: rgba(15,23,42,.8);
+  border: 1px solid rgba(30,41,59,.8);
+  color: rgb(226,232,240);
+  border-radius: 14px;
+  padding: 12px 18px;
+  font-weight: 900;
+  cursor:pointer;
+  transition: all .18s ease;
+}
+
+.btn-secondary:hover{
+  transform: translateY(-1px);
+  background: rgba(30,41,59,.9);
+}
+
+/* =====================================
+   DELETE BUTTON PREMIUM
+===================================== */
+.btn-danger{
+  border: 1px solid rgba(248,113,113,.45);
+  background: rgba(239,68,68,.12);
+  color: rgb(248,113,113);
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all .18s ease;
+}
+
+.btn-danger:hover{
+  background: rgba(239,68,68,.22);
+  box-shadow: 0 20px 55px rgba(239,68,68,.35);
+  transform: translateY(-2px);
+}
+
+.btn-danger:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+  transform:none;
+  box-shadow:none;
+}

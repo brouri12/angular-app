@@ -1,0 +1,65 @@
+<div class="overlay" (click)="cancel()">
+  <div class="window animate-fade-in" (click)="$event.stopPropagation()">
+
+    <div class="titlebar">
+      <div class="title-left">
+        <span class="app-dot"></span>
+        <span class="title-text">Edit Registration #{{ id }} — BackOffice</span>
+      </div>
+
+      <div class="title-actions">
+        <button class="win-btn close" type="button" (click)="cancel()">✕</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div *ngIf="loading" class="alert info">Loading…</div>
+      <div *ngIf="errorMsg" class="alert error">{{ errorMsg }}</div>
+      <div *ngIf="successMsg" class="alert success">{{ successMsg }}</div>
+
+      <div class="card" *ngIf="reg && !loading">
+        <div class="grid">
+          <div class="box">
+            <div class="label">Event</div>
+            <div class="value">{{ reg.eventTitle || ('Event #' + reg.eventId) }}</div>
+          </div>
+
+          <div class="box">
+            <div class="label">User</div>
+            <div class="value">User #{{ reg.userId }}</div>
+          </div>
+        </div>
+
+        <hr class="sep" />
+
+        <div class="row">
+          <label class="label">Status</label>
+
+          <div class="status-row">
+            <select class="select" [(ngModel)]="reg.status">
+              <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+            </select>
+
+            <span class="status-pill" [ngClass]="(reg.status || '').toLowerCase()">
+              {{ reg.status }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="hint">💡 Cliquez en dehors pour fermer.</div>
+
+      <div class="footer-actions">
+        <button class="btn-primary" (click)="save()" [disabled]="loading || !reg">
+          💾 Save
+        </button>
+        <button class="btn-secondary" (click)="cancel()" [disabled]="loading">
+          Annuler
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

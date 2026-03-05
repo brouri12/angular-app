@@ -1,0 +1,420 @@
+<div class="min-h-screen py-12">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="text-center mb-12">
+      <h1 class="text-4xl sm:text-5xl font-bold mb-4">
+        Choose Your Perfect Plan
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400 text-lg max-w-2xl mx-auto mb-8">
+        Flexible pricing options to fit your learning journey
+      </p>
+
+      <!-- Billing Toggle -->
+      <div class="inline-flex items-center gap-4 bg-gray-100 dark:bg-gray-800 rounded-full p-1">
+        <button
+          (click)="setBillingCycle('monthly')"
+          [class]="billingCycle() === 'monthly' 
+            ? 'bg-white dark:bg-gray-900 shadow-sm font-semibold' 
+            : 'text-gray-600 dark:text-gray-400'"
+          class="px-6 py-2 rounded-full transition-all">
+          Monthly
+        </button>
+        <button
+          (click)="setBillingCycle('annual')"
+          [class]="billingCycle() === 'annual' 
+            ? 'bg-white dark:bg-gray-900 shadow-sm font-semibold' 
+            : 'text-gray-600 dark:text-gray-400'"
+          class="px-6 py-2 rounded-full transition-all flex items-center gap-2">
+          Annual
+          @if (billingCycle() === 'annual') {
+            <span class="bg-[rgb(255,127,80)] text-white text-xs px-2 py-0.5 rounded-full">
+              Save 17%
+            </span>
+          }
+        </button>
+      </div>
+    </div>
+
+    <!-- Pricing Cards -->
+    @if (loading()) {
+      <div class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[rgb(0,200,151)]"></div>
+        <p class="mt-4 text-gray-600 dark:text-gray-400">Loading subscriptions...</p>
+      </div>
+    } @else {
+      <div class="grid md:grid-cols-3 gap-8 mb-16">
+        @for (abonnement of abonnements(); track abonnement.id_abonnement) {
+          <div 
+            [class]="abonnement.support_prioritaire 
+              ? 'border-[rgb(0,200,151)] shadow-2xl md:scale-105' 
+              : 'border-gray-200 dark:border-gray-700 hover:border-[rgb(0,200,151)]/50'"
+            class="relative bg-white dark:bg-gray-800 rounded-2xl border-2 overflow-hidden transition-all">
+            
+            <!-- Popular Badge -->
+            @if (abonnement.support_prioritaire) {
+              <div class="absolute top-0 right-0 bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white px-4 py-1 text-sm font-semibold">
+                <svg class="w-3 h-3 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                </svg>
+                Most Popular
+              </div>
+            }
+
+            <div class="p-8">
+              <!-- Plan Header -->
+              <h3 class="text-2xl font-bold mb-2">{{ abonnement.nom }}</h3>
+              <p class="text-gray-600 dark:text-gray-400 mb-6">{{ abonnement.description }}</p>
+
+              <!-- Price -->
+              <div class="mb-6">
+                <div class="flex items-baseline gap-2">
+                  <span class="text-5xl font-bold bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] bg-clip-text text-transparent">
+                    {{ getPrice(abonnement) }}
+                  </span>
+                  @if (abonnement.prix > 0) {
+                    <span class="text-gray-600 dark:text-gray-400">
+                      /{{ billingCycle() === 'monthly' ? 'month' : 'year' }}
+                    </span>
+                  }
+                </div>
+                @if (billingCycle() === 'annual' && abonnement.prix > 0) {
+                  <p class="text-sm text-[rgb(255,127,80)] mt-2">{{ getSavings() }}</p>
+                }
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                  {{ abonnement.duree_jours }} days access
+                </p>
+              </div>
+
+              <!-- CTA Button -->
+              <button
+                (click)="openPurchaseModal(abonnement)"
+                [class]="abonnement.support_prioritaire 
+                  ? 'bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white hover:opacity-90' 
+                  : 'border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'"
+                class="w-full mb-6 px-6 py-3 rounded-lg font-medium transition-all">
+                {{ abonnement.prix === 0 ? 'Get Started' : 'Subscribe Now' }}
+              </button>
+
+              <!-- Features -->
+              <div class="space-y-3">
+                <p class="font-semibold text-sm">What's included:</p>
+                <div class="flex items-start gap-3">
+                  <svg class="w-5 h-5 text-[rgb(0,200,151)] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span class="text-sm">Access Level: {{ abonnement.niveau_acces }}</span>
+                </div>
+                @if (abonnement.acces_illimite) {
+                  <div class="flex items-start gap-3">
+                    <svg class="w-5 h-5 text-[rgb(0,200,151)] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    <span class="text-sm">Unlimited Access</span>
+                  </div>
+                }
+                @if (abonnement.support_prioritaire) {
+                  <div class="flex items-start gap-3">
+                    <svg class="w-5 h-5 text-[rgb(0,200,151)] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    <span class="text-sm">Priority Support 24/7</span>
+                  </div>
+                }
+                <div class="flex items-start gap-3">
+                  <svg class="w-5 h-5 text-[rgb(0,200,151)] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span class="text-sm">All Certificates Included</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- FAQ Section -->
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-3xl font-bold mb-8 text-center">Frequently Asked Questions</h2>
+      
+      <div class="space-y-6">
+        @for (faq of faqs; track faq.q) {
+          <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 hover:border-[rgb(0,200,151)]/50 transition-colors">
+            <h3 class="font-semibold mb-2">{{ faq.q }}</h3>
+            <p class="text-gray-600 dark:text-gray-400">{{ faq.a }}</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Bottom CTA -->
+    <div class="mt-20 text-center bg-gradient-to-r from-[rgb(0,200,151)]/10 to-[rgb(255,127,80)]/10 rounded-2xl p-12">
+      <h2 class="text-3xl font-bold mb-4">Still have questions?</h2>
+      <p class="text-gray-600 dark:text-gray-400 mb-6">
+        Our team is here to help you find the perfect plan for your needs.
+      </p>
+      <button class="px-8 py-3 border border-gray-300 dark:border-gray-700 rounded-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+        Contact Sales
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Purchase Modal -->
+@if (showPurchaseModal() && !showReceiptUpload()) {
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" (click)="closePurchaseModal()">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-8" (click)="$event.stopPropagation()">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">Complete Purchase</h2>
+        <button (click)="closePurchaseModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      @if (selectedAbonnement()) {
+        <div class="mb-6 p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
+          <h3 class="font-semibold mb-2">{{ selectedAbonnement()!.nom }}</h3>
+          <p class="text-2xl font-bold text-[rgb(0,200,151)]">
+            {{ getPrice(selectedAbonnement()!) }}
+            <span class="text-sm text-gray-600 dark:text-gray-400">
+              /{{ billingCycle() === 'monthly' ? 'month' : 'year' }}
+            </span>
+          </p>
+        </div>
+
+        <form (ngSubmit)="submitPurchase()" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">Full Name</label>
+            <input
+              type="text"
+              [(ngModel)]="purchaseForm.nom_client"
+              name="nom_client"
+              required
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent"
+              placeholder="John Doe">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Email</label>
+            <input
+              type="email"
+              [(ngModel)]="purchaseForm.email_client"
+              name="email_client"
+              required
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent"
+              placeholder="john@example.com">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Payment Method</label>
+            <select
+              [(ngModel)]="purchaseForm.methode_paiement"
+              name="methode_paiement"
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent">
+              <option value="carte">Credit Card</option>
+              <option value="paypal">PayPal</option>
+              <option value="virement">Bank Transfer</option>
+            </select>
+          </div>
+
+          @if (purchaseForm.methode_paiement === 'virement') {
+            <div class="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <p class="text-sm text-blue-800 dark:text-blue-200">
+                <strong>Bank Transfer Instructions:</strong><br>
+                After clicking "Continue", you'll be asked to upload your bank transfer receipt. 
+                Your payment will be pending until an admin validates it.
+              </p>
+            </div>
+          }
+
+          <div class="flex gap-3 pt-4">
+            <button
+              type="button"
+              (click)="closePurchaseModal()"
+              class="flex-1 px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="flex-1 px-6 py-3 bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white rounded-lg font-medium hover:opacity-90 transition-all">
+              {{ purchaseForm.methode_paiement === 'virement' ? 'Continue' : 'Purchase' }}
+            </button>
+          </div>
+        </form>
+      }
+    </div>
+  </div>
+}
+
+<!-- Receipt Upload Modal -->
+@if (showReceiptUpload()) {
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" (click)="closePurchaseModal()">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-8" (click)="$event.stopPropagation()">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">Upload Bank Receipt</h2>
+        <button (click)="closePurchaseModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      @if (selectedAbonnement()) {
+        <div class="mb-6 p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
+          <h3 class="font-semibold mb-2">{{ selectedAbonnement()!.nom }}</h3>
+          <p class="text-2xl font-bold text-[rgb(0,200,151)]">
+            {{ getPrice(selectedAbonnement()!) }}
+            <span class="text-sm text-gray-600 dark:text-gray-400">
+              /{{ billingCycle() === 'monthly' ? 'month' : 'year' }}
+            </span>
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+            <p class="text-sm text-yellow-800 dark:text-yellow-200">
+              <strong>Important:</strong> Please upload a clear image or PDF of your bank transfer receipt. 
+              Your subscription will be activated after admin validation.
+            </p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Upload Receipt</label>
+            <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center hover:border-[rgb(0,200,151)] transition-colors">
+              <input
+                type="file"
+                (change)="onReceiptSelected($event)"
+                accept="image/*,.pdf"
+                class="hidden"
+                #fileInput>
+              
+              @if (!selectedReceipt()) {
+                <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                </svg>
+                <button
+                  type="button"
+                  (click)="fileInput.click()"
+                  class="text-[rgb(0,200,151)] hover:underline font-medium">
+                  Click to upload
+                </button>
+                <p class="text-sm text-gray-500 mt-2">JPG, PNG or PDF (max 5MB)</p>
+              } @else {
+                <div class="flex items-center justify-center gap-2 text-green-600">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span class="font-medium">{{ selectedReceipt()!.name }}</span>
+                </div>
+                <button
+                  type="button"
+                  (click)="fileInput.click()"
+                  class="text-sm text-[rgb(0,200,151)] hover:underline mt-2">
+                  Change file
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="flex gap-3 pt-4">
+            <button
+              type="button"
+              (click)="cancelReceiptUpload()"
+              class="flex-1 px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+              Back
+            </button>
+            <button
+              type="button"
+              (click)="submitBankTransfer()"
+              [disabled]="!selectedReceipt()"
+              [class.opacity-50]="!selectedReceipt()"
+              [class.cursor-not-allowed]="!selectedReceipt()"
+              class="flex-1 px-6 py-3 bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white rounded-lg font-medium hover:opacity-90 transition-all">
+              Submit
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+
+<!-- Stripe Payment Form Modal -->
+@if (showStripeForm()) {
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" (click)="closePurchaseModal()">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-8" (click)="$event.stopPropagation()">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">Enter Card Details</h2>
+        <button (click)="cancelStripeForm()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      @if (selectedAbonnement()) {
+        <div class="mb-6 p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
+          <h3 class="font-semibold mb-2">{{ selectedAbonnement()!.nom }}</h3>
+          <p class="text-2xl font-bold text-[rgb(0,200,151)]">
+            ${{ getPrice(selectedAbonnement()!) }}
+            <span class="text-sm text-gray-600 dark:text-gray-400">
+              /{{ billingCycle() === 'monthly' ? 'month' : 'year' }}
+            </span>
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Stripe Card Element -->
+          <div>
+            <label class="block text-sm font-medium mb-2">Card Information</label>
+            <div id="card-element" class="p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"></div>
+          </div>
+
+          <!-- Secure Payment Notice -->
+          <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            <span>Secure payment powered by Stripe</span>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex gap-3 pt-4">
+            <button
+              type="button"
+              (click)="cancelStripeForm()"
+              [disabled]="processingPayment()"
+              class="flex-1 px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50">
+              Cancel
+            </button>
+            <button
+              type="button"
+              (click)="processStripePayment()"
+              [disabled]="processingPayment()"
+              class="flex-1 px-6 py-3 bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white rounded-lg font-medium hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+              @if (processingPayment()) {
+                <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Processing...
+              } @else {
+                Pay ${{ getPrice(selectedAbonnement()!) }}
+              }
+            </button>
+          </div>
+
+          <!-- Test Card Info -->
+          <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <p class="text-xs text-blue-800 dark:text-blue-200">
+              <strong>Test Mode:</strong> Use card 4242 4242 4242 4242 with any future date and CVC
+            </p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}

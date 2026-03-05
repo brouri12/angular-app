@@ -1,0 +1,142 @@
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-left">
+      <h1>Events Back Office</h1>
+      <p>Manage, filter, create and edit your events easily.</p>
+
+      <div class="hero-actions">
+        <button class="btn-create" (click)="openCreate()">+ Create Event</button>
+
+        <div class="search-pill">
+          <span class="search-ico">🔎</span>
+          <input
+            class="search-input"
+            placeholder="Search by title…"
+            [(ngModel)]="searchText"
+            (ngModelChange)="applyFilters()"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ERROR -->
+  @if (errorMsg) {
+    <div class="state error">
+      <div class="state-title">Error</div>
+      <div class="state-msg">{{ errorMsg }}</div>
+    </div>
+  }
+
+  <!-- FILTERS -->
+  <div class="card filter-card">
+    <div class="filter-head">
+      <div class="filter-title">🎛️ Filters</div>
+      <button class="btn-reset" (click)="resetFilters()">Reset</button>
+    </div>
+
+    <div class="filters">
+      <div class="field">
+        <label>Date</label>
+        <select class="select" [(ngModel)]="searchDate" (ngModelChange)="applyFilters()">
+          <option value="">All dates</option>
+          @for (d of eventDates; track d) {
+            <option [value]="d">{{ d }}</option>
+          }
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIST HEAD -->
+  <div class="list-head">
+    <div class="list-title">📌 Events</div>
+    <div class="list-count">{{ filteredEvents.length }} result(s)</div>
+  </div>
+
+  <!-- LOADING / EMPTY / GRID -->
+  @if (loadingList) {
+    <div class="state loading">⏳ Loading events…</div>
+  } @else if (filteredEvents.length === 0) {
+    <div class="empty">
+      <div class="empty-ico">🗂️</div>
+      <div class="empty-title">No events found</div>
+      <div class="empty-sub">Try changing your filters or create a new event.</div>
+      <button class="btn-create mt" (click)="openCreate()">+ Create Event</button>
+    </div>
+  } @else {
+    <div class="grid">
+
+      @for (ev of filteredEvents; track ev.idEvent) {
+        <article class="card event-card animate-fade-in">
+
+          <div class="card-top">
+            <div class="title">
+              <h3 class="truncate">{{ ev.title }}</h3>
+              <div class="subline truncate">#{{ ev.idEvent }} • {{ ev.eventDate }}</div>
+            </div>
+
+            <span class="pill capacity">👥 {{ ev.capacity }}</span>
+          </div>
+
+          <div class="meta">
+            <div class="row">
+              <span class="k">Time</span>
+              <span class="v">{{ ev.startTime }} - {{ ev.endTime }}</span>
+            </div>
+
+            <div class="row">
+              <span class="k">Location</span>
+              <span class="v truncate">{{ ev.location || '—' }}</span>
+            </div>
+
+            <div class="row">
+              <span class="k">Type</span>
+              <span class="v">{{ ev.type || '—' }}</span>
+            </div>
+
+            <div class="row">
+              <span class="k">Mode</span>
+              <span class="v">{{ ev.mode || '—' }}</span>
+            </div>
+
+            <div class="row">
+              <span class="k">Level</span>
+              <span class="v">{{ ev.requiredLevel || '—' }}</span>
+            </div>
+          </div>
+
+          <div class="desc">
+            {{ ev.description || 'No description available' }}
+          </div>
+
+          <div class="actions">
+            <button class="btn-secondary" (click)="openEdit(ev)">✏️ Edit</button>
+
+            <button
+              class="btn-danger"
+              (click)="openDeleteModal(ev)"
+              [disabled]="loadingAction">
+              🗑️ Delete
+            </button>
+          </div>
+
+        </article>
+      }
+
+    </div>
+  }
+
+  <!-- DELETE CONFIRM MODAL -->
+  <app-join-confirm-modal
+    [open]="confirmOpen"
+    title="Delete Event"
+    [message]="'Are you sure you want to delete &quot;' + (selectedEvent?.title || '') + '&quot; ?'"
+    (cancel)="cancelDelete()"
+    (confirm)="confirmDelete()">
+  </app-join-confirm-modal>
+
+  <router-outlet></router-outlet>
+</div>

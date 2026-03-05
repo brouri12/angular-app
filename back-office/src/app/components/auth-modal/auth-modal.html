@@ -1,0 +1,333 @@
+<!-- Modal Overlay -->
+<div *ngIf="currentModal" 
+     class="fixed inset-0 z-50 overflow-y-auto"
+     (click)="closeModal()">
+  
+  <!-- Backdrop -->
+  <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"></div>
+
+  <!-- Modal Container -->
+  <div class="flex min-h-full items-center justify-center p-4">
+    <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+         (click)="$event.stopPropagation()">
+      
+      <!-- Close Button -->
+      <button 
+        (click)="closeModal()"
+        class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+
+      <!-- LOGIN MODAL -->
+      <div *ngIf="currentModal === 'login'" class="p-6">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          Sign in to your account
+        </h2>
+
+        <!-- Error Message -->
+        <div *ngIf="errorMessage" class="mb-4 rounded-md bg-red-50 dark:bg-red-900/20 p-3">
+          <p class="text-sm text-red-800 dark:text-red-200">{{ errorMessage }}</p>
+        </div>
+
+        <form (ngSubmit)="onLoginSubmit()" class="space-y-4">
+          <div>
+            <label for="login-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Email
+            </label>
+            <input
+              id="login-email"
+              type="email"
+              required
+              [(ngModel)]="loginData.email"
+              name="email"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              placeholder="Enter your email"
+            />
+          </div>
+
+          <div>
+            <label for="login-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Password
+            </label>
+            <input
+              id="login-password"
+              type="password"
+              required
+              [(ngModel)]="loginData.password"
+              name="password"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              placeholder="Enter your password"
+            />
+          </div>
+
+          <button
+            type="submit"
+            [disabled]="isLoading"
+            class="w-full py-2 px-4 bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white rounded-md hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed font-medium">
+            <span *ngIf="!isLoading">Sign in</span>
+            <span *ngIf="isLoading">Signing in...</span>
+          </button>
+        </form>
+
+        <p class="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
+          Don't have an account?
+          <button (click)="switchToRegister()" class="font-medium text-primary hover:text-primary/80">
+            Sign up
+          </button>
+        </p>
+      </div>
+
+      <!-- REGISTER MODAL -->
+      <div *ngIf="currentModal === 'register'" class="p-6">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          Create your account
+        </h2>
+
+        <!-- Success Message -->
+        <div *ngIf="successMessage" class="mb-4 rounded-md bg-green-50 dark:bg-green-900/20 p-3">
+          <p class="text-sm text-green-800 dark:text-green-200">{{ successMessage }}</p>
+        </div>
+
+        <!-- Error Message -->
+        <div *ngIf="errorMessage" class="mb-4 rounded-md bg-red-50 dark:bg-red-900/20 p-3">
+          <p class="text-sm text-red-800 dark:text-red-200">{{ errorMessage }}</p>
+        </div>
+
+        <form (ngSubmit)="onRegisterSubmit()" class="space-y-4">
+          <!-- Role Selection -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              I want to register as *
+            </label>
+            <div class="grid grid-cols-2 gap-3">
+              <label class="relative flex cursor-pointer rounded-lg border p-3 focus:outline-none"
+                     [class.border-primary]="registerData.role === 'STUDENT'"
+                     [class.bg-primary/5]="registerData.role === 'STUDENT'"
+                     [class.border-gray-300]="registerData.role !== 'STUDENT'"
+                     [class.dark:border-gray-600]="registerData.role !== 'STUDENT'">
+                <input type="radio" name="role" value="STUDENT" [(ngModel)]="registerData.role" 
+                       (change)="onRoleChange()" class="sr-only" />
+                <span class="flex flex-1 flex-col text-center">
+                  <span class="block text-sm font-medium text-gray-900 dark:text-white">Student</span>
+                  <span class="text-xs text-gray-500 dark:text-gray-400 mt-1">Learn</span>
+                </span>
+              </label>
+
+              <label class="relative flex cursor-pointer rounded-lg border p-3 focus:outline-none"
+                     [class.border-primary]="registerData.role === 'TEACHER'"
+                     [class.bg-primary/5]="registerData.role === 'TEACHER'"
+                     [class.border-gray-300]="registerData.role !== 'TEACHER'"
+                     [class.dark:border-gray-600]="registerData.role !== 'TEACHER'">
+                <input type="radio" name="role" value="TEACHER" [(ngModel)]="registerData.role" 
+                       (change)="onRoleChange()" class="sr-only" />
+                <span class="flex flex-1 flex-col text-center">
+                  <span class="block text-sm font-medium text-gray-900 dark:text-white">Teacher</span>
+                  <span class="text-xs text-gray-500 dark:text-gray-400 mt-1">Teach</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Basic Info -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="reg-username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Username *
+              </label>
+              <input
+                id="reg-username"
+                type="text"
+                required
+                [(ngModel)]="registerData.username"
+                name="username"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              />
+            </div>
+
+            <div>
+              <label for="reg-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Email *
+              </label>
+              <input
+                id="reg-email"
+                type="email"
+                required
+                [(ngModel)]="registerData.email"
+                name="email"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="reg-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Password *
+              </label>
+              <input
+                id="reg-password"
+                type="password"
+                required
+                [(ngModel)]="registerData.password"
+                name="password"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              />
+            </div>
+
+            <div>
+              <label for="reg-confirm" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Confirm *
+              </label>
+              <input
+                id="reg-confirm"
+                type="password"
+                required
+                [(ngModel)]="confirmPassword"
+                name="confirmPassword"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="reg-nom" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Last Name *
+              </label>
+              <input
+                id="reg-nom"
+                type="text"
+                required
+                [(ngModel)]="registerData.nom"
+                name="nom"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              />
+            </div>
+
+            <div>
+              <label for="reg-prenom" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                First Name *
+              </label>
+              <input
+                id="reg-prenom"
+                type="text"
+                required
+                [(ngModel)]="registerData.prenom"
+                name="prenom"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label for="reg-telephone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Phone
+            </label>
+            <input
+              id="reg-telephone"
+              type="tel"
+              [(ngModel)]="registerData.telephone"
+              name="telephone"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+            />
+          </div>
+
+          <!-- Teacher Fields -->
+          <div *ngIf="registerData.role === 'TEACHER'" class="space-y-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+            <h3 class="text-sm font-medium text-gray-900 dark:text-white">Teacher Information</h3>
+            <div>
+              <label for="reg-specialite" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Specialization
+              </label>
+              <input
+                id="reg-specialite"
+                type="text"
+                [(ngModel)]="registerData.specialite"
+                name="specialite"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              />
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label for="reg-experience" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Experience (years)
+                </label>
+                <input
+                  id="reg-experience"
+                  type="number"
+                  [(ngModel)]="registerData.experience"
+                  name="experience"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                />
+              </div>
+              <div>
+                <label for="reg-disponibilite" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Availability
+                </label>
+                <input
+                  id="reg-disponibilite"
+                  type="text"
+                  [(ngModel)]="registerData.disponibilite"
+                  name="disponibilite"
+                  placeholder="Mon-Fri 9-5"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Student Fields -->
+          <div *ngIf="registerData.role === 'STUDENT'" class="space-y-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+            <h3 class="text-sm font-medium text-gray-900 dark:text-white">Student Information</h3>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label for="reg-dob" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Date of Birth
+                </label>
+                <input
+                  id="reg-dob"
+                  type="date"
+                  [(ngModel)]="registerData.date_naissance"
+                  name="date_naissance"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                />
+              </div>
+              <div>
+                <label for="reg-level" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Current Level
+                </label>
+                <select
+                  id="reg-level"
+                  [(ngModel)]="registerData.niveau_actuel"
+                  name="niveau_actuel"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm">
+                  <option value="">Select</option>
+                  <option value="Beginner">Beginner</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Advanced">Advanced</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            [disabled]="isLoading"
+            class="w-full py-2 px-4 bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white rounded-md hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed font-medium">
+            <span *ngIf="!isLoading">Create Account</span>
+            <span *ngIf="isLoading">Creating...</span>
+          </button>
+        </form>
+
+        <p class="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
+          Already have an account?
+          <button (click)="switchToLogin()" class="font-medium text-primary hover:text-primary/80">
+            Sign in
+          </button>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

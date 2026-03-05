@@ -1,0 +1,313 @@
+/* =========================================================
+   BASE PAGE
+========================================================= */
+
+.min-h-screen{
+  background: #f8fafc;
+  transition: background .3s ease;
+}
+
+/* DARK BACKGROUND */
+:host-context(.dark) .min-h-screen{
+  background:
+    radial-gradient(900px 320px at 10% 10%, rgba(0,200,151,.14), transparent 60%),
+    radial-gradient(900px 320px at 90% 15%, rgba(255,127,80,.10), transparent 60%),
+    linear-gradient(180deg, rgba(2,6,23,.98), rgba(2,6,23,.92));
+}
+
+/* =========================================================
+   GENERIC CARD
+========================================================= */
+
+.card{
+  background: rgba(255,255,255,.96);
+  border: 1px solid rgba(226,232,240,.95);
+  border-radius: 22px;
+  padding: 18px;
+  box-shadow: 0 18px 45px rgba(0,0,0,.05);
+  transition: all .25s ease;
+}
+
+:host-context(.dark) .card{
+  background:
+    radial-gradient(520px circle at 12% 10%, rgba(0,200,151,.10), transparent 55%),
+    radial-gradient(520px circle at 92% 30%, rgba(255,127,80,.08), transparent 55%),
+    rgba(2,6,23,.55);
+  border-color: rgba(30,41,59,.85);
+  box-shadow: 0 22px 70px rgba(0,0,0,.45);
+}
+
+/* =========================================================
+   TOPBAR
+========================================================= */
+
+.topbar{
+  display:flex;
+  gap:16px;
+  align-items:flex-start;
+  justify-content:space-between;
+  flex-wrap:wrap;
+}
+
+.topbar-left{
+  padding:20px;
+  border-radius:22px;
+  background: linear-gradient(135deg, rgba(0,200,151,.14), rgba(99,102,241,.10));
+  border: 1px solid rgba(226,232,240,.9);
+  box-shadow: 0 18px 45px rgba(0,0,0,.06);
+  min-width: 320px;
+  transition: all .25s ease;
+}
+
+:host-context(.dark) .topbar-left{
+  background:
+    radial-gradient(700px 240px at 20% 20%, rgba(0,200,151,.18), transparent 60%),
+    radial-gradient(700px 240px at 90% 10%, rgba(59,130,246,.14), transparent 60%),
+    rgba(2,6,23,.55);
+  border-color: rgba(30,41,59,.85);
+}
+
+.topbar-left h1{
+  font-size: 26px;
+  font-weight: 900;
+  color: rgb(15,23,42);
+}
+
+:host-context(.dark) .topbar-left h1{
+  color: rgb(226,232,240);
+}
+
+.topbar-left p{
+  color: rgb(100,116,139);
+  font-size: 14px;
+}
+
+:host-context(.dark) .topbar-left p{
+  color: rgb(148,163,184);
+}
+
+/* =========================================================
+   CREATE BUTTON
+========================================================= */
+
+.btn-create{
+  border: none;
+  cursor:pointer;
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-weight: 900;
+  font-size: 13px;
+  color: white;
+  background: linear-gradient(135deg, rgb(0,200,151), rgb(59,130,246));
+  box-shadow: 0 18px 40px rgba(0,200,151,.22);
+  transition: all .2s ease;
+}
+
+.btn-create:hover{
+  transform: translateY(-3px);
+  box-shadow: 0 26px 70px rgba(0,200,151,.3);
+}
+
+/* =========================================================
+   SEARCH BAR
+========================================================= */
+
+.search-pill{
+  width: min(420px, 100%);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding: 13px 16px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.92);
+  border: 1px solid rgba(226,232,240,.95);
+  box-shadow: 0 14px 35px rgba(0,0,0,.05);
+  transition: all .2s ease;
+}
+
+.search-pill:focus-within{
+  transform: translateY(-2px);
+  border-color: rgba(0,200,151,.45);
+  box-shadow: 0 22px 60px rgba(0,0,0,.08);
+}
+
+:host-context(.dark) .search-pill{
+  background: rgba(15,23,42,.65);
+  border-color: rgba(30,41,59,.85);
+  box-shadow: 0 18px 55px rgba(0,0,0,.35);
+}
+
+.search-input{
+  border:none;
+  outline:none;
+  width:100%;
+  font-weight: 800;
+  font-size: 13px;
+  background: transparent;
+  color: rgb(15,23,42);
+}
+
+:host-context(.dark) .search-input{
+  color: rgb(226,232,240);
+}
+
+/* =========================================================
+   FILTERS
+========================================================= */
+
+.filter-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom: 14px;
+  border-bottom: 1px dashed rgba(226,232,240,.9);
+  padding-bottom: 10px;
+}
+
+.filter-title{
+  font-weight: 900;
+  color: rgb(15,23,42);
+}
+
+:host-context(.dark) .filter-title{
+  color: rgb(226,232,240);
+}
+
+.filter-grid{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+@media (max-width: 768px){
+  .filter-grid{ grid-template-columns: 1fr; }
+}
+
+.select{
+  width:100%;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(226,232,240,.95);
+  background: rgba(248,250,252,.9);
+  font-weight: 800;
+  font-size: 13px;
+  outline:none;
+  transition: all .2s ease;
+}
+
+.select:focus{
+  border-color: rgba(0,200,151,.45);
+  box-shadow: 0 18px 45px rgba(0,0,0,.08);
+}
+
+:host-context(.dark) .select{
+  background: rgba(15,23,42,.65);
+  border-color: rgba(30,41,59,.85);
+  color: rgb(226,232,240);
+}
+
+/* =========================================================
+   CLUB CARD
+========================================================= */
+
+.event-card{
+  background: rgba(255,255,255,.98);
+  border: 1px solid rgba(226,232,240,.9);
+  border-radius: 22px;
+  padding: 18px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.06);
+  transition: all .25s ease;
+  overflow: hidden;
+}
+
+.event-card:hover{
+  transform: translateY(-6px);
+  box-shadow: 0 30px 80px rgba(0,0,0,.12);
+  border-color: rgba(0,200,151,.4);
+}
+
+:host-context(.dark) .event-card{
+  background:
+    radial-gradient(500px circle at 12% 10%, rgba(0,200,151,.12), transparent 55%),
+    radial-gradient(500px circle at 90% 30%, rgba(255,127,80,.08), transparent 55%),
+    rgba(2,6,23,.55);
+  border-color: rgba(30,41,59,.85);
+  box-shadow: 0 25px 70px rgba(0,0,0,.5);
+}
+
+.event-title{
+  font-size: 17px;
+  font-weight: 900;
+  color: rgb(15,23,42);
+}
+
+:host-context(.dark) .event-title{
+  color: rgb(226,232,240);
+}
+
+.event-desc{
+  font-size: 13px;
+  color: rgb(71,85,105);
+  margin-top: 8px;
+}
+
+:host-context(.dark) .event-desc{
+  color: rgb(148,163,184);
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.btn-secondary{
+  background: rgba(255,255,255,.92);
+  border: 1px solid rgba(226,232,240,.95);
+  color: rgb(15,23,42);
+  border-radius: 14px;
+  padding: 10px;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
+.btn-secondary:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 18px 40px rgba(15,23,42,.08);
+}
+
+.btn-danger{
+  background: linear-gradient(135deg, rgb(239,68,68), rgb(244,63,94));
+  border: none;
+  color: white;
+  border-radius: 14px;
+  padding: 10px;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 18px 40px rgba(239,68,68,.18);
+  transition: all .2s ease;
+}
+
+.btn-danger:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 26px 60px rgba(239,68,68,.3);
+}
+
+.btn-danger:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
+
+/* =========================================================
+   ANIMATION
+========================================================= */
+
+@keyframes fadeInCard{
+  from { opacity: 0; transform: translateY(10px) scale(.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.animate-fade-in{
+  animation: fadeInCard .25s ease-out;
+}

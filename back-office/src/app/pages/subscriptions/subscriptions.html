@@ -1,0 +1,233 @@
+<div class="p-6">
+  <!-- Header -->
+  <div class="mb-6 flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl font-bold mb-2">Subscription Management</h1>
+      <p class="text-gray-600 dark:text-gray-400">Manage all subscription plans</p>
+    </div>
+    <button
+      (click)="openAddModal()"
+      class="px-4 py-2 bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white rounded-lg hover:opacity-90 transition-all flex items-center gap-2">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      Add Subscription
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="mb-6 flex gap-4">
+    <div class="flex-1">
+      <input
+        type="text"
+        [value]="searchTerm()"
+        (input)="onSearchChange($any($event.target).value)"
+        placeholder="Search subscriptions..."
+        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent">
+    </div>
+    <select
+      [value]="filterStatut()"
+      (change)="onFilterChange($any($event.target).value)"
+      class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent">
+      <option value="all">All Status</option>
+      <option value="Actif">Active</option>
+      <option value="Inactif">Inactive</option>
+    </select>
+  </div>
+
+  <!-- Table -->
+  <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    @if (loading()) {
+      <div class="p-12 text-center">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[rgb(0,200,151)]"></div>
+        <p class="mt-4 text-gray-600 dark:text-gray-400">Loading subscriptions...</p>
+      </div>
+    } @else if (filteredAbonnements().length === 0) {
+      <div class="p-12 text-center text-gray-500 dark:text-gray-400">
+        No subscriptions found
+      </div>
+    } @else {
+      <table class="w-full">
+        <thead class="bg-gray-50 dark:bg-gray-900">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Name</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Price</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Duration</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Access Level</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+          @for (abonnement of filteredAbonnements(); track abonnement.id_abonnement) {
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+              <td class="px-6 py-4">
+                <div>
+                  <div class="font-medium">{{ abonnement.nom }}</div>
+                  <div class="text-sm text-gray-500 dark:text-gray-400">{{ abonnement.description }}</div>
+                </div>
+              </td>
+              <td class="px-6 py-4 font-medium">${{ abonnement.prix }}</td>
+              <td class="px-6 py-4 text-gray-600 dark:text-gray-400">{{ abonnement.duree_jours }} days</td>
+              <td class="px-6 py-4">
+                <span class="px-3 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full text-xs font-medium">
+                  {{ abonnement.niveau_acces }}
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <button
+                  (click)="toggleStatut(abonnement)"
+                  [class]="abonnement.statut === 'Actif' 
+                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                    : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'"
+                  class="px-3 py-1 rounded-full text-xs font-medium hover:opacity-80 transition-opacity">
+                  {{ abonnement.statut }}
+                </button>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex gap-2">
+                  <button
+                    (click)="openEditModal(abonnement)"
+                    class="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                    title="Edit">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                  </button>
+                  <button
+                    (click)="deleteAbonnement(abonnement.id_abonnement!)"
+                    class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                    title="Delete">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+@if (showModal()) {
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" (click)="closeModal()">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full p-8 max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">{{ editMode() ? 'Edit' : 'Add' }} Subscription</h2>
+        <button (click)="closeModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <form (ngSubmit)="saveAbonnement()" class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="col-span-2">
+            <label class="block text-sm font-medium mb-2">Name</label>
+            <input
+              type="text"
+              [(ngModel)]="currentAbonnement.nom"
+              name="nom"
+              required
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent">
+          </div>
+
+          <div class="col-span-2">
+            <label class="block text-sm font-medium mb-2">Description</label>
+            <textarea
+              [(ngModel)]="currentAbonnement.description"
+              name="description"
+              rows="3"
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Price ($)</label>
+            <input
+              type="number"
+              [(ngModel)]="currentAbonnement.prix"
+              name="prix"
+              required
+              min="0"
+              step="0.01"
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Duration (days)</label>
+            <input
+              type="number"
+              [(ngModel)]="currentAbonnement.duree_jours"
+              name="duree_jours"
+              required
+              min="1"
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Access Level</label>
+            <select
+              [(ngModel)]="currentAbonnement.niveau_acces"
+              name="niveau_acces"
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent">
+              <option value="Basic">Basic</option>
+              <option value="Standard">Standard</option>
+              <option value="Premium">Premium</option>
+              <option value="Enterprise">Enterprise</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Status</label>
+            <select
+              [(ngModel)]="currentAbonnement.statut"
+              name="statut"
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent">
+              <option value="Actif">Active</option>
+              <option value="Inactif">Inactive</option>
+            </select>
+          </div>
+
+          <div class="col-span-2 flex gap-4">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                [(ngModel)]="currentAbonnement.acces_illimite"
+                name="acces_illimite"
+                class="w-4 h-4 text-[rgb(0,200,151)] border-gray-300 rounded focus:ring-[rgb(0,200,151)]">
+              <span class="text-sm">Unlimited Access</span>
+            </label>
+
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                [(ngModel)]="currentAbonnement.support_prioritaire"
+                name="support_prioritaire"
+                class="w-4 h-4 text-[rgb(0,200,151)] border-gray-300 rounded focus:ring-[rgb(0,200,151)]">
+              <span class="text-sm">Priority Support</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="flex gap-3 pt-4">
+          <button
+            type="button"
+            (click)="closeModal()"
+            class="flex-1 px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="flex-1 px-6 py-3 bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white rounded-lg font-medium hover:opacity-90 transition-all">
+            {{ editMode() ? 'Update' : 'Create' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

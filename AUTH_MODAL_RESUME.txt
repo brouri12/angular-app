@@ -1,0 +1,68 @@
+═══════════════════════════════════════════════════════════
+  AUTHENTIFICATION EN MODAL (POPUP)
+═══════════════════════════════════════════════════════════
+
+✅ MODIFICATION APPLIQUÉE:
+
+Login et Register sont maintenant des POPUPS (modals)
+au lieu de pages séparées.
+
+═══════════════════════════════════════════════════════════
+
+COMMENT ÇA MARCHE:
+
+1. Cliquer "Sign In" dans le header
+   → Modal Login s'ouvre
+
+2. Cliquer "Get Started" dans le header
+   → Modal Register s'ouvre
+
+3. Basculer entre Login et Register
+   → Liens dans le modal
+
+4. Fermer le modal
+   → Bouton X ou cliquer en dehors
+
+═══════════════════════════════════════════════════════════
+
+AVANTAGES:
+
+✓ Pas de changement de page
+✓ Plus rapide et fluide
+✓ Moderne et professionnel
+✓ Contexte préservé
+✓ Meilleure UX
+
+═══════════════════════════════════════════════════════════
+
+FICHIERS CRÉÉS:
+
+- services/modal.service.ts (gestion modal)
+- components/auth-modal/ (composant modal)
+
+FICHIERS MODIFIÉS:
+
+- components/header/ (boutons ouvrent modal)
+- app.ts (import modal)
+- app.html (ajout <app-auth-modal>)
+- app.routes.ts (routes /login /register supprimées)
+
+═══════════════════════════════════════════════════════════
+
+POUR TESTER:
+
+1. Ouvrir: http://localhost:44510
+2. Cliquer "Get Started"
+3. Modal s'ouvre avec formulaire Register
+4. Cliquer "Already have an account? Sign in"
+5. Modal bascule vers Login
+6. Tester la connexion
+
+═══════════════════════════════════════════════════════════
+
+DOCUMENTATION:
+
+- MODAL_AUTH_GUIDE.md (guide complet)
+- FRONTEND_AUTH_GUIDE.md (guide général)
+
+═══════════════════════════════════════════════════════════

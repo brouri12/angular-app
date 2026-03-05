@@ -1,0 +1,67 @@
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="hero">
+    <div class="hero-left">
+      <h1>Members Back Office</h1>
+      <p>Gérez et supprimez les membres facilement.</p>
+    </div>
+
+   
+  </div>
+
+  <!-- STATES -->
+  <div *ngIf="loading" class="state loading">Loading...</div>
+  <div *ngIf="!loading && errorMsg" class="state error">{{ errorMsg }}</div>
+  <div *ngIf="!loading && successMsg" class="state success">{{ successMsg }}</div>
+
+  <!-- EMPTY -->
+  <div *ngIf="!loading && !errorMsg && members.length === 0" class="empty">
+    Aucun membre pour le moment.
+  </div>
+
+  <!-- GRID -->
+  <div class="grid" *ngIf="!loading && !errorMsg && members.length > 0">
+    <article class="card" *ngFor="let m of members; trackBy: trackById">
+
+      <div class="card-top">
+        <div class="title">
+          <h3>{{ (m.prenom || '') + ' ' + (m.nom || '') }}</h3>
+          <span class="pill">MEMBER</span>
+        </div>
+
+        <button class="btn-danger" type="button" (click)="deleteMember(m)">
+          🗑 Supprimer
+        </button>
+      </div>
+
+      <div class="meta">
+        <div class="row">
+          <span class="k">Email</span>
+          <span class="v">{{ m.email || '—' }}</span>
+        </div>
+
+        <div class="row">
+          <span class="k">Téléphone</span>
+          <span class="v">{{ m.telephone || '—' }}</span>
+        </div>
+
+        <div class="row">
+          <span class="k">Niveau</span>
+          <span class="v">{{ m.niveauAnglais || '—' }}</span>
+        </div>
+
+        <div class="row">
+  <span class="k">Club</span>
+  <span class="v">{{ getClubName(m.idClub) }}</span>
+</div>
+        <div class="row">
+          <span class="k">Joined</span>
+          <span class="v">{{ m.dateJoin ? (m.dateJoin | date:'mediumDate') : '—' }}</span>
+        </div>
+      </div>
+
+    </article>
+  </div>
+
+</div>

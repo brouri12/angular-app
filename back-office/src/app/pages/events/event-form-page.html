@@ -1,0 +1,273 @@
+<div class="overlay" (click)="close()">
+  <div class="window animate-fade-in" (click)="$event.stopPropagation()">
+
+    <!-- HEADER -->
+    <div class="titlebar">
+      <div class="title-left">
+        <span class="app-dot"></span>
+        <span class="title-text">
+          {{ isEdit ? 'Edit Event' : 'Create Event' }} — BackOffice
+        </span>
+      </div>
+
+      <button class="win-btn close" title="Close" type="button" (click)="close()">✕</button>
+    </div>
+
+    <!-- BODY -->
+    <div class="content">
+
+      <!-- Global backend error -->
+      @if (errorMsg) {
+        <div class="alert">{{ errorMsg }}</div>
+      }
+
+      <!-- FORM -->
+      <form #f="ngForm" novalidate>
+
+        <div class="grid">
+
+          <!-- TITLE -->
+          <div class="field">
+            <label>Title</label>
+            <input
+              class="input"
+              placeholder="Event title"
+              [(ngModel)]="form.title"
+              name="title"
+              #title="ngModel"
+              required
+              minlength="3"
+            />
+
+            <div class="error" *ngIf="title.invalid && title.touched">
+              <div *ngIf="title.errors?.['required']">Title is required.</div>
+              <div *ngIf="title.errors?.['minlength']">Title must be at least 3 characters.</div>
+            </div>
+          </div>
+
+          <!-- LOCATION + MAP -->
+          <div class="field">
+            <label>Location</label>
+
+            <div class="location-row">
+              <input
+                id="locationInput"
+                class="input"
+                placeholder="Search a place..."
+                [(ngModel)]="form.location"
+                name="location"
+                #location="ngModel"
+                required
+                minlength="2"
+              />
+            </div>
+
+            <!-- MAP -->
+           <div class="map-wrap">
+  <div id="map"></div>
+  <div class="map-hint">Click on the map to choose the location.</div>
+</div>
+
+            <!-- validation errors -->
+            <div class="error" *ngIf="location.invalid && location.touched">
+              <div *ngIf="location.errors?.['required']">Location is required.</div>
+              <div *ngIf="location.errors?.['minlength']">Location must be at least 2 characters.</div>
+            </div>
+          </div>
+
+          <!-- DESCRIPTION -->
+          <div class="field full">
+            <label>Description</label>
+            <textarea
+              class="input textarea"
+              rows="4"
+              placeholder="Describe the event..."
+              [(ngModel)]="form.description"
+              name="description"
+              #description="ngModel"
+              required
+              minlength="10"
+              maxlength="500"
+            ></textarea>
+
+            <div class="error" *ngIf="description.invalid && description.touched">
+              <div *ngIf="description.errors?.['required']">Description is required.</div>
+              <div *ngIf="description.errors?.['minlength']">Description must be at least 10 characters.</div>
+              <div *ngIf="description.errors?.['maxlength']">Description must be at most 500 characters.</div>
+            </div>
+          </div>
+
+          <!-- TYPE -->
+          <div class="field">
+            <label>Type</label>
+            <select
+              class="input"
+              [(ngModel)]="form.type"
+              name="type"
+              #type="ngModel"
+              required
+            >
+              @for (t of types; track t) { <option [value]="t">{{ t }}</option> }
+            </select>
+
+            <div class="error" *ngIf="type.invalid && type.touched">
+              Type is required.
+            </div>
+          </div>
+
+          <!-- MODE -->
+          <div class="field">
+            <label>Mode</label>
+            <select
+              class="input"
+              [(ngModel)]="form.mode"
+              name="mode"
+              #mode="ngModel"
+              required
+            >
+              @for (m of modes; track m) { <option [value]="m">{{ m }}</option> }
+            </select>
+
+            <div class="error" *ngIf="mode.invalid && mode.touched">
+              Mode is required.
+            </div>
+          </div>
+
+          <!-- DATE -->
+          <div class="field">
+            <label>Date</label>
+            <input
+              type="date"
+              class="input"
+              [(ngModel)]="form.eventDate"
+              name="eventDate"
+              #eventDate="ngModel"
+              required
+            />
+
+            <div class="error" *ngIf="eventDate.invalid && eventDate.touched">
+              Date is required.
+            </div>
+          </div>
+
+          <!-- START TIME -->
+          <div class="field">
+            <label>Start time</label>
+            <input
+              type="time"
+              class="input"
+              [ngModel]="form.startTime?.slice(0,5)"
+              (ngModelChange)="form.startTime = $event + ':00'"
+              name="startTime"
+              #startTime="ngModel"
+              required
+            />
+
+            <div class="error" *ngIf="startTime.invalid && startTime.touched">
+              Start time is required.
+            </div>
+          </div>
+
+          <!-- END TIME -->
+          <div class="field">
+            <label>End time</label>
+            <input
+              type="time"
+              class="input"
+              [ngModel]="form.endTime?.slice(0,5)"
+              (ngModelChange)="form.endTime = $event + ':00'"
+              name="endTime"
+              #endTime="ngModel"
+              required
+            />
+
+            <div class="error" *ngIf="endTime.invalid && endTime.touched">
+              End time is required.
+            </div>
+
+            <div class="error" *ngIf="form.startTime && form.endTime && form.startTime >= form.endTime">
+              End time must be after start time.
+            </div>
+          </div>
+
+          <!-- CAPACITY -->
+          <div class="field">
+            <label>Capacity</label>
+            <input
+              type="number"
+              class="input"
+              [(ngModel)]="form.capacity"
+              name="capacity"
+              #capacity="ngModel"
+              required
+              min="1"
+            />
+
+            <div class="error" *ngIf="capacity.invalid && capacity.touched">
+              <div *ngIf="capacity.errors?.['required']">Capacity is required.</div>
+              <div *ngIf="capacity.errors?.['min']">Capacity must be at least 1.</div>
+            </div>
+          </div>
+
+          <!-- LEVEL -->
+          <div class="field">
+            <label>Required level</label>
+            <select
+              class="input"
+              [(ngModel)]="form.requiredLevel"
+              name="requiredLevel"
+              #requiredLevel="ngModel"
+              required
+            >
+              @for (lvl of levels; track lvl) { <option [value]="lvl">{{ lvl }}</option> }
+            </select>
+
+            <div class="error" *ngIf="requiredLevel.invalid && requiredLevel.touched">
+              Level is required.
+            </div>
+          </div>
+
+        </div>
+      </form>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <div class="hint">💡 Click outside to close.</div>
+
+      <div class="footer-actions">
+        @if (!isEdit) {
+          <button
+            class="btn-primary"
+            type="button"
+            (click)="openConfirmCreate()"
+            [disabled]="loadingAction || f.invalid || (form.startTime && form.endTime && form.startTime >= form.endTime)"
+          >
+            {{ loadingAction ? '⏳ Creating…' : 'Create' }}
+          </button>
+        } @else {
+          <button
+            class="btn-primary"
+            type="button"
+            (click)="openConfirmUpdate()"
+            [disabled]="loadingAction || f.invalid || (form.startTime && form.endTime && form.startTime >= form.endTime)"
+          >
+            {{ loadingAction ? '⏳ Updating…' : 'Update' }}
+          </button>
+        }
+
+        <button class="btn-secondary" type="button" (click)="close()">Cancel</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<app-join-confirm-modal
+  [open]="confirmOpen"
+  [title]="confirmTitle"
+  [message]="confirmMessage"
+  (cancel)="cancelAction()"
+  (confirm)="confirmAction()">
+</app-join-confirm-modal>

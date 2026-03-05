@@ -1,0 +1,100 @@
+<div class="min-h-screen py-20">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- HERO -->
+    <div class="text-center mb-12">
+      <div class="tracking-[0.35em] text-xs font-extrabold text-[rgb(0,200,151)] mb-4">
+        OUR CLUBS
+      </div>
+
+      <h1 class="text-5xl md:text-6xl font-black leading-[1.05]">
+        Explore Our <span class="text-[rgb(255,127,80)]">Clubs</span>
+      </h1>
+
+      <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mt-4 text-lg leading-relaxed">
+        Join communities, improve your English and grow together.
+      </p>
+    </div>
+
+    <!-- ERROR -->
+    <div *ngIf="errorMsg" class="mb-6 p-3 rounded-lg bg-red-100 text-red-700">
+      {{ errorMsg }}
+    </div>
+
+    <!-- GRID -->
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+      <article *ngFor="let club of clubs" class="event-card p-7">
+
+        <!-- BADGES -->
+        <div class="flex flex-wrap gap-2 mb-5">
+          <span class="badge border" [ngClass]="badgeType(club.type)">
+            {{ club.type }}
+          </span>
+
+          <span class="badge border" [ngClass]="badgeCity(club.ville)" [title]="club.ville">
+            {{ club.ville || '—' }}
+          </span>
+        </div>
+
+        <!-- IMAGE -->
+        <div class="overflow-hidden rounded-2xl mb-5 border border-gray-200 dark:border-gray-800">
+          <img
+            [src]="clubService.logoUrl(club.idClub!)"
+            (error)="onImgError($event)"
+            class="w-full h-44 object-cover club-image"
+          />
+        </div>
+
+        <!-- TITLE -->
+        <h3 class="text-2xl font-extrabold leading-snug mb-3">
+          {{ club.nomClub }}
+        </h3>
+
+        <!-- DESCRIPTION -->
+        <p class="text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-3 min-h-[72px] mb-4">
+          {{ club.description || 'No description available' }}
+        </p>
+
+        <!-- INFO -->
+        <div class="club-infos">
+          <div class="info-chip" *ngIf="club.dateCreation">
+            <span class="chip-ico">📅</span>
+            <span>{{ club.dateCreation | date:'dd MMM yyyy' }}</span>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <button
+          type="button"
+          class="btn-register"
+          (click)="joinAndOpen(club)"
+          [disabled]="isJoined(club.idClub) || isLoadingClub(club.idClub)"
+        >
+          {{
+            isJoined(club.idClub)
+              ? 'ALREADY JOINED'
+              : (isLoadingClub(club.idClub) ? 'Joining...' : 'JOIN NOW')
+          }}
+        </button>
+
+      </article>
+
+    </div>
+
+    <!-- POPUP CONFIRMATION -->
+    <app-join-confirm-modal
+      [open]="isConfirmOpen"
+      [title]="'Join Club'"
+      [message]="'Voulez-vous rejoindre le club : ' + (selectedClub?.nomClub || '') + ' ?'"
+      (cancel)="cancelJoinConfirm()"
+      (confirm)="confirmJoin()"
+    ></app-join-confirm-modal>
+
+    <!-- SUCCESS MESSAGE -->
+    <div *ngIf="successMsg" class="mt-6 p-3 rounded-lg bg-green-100 text-green-700">
+      {{ successMsg }}
+    </div>
+
+  </div>
+</div>

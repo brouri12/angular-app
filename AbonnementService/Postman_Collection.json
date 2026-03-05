@@ -1,0 +1,198 @@
+{
+  "info": {
+    "name": "Abonnement Service API",
+    "description": "Collection complète pour tester le microservice de gestion des abonnements",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Test Hello",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8084/api/abonnements/hello",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8084",
+          "path": ["api", "abonnements", "hello"]
+        }
+      }
+    },
+    {
+      "name": "Get All Abonnements",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8084/api/abonnements",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8084",
+          "path": ["api", "abonnements"]
+        }
+      }
+    },
+    {
+      "name": "Get Abonnement By ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8084/api/abonnements/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8084",
+          "path": ["api", "abonnements", "1"]
+        }
+      }
+    },
+    {
+      "name": "Search By Nom",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8084/api/abonnements/search/byNom?nom=Premium&page=0&size=10",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8084",
+          "path": ["api", "abonnements", "search", "byNom"],
+          "query": [
+            {"key": "nom", "value": "Premium"},
+            {"key": "page", "value": "0"},
+            {"key": "size", "value": "10"}
+          ]
+        }
+      }
+    },
+    {
+      "name": "Create Abonnement",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nom\": \"Gold\",\n  \"description\": \"Abonnement Gold avec avantages exclusifs\",\n  \"prix\": 49.99,\n  \"duree_jours\": 90,\n  \"niveau_acces\": \"Gold\",\n  \"acces_illimite\": true,\n  \"support_prioritaire\": true,\n  \"statut\": \"Actif\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8084/api/abonnements",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8084",
+          "path": ["api", "abonnements"]
+        }
+      }
+    },
+    {
+      "name": "Update Abonnement",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nom\": \"Basic Updated\",\n  \"description\": \"Description mise à jour\",\n  \"prix\": 12.99,\n  \"duree_jours\": 30,\n  \"niveau_acces\": \"Basique\",\n  \"acces_illimite\": false,\n  \"support_prioritaire\": false,\n  \"statut\": \"Actif\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8084/api/abonnements/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8084",
+          "path": ["api", "abonnements", "1"]
+        }
+      }
+    },
+    {
+      "name": "Update Statut",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8084/api/abonnements/1/statut?statut=Inactif",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8084",
+          "path": ["api", "abonnements", "1", "statut"],
+          "query": [
+            {"key": "statut", "value": "Inactif"}
+          ]
+        }
+      }
+    },
+    {
+      "name": "Delete Abonnement",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8084/api/abonnements/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8084",
+          "path": ["api", "abonnements", "1"]
+        }
+      }
+    },
+    {
+      "name": "Create Paiement",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nom_client\": \"Sophie Dubois\",\n  \"email_client\": \"sophie.dubois@email.com\",\n  \"type_abonnement\": \"Premium\",\n  \"montant\": 29.99,\n  \"methode_paiement\": \"Carte bancaire\",\n  \"reference_transaction\": \"TXN-2024-003\",\n  \"statut\": \"Validé\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8084/api/abonnements/paiements",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8084",
+          "path": ["api", "abonnements", "paiements"]
+        }
+      }
+    },
+    {
+      "name": "Get All Paiements",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8084/api/abonnements/paiements",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8084",
+          "path": ["api", "abonnements", "paiements"]
+        }
+      }
+    },
+    {
+      "name": "Get Paiements By Client",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8084/api/abonnements/paiements/client/jean.dupont@email.com",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8084",
+          "path": ["api", "abonnements", "paiements", "client", "jean.dupont@email.com"]
+        }
+      }
+    }
+  ]
+}

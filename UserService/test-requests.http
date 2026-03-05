@@ -1,0 +1,72 @@
+### Test 1: Hello endpoint (Public)
+GET http://localhost:8085/api/users/hello
+
+### Test 2: Info endpoint (Public)
+GET http://localhost:8085/api/auth/info
+
+### Test 3: Register ADMIN (Public)
+POST http://localhost:8085/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "email": "admin@wordly.com",
+  "password": "admin123",
+  "role": "ADMIN",
+  "nom": "Admin",
+  "prenom": "System",
+  "telephone": "+216 12345678",
+  "poste": "Directeur"
+}
+
+### Test 4: Register TEACHER (Public)
+POST http://localhost:8085/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "teacher1",
+  "email": "teacher1@wordly.com",
+  "password": "teacher123",
+  "role": "TEACHER",
+  "nom": "Dupont",
+  "prenom": "Jean",
+  "telephone": "+216 23456789",
+  "specialite": "Mathématiques",
+  "experience": 5,
+  "disponibilite": "Lundi, Mercredi, Vendredi"
+}
+
+### Test 5: Register STUDENT (Public)
+POST http://localhost:8085/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "student1",
+  "email": "student1@wordly.com",
+  "password": "student123",
+  "role": "STUDENT",
+  "nom": "Martin",
+  "prenom": "Sophie",
+  "telephone": "+216 34567890",
+  "date_naissance": "2000-05-15",
+  "niveau_actuel": "Licence 2",
+  "statut_etudiant": "Inscrit"
+}
+
+### Test 6: Get Token from Keycloak (after registration)
+POST http://localhost:9090/realms/wordly-realm/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password&client_id=wordly-client&client_secret=0pwSKWbwfSrT1GcmUY81NYnKoPu4sCl0&username=admin&password=admin123
+
+### Test 7: Get current user (Protected - need token)
+GET http://localhost:8085/api/auth/me
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Test 8: Get all users (Protected - need token)
+GET http://localhost:8085/api/users
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Test 9: Get user stats (Protected - need token)
+GET http://localhost:8085/api/users/stats
+Authorization: Bearer YOUR_TOKEN_HERE

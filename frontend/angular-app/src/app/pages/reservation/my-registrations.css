@@ -1,0 +1,376 @@
+/* =========================================================
+   MY REGISTRATIONS + MY CLUBS (PRO PREMIUM CSS)
+   Works with your classes:
+   .res-grid-wrap .res-grid .res-card .res-top .res-info .res-right
+   .res-title .res-date .res-status .btn-delete .btn-register .badge
+   ========================================================= */
+
+/* ---------- Page background ---------- */
+:host {
+  display: block;
+}
+
+.min-h-screen {
+  background:
+    radial-gradient(1200px 520px at 15% 0%, rgba(0, 200, 151, 0.12), transparent 60%),
+    radial-gradient(1000px 520px at 85% 15%, rgba(255, 127, 80, 0.10), transparent 58%),
+    #ffffff;
+}
+
+/* Titles spacing nicer */
+h1, h2 {
+  letter-spacing: -0.02em;
+}
+
+/* ---------- Grid center + size ---------- */
+.res-grid-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.res-grid {
+  width: 100%;
+  max-width: 980px; /* global width */
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+
+/* 1 column on medium */
+@media (max-width: 920px) {
+  .res-grid {
+    grid-template-columns: 1fr;
+    max-width: 640px;
+  }
+}
+
+/* ---------- Card base ---------- */
+.res-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 18px 18px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  background: linear-gradient(
+    135deg,
+    rgba(0, 200, 151, 0.08),
+    rgba(255, 127, 80, 0.06)
+  );
+  box-shadow: 0 14px 42px rgba(15, 23, 42, 0.09);
+  backdrop-filter: blur(18px);
+  transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+}
+
+/* glow overlay */
+.res-card::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background:
+    radial-gradient(520px circle at 20% 10%, rgba(0, 200, 151, 0.14), transparent 55%),
+    radial-gradient(520px circle at 90% 30%, rgba(255, 127, 80, 0.12), transparent 55%);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.res-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 26px 70px rgba(15, 23, 42, 0.14);
+  border-color: rgba(0, 200, 151, 0.45);
+}
+
+/* ---------- Layout inside card ---------- */
+.res-top {
+  position: relative; /* keep above glow */
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch; /* ✅ IMPORTANT: makes right column stretch like left */
+  gap: 16px;
+}
+
+.res-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.res-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+  min-width: 140px;
+
+  align-self: stretch; /* ✅ IMPORTANT */
+}
+
+/* ✅ Put badge button at the bottom of the card */
+.res-right .btn-register {
+  margin-top: auto; /* ✅ pushes it to the bottom */
+}
+
+/* ---------- Title ---------- */
+.res-title {
+  font-size: 18px;
+  font-weight: 900;
+  color: rgb(15, 23, 42);
+  margin: 0 0 10px;
+  letter-spacing: -0.02em;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Small meta text (created on) ---------- */
+.text-gray-500,
+.text-gray-600 {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------- Date chip ---------- */
+.res-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  font-size: 12.5px;
+  font-weight: 800;
+  color: rgb(71, 85, 105);
+}
+
+/* ---------- Badge pills (for My Clubs type/city) ---------- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  color: rgb(71, 85, 105);
+
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* make long ville text not break layout */
+.badge + .badge {
+  max-width: 220px;
+}
+
+/* ---------- Status pill ---------- */
+.res-status {
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+/* Reservation statuses */
+.res-status.pending {
+  background: rgba(255, 127, 80, 0.15);
+  border-color: rgba(255, 127, 80, 0.40);
+  color: rgb(194, 65, 12);
+}
+.res-status.confirmed {
+  background: rgba(0, 200, 151, 0.15);
+  border-color: rgba(0, 200, 151, 0.40);
+  color: rgb(0, 120, 90);
+}
+.res-status.canceled {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.40);
+  color: rgb(185, 28, 28);
+}
+
+/* "JOINED" badge in My Clubs (you use confirmed) */
+.res-status.confirmed {
+  box-shadow: 0 10px 30px rgba(0, 200, 151, 0.12);
+}
+
+/* ---------- Buttons ---------- */
+.btn-delete {
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.10);
+  color: rgb(185, 28, 28);
+  font-weight: 900;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 9px 12px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
+}
+
+.btn-delete:hover {
+  background: rgba(239, 68, 68, 0.14);
+  box-shadow: 0 14px 34px rgba(239, 68, 68, 0.18);
+  transform: translateY(-1px);
+}
+
+.btn-delete:active {
+  transform: translateY(0);
+}
+
+/* ✅ Badge button (Obtenir mon badge) */
+.btn-register {
+  border: 1px solid rgba(0, 200, 151, 0.40);
+  background: rgba(0, 200, 151, 0.12);
+  color: rgb(0, 120, 90);
+  font-weight: 900;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 9px 12px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
+  white-space: nowrap;
+}
+
+.btn-register:hover {
+  background: rgba(0, 200, 151, 0.16);
+  box-shadow: 0 14px 34px rgba(0, 200, 151, 0.18);
+  transform: translateY(-1px);
+}
+
+.btn-register:active {
+  transform: translateY(0);
+}
+
+.btn-register:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ---------- Club image box improvement ---------- */
+.res-info .overflow-hidden.rounded-2xl {
+  border-radius: 18px !important;
+}
+
+.res-info img {
+  display: block;
+  width: 100%;
+  height: 160px;        /* a bit bigger */
+  object-fit: cover;
+  border-radius: 18px;
+  transform: scale(1);
+  transition: transform 220ms ease;
+}
+
+.res-card:hover .res-info img {
+  transform: scale(1.03);
+}
+
+/* ---------- Responsive (mobile): stack right controls ---------- */
+@media (max-width: 640px) {
+  .res-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .res-right {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    min-width: 0;
+  }
+
+  /* on mobile: don't force badge button to bottom */
+  .res-right .btn-register {
+    margin-top: 0;
+  }
+
+  .res-title {
+    white-space: normal;
+  }
+
+  .badge + .badge {
+    max-width: 100%;
+  }
+}
+
+/* =========================================================
+   DARK MODE (works if you put class="dark" on body/html)
+   ========================================================= */
+:host-context(.dark) .min-h-screen {
+  background:
+    radial-gradient(1200px 520px at 15% 0%, rgba(0, 200, 151, 0.14), transparent 60%),
+    radial-gradient(1000px 520px at 85% 15%, rgba(255, 127, 80, 0.12), transparent 58%),
+    #0b1220;
+}
+
+:host-context(.dark) .res-card {
+  border-color: rgba(30, 41, 59, 0.85);
+  background: linear-gradient(
+    135deg,
+    rgba(0, 200, 151, 0.12),
+    rgba(255, 127, 80, 0.10)
+  );
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.45);
+}
+
+:host-context(.dark) .res-title {
+  color: rgb(226, 232, 240);
+}
+
+:host-context(.dark) .res-date {
+  background: rgba(15, 23, 42, 0.55);
+  border-color: rgba(30, 41, 59, 0.85);
+  color: rgb(148, 163, 184);
+}
+
+:host-context(.dark) .badge {
+  background: rgba(15, 23, 42, 0.55);
+  border-color: rgba(30, 41, 59, 0.85);
+  color: rgb(148, 163, 184);
+}
+
+:host-context(.dark) .btn-delete {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.14);
+  color: rgb(254, 202, 202);
+}
+
+:host-context(.dark) .btn-register {
+  border-color: rgba(0, 200, 151, 0.45);
+  background: rgba(0, 200, 151, 0.18);
+  color: rgb(167, 243, 208);
+}
+
+:host-context(.dark) .res-status.pending {
+  background: rgba(255, 127, 80, 0.20);
+  border-color: rgba(255, 127, 80, 0.45);
+  color: rgb(253, 186, 116);
+}
+
+:host-context(.dark) .res-status.confirmed {
+  background: rgba(0, 200, 151, 0.20);
+  border-color: rgba(0, 200, 151, 0.45);
+  color: rgb(167, 243, 208);
+}
+
+:host-context(.dark) .res-status.canceled {
+  background: rgba(239, 68, 68, 0.20);
+  border-color: rgba(239, 68, 68, 0.45);
+  color: rgb(254, 202, 202);
+}

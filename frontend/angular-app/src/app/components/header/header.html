@@ -1,0 +1,209 @@
+<header class="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 transition-colors duration-300">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo -->
+      <a routerLink="/" class="flex items-center gap-2 group">
+        <div class="relative w-10 h-10 group-hover:scale-110 transition-transform duration-300">
+          <svg viewBox="0 0 100 100" class="w-full h-full">
+            <!-- Gradient Circle Background -->
+            <defs>
+              <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:rgb(0,200,151);stop-opacity:1" />
+                <stop offset="50%" style="stop-color:rgb(255,215,0);stop-opacity:1" />
+                <stop offset="100%" style="stop-color:rgb(255,127,80);stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <circle cx="50" cy="50" r="45" fill="url(#logoGradient)"/>
+            <!-- W Letter -->
+            <text x="50" y="48" font-family="Arial, sans-serif" font-size="45" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="middle">W</text>
+            <!-- Open Book -->
+            <path d="M 25 65 Q 50 55 75 65" stroke="black" stroke-width="4" fill="none"/>
+            <path d="M 25 65 L 25 72 Q 50 62 75 72 L 75 65" fill="rgba(255,255,255,0.3)" stroke="black" stroke-width="2"/>
+            <!-- Speech Bubble Tail -->
+            <path d="M 20 75 L 15 85 L 28 78 Z" fill="url(#logoGradient)"/>
+          </svg>
+        </div>
+        <span class="text-xl font-bold bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] bg-clip-text text-transparent">
+           jungle in english
+        </span>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <nav class="hidden md:flex items-center gap-8">
+        @for (link of navLinks; track link.path) {
+          <a 
+            [routerLink]="link.path" 
+            routerLinkActive="text-[rgb(0,200,151)]"
+            [routerLinkActiveOptions]="{exact: false}"
+            class="transition-colors duration-200 hover:text-[rgb(0,200,151)]">
+            {{ link.name }}
+          </a>
+        }
+      </nav>
+
+      <!-- Desktop Actions -->
+      <div class="hidden md:flex items-center gap-4">
+        <button 
+          (click)="themeService.toggleTheme()"
+          class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          aria-label="Toggle theme">
+          @if (themeService.theme() === 'light') {
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+          } @else {
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+          }
+        </button>
+        
+        @if (!isAuthenticated) {
+          <button (click)="openLogin()" class="px-4 py-2 text-sm font-medium hover:bg-[rgb(255,127,80)] hover:text-white rounded-lg transition-colors">
+            Sign In
+          </button>
+          <button (click)="openRegister()" class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white rounded-lg hover:opacity-90 transition-opacity">
+            Get Started
+          </button>
+        } @else {
+          <!-- User Menu -->
+          <div class="relative">
+            <button 
+              (click)="toggleUserMenu()"
+              class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+              <div class="w-8 h-8 rounded-full bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] flex items-center justify-center text-white font-medium">
+                {{ currentUser?.prenom?.charAt(0) || 'U' }}
+              </div>
+              <span class="text-sm font-medium">{{ currentUser?.prenom || 'User' }}</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+
+            @if (userMenuOpen) {
+              <div class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+                <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                  <p class="text-sm font-medium text-gray-900 dark:text-white">{{ currentUser?.username }}</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">{{ currentUser?.email }}</p>
+                  <span class="inline-block mt-1 px-2 py-0.5 text-xs rounded-full bg-primary/10 text-primary">
+                    {{ currentUser?.role }}
+                  </span>
+                </div>
+                <a 
+                  routerLink="/profile"
+                  (click)="closeUserMenu()"
+                  class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                  Profile
+                </a>
+                <a 
+  routerLink="/my-registrations"
+  (click)="closeUserMenu()"
+  class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+  Event Reservation and Club 
+</a>
+                @if (currentUser?.role === 'ADMIN') {
+                  <a 
+                    href="http://localhost:4201/dashboard"
+                    target="_blank"
+                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors border-t border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center gap-2">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                      </svg>
+                      <span>Dashboard</span>
+                    </div>
+                  </a>
+                }
+                <button 
+                  (click)="logout()"
+                  class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                  Sign Out
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <div class="flex md:hidden items-center gap-2">
+        <button 
+          (click)="themeService.toggleTheme()"
+          class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          aria-label="Toggle theme">
+          @if (themeService.theme() === 'light') {
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+          } @else {
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+          }
+        </button>
+        <button 
+          (click)="toggleMobileMenu()"
+          class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          aria-label="Toggle menu">
+          @if (mobileMenuOpen) {
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          } @else {
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  @if (mobileMenuOpen) {
+    <div class="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md">
+      <div class="px-4 py-4 space-y-3">
+        @for (link of navLinks; track link.path) {
+          <a 
+            [routerLink]="link.path" 
+            (click)="toggleMobileMenu()"
+            routerLinkActive="bg-[rgb(0,200,151)]/10 text-[rgb(0,200,151)]"
+            class="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+            {{ link.name }}
+          </a>
+        }
+        <div class="pt-4 border-t border-gray-200 dark:border-gray-800 flex flex-col gap-2">
+          @if (!isAuthenticated) {
+            <button (click)="openLogin()" class="w-full px-4 py-2 text-sm font-medium border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-[rgb(255,127,80)] hover:text-white hover:border-[rgb(255,127,80)] transition-colors text-center">
+              Sign In
+            </button>
+            <button (click)="openRegister()" class="w-full px-4 py-2 text-sm font-medium bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white rounded-lg hover:opacity-90 transition-opacity text-center">
+              Get Started
+            </button>
+          } @else {
+            <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+              <p class="text-sm font-medium text-gray-900 dark:text-white">{{ currentUser?.username }}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">{{ currentUser?.email }}</p>
+              <span class="inline-block mt-1 px-2 py-0.5 text-xs rounded-full bg-primary/10 text-primary">
+                {{ currentUser?.role }}
+              </span>
+              
+            </div>
+            <a 
+              routerLink="/profile"
+              (click)="toggleMobileMenu()"
+              class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+              Profile
+            </a>
+            
+            <button 
+              (click)="logout(); toggleMobileMenu()"
+              class="w-full px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-300 dark:border-red-700 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+              Sign Out
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</header>
