@@ -69,7 +69,7 @@ import { ChatbotImprovedService, ChatMessage } from '../../services/chatbot-impr
             [(ngModel)]="userMessage"
             (keyup.enter)="sendMessage()"
             placeholder="Tapez votre message..."
-            class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
             [disabled]="isTyping"
           />
           <button
@@ -226,6 +226,20 @@ import { ChatbotImprovedService, ChatMessage } from '../../services/chatbot-impr
       background: white;
     }
 
+    .chat-input input {
+      color: #1f2937 !important;
+      background-color: white !important;
+    }
+
+    .chat-input input::placeholder {
+      color: #9ca3af !important;
+    }
+
+    .chat-input input:disabled {
+      background-color: #f3f4f6 !important;
+      color: #6b7280 !important;
+    }
+
     .confirm-overlay {
       position: absolute;
       top: 0;
@@ -271,15 +285,19 @@ export class ChatbotWidgetComponent implements OnInit {
   }
 
   sendMessage() {
-    if (!this.userMessage.trim()) return;
+    if (!this.userMessage.trim() || this.isTyping) return;
 
+    const messageToSend = this.userMessage.trim();
+    this.userMessage = ''; // Clear input immediately
     this.isTyping = true;
-    this.chatbotService.sendMessage(this.userMessage).subscribe({
+
+    this.chatbotService.sendMessage(messageToSend).subscribe({
       next: () => {
-        this.userMessage = '';
         this.isTyping = false;
+        setTimeout(() => this.scrollToBottom(), 100);
       },
-      error: () => {
+      error: (error) => {
+        console.error('Chatbot error:', error);
         this.isTyping = false;
       }
     });

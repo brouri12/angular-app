@@ -127,7 +127,7 @@ export class ChatbotImprovedService {
     this.saveConversationHistory();
     this.conversationSubject.next([...this.conversationHistory]);
 
-    return of(response).pipe(delay(800)); // Simulate typing delay
+    return of(response).pipe(delay(500)); // Reduced delay
   }
 
   private generateResponse(message: string): ChatbotResponse {
