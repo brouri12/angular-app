@@ -1,4 +1,5 @@
 export interface User {
+  id?: number; // Alias for id_user
   id_user?: number;
   username: string;
   email: string;

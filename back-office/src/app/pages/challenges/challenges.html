@@ -1,0 +1,342 @@
+<div class="p-6">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Challenge Management</h1>
+      <p class="text-gray-600 dark:text-gray-400 mt-1">Create and manage English learning challenges</p>
+    </div>
+    <button
+      (click)="openAddModal()"
+      class="px-6 py-3 rounded-lg font-medium transition-opacity bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white hover:opacity-90">
+      + Add Challenge
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <input
+        type="text"
+        [value]="searchTerm()"
+        (input)="onSearchChange($any($event.target).value)"
+        placeholder="Search challenges..."
+        class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+      />
+      <select
+        [(ngModel)]="filterLevel"
+        (change)="onFilterChange()"
+        class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white">
+        <option value="all">All Levels</option>
+        @for (level of levels; track level) {
+          <option [value]="level">{{ getLevelLabel(level) }} ({{ level }})</option>
+        }
+      </select>
+      <select
+        [(ngModel)]="filterType"
+        (change)="onFilterChange()"
+        class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white">
+        <option value="all">All Types</option>
+        @for (type of types; track type) {
+          <option [value]="type">{{ getTypeIcon(type) }} {{ type }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="text-center py-12">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-green-500 border-t-transparent"></div>
+    </div>
+  }
+
+  <!-- Challenges Table -->
+  @if (!loading()) {
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead class="bg-gray-50 dark:bg-gray-900">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Title</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Level</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Questions</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Points</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Attempts</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+          @for (challenge of filteredChallenges(); track challenge.id) {
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+              <td class="px-6 py-4">
+                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ challenge.title }}</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">{{ challenge.category }}</div>
+              </td>
+              <td class="px-6 py-4">
+                <span [class]="getLevelColor(challenge.level)" class="px-2 py-1 rounded text-xs font-semibold">
+                  {{ challenge.level }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                {{ getTypeIcon(challenge.type) }} {{ challenge.type }}
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                {{ challenge.questions?.length || 0 }}
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                {{ challenge.points }}
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                {{ challenge.totalAttempts || 0 }}
+              </td>
+              <td class="px-6 py-4 text-sm">
+                <button
+                  (click)="openEditModal(challenge)"
+                  class="text-blue-600 hover:text-blue-800 mr-3">
+                  Edit
+                </button>
+                <button
+                  (click)="deleteChallenge(challenge)"
+                  class="text-red-600 hover:text-red-800">
+                  Delete
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      @if (filteredChallenges().length === 0) {
+        <div class="text-center py-12">
+          <p class="text-gray-500 dark:text-gray-400">No challenges found</p>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Modal -->
+@if (showModal()) {
+  <div class="fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="fixed inset-0 bg-black opacity-50" (click)="closeModal()"></div>
+      
+      <div class="relative bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+            {{ editMode() ? 'Edit Challenge' : 'Create New Challenge' }}
+          </h2>
+
+          <!-- Basic Info -->
+          <div class="space-y-4 mb-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Title *</label>
+              <input
+                type="text"
+                [(ngModel)]="currentChallenge.title"
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                placeholder="e.g., Basic English Greetings"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description *</label>
+              <textarea
+                [(ngModel)]="currentChallenge.description"
+                rows="3"
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                placeholder="Describe what this challenge tests..."
+              ></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Level *</label>
+                <select
+                  [(ngModel)]="currentChallenge.level"
+                  class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white">
+                  @for (level of levels; track level) {
+                    <option [value]="level">{{ getLevelLabel(level) }} ({{ level }})</option>
+                  }
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type *</label>
+                <select
+                  [(ngModel)]="currentChallenge.type"
+                  class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white">
+                  @for (type of types; track type) {
+                    <option [value]="type">{{ type }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Skill Focus *</label>
+                <select
+                  [(ngModel)]="currentChallenge.skillFocus"
+                  class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white">
+                  @for (skill of skills; track skill) {
+                    <option [value]="skill">{{ skill }}</option>
+                  }
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Points *</label>
+                <input
+                  type="number"
+                  [(ngModel)]="currentChallenge.points"
+                  class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Time Limit (min)</label>
+                <input
+                  type="number"
+                  [(ngModel)]="currentChallenge.timeLimit"
+                  class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
+              <input
+                type="text"
+                [(ngModel)]="currentChallenge.category"
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                placeholder="e.g., Greetings, Tenses, Vocabulary"
+              />
+            </div>
+          </div>
+
+          <!-- Questions -->
+          <div class="mb-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Questions</h3>
+              <button
+                (click)="addQuestion()"
+                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                + Add Question
+              </button>
+            </div>
+
+            @for (question of currentChallenge.questions; track $index; let i = $index) {
+              <div class="border border-gray-300 dark:border-gray-600 rounded-lg p-4 mb-4">
+                <div class="flex justify-between items-start mb-4">
+                  <h4 class="font-semibold text-gray-900 dark:text-white">Question {{ i + 1 }}</h4>
+                  <button
+                    (click)="removeQuestion(i)"
+                    class="text-red-600 hover:text-red-800">
+                    Remove
+                  </button>
+                </div>
+
+                <div class="space-y-3">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Question Text *</label>
+                    <input
+                      type="text"
+                      [(ngModel)]="question.questionText"
+                      class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                    />
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type *</label>
+                      <select
+                        [(ngModel)]="question.type"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white">
+                        @for (qType of questionTypes; track qType) {
+                          <option [value]="qType">{{ qType }}</option>
+                        }
+                      </select>
+                    </div>
+
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Points *</label>
+                      <input
+                        type="number"
+                        [(ngModel)]="question.points"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                      />
+                    </div>
+                  </div>
+
+                  @if (question.type === 'MULTIPLE_CHOICE') {
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Options</label>
+                      @for (option of question.options; track $index; let j = $index) {
+                        <div class="flex gap-2 mb-2">
+                          <input
+                            type="text"
+                            [(ngModel)]="question.options![j]"
+                            class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                            [placeholder]="'Option ' + (j + 1)"
+                          />
+                          <button
+                            (click)="removeOption(question, j)"
+                            class="text-red-600 hover:text-red-800 px-2">
+                            ✕
+                          </button>
+                        </div>
+                      }
+                      <button
+                        (click)="addOption(question)"
+                        class="text-blue-600 hover:text-blue-800 text-sm">
+                        + Add Option
+                      </button>
+                    </div>
+                  }
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Correct Answer *</label>
+                    <input
+                      type="text"
+                      [(ngModel)]="question.correctAnswer"
+                      class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Explanation</label>
+                    <textarea
+                      [(ngModel)]="question.explanation"
+                      rows="2"
+                      class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                      placeholder="Explain why this is the correct answer..."
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+            }
+
+            @if (currentChallenge.questions.length === 0) {
+              <p class="text-gray-500 dark:text-gray-400 text-center py-4">No questions added yet</p>
+            }
+          </div>
+
+          <!-- Actions -->
+          <div class="flex justify-end gap-3">
+            <button
+              (click)="closeModal()"
+              class="px-6 py-2 rounded-lg font-medium transition-colors border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800">
+              Cancel
+            </button>
+            <button
+              (click)="saveChallenge()"
+              class="px-6 py-2 rounded-lg font-medium transition-opacity bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white hover:opacity-90">
+              {{ editMode() ? 'Update' : 'Create' }} Challenge
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

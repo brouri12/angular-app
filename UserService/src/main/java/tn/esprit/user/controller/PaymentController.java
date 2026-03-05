@@ -66,10 +66,7 @@ public class PaymentController {
         return ResponseEntity.ok(payment);
     }
     
-    @GetMapping
-    public ResponseEntity<List<Payment>> getAllPayments() {
-        return ResponseEntity.ok(paymentService.getAllPayments());
-    }
+    // IMPORTANT: Specific paths MUST come before path variables to avoid routing conflicts
     
     @GetMapping("/pending")
     public ResponseEntity<List<Payment>> getPendingPayments() {
@@ -77,11 +74,23 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.getPendingPayments());
     }
     
+    @GetMapping("/validated")
+    public ResponseEntity<List<Payment>> getValidatedPayments() {
+        log.info("Fetching validated payments for reminder service");
+        return ResponseEntity.ok(paymentService.getValidatedPayments());
+    }
+    
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Payment>> getPaymentsByUser(@PathVariable Long userId) {
         return ResponseEntity.ok(paymentService.getPaymentsByUser(userId));
     }
     
+    @GetMapping
+    public ResponseEntity<List<Payment>> getAllPayments() {
+        return ResponseEntity.ok(paymentService.getAllPayments());
+    }
+    
+    // Path variable endpoints MUST come last
     @GetMapping("/{id}")
     public ResponseEntity<Payment> getPaymentById(@PathVariable Long id) {
         return ResponseEntity.ok(paymentService.getPaymentById(id));

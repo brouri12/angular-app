@@ -105,7 +105,7 @@ public class UserService {
                 .collect(Collectors.toList());
     }
     
-    // Récupérer les utilisateurs actifs/inactifs
+    // Get active/inactive users
     public List<UserDTO> getUsersByEnabled(Boolean enabled) {
         return userRepository.findByEnabled(enabled).stream()
                 .map(this::convertToDTO)

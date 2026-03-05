@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.abonnement.dto.AbonnementAnalyticsDTO;
 import tn.esprit.abonnement.entity.Abonnement;
 import tn.esprit.abonnement.entity.HistoriqueAbonnement;
 import tn.esprit.abonnement.service.AbonnementService;
@@ -171,5 +172,21 @@ public class AbonnementRestAPI {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+    
+    // ========== ANALYTICS ENDPOINT ==========
+    
+    /**
+     * Get comprehensive analytics for abonnements
+     * Returns statistics about subscriptions, pricing, features, etc.
+     */
+    @GetMapping("/analytics")
+    public ResponseEntity<AbonnementAnalyticsDTO> getAnalytics() {
+        try {
+            AbonnementAnalyticsDTO analytics = abonnementService.getAnalytics();
+            return ResponseEntity.ok(analytics);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

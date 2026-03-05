@@ -1,0 +1,118 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    SIMPLE TEST STEPS - NO SCRIPTS NEEDED                     ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+STEP 1: START SERVICES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Open 2 terminals in: C:\Users\marwe\Desktop\e_learnig-platform
+
+Terminal 1:
+  cd AbonnementService
+  mvn spring-boot:run
+
+Terminal 2:
+  cd UserService
+  mvn spring-boot:run
+
+Wait for both to start (look for "started successfully" messages)
+
+
+STEP 2: CREATE TEST DATA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+A. Check your user ID:
+   mysql -u root -p -P 3307 -D elearning_db -e "SELECT id_user, username FROM users LIMIT 3;"
+
+B. Check your subscription ID:
+   mysql -u root -p -P 3307 -D elearning_db -e "SELECT id_abonnement, nom FROM abonnements;"
+
+C. Create test payments (replace 1 with your actual IDs):
+   mysql -u root -p -P 3307 -D elearning_db
+
+   Then paste these commands (change @user_id and @sub_id):
+
+   SET @user_id = 1;
+   SET @sub_id = 1;
+
+   INSERT INTO payments (id_user, id_abonnement, montant, methode_paiement, statut, date_paiement, nom_client, email_client, type_abonnement)
+   VALUES (@user_id, @sub_id, 29.99, 'carte', 'Validé', DATE_SUB(NOW(), INTERVAL 35 DAY), 'Test Expired', 'expired@test.com', 'Premium');
+
+   INSERT INTO payments (id_user, id_abonnement, montant, methode_paiement, statut, date_paiement, nom_client, email_client, type_abonnement)
+   VALUES (@user_id, @sub_id, 29.99, 'carte', 'Validé', DATE_SUB(NOW(), INTERVAL 23 DAY), 'Test 7Days', '7days@test.com', 'Premium');
+
+   exit
+
+
+STEP 3: TEST THE API
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+A. Check validated payments:
+   curl http://localhost:8085/api/payments/validated
+
+   You should see your test payments
+
+B. Trigger reminder check:
+   curl -X POST http://localhost:8083/api/subscription-reminders/check-now
+
+   You should see reminders in the response
+
+C. Get reminders for your user (replace 1 with your user ID):
+   curl http://localhost:8083/api/subscription-reminders/user/1
+
+
+STEP 4: TEST FRONTEND
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Terminal 3:
+  cd frontend\angular-app
+  ng serve --port 4200
+
+Then:
+  1. Open http://localhost:4200
+  2. Login with your account
+  3. Look for bell icon 🔔 in header
+  4. Click it to see reminders
+
+
+EXPECTED RESULTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✓ AbonnementService console shows:
+  🔔 Starting subscription expiration check...
+  ✅ Subscription check complete. Found 2 reminders
+
+✓ API returns JSON with reminders
+
+✓ Frontend shows:
+  - Bell icon with red badge (2)
+  - Dropdown with 2 reminders
+  - Red alert for expired
+  - Yellow alert for 7 days
+
+
+TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Problem: Services won't start
+Solution: Check if ports are free (8083, 8085)
+         netstat -ano | findstr "8083"
+         netstat -ano | findstr "8085"
+
+Problem: No reminders showing
+Solution: Check if payments were created
+         mysql -u root -p -P 3307 -D elearning_db -e "SELECT * FROM payments WHERE nom_client LIKE 'Test%';"
+
+Problem: Bell icon not visible
+Solution: Make sure you're logged in
+         Check browser console (F12) for errors
+
+
+CLEANUP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+To remove test data:
+  mysql -u root -p -P 3307 -D elearning_db -e "DELETE FROM payments WHERE nom_client LIKE 'Test%';"
+
+
+THAT'S IT! 🎉

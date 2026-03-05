@@ -1,0 +1,43 @@
+{
+  "title": "Basic English Greetings",
+  "description": "Test your knowledge of common English greetings and introductions",
+  "type": "VOCABULARY",
+  "skillFocus": "VOCABULARY",
+  "level": "A1",
+  "category": "Greetings",
+  "points": 30,
+  "timeLimit": 10,
+  "content": "This challenge tests your understanding of basic English greetings.",
+  "createdBy": 1,
+  "isPublic": true,
+  "tags": "greetings,beginner,vocabulary",
+  "questions": [
+    {
+      "type": "MULTIPLE_CHOICE",
+      "questionText": "How do you greet someone in the morning?",
+      "options": ["Good night", "Good morning", "Good afternoon", "Goodbye"],
+      "correctAnswer": "Good morning",
+      "explanation": "We say 'Good morning' when we meet someone before noon.",
+      "points": 10,
+      "orderIndex": 0
+    },
+    {
+      "type": "MULTIPLE_CHOICE",
+      "questionText": "What is the correct response to 'How are you?'",
+      "options": ["I'm fine, thank you", "Yes, please", "No, thanks", "Goodbye"],
+      "correctAnswer": "I'm fine, thank you",
+      "explanation": "'I'm fine, thank you' is the most common polite response.",
+      "points": 10,
+      "orderIndex": 1
+    },
+    {
+      "type": "FILL_BLANK",
+      "questionText": "Nice to _____ you!",
+      "correctAnswer": "meet",
+      "acceptableAnswers": ["meet", "see"],
+      "explanation": "We say 'Nice to meet you' when meeting someone for the first time.",
+      "points": 10,
+      "orderIndex": 2
+    }
+  ]
+}

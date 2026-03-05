@@ -6,6 +6,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import tn.esprit.user.entity.User;
 import tn.esprit.user.entity.User.UserRole;
 import tn.esprit.user.repository.UserRepository;
@@ -14,6 +15,7 @@ import java.time.LocalDate;
 
 @SpringBootApplication
 @EnableDiscoveryClient
+@EnableScheduling
 @RequiredArgsConstructor
 public class UserServiceApplication {
     

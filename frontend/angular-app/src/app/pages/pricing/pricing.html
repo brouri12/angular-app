@@ -69,7 +69,7 @@
               <div class="mb-6">
                 <div class="flex items-baseline gap-2">
                   <span class="text-5xl font-bold bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] bg-clip-text text-transparent">
-                    {{ getPrice(abonnement) }}
+                    {{ getPrice(abonnement) }} TND
                   </span>
                   @if (abonnement.prix > 0) {
                     <span class="text-gray-600 dark:text-gray-400">
@@ -359,7 +359,7 @@
         <div class="mb-6 p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
           <h3 class="font-semibold mb-2">{{ selectedAbonnement()!.nom }}</h3>
           <p class="text-2xl font-bold text-[rgb(0,200,151)]">
-            ${{ getPrice(selectedAbonnement()!) }}
+            {{ getPrice(selectedAbonnement()!) }} TND
             <span class="text-sm text-gray-600 dark:text-gray-400">
               /{{ billingCycle() === 'monthly' ? 'month' : 'year' }}
             </span>
@@ -402,7 +402,7 @@
                 </svg>
                 Processing...
               } @else {
-                Pay ${{ getPrice(selectedAbonnement()!) }}
+                Pay {{ getPrice(selectedAbonnement()!) }} TND
               }
             </button>
           </div>

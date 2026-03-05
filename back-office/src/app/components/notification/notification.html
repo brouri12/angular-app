@@ -1,0 +1,62 @@
+@if (notification) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+    <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-md w-full transform animate-scale-in border-2" [ngClass]="getColorClass()">
+      <!-- Header -->
+      <div class="p-6 pb-4">
+        <div class="flex items-start gap-4">
+          <!-- Icon -->
+          <div class="flex-shrink-0">
+            <svg class="w-8 h-8" [ngClass]="getIconColorClass()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="getIcon()"></path>
+            </svg>
+          </div>
+          
+          <!-- Content -->
+          <div class="flex-1 min-w-0">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+              {{ notification.title }}
+            </h3>
+            <p class="text-sm text-gray-600 dark:text-gray-300">
+              {{ notification.message }}
+            </p>
+          </div>
+
+          <!-- Close button (only for non-confirm types) -->
+          @if (notification.type !== 'confirm') {
+            <button (click)="close()" 
+                    class="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="px-6 pb-6 pt-2">
+        <div class="flex gap-3 justify-end">
+          <!-- Confirm type: Show both buttons -->
+          @if (notification.type === 'confirm') {
+            <button (click)="cancel()" 
+                    class="px-6 py-2.5 rounded-lg font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200">
+              Cancel
+            </button>
+            <button (click)="confirm()" 
+                    [ngClass]="getButtonClass()"
+                    class="px-6 py-2.5 rounded-lg font-medium text-white transition-all duration-200 transform hover:scale-105">
+              Confirm
+            </button>
+          } @else {
+            <!-- Other types: Show single OK button -->
+            <button (click)="close()" 
+                    [ngClass]="getButtonClass()"
+                    class="px-8 py-2.5 rounded-lg font-medium text-white transition-all duration-200 transform hover:scale-105">
+              OK
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+}

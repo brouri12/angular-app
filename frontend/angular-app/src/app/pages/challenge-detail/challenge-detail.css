@@ -1,0 +1,35 @@
+/* Smooth transitions */
+* {
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Timer warning animation */
+@keyframes pulse-red {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.text-red-600 {
+  animation: pulse-red 1s ease-in-out infinite;
+}
+
+/* Question navigation buttons */
+button:focus {
+  outline: 2px solid rgb(0, 200, 151);
+  outline-offset: 2px;
+}
+
+/* Radio button custom styling */
+input[type="radio"]:checked {
+  accent-color: rgb(0, 200, 151);
+}
+
+/* Input focus states */
+input:focus,
+textarea:focus {
+  box-shadow: 0 0 0 3px rgba(0, 200, 151, 0.1);
+}

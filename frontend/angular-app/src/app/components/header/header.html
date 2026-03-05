@@ -58,6 +58,10 @@
           }
         </button>
         
+        @if (isAuthenticated) {
+          <app-subscription-reminders></app-subscription-reminders>
+        }
+        
         @if (!isAuthenticated) {
           <button (click)="openLogin()" class="px-4 py-2 text-sm font-medium hover:bg-[rgb(255,127,80)] hover:text-white rounded-lg transition-colors">
             Sign In

@@ -76,7 +76,7 @@
                   <div class="font-medium">{{ payment.typeAbonnement }}</div>
                   <div class="text-sm text-gray-500">{{ payment.referenceTransaction }}</div>
                 </td>
-                <td class="px-6 py-4 font-semibold">${{ payment.montant }}</td>
+                <td class="px-6 py-4 font-semibold">{{ payment.montant }} TND</td>
                 <td class="px-6 py-4">
                   <span class="capitalize">{{ payment.methodePaiement }}</span>
                 </td>
@@ -156,7 +156,7 @@
             </div>
             <div>
               <p class="text-sm text-gray-500 dark:text-gray-400">Amount</p>
-              <p class="font-semibold text-[rgb(0,200,151)]">${{ selectedPayment()!.montant }}</p>
+              <p class="font-semibold text-[rgb(0,200,151)]">{{ selectedPayment()!.montant }} TND</p>
             </div>
             <div>
               <p class="text-sm text-gray-500 dark:text-gray-400">Payment Method</p>

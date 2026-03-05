@@ -5,10 +5,11 @@ import { Theme } from '../../services/theme';
 import { AuthService } from '../../services/auth.service';
 import { ModalService } from '../../services/modal.service';
 import { User } from '../../models/user.model';
+import { SubscriptionReminders } from '../subscription-reminders/subscription-reminders';
 
 @Component({
   selector: 'app-header',
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive, SubscriptionReminders],
   templateUrl: './header.html',
   styleUrl: './header.css'
 })
@@ -20,6 +21,7 @@ export class Header {
 
   navLinks = [
     { name: 'Courses', path: '/courses' },
+    { name: 'Challenges', path: '/challenges' },
     { name: 'Pricing', path: '/pricing' },
     { name: 'About', path: '/about' },
   ];

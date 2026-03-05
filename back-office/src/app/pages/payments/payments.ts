@@ -1,8 +1,9 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PaymentService, Payment } from '../../services/payment.service';
 import { AuthService } from '../../services/auth.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-payments',
@@ -11,17 +12,16 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './payments.css'
 })
 export class Payments implements OnInit {
+  private paymentService = inject(PaymentService);
+  private authService = inject(AuthService);
+  private notificationService = inject(NotificationService);
+  
   payments = signal<Payment[]>([]);
   loading = signal(true);
   selectedPayment = signal<Payment | null>(null);
   showValidationModal = signal(false);
   validationNotes = '';
   activeTab = signal<'pending' | 'all'>('pending');
-
-  constructor(
-    private paymentService: PaymentService,
-    private authService: AuthService
-  ) {}
 
   ngOnInit() {
     this.loadPendingPayments();
@@ -82,7 +82,7 @@ export class Payments implements OnInit {
       this.validationNotes
     ).subscribe({
       next: () => {
-        alert('Payment validated successfully!');
+        this.notificationService.success('Payment Validated', 'The payment has been validated successfully!');
         this.closeModal();
         if (this.activeTab() === 'pending') {
           this.loadPendingPayments();
@@ -92,7 +92,7 @@ export class Payments implements OnInit {
       },
       error: (err) => {
         console.error('Error validating payment:', err);
-        alert('Error validating payment');
+        this.notificationService.error('Validation Failed', 'Error validating payment. Please try again.');
       }
     });
   }
@@ -104,7 +104,7 @@ export class Payments implements OnInit {
     if (!payment || !currentUser) return;
 
     if (!this.validationNotes.trim()) {
-      alert('Please provide a reason for rejection');
+      this.notificationService.warning('Reason Required', 'Please provide a reason for rejection');
       return;
     }
 
@@ -114,7 +114,7 @@ export class Payments implements OnInit {
       this.validationNotes
     ).subscribe({
       next: () => {
-        alert('Payment rejected');
+        this.notificationService.info('Payment Rejected', 'The payment has been rejected');
         this.closeModal();
         if (this.activeTab() === 'pending') {
           this.loadPendingPayments();
@@ -124,7 +124,7 @@ export class Payments implements OnInit {
       },
       error: (err) => {
         console.error('Error rejecting payment:', err);
-        alert('Error rejecting payment');
+        this.notificationService.error('Rejection Failed', 'Error rejecting payment. Please try again.');
       }
     });
   }
@@ -133,7 +133,7 @@ export class Payments implements OnInit {
     if (payment.receiptUrl) {
       window.open(this.paymentService.getReceiptUrl(payment.receiptUrl), '_blank');
     } else {
-      alert('No receipt available for this payment');
+      this.notificationService.info('No Receipt', 'No receipt is available for this payment');
     }
   }
 

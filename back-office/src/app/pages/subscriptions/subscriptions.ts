@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AbonnementService } from '../../services/abonnement.service';
 import { Abonnement } from '../../models/abonnement.model';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-subscriptions',
@@ -12,6 +13,7 @@ import { Abonnement } from '../../models/abonnement.model';
 })
 export class Subscriptions implements OnInit {
   private abonnementService = inject(AbonnementService);
+  private notificationService = inject(NotificationService);
   
   abonnements = signal<Abonnement[]>([]);
   filteredAbonnements = signal<Abonnement[]>([]);
@@ -98,38 +100,73 @@ export class Subscriptions implements OnInit {
         this.currentAbonnement
       ).subscribe({
         next: () => {
+          this.notificationService.success('Subscription Updated', 'The subscription has been updated successfully!');
           this.loadAbonnements();
           this.closeModal();
         },
-        error: (err) => console.error('Error updating abonnement:', err)
+        error: (err) => {
+          console.error('Error updating abonnement:', err);
+          this.notificationService.error('Update Failed', 'Failed to update subscription. Please try again.');
+        }
       });
     } else {
       // Create
       this.abonnementService.addAbonnement(this.currentAbonnement).subscribe({
         next: () => {
+          this.notificationService.success('Subscription Created', 'The subscription has been created successfully!');
           this.loadAbonnements();
           this.closeModal();
         },
-        error: (err) => console.error('Error creating abonnement:', err)
+        error: (err) => {
+          console.error('Error creating abonnement:', err);
+          this.notificationService.error('Creation Failed', 'Failed to create subscription. Please try again.');
+        }
       });
     }
   }
 
   toggleStatut(abonnement: Abonnement) {
-    const newStatut = abonnement.statut === 'Actif' ? 'Inactif' : 'Actif';
-    this.abonnementService.updateStatut(abonnement.id_abonnement!, newStatut).subscribe({
-      next: () => this.loadAbonnements(),
-      error: (err) => console.error('Error updating status:', err)
-    });
+    const newStatut = abonnement.statut === 'Active' ? 'Inactive' : 'Active';
+    const action = newStatut === 'Active' ? 'activate' : 'deactivate';
+    
+    this.notificationService.confirm(
+      `${action.charAt(0).toUpperCase() + action.slice(1)} Subscription`,
+      `Are you sure you want to ${action} the "${abonnement.nom}" subscription?`,
+      () => {
+        this.abonnementService.updateStatut(abonnement.id_abonnement!, newStatut).subscribe({
+          next: () => {
+            this.notificationService.success('Status Updated', `Subscription is now ${newStatut}!`);
+            this.loadAbonnements();
+          },
+          error: (err) => {
+            console.error('Error updating status:', err);
+            this.notificationService.error('Update Failed', 'Failed to update subscription status.');
+          }
+        });
+      }
+    );
   }
 
   deleteAbonnement(id: number) {
-    if (confirm('Are you sure you want to delete this subscription?')) {
-      this.abonnementService.deleteAbonnement(id).subscribe({
-        next: () => this.loadAbonnements(),
-        error: (err) => console.error('Error deleting abonnement:', err)
-      });
-    }
+    const abonnement = this.abonnements().find(a => a.id_abonnement === id);
+    const name = abonnement ? abonnement.nom : 'this subscription';
+    
+    this.notificationService.confirm(
+      'Delete Subscription',
+      `Are you sure you want to delete "${name}"? This action cannot be undone.`,
+      () => {
+        this.abonnementService.deleteAbonnement(id).subscribe({
+          next: () => {
+            this.notificationService.success('Subscription Deleted', 'The subscription has been deleted successfully!');
+            this.loadAbonnements();
+          },
+          error: (err) => {
+            console.error('Error deleting abonnement:', err);
+            this.notificationService.error('Delete Failed', 'Failed to delete subscription. Please try again.');
+          }
+        });
+      }
+    );
   }
 
   getEmptyAbonnement(): Abonnement {
@@ -141,7 +178,7 @@ export class Subscriptions implements OnInit {
       niveau_acces: 'Basic',
       acces_illimite: false,
       support_prioritaire: false,
-      statut: 'Actif'
+      statut: 'Active'
     };
   }
 }

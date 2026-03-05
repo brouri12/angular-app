@@ -1,0 +1,74 @@
+╔══════════════════════════════════════════════════════════════╗
+║          FIX CHALLENGE SERVICE 404 ERROR - QUICK FIX         ║
+╚══════════════════════════════════════════════════════════════╝
+
+🚨 PROBLEM: 404 Error when accessing Challenge Service
+
+✅ SOLUTION: Restart API Gateway
+
+┌──────────────────────────────────────────────────────────────┐
+│ STEP 1: RESTART API GATEWAY IN INTELLIJ                     │
+└──────────────────────────────────────────────────────────────┘
+
+1. Find "ApiGatewayApplication" in Run panel (bottom of IntelliJ)
+2. Click red STOP button (■)
+3. Wait for it to stop completely
+4. Right-click: ApiGateway/.../ApiGatewayApplication.java
+5. Select: "Run 'ApiGatewayApplication'"
+6. Wait for: "Started ApiGatewayApplication"
+
+┌──────────────────────────────────────────────────────────────┐
+│ STEP 2: VERIFY IN EUREKA                                    │
+└──────────────────────────────────────────────────────────────┘
+
+Open: http://localhost:8761
+
+You should see:
+  ✓ CHALLENGE-SERVICE - UP (1)
+  ✓ API-GATEWAY - UP (1)
+
+┌──────────────────────────────────────────────────────────────┐
+│ STEP 3: TEST                                                 │
+└──────────────────────────────────────────────────────────────┘
+
+In PowerShell:
+  curl http://localhost:8888/challenge-service/api/challenges
+
+Should return: [] (empty array)
+
+┌──────────────────────────────────────────────────────────────┐
+│ STEP 4: TEST IN BACK-OFFICE                                 │
+└──────────────────────────────────────────────────────────────┘
+
+1. Go to: http://localhost:4201/challenges
+2. Click "Create Challenge"
+3. Should work without 404 error!
+
+╔══════════════════════════════════════════════════════════════╗
+║                    WHY THIS HAPPENS                          ║
+╚══════════════════════════════════════════════════════════════╝
+
+We added the Challenge Service route to GatewayConfig.java
+BUT the API Gateway needs to be restarted to load the new route!
+
+╔══════════════════════════════════════════════════════════════╗
+║                  IF STILL NOT WORKING                        ║
+╚══════════════════════════════════════════════════════════════╝
+
+Restart ALL services in this order:
+
+1. STOP all services in IntelliJ
+2. START Eureka (wait 10 seconds)
+3. START Challenge Service (wait 30 seconds)
+4. Check http://localhost:8761 - should see CHALLENGE-SERVICE
+5. START API Gateway (wait 10 seconds)
+6. Test: curl http://localhost:8888/challenge-service/api/challenges
+
+╔══════════════════════════════════════════════════════════════╗
+║                      NEED MORE HELP?                         ║
+╚══════════════════════════════════════════════════════════════╝
+
+Read the detailed guide: FIX_CHALLENGE_404.md
+Run diagnostic script: .\CHECK_CHALLENGE_SERVICE.ps1
+
+═══════════════════════════════════════════════════════════════

@@ -1,9 +1,10 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { SubscriptionService, UserSubscription } from '../../services/subscription.service';
 import { AuthService } from '../../services/auth.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-subscription',
@@ -13,18 +14,17 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './subscription.css'
 })
 export class Subscription implements OnInit {
+  private subscriptionService = inject(SubscriptionService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private notificationService = inject(NotificationService);
+  
   currentSubscription = signal<UserSubscription | null>(null);
   subscriptionHistory = signal<UserSubscription[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
   showCancelModal = signal(false);
   cancelReason = '';
-
-  constructor(
-    private subscriptionService: SubscriptionService,
-    private authService: AuthService,
-    private router: Router
-  ) {}
 
   ngOnInit() {
     this.loadSubscription();
@@ -73,11 +73,11 @@ export class Subscription implements OnInit {
     this.subscriptionService.toggleAutoRenew(newValue).subscribe({
       next: (updated) => {
         this.currentSubscription.set(updated);
-        alert(`Auto-renewal ${newValue ? 'enabled' : 'disabled'} successfully!`);
+        this.notificationService.success('Settings Updated', `Auto-renewal has been ${newValue ? 'enabled' : 'disabled'} successfully!`);
       },
       error: (err) => {
         console.error('Error toggling auto-renew:', err);
-        alert('Failed to update auto-renewal setting');
+        this.notificationService.error('Update Failed', 'Failed to update auto-renewal setting. Please try again.');
       }
     });
   }
@@ -93,7 +93,7 @@ export class Subscription implements OnInit {
 
   confirmCancel() {
     if (!this.cancelReason.trim()) {
-      alert('Please provide a reason for cancellation');
+      this.notificationService.warning('Reason Required', 'Please provide a reason for cancellation');
       return;
     }
 
@@ -101,12 +101,12 @@ export class Subscription implements OnInit {
       next: (cancelled) => {
         this.currentSubscription.set(cancelled);
         this.closeCancelModal();
-        alert('Subscription cancelled successfully');
+        this.notificationService.success('Subscription Cancelled', 'Your subscription has been cancelled successfully');
         this.loadHistory();
       },
       error: (err) => {
         console.error('Error cancelling subscription:', err);
-        alert('Failed to cancel subscription');
+        this.notificationService.error('Cancellation Failed', 'Failed to cancel subscription. Please try again.');
       }
     });
   }

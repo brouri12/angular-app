@@ -11,7 +11,7 @@ $adminUser = "admin"
 $adminPassword = "admin"
 $realmName = "wordly-realm"
 $clientId = "wordly-client"
-$clientSecret = "wBCcaBhZbarCcZovTzSniLtjCrYoidvl"
+$clientSecret = "IKCT56zE5uPce6lzAPBcAVAWfYcDfdOn"
 
 # Fonction pour obtenir le token admin
 function Get-AdminToken {

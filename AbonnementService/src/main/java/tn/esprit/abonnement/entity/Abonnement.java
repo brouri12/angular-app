@@ -33,7 +33,7 @@ public class Abonnement {
     private Boolean support_prioritaire = false;
     
     @Column(length = 20)
-    private String statut = "Actif";
+    private String statut = "Active";
     
     @Column(nullable = false, updatable = false)
     private LocalDateTime date_creation;

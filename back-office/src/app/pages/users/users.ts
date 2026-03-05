@@ -1,7 +1,8 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService, User } from '../../services/user.service';
+import { NotificationService } from '../../services/notification.service';
 
 interface DisplayUser {
   id: number;
@@ -22,14 +23,15 @@ interface DisplayUser {
   styleUrl: './users.css',
 })
 export class Users implements OnInit {
+  private userService = inject(UserService);
+  private notificationService = inject(NotificationService);
+  
   users = signal<DisplayUser[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
 
   selectedRole = 'all';
   selectedStatus = 'all';
-
-  constructor(private userService: UserService) {}
 
   ngOnInit() {
     this.loadUsers();
@@ -101,37 +103,49 @@ export class Users implements OnInit {
   editUser(user: DisplayUser) {
     console.log('Edit user:', user);
     // TODO: Implement edit functionality
-    alert(`Edit functionality for ${user.name} will be implemented soon.`);
+    this.notificationService.info('Coming Soon', `Edit functionality for ${user.name} will be implemented soon.`);
   }
 
   deleteUser(user: DisplayUser) {
-    if (!confirm(`Are you sure you want to delete ${user.name}?`)) {
-      return;
-    }
-
-    this.userService.deleteUser(user.id).subscribe({
-      next: () => {
-        alert(`User ${user.name} deleted successfully!`);
-        this.loadUsers(); // Reload the list
-      },
-      error: (err) => {
-        console.error('Error deleting user:', err);
-        alert('Failed to delete user. Please try again.');
+    this.notificationService.confirm(
+      'Delete User',
+      `Are you sure you want to delete ${user.name}? This action cannot be undone.`,
+      () => {
+        // Confirmed - delete the user
+        this.userService.deleteUser(user.id).subscribe({
+          next: () => {
+            this.notificationService.success('User Deleted', `User ${user.name} has been deleted successfully!`);
+            this.loadUsers(); // Reload the list
+          },
+          error: (err) => {
+            console.error('Error deleting user:', err);
+            this.notificationService.error('Delete Failed', 'Failed to delete user. Please try again.');
+          }
+        });
       }
-    });
+    );
   }
 
   toggleUserStatus(user: DisplayUser) {
-    this.userService.toggleUserStatus(user.id).subscribe({
-      next: () => {
-        const newStatus = user.status === 'active' ? 'inactive' : 'active';
-        alert(`User ${user.name} is now ${newStatus}!`);
-        this.loadUsers(); // Reload the list
-      },
-      error: (err) => {
-        console.error('Error toggling user status:', err);
-        alert('Failed to update user status. Please try again.');
+    const newStatus = user.status === 'active' ? 'inactive' : 'active';
+    const action = newStatus === 'active' ? 'activate' : 'deactivate';
+    
+    this.notificationService.confirm(
+      `${action.charAt(0).toUpperCase() + action.slice(1)} User`,
+      `Are you sure you want to ${action} ${user.name}?`,
+      () => {
+        // Confirmed - toggle status
+        this.userService.toggleUserStatus(user.id).subscribe({
+          next: () => {
+            this.notificationService.success('Status Updated', `User ${user.name} is now ${newStatus}!`);
+            this.loadUsers(); // Reload the list
+          },
+          error: (err) => {
+            console.error('Error toggling user status:', err);
+            this.notificationService.error('Update Failed', 'Failed to update user status. Please try again.');
+          }
+        });
       }
-    });
+    );
   }
 }

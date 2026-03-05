@@ -42,7 +42,7 @@ export class AuthService {
         body.set('password', request.password);
         body.set('grant_type', 'password');
         body.set('client_id', 'wordly-client');
-        body.set('client_secret', 'wBCcaBhZbarCcZovTzSniLtjCrYoidvl');
+        body.set('client_secret', 'IKCT56zE5uPce6lzAPBcAVAWfYcDfdOn');
 
         const headers = new HttpHeaders({
           'Content-Type': 'application/x-www-form-urlencoded'

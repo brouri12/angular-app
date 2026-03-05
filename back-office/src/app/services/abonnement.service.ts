@@ -75,4 +75,22 @@ export class AbonnementService {
   deletePaiement(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/paiements/${id}`);
   }
+
+  // Analytics
+  getAnalytics(): Observable<AbonnementAnalytics> {
+    return this.http.get<AbonnementAnalytics>(`${this.apiUrl}/analytics`);
+  }
+}
+
+export interface AbonnementAnalytics {
+  totalAbonnements: number;
+  activeAbonnements: number;
+  inactiveAbonnements: number;
+  averagePrice: number;
+  totalRevenuePotential: number;
+  withPrioritySupport: number;
+  withUnlimitedAccess: number;
+  countByStatus: { [key: string]: number };
+  countByAccessLevel: { [key: string]: number };
+  popularityByName: { [key: string]: number };
 }

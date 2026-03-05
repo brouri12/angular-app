@@ -21,6 +21,11 @@ public class GatewayConfig {
                         .path("/user-service/**")
                         .filters(f -> f.stripPrefix(1))
                         .uri("lb://USER-SERVICE"))
+                // Route pour le service Challenge
+                .route("challenge-service", r -> r
+                        .path("/challenge-service/**")
+                        .filters(f -> f.stripPrefix(1))
+                        .uri("lb://CHALLENGE-SERVICE"))
                 .build();
     }
 }

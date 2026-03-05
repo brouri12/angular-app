@@ -5,6 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import tn.esprit.abonnement.entity.Abonnement;
 import tn.esprit.abonnement.entity.HistoriqueAbonnement;
 import tn.esprit.abonnement.repository.AbonnementRepository;
@@ -12,6 +13,7 @@ import tn.esprit.abonnement.repository.HistoriqueAbonnementRepository;
 
 @SpringBootApplication
 @EnableDiscoveryClient
+@EnableScheduling
 public class AbonnementApplication {
 
     public static void main(String[] args) {
@@ -33,35 +35,35 @@ public class AbonnementApplication {
             // Insertion de 3 abonnements par défaut
             Abonnement basic = new Abonnement(
                 "Basic",
-                "Abonnement de base pour débutants",
+                "Basic subscription for beginners",
                 9.99,
                 30,
-                "Basique",
+                "Basic",
                 false,
                 false,
-                "Actif"
+                "Active"
             );
             
             Abonnement premium = new Abonnement(
                 "Premium",
-                "Abonnement premium avec fonctionnalités avancées",
+                "Premium subscription with advanced features",
                 29.99,
                 30,
                 "Premium",
                 true,
                 true,
-                "Actif"
+                "Active"
             );
             
             Abonnement enterprise = new Abonnement(
                 "Enterprise",
-                "Solution complète pour les entreprises",
+                "Complete solution for enterprises",
                 99.99,
                 365,
                 "Enterprise",
                 true,
                 true,
-                "Actif"
+                "Active"
             );
             
             abonnementRepository.save(basic);

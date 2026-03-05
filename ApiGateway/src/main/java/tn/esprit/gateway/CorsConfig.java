@@ -15,10 +15,10 @@ public class CorsConfig {
     @Bean
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfig = new CorsConfiguration();
-        // Autoriser tous les ports localhost pour le développement
-        corsConfig.setAllowedOriginPatterns(Collections.singletonList("http://localhost:*"));
-        corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        corsConfig.setAllowedHeaders(Collections.singletonList("*"));
+        corsConfig.addAllowedOrigin("http://localhost:4200");
+        corsConfig.addAllowedOrigin("http://localhost:4201");
+        corsConfig.addAllowedMethod("*");
+        corsConfig.addAllowedHeader("*");
         corsConfig.setAllowCredentials(true);
         corsConfig.setMaxAge(3600L);
         

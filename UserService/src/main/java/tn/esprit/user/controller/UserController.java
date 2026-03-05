@@ -70,7 +70,7 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
     
-    // Récupérer les utilisateurs actifs/inactifs
+    // Get active/inactive users
     @GetMapping("/enabled/{enabled}")
     public ResponseEntity<List<UserDTO>> getUsersByEnabled(@PathVariable Boolean enabled) {
         List<UserDTO> users = userService.getUsersByEnabled(enabled);

@@ -5,6 +5,7 @@ import { AbonnementService } from '../../services/abonnement.service';
 import { AuthService } from '../../services/auth.service';
 import { PaymentService, PaymentRequest } from '../../services/payment.service';
 import { StripeService } from '../../services/stripe.service';
+import { NotificationService } from '../../services/notification.service';
 import { Abonnement, HistoriqueAbonnement } from '../../models/abonnement.model';
 import { User } from '../../models/user.model';
 import { Stripe, StripeElements, StripeCardElement } from '@stripe/stripe-js';
@@ -20,6 +21,7 @@ export class Pricing implements OnInit {
   private authService = inject(AuthService);
   private paymentService = inject(PaymentService);
   private stripeService = inject(StripeService);
+  private notificationService = inject(NotificationService);
   
   @ViewChild('cardElement') cardElement!: ElementRef;
   
@@ -78,11 +80,13 @@ export class Pricing implements OnInit {
     this.loading.set(true);
     this.abonnementService.getAllAbonnements().subscribe({
       next: (data) => {
-        this.abonnements.set(data.filter(a => a.statut === 'Actif'));
+        console.log('✓ Loaded abonnements:', data);
+        this.abonnements.set(data.filter(a => a.statut === 'Active'));
+        console.log('✓ Filtered abonnements:', this.abonnements());
         this.loading.set(false);
       },
       error: (err) => {
-        console.error('Error loading abonnements:', err);
+        console.error('✗ Error loading abonnements:', err);
         this.loading.set(false);
       }
     });
@@ -96,7 +100,7 @@ export class Pricing implements OnInit {
     const prix = this.billingCycle() === 'monthly' 
       ? abonnement.prix 
       : abonnement.prix * 10; // Annual = 10 months price
-    return `$${prix}`;
+    return `${prix}`;
   }
 
   getSavings(): string {
@@ -160,7 +164,7 @@ export class Pricing implements OnInit {
     try {
       this.stripe = await this.stripeService.getStripe();
       if (!this.stripe) {
-        alert('Failed to load Stripe');
+        this.notificationService.error('Payment Error', 'Failed to load payment system. Please try again.');
         return;
       }
 
@@ -186,7 +190,7 @@ export class Pricing implements OnInit {
       }
     } catch (error) {
       console.error('Error initializing Stripe:', error);
-      alert('Failed to initialize payment form');
+      this.notificationService.error('Payment Error', 'Failed to initialize payment form. Please try again.');
     }
   }
 
@@ -241,18 +245,18 @@ export class Pricing implements OnInit {
 
         this.paymentService.createPayment(paymentRequest).subscribe({
           next: () => {
-            alert(`Payment successful! Transaction: ${paymentIntent.id}`);
+            this.notificationService.success('Payment Successful!', `Your payment has been processed. Transaction ID: ${paymentIntent.id}`);
             this.closePurchaseModal();
           },
           error: (err) => {
             console.error('Error saving payment:', err);
-            alert('Payment succeeded but failed to save record. Please contact support.');
+            this.notificationService.warning('Payment Processed', 'Payment succeeded but failed to save record. Please contact support with transaction ID: ' + paymentIntent.id);
           }
         });
       }
     } catch (error: any) {
       console.error('Payment error:', error);
-      alert(`Payment failed: ${error.message || 'Unknown error'}`);
+      this.notificationService.error('Payment Failed', error.message || 'An unknown error occurred. Please try again.');
     } finally {
       this.processingPayment.set(false);
     }
@@ -272,13 +276,13 @@ export class Pricing implements OnInit {
       // Validate file type (images and PDFs)
       const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
       if (!validTypes.includes(file.type)) {
-        alert('Please upload a valid image (JPG, PNG) or PDF file');
+        this.notificationService.warning('Invalid File', 'Please upload a valid image (JPG, PNG) or PDF file');
         return;
       }
 
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert('File size must be less than 5MB');
+        this.notificationService.warning('File Too Large', 'File size must be less than 5MB');
         return;
       }
 
@@ -291,7 +295,7 @@ export class Pricing implements OnInit {
     const receipt = this.selectedReceipt();
     
     if (!abonnement || !receipt) {
-      alert('Please select a receipt file');
+      this.notificationService.warning('Missing Receipt', 'Please select a receipt file to upload');
       return;
     }
 
@@ -315,19 +319,19 @@ export class Pricing implements OnInit {
         // Then upload receipt
         this.paymentService.uploadReceipt(payment.id_payment!, receipt).subscribe({
           next: (updatedPayment) => {
-            alert(`Bank transfer submitted successfully! Your payment is pending admin validation. Transaction: ${updatedPayment.referenceTransaction}`);
+            this.notificationService.success('Submitted Successfully!', `Your bank transfer has been submitted and is pending admin validation. Transaction: ${updatedPayment.referenceTransaction}`);
             this.closePurchaseModal();
           },
           error: (err) => {
             console.error('Error uploading receipt:', err);
-            alert('Payment created but receipt upload failed. Please contact support.');
+            this.notificationService.warning('Partial Success', 'Payment created but receipt upload failed. Please contact support.');
             this.closePurchaseModal();
           }
         });
       },
       error: (err) => {
         console.error('Error submitting bank transfer:', err);
-        alert('Error submitting bank transfer. Please try again.');
+        this.notificationService.error('Submission Failed', 'Error submitting bank transfer. Please try again.');
       }
     });
   }

@@ -5,10 +5,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import tn.esprit.abonnement.dto.AbonnementAnalyticsDTO;
 import tn.esprit.abonnement.entity.Abonnement;
 import tn.esprit.abonnement.repository.AbonnementRepository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -83,5 +86,64 @@ public class AbonnementService {
     // Vérifier si un abonnement existe
     public boolean exists(Long id) {
         return abonnementRepository.existsById(id);
+    }
+    
+    // ============ ANALYTICS METHODS ============
+    
+    /**
+     * Get comprehensive analytics for abonnements
+     */
+    public AbonnementAnalyticsDTO getAnalytics() {
+        AbonnementAnalyticsDTO analytics = new AbonnementAnalyticsDTO();
+        
+        // Overall statistics
+        analytics.setTotalAbonnements(abonnementRepository.countTotalAbonnements());
+        analytics.setActiveAbonnements(abonnementRepository.countActiveAbonnements());
+        analytics.setInactiveAbonnements(
+            analytics.getTotalAbonnements() - analytics.getActiveAbonnements()
+        );
+        
+        // Price statistics
+        Double avgPrice = abonnementRepository.getAveragePrix();
+        analytics.setAveragePrice(avgPrice != null ? avgPrice : 0.0);
+        
+        Double totalRevenue = abonnementRepository.getTotalRevenuePotential();
+        analytics.setTotalRevenuePotential(totalRevenue != null ? totalRevenue : 0.0);
+        
+        // Feature statistics
+        analytics.setWithPrioritySupport(abonnementRepository.countWithPrioritySupport());
+        analytics.setWithUnlimitedAccess(abonnementRepository.countWithUnlimitedAccess());
+        
+        // Breakdown by status
+        Map<String, Long> statusMap = new HashMap<>();
+        List<Object[]> statusResults = abonnementRepository.countByStatut();
+        for (Object[] result : statusResults) {
+            String status = (String) result[0];
+            Long count = (Long) result[1];
+            statusMap.put(status, count);
+        }
+        analytics.setCountByStatus(statusMap);
+        
+        // Breakdown by access level
+        Map<String, Long> accessLevelMap = new HashMap<>();
+        List<Object[]> accessLevelResults = abonnementRepository.countByNiveauAcces();
+        for (Object[] result : accessLevelResults) {
+            String level = (String) result[0];
+            Long count = (Long) result[1];
+            accessLevelMap.put(level, count);
+        }
+        analytics.setCountByAccessLevel(accessLevelMap);
+        
+        // Popularity by name
+        Map<String, Long> popularityMap = new HashMap<>();
+        List<Object[]> popularityResults = abonnementRepository.getMostPopularAbonnements();
+        for (Object[] result : popularityResults) {
+            String name = (String) result[0];
+            Long count = (Long) result[1];
+            popularityMap.put(name, count);
+        }
+        analytics.setPopularityByName(popularityMap);
+        
+        return analytics;
     }
 }
