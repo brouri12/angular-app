@@ -308,13 +308,16 @@ export class ChatbotWidgetComponent implements OnInit {
     this.isTyping = true;
 
     this.chatbotService.sendMessage(messageToSend).subscribe({
-      next: () => {
+      next: (response) => {
         this.isTyping = false;
         setTimeout(() => this.scrollToBottom(), 100);
       },
       error: (error) => {
         console.error('Chatbot error:', error);
         this.isTyping = false;
+      },
+      complete: () => {
+        this.isTyping = false; // Ensure typing stops on completion
       }
     });
   }

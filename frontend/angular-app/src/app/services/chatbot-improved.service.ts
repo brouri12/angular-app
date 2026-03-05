@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { delay, map } from 'rxjs/operators';
 
 export interface ChatMessage {
   role: 'user' | 'assistant';
@@ -100,34 +100,40 @@ export class ChatbotImprovedService {
   }
 
   sendMessage(message: string): Observable<ChatbotResponse> {
-    // Add user message
+    // Add user message immediately
     const userMessage: ChatMessage = {
       role: 'user',
       content: message,
       timestamp: new Date()
     };
     this.conversationHistory.push(userMessage);
-
-    // Generate response
-    const response = this.generateResponse(message);
-    
-    // Add assistant response
-    const assistantMessage: ChatMessage = {
-      role: 'assistant',
-      content: response.response,
-      timestamp: new Date()
-    };
-    this.conversationHistory.push(assistantMessage);
-
-    // Keep only last 20 messages
-    if (this.conversationHistory.length > 20) {
-      this.conversationHistory = this.conversationHistory.slice(-20);
-    }
-
-    this.saveConversationHistory();
     this.conversationSubject.next([...this.conversationHistory]);
 
-    return of(response).pipe(delay(500)); // Reduced delay
+    // Generate response after delay
+    return of(null).pipe(
+      delay(500), // Simulate typing delay
+      map(() => {
+        const response = this.generateResponse(message);
+        
+        // Add assistant response
+        const assistantMessage: ChatMessage = {
+          role: 'assistant',
+          content: response.response,
+          timestamp: new Date()
+        };
+        this.conversationHistory.push(assistantMessage);
+
+        // Keep only last 20 messages
+        if (this.conversationHistory.length > 20) {
+          this.conversationHistory = this.conversationHistory.slice(-20);
+        }
+
+        this.saveConversationHistory();
+        this.conversationSubject.next([...this.conversationHistory]);
+
+        return response;
+      })
+    );
   }
 
   private generateResponse(message: string): ChatbotResponse {
