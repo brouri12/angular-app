@@ -22,8 +22,8 @@ export class ChatbotService {
   public conversation$ = this.conversationSubject.asObservable();
 
   private knowledgeBase = {
-    'upload': 'Pour uploader un fichier, cliquez sur le bouton "Joindre" lors de la création d\'un message. Vous pouvez ajouter des images (max 10MB), audio (max 25MB), ou documents (max 50MB).',
-    'image': 'Les formats d\'images supportés sont: JPEG, PNG, GIF et WebP. La taille maximale est de 10MB.',
+    // Forums et Messages
+    'forum': 'Les formats d\'images supportés sont: JPEG, PNG, GIF et WebP. La taille maximale est de 10MB.',
     'video': 'Vous pouvez intégrer des vidéos YouTube et Vimeo en collant simplement l\'URL dans votre message.',
     'audio': 'Pour enregistrer un audio, cliquez sur l\'icône microphone. Les formats supportés sont MP3, WAV et OGG (max 25MB).',
     'document': 'Les documents supportés incluent: PDF, ZIP, RAR, DOC, DOCX, XLS, XLSX. Taille max: 50MB.',

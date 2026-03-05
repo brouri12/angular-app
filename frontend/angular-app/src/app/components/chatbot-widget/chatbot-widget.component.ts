@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ChatbotService, ChatMessage } from '../../services/chatbot.service';
+import { ChatbotImprovedService, ChatMessage } from '../../services/chatbot-improved.service';
 
 @Component({
   selector: 'app-chatbot-widget',
@@ -257,7 +257,7 @@ export class ChatbotWidgetComponent implements OnInit {
   isTyping = false;
   showClearConfirm = false;
 
-  constructor(private chatbotService: ChatbotService) {}
+  constructor(private chatbotService: ChatbotImprovedService) {}
 
   ngOnInit() {
     this.chatbotService.conversation$.subscribe(messages => {
