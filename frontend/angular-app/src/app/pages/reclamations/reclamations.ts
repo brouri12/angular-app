@@ -1,8 +1,8 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Reclamation, ReclamationService } from '../../services/reclamation.service';
-import { ResolutionAction, ResolutionActionService } from '../../services/resolution-action.service';
+import { Reclamation, ReclamationService, CATEGORIES } from '../../services/reclamation.service';
+import { ResolutionAction, ResolutionActionService } from '../../services/resolution.service';
 
 @Component({
   selector: 'app-reclamations',
@@ -23,10 +23,6 @@ export class Reclamations implements OnInit {
   };
   createError = '';
   creating = false;
-
-  /** @deprecated Use showModal */
-  get showForm(): boolean { return this.showModal; }
-  set showForm(v: boolean) { this.showModal = v; }
 
   constructor(
     private reclamationService: ReclamationService,
@@ -127,8 +123,9 @@ export class Reclamations implements OnInit {
     const reclamation: Reclamation = {
       objet: this.newReclamation.objet.trim(),
       description: this.newReclamation.description.trim(),
-      status: 'pending',
-      date: new Date()
+      priorite: this.newReclamation.priorite || 'MOYENNE',
+      status: 'EN_ATTENTE',
+      date: new Date().toISOString()
     };
     this.reclamationService.create(reclamation).subscribe({
       next: (created) => {
@@ -160,12 +157,28 @@ export class Reclamations implements OnInit {
 
   getStatusClass(status: string | undefined): string {
     if (!status) return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
-    const s = status.toLowerCase().normalize('NFD').replace(/\u0308/g, '').replace(/[\u0300-\u036f]/g, '');
-    if (s === 'pending' || s === 'en attente') return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-    if (s === 'in_progress' || s === 'en cours') return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-    if (s === 'resolved' || s === 'resolue') return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-    if (s === 'rejected' || s === 'rejetee') return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+    const s = status.toUpperCase();
+    if (s === 'EN_ATTENTE' || s === 'PENDING') return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+    if (s === 'EN_COURS' || s === 'IN_PROGRESS') return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+    if (s === 'RESOLUE' || s === 'RESOLVED') return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+    if (s === 'REJETEE' || s === 'REJECTED') return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
     return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+  }
+
+  getCategoryClass(categorie: string | undefined): string {
+    if (!categorie) return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+    const cat = categorie.toUpperCase();
+    if (cat === 'TECHNIQUE') return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+    if (cat === 'FACTURATION') return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+    if (cat === 'QUALITE') return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+    if (cat === 'ADMINISTRATIF') return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+    return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+  }
+
+  getCategoryEmoji(categorie: string | undefined): string {
+    if (!categorie) return '📌';
+    const cat = CATEGORIES.find(c => c.value === categorie);
+    return cat ? cat.label : '📌';
   }
 
   downloadPdf(): void {
@@ -202,3 +215,4 @@ export class Reclamations implements OnInit {
     });
   }
 }
+

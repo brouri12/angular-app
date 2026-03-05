@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FeedbackService, FeedbackStats } from '../../services/feedback.service';
+import { FeedbackService, FeedbackStats, SentimentStats } from '../../services/feedback.service';
 import { ReclamationService, ReclamationAnalytics } from '../../services/reclamation.service';
 
 interface ChartData {
@@ -18,18 +18,12 @@ interface ChartData {
 export class Analytics implements OnInit {
   feedbackStats: FeedbackStats | null = null;
   reclamationAnalytics: ReclamationAnalytics | null = null;
+  sentimentStats: SentimentStats | null = null;
   feedbackChartData: ChartData[] = [];
   reclamationChartData: ChartData[] = [];
+  sentimentChartData: ChartData[] = [];
   loading = true;
   error: string | null = null;
-
-  topCourses = [
-    { name: 'Web Development Bootcamp', enrollments: 1250, revenue: 62500, rating: 4.8 },
-    { name: 'Data Science Fundamentals', enrollments: 980, revenue: 49000, rating: 4.7 },
-    { name: 'UI/UX Design Masterclass', enrollments: 850, revenue: 42500, rating: 4.9 },
-    { name: 'Mobile App Development', enrollments: 720, revenue: 36000, rating: 4.6 },
-    { name: 'Digital Marketing Pro', enrollments: 650, revenue: 32500, rating: 4.5 }
-  ];
 
   constructor(
     private feedbackService: FeedbackService,
@@ -52,6 +46,7 @@ export class Analytics implements OnInit {
       error: (err) => {
         console.error('Error loading feedback stats:', err);
         this.error = 'Erreur lors du chargement des statistiques de feedback';
+        this.loading = false;
       }
     });
 
@@ -59,7 +54,6 @@ export class Analytics implements OnInit {
       next: (analytics) => {
         this.reclamationAnalytics = analytics;
         this.prepareReclamationChartData(analytics);
-        this.loading = false;
       },
       error: (err) => {
         console.error('Error loading reclamation analytics:', err);
@@ -67,6 +61,47 @@ export class Analytics implements OnInit {
         this.loading = false;
       }
     });
+
+    // Load sentiment stats
+    this.feedbackService.getSentimentStats().subscribe({
+      next: (stats) => {
+        this.sentimentStats = stats;
+        this.prepareSentimentChartData(stats);
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error loading sentiment stats:', err);
+        this.loading = false;
+      }
+    });
+  }
+
+  prepareSentimentChartData(stats: SentimentStats) {
+    if (stats.repartitionParSentiment) {
+      this.sentimentChartData = Object.entries(stats.repartitionParSentiment).map(([sentiment, count]) => ({
+        label: this.formatSentiment(sentiment),
+        value: Number(count)
+      }));
+    }
+  }
+
+  formatSentiment(sentiment: string): string {
+    const sentimentMap: { [key: string]: string } = {
+      'POSITIF': 'Positif',
+      'NEGATIF': 'Négatif',
+      'NEUTRE': 'Neutre'
+    };
+    return sentimentMap[sentiment] || sentiment;
+  }
+
+  getSentimentColor(sentimentLabel: string): string {
+    if (sentimentLabel.toLowerCase().includes('positif')) return '#22c55e'; // green
+    if (sentimentLabel.toLowerCase().includes('négatif') || sentimentLabel.toLowerCase().includes('negatif')) return '#ef4444'; // red
+    return '#eab308'; // yellow
+  }
+
+  getObjectKeys(obj: { [key: string]: number }): string[] {
+    return obj ? Object.keys(obj) : [];
   }
 
   prepareFeedbackChartData(stats: FeedbackStats) {

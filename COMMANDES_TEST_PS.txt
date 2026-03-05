@@ -1,0 +1,44 @@
+# COMMANDES DE TEST - PowerShell Windows
+
+## 1. CRÉER UN UTILISATEUR
+Invoke-RestMethod -Uri "http://localhost:8081/api/users" -Method Post -ContentType "application/json" -Body '{"username":"john_doe","email":"john@example.com","role":"ETUDIANT"}'
+
+---
+
+## 2. CRÉER UN FEEDBACK
+Invoke-RestMethod -Uri "http://localhost:8082/api/feedbacks" -Method Post -ContentType "application/json" -Body '{"userId":1,"moduleId":101,"note":5,"commentaire":"Excellent cours!"}'
+
+---
+
+## 3. LISTER LES FEEDBACKS
+Invoke-RestMethod -Uri "http://localhost:8082/api/feedbacks" -Method Get
+
+---
+
+## 4. FEEDBACK AVEC USER (Feign)
+Invoke-RestMethod -Uri "http://localhost:8082/api/feedbacks/1/with-user" -Method Get
+
+---
+
+## 5. CRÉER RÉCLAMATION
+Invoke-RestMethod -Uri "http://localhost:8082/api/reclamations" -Method Post -ContentType "application/json" -Body '{"userId":1,"objet":"Site HS","description":"Je n arrive pas a me connecter"}'
+
+---
+
+## 6. RÉCLAMATION AVEC USER
+Invoke-RestMethod -Uri "http://localhost:8082/api/reclamations/1/with-user" -Method Get
+
+---
+
+## 7. DASHBOARD ÉTUDIANT
+Invoke-RestMethod -Uri "http://localhost:8082/api/dashboard/student/1/feedbacks" -Method Get
+
+---
+
+## 8. STATISTIQUES
+Invoke-RestMethod -Uri "http://localhost:8082/api/feedbacks/stats" -Method Get
+
+---
+
+## 9. ANALYTICS
+Invoke-RestMethod -Uri "http://localhost:8082/api/reclamations/analytics" -Method Get

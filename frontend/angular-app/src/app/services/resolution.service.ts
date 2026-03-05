@@ -13,7 +13,7 @@ export interface ResolutionAction {
 @Injectable({
   providedIn: 'root'
 })
-export class ResolutionActionService {
+export class ResolutionService {
   private apiUrl = 'http://localhost:8082/api/resolutions';
 
   constructor(private http: HttpClient) {}
@@ -49,6 +49,6 @@ export class ResolutionActionService {
   }
 }
 
-// Alias for compatibility
-export { ResolutionActionService as ResolutionService };
+// Export as both names for compatibility
+export { ResolutionService as ResolutionActionService };
 

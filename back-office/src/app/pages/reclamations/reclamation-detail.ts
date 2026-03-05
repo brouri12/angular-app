@@ -1,69 +1,70 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { Reclamation, ReclamationService } from '../../services/reclamation.service';
-import { ResolutionAction, ResolutionActionService } from '../../services/resolution-action.service';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Reclamation, ReclamationService, PRIORITES, CATEGORIES } from '../../services/reclamation.service';
 
 @Component({
   selector: 'app-reclamation-detail',
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './reclamation-detail.html',
   styleUrl: './reclamation-detail.css'
 })
 export class ReclamationDetail implements OnInit {
   reclamation: Reclamation | null = null;
-  resolutionActions: ResolutionAction[] = [];
   loading = true;
   error = '';
-  
-  // For adding new resolution action
-  showAddAction = false;
-  newAction: Partial<ResolutionAction> = {
-    action: '',
-    responsable: ''
-  };
+  priorites = PRIORITES;
+  categories = CATEGORIES;
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
     private reclamationService: ReclamationService,
-    private resolutionActionService: ResolutionActionService
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
+    console.log('Route ID:', id);
+    
     if (id) {
       this.loadReclamation(+id);
+    } else {
+      this.error = 'No ID provided';
+      this.loading = false;
+      this.cdr.detectChanges();
     }
   }
 
   loadReclamation(id: number): void {
     this.loading = true;
+    this.error = '';
+    this.cdr.detectChanges();
+    
+    console.log('Loading reclamation:', id);
+    
     this.reclamationService.getById(id).subscribe({
       next: (data) => {
+        console.log('Got data:', data);
         this.reclamation = data;
-        this.loadResolutionActions(id);
+        this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
+        console.error('Error:', err);
         this.error = 'Failed to load reclamation';
         this.loading = false;
-        console.error(err);
+        this.cdr.detectChanges();
       }
     });
-  }
-
-  loadResolutionActions(reclamationId: number): void {
-    this.resolutionActionService.getByReclamation(reclamationId).subscribe({
-      next: (data) => {
-        this.resolutionActions = data;
+    
+    setTimeout(() => {
+      if (this.loading) {
+        console.log('Timeout reached');
         this.loading = false;
-      },
-      error: (err) => {
-        console.error('Failed to load resolution actions', err);
-        this.loading = false;
+        this.error = 'Request timeout';
+        this.cdr.detectChanges();
       }
-    });
+    }, 5000);
   }
 
   updateStatus(status: string): void {
@@ -71,6 +72,7 @@ export class ReclamationDetail implements OnInit {
       this.reclamationService.updateStatus(this.reclamation.id, status).subscribe({
         next: (updated) => {
           this.reclamation = updated;
+          this.cdr.detectChanges();
         },
         error: (err) => {
           console.error('Failed to update status', err);
@@ -79,52 +81,48 @@ export class ReclamationDetail implements OnInit {
     }
   }
 
-  addResolutionAction(): void {
-    if (this.reclamation?.id && this.newAction.action && this.newAction.responsable) {
-      const action: ResolutionAction = {
-        action: this.newAction.action,
-        responsable: this.newAction.responsable,
-        reclamationId: this.reclamation.id
-      };
-      
-      this.resolutionActionService.create(action).subscribe({
-        next: (created) => {
-          this.resolutionActions.push(created);
-          this.showAddAction = false;
-          this.newAction = { action: '', responsable: '' };
-        },
-        error: (err) => {
-          console.error('Failed to add resolution action', err);
-        }
-      });
+  getStatusClass(status: string | undefined): string {
+    if (!status) return 'bg-gray-100 text-gray-800';
+    const s = status.toUpperCase();
+    if (s === 'EN_ATTENTE' || s === 'PENDING') return 'bg-yellow-100 text-yellow-800';
+    if (s === 'EN_COURS' || s === 'IN_PROGRESS') return 'bg-blue-100 text-blue-800';
+    if (s === 'RESOLUE' || s === 'RESOLVED') return 'bg-green-100 text-green-800';
+    if (s === 'REJETEE' || s === 'REJECTED') return 'bg-red-100 text-red-800';
+    return 'bg-gray-100 text-gray-800';
+  }
+
+  getPrioriteClass(priorite: string | undefined): string {
+    if (!priorite) return 'bg-gray-100 text-gray-800';
+    const p = priorite.toUpperCase();
+    switch (p) {
+      case 'CRITIQUE': return 'bg-red-100 text-red-800';
+      case 'HAUTE': return 'bg-orange-100 text-orange-800';
+      case 'MOYENNE': return 'bg-yellow-100 text-yellow-800';
+      case 'BASSE': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   }
 
-  deleteResolutionAction(id: number): void {
-    if (confirm('Are you sure you want to delete this resolution action?')) {
-      this.resolutionActionService.delete(id).subscribe({
-        next: () => {
-          this.resolutionActions = this.resolutionActions.filter(a => a.id !== id);
-        },
-        error: (err) => {
-          console.error('Failed to delete resolution action', err);
-        }
-      });
-    }
+  getPrioriteEmoji(priorite: string | undefined): string {
+    if (!priorite) return '';
+    const p = this.priorites.find(pr => pr.value === priorite);
+    return p ? p.label : '';
   }
 
-  getStatusClass(status: string): string {
-    switch (status?.toLowerCase()) {
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      case 'in_progress':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'resolved':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'rejected':
-        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
-    }
+  getCategoryClass(categorie: string | undefined): string {
+    if (!categorie) return 'bg-gray-100 text-gray-800';
+    const cat = categorie.toUpperCase();
+    if (cat === 'TECHNIQUE') return 'bg-blue-100 text-blue-800';
+    if (cat === 'FACTURATION') return 'bg-green-100 text-green-800';
+    if (cat === 'QUALITE') return 'bg-yellow-100 text-yellow-800';
+    if (cat === 'ADMINISTRATIF') return 'bg-purple-100 text-purple-800';
+    return 'bg-gray-100 text-gray-800';
+  }
+
+  getCategoryEmoji(categorie: string | undefined): string {
+    if (!categorie) return '';
+    const cat = this.categories.find(c => c.value === categorie);
+    return cat ? cat.label : '';
   }
 }
+

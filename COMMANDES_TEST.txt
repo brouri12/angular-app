@@ -1,0 +1,90 @@
+# COMMANDES DE TEST - Service Feedback
+
+## PRÉREQUIS
+- Service User démarré sur port 8081
+- Service Feedback démarré sur port 8082
+
+---
+
+## 1. CRÉER UN UTILISATEUR (service-user)
+curl -X POST http://localhost:8081/api/users -H "Content-Type: application/json" -d "{\"username\":\"john_doe\",\"email\":\"john@example.com\",\"role\":\"ETUDIANT\"}"
+
+---
+
+## 2. CRÉER UN FEEDBACK AVEC SENTIMENT (service-feedback)
+curl -X POST http://localhost:8082/api/feedbacks -H "Content-Type: application/json" -d "{\"userId\":1,\"moduleId\":101,\"note\":5,\"commentaire\":\"Excellent cours!\"}"
+
+---
+
+## 3. CRÉER UN FEEDBACK NÉGATIF
+curl -X POST http://localhost:8082/api/feedbacks -H "Content-Type: application/json" -d "{\"userId\":1,\"moduleId\":101,\"note\":1,\"commentaire\":\"C est vraiment nul!\"}"
+
+---
+
+## 4. LISTER TOUS LES FEEDBACKS
+curl -X GET http://localhost:8082/api/feedbacks
+
+---
+
+## 5. FEEDBACK AVEC INFOS UTILISATEUR (via Feign)
+curl -X GET http://localhost:8082/api/feedbacks/1/with-user
+
+---
+
+## 6. TOUS LES FEEDBACKS AVEC USER
+curl -X GET http://localhost:8082/api/feedbacks/with-user
+
+---
+
+## 7. STATISTIQUES FEEDBACK
+curl -X GET http://localhost:8082/api/feedbacks/stats
+
+---
+
+## 8. STATISTIQUES SENTIMENT
+curl -X GET http://localhost:8082/api/feedbacks/sentiment-stats
+
+---
+
+## 9. CRÉER UNE RÉCLAMATION AVEC CLASSIFICATION IA
+curl -X POST http://localhost:8082/api/reclamations -H "Content-Type: application/json" -d "{\"userId\":1,\"objet\":\"Site HS\",\"description\":\"Je n arrive pas a me connecter\"}"
+
+---
+
+## 10. RÉCLAMATION AVEC INFOS USER
+curl -X GET http://localhost:8082/api/reclamations/1/with-user
+
+---
+
+## 11. TOUTES LES RÉCLAMATIONS AVEC USER
+curl -X GET http://localhost:8082/api/reclamations/with-user
+
+---
+
+## 12. ANALYTICS RÉCLAMATIONS
+curl -X GET http://localhost:8082/api/reclamations/analytics
+
+---
+
+## 13. DASHBOARD ÉTUDIANT - FEEDBACKS
+curl -X GET http://localhost:8082/api/dashboard/student/1/feedbacks
+
+---
+
+## 14. DASHBOARD ÉTUDIANT - RÉCLAMATIONS
+curl -X GET http://localhost:8082/api/dashboard/student/1/reclamations
+
+---
+
+## 15. RÉSUMÉ DASHBOARD
+curl -X GET http://localhost:8082/api/dashboard/student/1/summary
+
+---
+
+## 16. RAPPORT FEEDBACKS EXCEL
+curl -X GET http://localhost:8082/api/reports/feedbacks/excel -o rapport_feedbacks.xlsx
+
+---
+
+## 17. RAPPORT RÉCLAMATIONS PDF
+curl -X GET http://localhost:8082/api/reports/reclamations/pdf -o reclamations.pdf

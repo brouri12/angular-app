@@ -1,0 +1,90 @@
+# ============================================================================
+# COMMANDES EXACTES POUR DEMARRER LE PROJET GESTIONS_RAMZI
+# ============================================================================
+
+# NOTE: Ces commandes utilisent le Maven Wrapper (mvnw.cmd) fourni avec le projet
+#       Pas besoin d'installer Maven!
+
+# ============================================================================
+# PREREQUIS: MySQL doit être démarré sur port 3306
+#            Base de données: skillforge_feedback (créée automatiquement)
+# ============================================================================
+
+# ============================================================================
+# ÉTAPE 1: Discovery Service (Eureka) - PORT 8761
+# ============================================================================
+# Ouvrir un NOUVEAU terminal et exécuter:
+cd C:\Users\MSI\Downloads\PI\Gestions_Ramzi\microservices\discovery-service
+.\mvnw.cmd spring-boot:run
+
+# ============================================================================
+# ÉTAPE 2: Gateway Service - PORT 8080
+# ============================================================================
+# Ouvrir un NOUVEAU terminal et exécuter:
+cd C:\Users\MSI\Downloads\PI\Gestions_Ramzi\microservices\gateway-service
+.\mvnw.cmd spring-boot:run
+
+# ============================================================================
+# ÉTAPE 3: Service Feedback - PORT 8082 (LE PLUS IMPORTANT!)
+# ============================================================================
+# Ouvrir un NOUVEAU terminal et exécuter:
+cd C:\Users\MSI\Downloads\PI\Gestions_Ramzi\microservices\service-feedback
+.\mvnw.cmd clean compile
+.\mvnw.cmd spring-boot:run
+
+# ============================================================================
+# ÉTAPE 4: Frontend Back-Office - PORT 4200
+# ============================================================================
+# Ouvrir un NOUVEAU terminal et exécuter:
+cd C:\Users\MSI\Downloads\PI\Gestions_Ramzi\back-office
+npm install
+ng serve
+
+# ============================================================================
+# ÉTAPE 5: Frontend Public (angular-app) - PORT 4201
+# ============================================================================
+# Ouvrir un NOUVEAU terminal et exécuter:
+cd C:\Users\MSI\Downloads\PI\Gestions_Ramzi\frontend\angular-app
+npm install
+ng serve
+
+# ============================================================================
+# TESTS API - Après démarrage de tous les services
+# ============================================================================
+# Ouvrir un NOUVEAU terminal et exécuter:
+
+# Health check
+curl http://localhost:8082/api/reports/health
+
+# Analytics réclamations
+curl http://localhost:8082/api/reclamations/analytics
+
+# Stats feedbacks
+curl http://localhost:8082/api/feedbacks/stats
+
+# Liste feedbacks
+curl http://localhost:8082/api/feedbacks
+
+# Liste réclamations
+curl http://localhost:8082/api/reclamations
+
+# ============================================================================
+# SI ERREUR: Le service-feedback n'est pas recompilé
+# ============================================================================
+# Si vous voyez une erreur 404 sur /api/reclamations/analytics ou /api/reports/...
+# C'est que le service n'a pas été recompilé avec les nouveaux endpoints.
+
+# Solution: Arrêter le service (Ctrl+C), puis relancer:
+cd C:\Users\MSI\Downloads\PI\Gestions_Ramzi\microservices\service-feedback
+.\mvnw.cmd clean compile
+.\mvnw.cmd spring-boot:run
+
+# ============================================================================
+# URLs D'ACCÈS
+# ============================================================================
+# - Back-Office: http://localhost:4200
+# - Frontend Public: http://localhost:4201
+# - Swagger API: http://localhost:8082/swagger-ui.html
+# - Health Check: http://localhost:8082/api/reports/health
+
+# ============================================================================

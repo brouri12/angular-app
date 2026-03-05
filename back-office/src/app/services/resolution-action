@@ -24,31 +24,33 @@ export class ResolutionActionService {
     });
   }
 
+  // GET /api/resolutions - Liste toutes les actions
   getAll(): Observable<ResolutionAction[]> {
     return this.http.get<ResolutionAction[]>(this.apiUrl, { headers: this.getHeaders() });
   }
 
+  // GET /api/resolutions/{id} - Action par ID
   getById(id: number): Observable<ResolutionAction> {
     return this.http.get<ResolutionAction>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 
+  // GET /api/resolutions/reclamation/{id} - Actions pour une réclamation
   getByReclamationId(reclamationId: number): Observable<ResolutionAction[]> {
     return this.http.get<ResolutionAction[]>(`${this.apiUrl}/reclamation/${reclamationId}`, { headers: this.getHeaders() });
   }
 
+  // POST /api/resolutions - Créer une action
   create(action: ResolutionAction): Observable<ResolutionAction> {
     return this.http.post<ResolutionAction>(this.apiUrl, action, { headers: this.getHeaders() });
   }
 
+  // PUT /api/resolutions/{id} - Modifier une action
   update(id: number, action: ResolutionAction): Observable<ResolutionAction> {
     return this.http.put<ResolutionAction>(`${this.apiUrl}/${id}`, action, { headers: this.getHeaders() });
   }
 
+  // DELETE /api/resolutions/{id} - Supprimer une action
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 }
-
-// Alias for compatibility
-export { ResolutionActionService as ResolutionService };
-

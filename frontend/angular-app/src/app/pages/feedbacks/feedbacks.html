@@ -61,6 +61,7 @@
               <div class="flex items-center gap-3 min-w-0">
                 <span class="text-2xl shrink-0" [class]="getNoteClass(feedback.note)">★</span>
                 <span class="text-lg font-semibold shrink-0" [class]="getNoteClass(feedback.note)">{{ feedback.note }}/5</span>
+                <span class="text-2xl shrink-0" [title]="feedback.sentiment">{{ getSentimentEmoji(feedback.sentiment) }}</span>
               </div>
               <div class="flex items-center gap-1 shrink-0">
                 <button

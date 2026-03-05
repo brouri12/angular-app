@@ -2,7 +2,9 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { Reclamation, ReclamationService } from '../../services/reclamation.service';
+import { Reclamation, ReclamationService, PRIORITES } from '../../services/reclamation.service';
+
+type Priorite = 'BASSE' | 'MOYENNE' | 'HAUTE' | 'CRITIQUE';
 
 @Component({
   selector: 'app-reclamations',
@@ -18,6 +20,7 @@ export class Reclamations implements OnInit {
   deletingId: number | null = null;
 
   searchTerm = '';
+  priorityFilter: string = '';
   pageSize = 10;
   pageSizeOptions = [5, 10, 25, 50];
   currentPage = 1;
@@ -28,16 +31,20 @@ export class Reclamations implements OnInit {
   editModalOpen = false;
   editTarget: Reclamation | null = null;
   editStatus = '';
+  editPriorite: string = 'MOYENNE';
   editSaving = false;
   editError = '';
-  statusOptions = ['pending', 'in_progress', 'resolved', 'rejected'];
+  statusOptions = ['EN_ATTENTE', 'EN_COURS', 'RESOLUE', 'REJETEE'];
 
   createModalOpen = false;
   createObjet = '';
   createDescription = '';
-  createStatus = 'pending';
+  createStatus = 'EN_ATTENTE';
+  createPriorite: string = 'MOYENNE';
   createSaving = false;
   createError = '';
+
+  priorites = PRIORITES;
 
   constructor(
     private reclamationService: ReclamationService,
@@ -66,10 +73,6 @@ export class Reclamations implements OnInit {
         this.reclamations = [];
         this.cdr.detectChanges();
         console.error('loadReclamations failed', err);
-      },
-      complete: () => {
-        this.loading = false;
-        this.cdr.detectChanges();
       }
     });
   }
@@ -158,7 +161,8 @@ export class Reclamations implements OnInit {
 
   openEditModal(rec: Reclamation): void {
     this.editTarget = rec;
-    this.editStatus = rec.status ?? 'pending';
+    this.editStatus = rec.status ?? 'EN_ATTENTE';
+    this.editPriorite = rec.priorite ?? 'MOYENNE';
     this.editModalOpen = true;
     this.editError = '';
   }
@@ -177,10 +181,10 @@ export class Reclamations implements OnInit {
       return;
     }
     this.editSaving = true;
+    
     this.reclamationService.updateStatus(this.editTarget.id, this.editStatus).subscribe({
       next: (updated) => {
-        const idx = this.reclamations.findIndex(r => r.id === this.editTarget!.id);
-        if (idx !== -1) this.reclamations[idx] = { ...this.reclamations[idx], ...updated };
+        this.updateReclamationInList(updated);
         this.editSaving = false;
         this.closeEditModal();
         this.cdr.detectChanges();
@@ -189,20 +193,47 @@ export class Reclamations implements OnInit {
         this.editError = 'Failed to update. Check service-feedback on 8082.';
         this.editSaving = false;
         console.error('Update failed', err);
+        this.cdr.detectChanges();
       }
     });
   }
 
-  getStatusClass(status: string): string {
-    switch (status?.toLowerCase()) {
-      case 'pending':
+  private updateReclamationInList(updated: Reclamation): void {
+    const idx = this.reclamations.findIndex(r => r.id === updated.id);
+    if (idx !== -1) {
+      this.reclamations[idx] = { ...this.reclamations[idx], ...updated };
+    }
+  }
+
+  getStatusClass(status: string | undefined): string {
+    if (!status) return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+    const s = status.toUpperCase();
+    switch (s) {
+      case 'EN_ATTENTE':
         return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      case 'in_progress':
+      case 'EN_COURS':
         return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'resolved':
+      case 'RESOLUE':
         return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'rejected':
+      case 'REJETEE':
         return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+    }
+  }
+
+  getPrioriteClass(priorite: string | undefined): string {
+    if (!priorite) return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+    const p = priorite.toUpperCase();
+    switch (p) {
+      case 'CRITIQUE':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      case 'HAUTE':
+        return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
+      case 'MOYENNE':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+      case 'BASSE':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }
@@ -217,7 +248,8 @@ export class Reclamations implements OnInit {
   openCreateModal(): void {
     this.createObjet = '';
     this.createDescription = '';
-    this.createStatus = 'pending';
+    this.createStatus = 'EN_ATTENTE';
+    this.createPriorite = 'MOYENNE';
     this.createModalOpen = true;
     this.createError = '';
   }
@@ -241,7 +273,8 @@ export class Reclamations implements OnInit {
     const payload: Reclamation = {
       objet: this.createObjet.trim(),
       description: this.createDescription.trim(),
-      status: this.createStatus || 'pending'
+      status: this.createStatus || 'EN_ATTENTE',
+      priorite: this.createPriorite
     };
     this.reclamationService.create(payload).subscribe({
       next: (created) => {
@@ -292,3 +325,4 @@ export class Reclamations implements OnInit {
     });
   }
 }
+

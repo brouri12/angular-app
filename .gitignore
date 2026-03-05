@@ -1,0 +1,32 @@
+# Fichiers à ignorer
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Node.js
+node_modules/
+package-lock.json
+
+# Java/Maven
+target/
+*.class
+*.jar
+*.war
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dossiers inutiles
+path/
+"file path"
+
+# Fichiers temporaires
+*.tmp
+*.bak
+

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Feedback {
@@ -7,69 +7,119 @@ export interface Feedback {
   userId?: number;
   moduleId?: number;
   note: number;
-  commentaire: string;
-  date?: Date | string;
+  commentaire?: string;
+  sentiment?: 'POSITIF' | 'NEGATIF' | 'NEUTRE';
+  date?: string;
+}
+
+export interface FeedbackWithUser extends Feedback {
+  user?: {
+    id: number;
+    username: string;
+    email: string;
+    role: string;
+  };
 }
 
 export interface FeedbackStats {
-  moyenneNote: number;
   totalFeedbacks: number;
-  repartitionNotes: { [key: string]: number } | { [key: number]: number };
-  feedbacksParMois: { [key: string]: number };
-  nouveauxAujourdhui: number;
-  moduleId: number | null;
+  noteMoyenne: number;
+  totalPositif: number;
+  totalNegatif: number;
+  totalNeutre: number;
+  nouveauxAujourdhui?: number;
+  moyenneNote?: number;
+  repartitionNotes?: { [key: string]: number };
+}
+
+export interface SentimentStats {
+  positif: number;
+  negatif: number;
+  neutre: number;
+  pourcentagePositifs?: number;
+  pourcentageNeutres?: number;
+  pourcentageNegatifs?: number;
+  totalPositifs?: number;
+  totalNeutres?: number;
+  totalNegatifs?: number;
+  repartitionParSentiment?: { [key: string]: number };
+  motsNegatifsFrequents?: { [key: string]: number };
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class FeedbackService {
-  /** Call service-feedback directly (8082) so CORS works from any dev port (e.g. 59267). Use 8080 for gateway when all services run. */
   private apiUrl = 'http://localhost:8082/api/feedbacks';
-  private reportUrl = 'http://localhost:8082/api/reports';
+  private reportsUrl = 'http://localhost:8082/api/reports';
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<Feedback[]> {
-    return this.http.get<Feedback[]>(this.apiUrl);
-  }
-
-  getById(id: number): Observable<Feedback> {
-    return this.http.get<Feedback>(`${this.apiUrl}/${id}`);
-  }
-
-  create(feedback: Feedback): Observable<Feedback> {
-    return this.http.post<Feedback>(this.apiUrl, feedback);
-  }
-
-  update(id: number, feedback: Feedback): Observable<Feedback> {
-    return this.http.put<Feedback>(`${this.apiUrl}/${id}`, feedback);
-  }
-
-  delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
-  }
-
-  /** Get feedback statistics */
-  getStats(moduleId?: number): Observable<FeedbackStats> {
-    let params = new HttpParams();
-    if (moduleId) {
-      params = params.set('moduleId', moduleId.toString());
-    }
-    return this.http.get<FeedbackStats>(`${this.apiUrl}/stats`, { params });
-  }
-
-  /** Download feedback report as PDF */
-  downloadFeedbacksPdf(): Observable<Blob> {
-    return this.http.get(`${this.reportUrl}/feedbacks/pdf`, {
-      responseType: 'blob'
+  private getHeaders(): HttpHeaders {
+    return new HttpHeaders({
+      'Content-Type': 'application/json'
     });
   }
 
-  /** Download feedback report as Excel */
+  getAll(): Observable<Feedback[]> {
+    return this.http.get<Feedback[]>(this.apiUrl, { headers: this.getHeaders() });
+  }
+
+  getByUserId(userId: number): Observable<Feedback[]> {
+    return this.http.get<Feedback[]>(`${this.apiUrl}?userId=${userId}`, { headers: this.getHeaders() });
+  }
+
+  getByModuleId(moduleId: number): Observable<Feedback[]> {
+    return this.http.get<Feedback[]>(`${this.apiUrl}?moduleId=${moduleId}`, { headers: this.getHeaders() });
+  }
+
+  getById(id: number): Observable<Feedback> {
+    return this.http.get<Feedback>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
+  }
+
+  getAllWithUser(): Observable<FeedbackWithUser[]> {
+    return this.http.get<FeedbackWithUser[]>(`${this.apiUrl}/with-user`, { headers: this.getHeaders() });
+  }
+
+  getByIdWithUser(id: number): Observable<FeedbackWithUser> {
+    return this.http.get<FeedbackWithUser>(`${this.apiUrl}/${id}/with-user`, { headers: this.getHeaders() });
+  }
+
+  getStats(): Observable<FeedbackStats> {
+    return this.http.get<FeedbackStats>(`${this.apiUrl}/stats`, { headers: this.getHeaders() });
+  }
+
+  getStatsByModule(moduleId: number): Observable<FeedbackStats> {
+    return this.http.get<FeedbackStats>(`${this.apiUrl}/stats?moduleId=${moduleId}`, { headers: this.getHeaders() });
+  }
+
+  getSentimentStats(): Observable<SentimentStats> {
+    return this.http.get<SentimentStats>(`${this.apiUrl}/sentiment-stats`, { headers: this.getHeaders() });
+  }
+
+  create(feedback: Feedback): Observable<Feedback> {
+    return this.http.post<Feedback>(this.apiUrl, feedback, { headers: this.getHeaders() });
+  }
+
+  update(id: number, feedback: Feedback): Observable<Feedback> {
+    return this.http.put<Feedback>(`${this.apiUrl}/${id}`, feedback, { headers: this.getHeaders() });
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
+  }
+
+  downloadFeedbacksPdf(): Observable<Blob> {
+    return this.http.get(`${this.reportsUrl}/feedbacks/pdf`, {
+      responseType: 'blob',
+      headers: this.getHeaders()
+    });
+  }
+
   downloadFeedbacksExcel(): Observable<Blob> {
-    return this.http.get(`${this.reportUrl}/feedbacks/excel`, {
-      responseType: 'blob'
+    return this.http.get(`${this.reportsUrl}/feedbacks/excel`, {
+      responseType: 'blob',
+      headers: this.getHeaders()
     });
   }
 }

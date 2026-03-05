@@ -89,11 +89,11 @@ constructor(
     }
     this.createError = '';
     this.creating = true;
-    const feedback: Feedback = {
+const feedback: Feedback = {
       note: this.newFeedback.note,
       commentaire: this.newFeedback.commentaire.trim(),
       moduleId: this.newFeedback.moduleId ?? undefined,
-      date: new Date()
+      date: new Date().toISOString()
     };
     this.feedbackService.create(feedback).subscribe({
       next: (created) => {
@@ -177,6 +177,22 @@ constructor(
     if (note >= 4) return 'text-green-600 dark:text-green-400';
     if (note >= 3) return 'text-yellow-600 dark:text-yellow-400';
     return 'text-red-600 dark:text-red-400';
+  }
+
+  getSentimentEmoji(sentiment?: string): string {
+    switch (sentiment) {
+      case 'POSITIF': return '😊';
+      case 'NEGATIF': return '😞';
+      default: return '😐';
+    }
+  }
+
+  getSentimentClass(sentiment?: string): string {
+    switch (sentiment) {
+      case 'POSITIF': return 'sentiment-positif';
+      case 'NEGATIF': return 'sentiment-negatif';
+      default: return 'sentiment-neutre';
+    }
   }
 
   downloadPdf(): void {
