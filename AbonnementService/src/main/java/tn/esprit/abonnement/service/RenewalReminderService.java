@@ -38,7 +38,7 @@ public class RenewalReminderService {
      * Sends email 7 days before expiration with promo code
      */
    // @Scheduled(cron = "0 0 9 * * *") // Every day at 9 AM (production)
-     @Scheduled(fixedRate = 120000) // Every 2 minutes (testing)
+        @Scheduled(fixedRate = 120000) // Every 2 minutes (testing)
     public void checkExpiringSubscriptions() {
         log.info("========================================");
         log.info("🔍 Checking for expiring subscriptions...");
