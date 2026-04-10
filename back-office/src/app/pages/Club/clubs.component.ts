@@ -30,6 +30,12 @@ export class ClubsComponent implements OnInit {
   typeFilter: '' | ClubType = '';
   villeFilter = '';
 
+  /** Statistiques (calculées côté client, comme agrégation Events) */
+  totalClubs = 0;
+  byType: { label: string; total: number }[] = [];
+  distinctVillesCount = 0;
+  withLocationCount = 0;
+
   // ✅ MODAL DELETE (même logique que reservations)
   confirmOpen = false;
   selectedClub: Club | null = null;
@@ -57,6 +63,7 @@ export class ClubsComponent implements OnInit {
     this.clubService.getAll().subscribe({
       next: (data) => {
         this.clubs = data || [];
+        this.rebuildStats();
         this.applyFilters();
         this.loading = false;
       },
@@ -72,20 +79,33 @@ export class ClubsComponent implements OnInit {
   applyFilters() {
     const txt = (this.searchText || '').toLowerCase().trim();
     const type = (this.typeFilter || '').toUpperCase().trim();
-    const ville = (this.villeFilter || '').toLowerCase().trim();
 
     this.filtered = (this.clubs || []).filter(c => {
       if (type && (c.type || '').toUpperCase() !== type) return false;
-      if (ville && !(c.ville || '').toLowerCase().includes(ville)) return false;
+      if (this.villeFilter && (c.ville || '').trim() !== this.villeFilter) return false;
       if (!txt) return true;
-
-      return (
-        (c.nomClub || '').toLowerCase().includes(txt) ||
-        (c.description || '').toLowerCase().includes(txt) ||
-        (c.ville || '').toLowerCase().includes(txt) ||
-        String(c.idClub ?? '').includes(txt)
-      );
+      return (c.nomClub || '').toLowerCase().includes(txt);
     });
+  }
+
+  private rebuildStats(): void {
+    const list = this.clubs || [];
+    this.totalClubs = list.length;
+
+    const typeMap = new Map<string, number>();
+    for (const c of list) {
+      const t = String(c.type || '—').toUpperCase();
+      typeMap.set(t, (typeMap.get(t) || 0) + 1);
+    }
+    this.byType = Array.from(typeMap.entries())
+      .map(([label, total]) => ({ label, total }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+
+    const villes = new Set(
+      list.map(c => (c.ville || '').trim()).filter(v => v.length > 0),
+    );
+    this.distinctVillesCount = villes.size;
+    this.withLocationCount = list.filter(c => (c.ville || '').trim().length > 0).length;
   }
 
   resetFilters() {
@@ -126,6 +146,7 @@ export class ClubsComponent implements OnInit {
         // retirer du tableau local + refresh filtrage
         const id = this.selectedClub!.idClub!;
         this.clubs = this.clubs.filter(x => x.idClub !== id);
+        this.rebuildStats();
         this.applyFilters();
 
         // fermer modal

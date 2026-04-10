@@ -1,18 +1,22 @@
 export type EventType = 'WORKSHOP' | 'SPEAKING' | 'EXAM';
 export type EventMode = 'ONLINE' | 'PRESENTIEL';
 export type EventLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
+export type EventStatus = 'OPEN' | 'CLOSED';
 
-export interface EventModel {
-  idEvent?: number;         // backend: idEvent
+export interface Event {
+  idEvent?: number;
   title: string;
   description: string;
   type: EventType;
   mode: EventMode;
-  eventDate: string;        // "yyyy-MM-dd"
-  startTime: string;        // "HH:mm:ss"
-  endTime: string;          // "HH:mm:ss"
+  eventDate: string;
+  startTime: string;
+  endTime: string;
   location: string;
+  latitude?: number;
+  longitude?: number;
   capacity: number;
   requiredLevel: EventLevel;
   clubId?: number;
+  status?: EventStatus; // ✅ optionnel pour éviter erreurs create/edit
 }

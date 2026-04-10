@@ -27,6 +27,27 @@ public class UserController {
     public ResponseEntity<String> hello() {
         return ResponseEntity.ok("Bienvenue dans le microservice de gestion des utilisateurs!");
     }
+
+    // Endpoint public: retourne juste le nom affiché (pas de données sensibles)
+    @GetMapping("/{id}/public-name")
+    public ResponseEntity<Map<String, String>> getPublicName(@PathVariable Long id) {
+        try {
+            UserDTO user = userService.getUserById(id);
+            String nom = user.getNom();
+            String prenom = user.getPrenom();
+            String displayName;
+            if ((prenom != null && !prenom.isBlank()) || (nom != null && !nom.isBlank())) {
+                displayName = ((prenom != null ? prenom : "") + " " + (nom != null ? nom : "")).trim();
+            } else {
+                displayName = user.getUsername();
+            }
+            Map<String, String> result = new HashMap<>();
+            result.put("displayName", displayName);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
     
     // Créer un utilisateur
     @PostMapping

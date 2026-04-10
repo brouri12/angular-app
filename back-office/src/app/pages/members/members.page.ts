@@ -1,15 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 import { MemberService } from '../../services/member.service';
-import { Member } from '../../models/member.model';
+import { Member, MemberRole, MemberStatus, normalizeMemberFromApi } from '../../models/member.model';
 
 import { ClubService } from '../../services/club.service';
 
 @Component({
   selector: 'app-members-page',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './members.page.html',
   styleUrls: ['./members.page.css']
 })
@@ -21,8 +24,16 @@ export class MembersPage implements OnInit {
 
   members: Member[] = [];
 
-  // ✅ cache: idClub -> nomClub
   clubNameById = new Map<number, string>();
+
+  /** Modal édition rôle + statut */
+  editOpen = false;
+  editSaving = false;
+  editTarget: Member | null = null;
+  draftStatus: MemberStatus = 'PENDING';
+  draftRole: MemberRole = 'RECRUE';
+  /** Erreur API affichée dans la modal (le bandeau du haut est masqué par l’overlay) */
+  editModalError = '';
 
   constructor(
     private memberService: MemberService,
@@ -30,7 +41,6 @@ export class MembersPage implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // ✅ load clubs first then members
     this.loadClubsThenMembers();
   }
 
@@ -50,11 +60,9 @@ export class MembersPage implements OnInit {
           if (id && name) this.clubNameById.set(id, name);
         });
 
-        // ✅ after clubs loaded -> load members
         this.loadMembers();
       },
       error: () => {
-        // even if clubs fail, still show members
         this.loadMembers();
       }
     });
@@ -63,7 +71,7 @@ export class MembersPage implements OnInit {
   loadMembers() {
     this.memberService.getAll().subscribe({
       next: (data: Member[]) => {
-        this.members = data || [];
+        this.members = (data || []).map((row) => normalizeMemberFromApi(row));
         this.loading = false;
       },
       error: (err: any) => {
@@ -95,14 +103,95 @@ export class MembersPage implements OnInit {
     });
   }
 
+  openEdit(m: Member) {
+    this.errorMsg = '';
+    this.editModalError = '';
+    this.editTarget = m;
+    this.draftStatus = (m.status || 'PENDING') as MemberStatus;
+    this.draftRole = (m.role || 'RECRUE') as MemberRole;
+    this.editOpen = true;
+  }
+
+  closeEdit() {
+    if (this.editSaving) return;
+    this.editOpen = false;
+    this.editTarget = null;
+  }
+
+  onEditBackdrop(ev: MouseEvent) {
+    if ((ev.target as HTMLElement).classList.contains('member-edit-overlay')) {
+      this.closeEdit();
+    }
+  }
+
+  saveEdit() {
+    if (!this.editTarget) return;
+
+    const id = Number(this.editTarget.idMember);
+    if (!id) {
+      this.editModalError = 'Identifiant membre invalide';
+      return;
+    }
+
+    const orig = this.editTarget;
+    const prevStatus = (orig.status || 'PENDING') as MemberStatus;
+    const prevRole = (orig.role || 'RECRUE') as MemberRole;
+    const statusChanged = this.draftStatus !== prevStatus;
+    const roleChanged = this.draftRole !== prevRole;
+
+    if (!statusChanged && !roleChanged) {
+      this.closeEdit();
+      return;
+    }
+
+    this.editSaving = true;
+    this.editModalError = '';
+
+    let chain: Observable<Member>;
+    if (statusChanged && roleChanged) {
+      chain = this.memberService.updateStatus(id, this.draftStatus).pipe(
+        switchMap(() => this.memberService.updateRole(id, this.draftRole))
+      );
+    } else if (statusChanged) {
+      chain = this.memberService.updateStatus(id, this.draftStatus);
+    } else {
+      chain = this.memberService.updateRole(id, this.draftRole);
+    }
+
+    chain.subscribe({
+      next: (updated) => {
+        const idx = this.members.findIndex(x => x.idMember === orig.idMember);
+        if (idx !== -1) {
+          this.members[idx] = normalizeMemberFromApi(updated);
+          this.members = [...this.members];
+        }
+        this.editSaving = false;
+        this.editOpen = false;
+        this.editTarget = null;
+        this.successMsg = `Membre mis à jour : ${orig.prenom} ${orig.nom}`;
+      },
+      error: (err: any) => {
+        this.editSaving = false;
+        this.editModalError =
+          (typeof err?.error === 'string' ? err.error : null) ||
+          err?.error?.message ||
+          err?.message ||
+          'Erreur lors de la mise à jour';
+      }
+    });
+  }
+
   trackById(_: number, m: Member) {
     return m.idMember;
   }
 
-  // ✅ helper display
   getClubName(idClub?: number | null): string {
     const id = Number(idClub);
     if (!id) return '—';
     return this.clubNameById.get(id) || `Club #${id}`;
+  }
+
+  roleLabel(role?: MemberRole): string {
+    return role === 'PRESIDENT' ? 'Président' : 'Recrue';
   }
 }

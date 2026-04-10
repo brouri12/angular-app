@@ -56,11 +56,16 @@ eventNameFilter = '';
               )
             : of('Unknown Event');
 
-          const userName$ = r.userId
-            ? this.registrationService.getUserNameById(r.userId).pipe(
-                catchError(() => of(`User #${r.userId}`))
-              )
-            : of('Unknown User');
+          // ✅ Utiliser nom/prenom stockés dans la registration (comme Member)
+          // Fallback sur getUserNameById si les champs sont vides (anciennes registrations)
+          const hasName = (r.nom && r.nom.trim()) || (r.prenom && r.prenom.trim());
+          const userName$ = hasName
+            ? of(([r.prenom, r.nom].filter(Boolean).join(' ').trim()))
+            : (r.userId
+                ? this.registrationService.getUserNameById(r.userId).pipe(
+                    catchError(() => of(`User #${r.userId}`))
+                  )
+                : of('Unknown User'));
 
           return forkJoin({ eventTitle: eventTitle$, userName: userName$ }).pipe(
             map(({ eventTitle, userName }) => ({

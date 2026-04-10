@@ -1,0 +1,36 @@
+<div class="modal-overlay" *ngIf="open" (click)="close()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <span class="modal-icon">🏆</span>
+      <h2 class="modal-title">Sponsor this Event</h2>
+      <button class="modal-close" (click)="close()">✕</button>
+    </div>
+
+    <div class="modal-body" *ngIf="!successMsg">
+      <p class="modal-desc">
+        Your club will officially sponsor <strong>{{ eventTitle }}</strong>.
+        A one-time fee of <strong>${{ amount }}</strong> is required.
+      </p>
+
+      <div class="stripe-card-wrap">
+        <label class="card-label">Card details</label>
+        <div #cardEl class="stripe-card-el"></div>
+      </div>
+
+      <div *ngIf="errorMsg" class="error-msg">{{ errorMsg }}</div>
+
+      <button class="btn-pay" (click)="pay()" [disabled]="loading">
+        <span *ngIf="!loading">💳 Pay ${{ amount }} &amp; Sponsor</span>
+        <span *ngIf="loading">Processing...</span>
+      </button>
+    </div>
+
+    <div class="modal-success" *ngIf="successMsg">
+      <span class="success-icon">✅</span>
+      <p>{{ successMsg }}</p>
+      <button class="btn-close-success" (click)="close()">Close</button>
+    </div>
+
+  </div>
+</div>

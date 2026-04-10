@@ -22,6 +22,62 @@
     </div>
   </div>
 
+  <!-- STATS DASHBOARD -->
+  <div class="stats-grid">
+
+    <div class="card stat-card">
+      <div class="stat-title">Total Events</div>
+      <div class="stat-value">{{ total }}</div>
+      <div class="stat-sub">All events in database</div>
+    </div>
+
+    <div class="card stat-card">
+      <div class="stat-title">By Status</div>
+      <div class="stat-list">
+        @for (s of byStatus; track s.label) {
+          <div class="stat-row">
+            <span class="chip">{{ s.label }}</span>
+            <span class="num">{{ s.total }}</span>
+          </div>
+        }
+        @if (!byStatus?.length) {
+          <div class="stat-empty">No data</div>
+        }
+      </div>
+    </div>
+
+    <div class="card stat-card">
+      <div class="stat-title">By Type</div>
+      <div class="stat-list">
+        @for (t of byType; track t.label) {
+          <div class="stat-row">
+            <span class="chip">{{ t.label }}</span>
+            <span class="num">{{ t.total }}</span>
+          </div>
+        }
+        @if (!byType?.length) {
+          <div class="stat-empty">No data</div>
+        }
+      </div>
+    </div>
+
+    <div class="card stat-card">
+      <div class="stat-title">By Mode</div>
+      <div class="stat-list">
+        @for (m of byMode; track m.label) {
+          <div class="stat-row">
+            <span class="chip">{{ m.label }}</span>
+            <span class="num">{{ m.total }}</span>
+          </div>
+        }
+        @if (!byMode?.length) {
+          <div class="stat-empty">No data</div>
+        }
+      </div>
+    </div>
+
+  </div>
+
   <!-- ERROR -->
   @if (errorMsg) {
     <div class="state error">
@@ -74,11 +130,16 @@
 
           <div class="card-top">
             <div class="title">
-              <h3 class="truncate">{{ ev.title }}</h3>
-              <div class="subline truncate">#{{ ev.idEvent }} • {{ ev.eventDate }}</div>
+              <h3 class="event-card-title">{{ ev.title }}</h3>
+              <div class="subline">#{{ ev.idEvent }} • {{ ev.eventDate }}</div>
             </div>
 
-            <span class="pill capacity">👥 {{ ev.capacity }}</span>
+            <div class="pill-wrap">
+              <span class="pill capacity">👥 {{ ev.capacity }}</span>
+              <span class="pill status" [ngClass]="statusClass(ev)">
+                {{ statusLabel(ev) }}
+              </span>
+            </div>
           </div>
 
           <div class="meta">
@@ -87,9 +148,9 @@
               <span class="v">{{ ev.startTime }} - {{ ev.endTime }}</span>
             </div>
 
-            <div class="row">
+            <div class="row row--location">
               <span class="k">Location</span>
-              <span class="v truncate">{{ ev.location || '—' }}</span>
+              <span class="v">{{ displayLocation(ev.location) }}</span>
             </div>
 
             <div class="row">
@@ -109,7 +170,7 @@
           </div>
 
           <div class="desc">
-            {{ ev.description || 'No description available' }}
+            {{ (ev.description || '').trim() ? ev.description : 'No description available' }}
           </div>
 
           <div class="actions">

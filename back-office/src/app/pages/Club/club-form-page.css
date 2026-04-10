@@ -27,7 +27,7 @@
 ========================================================= */
 .window{
   width: min(980px, 96vw);
-  height: min(680px, 88vh);
+  height: min(820px, 92vh);
   border-radius: 20px;
   overflow: hidden;
   display:flex;
@@ -304,4 +304,62 @@ button:disabled{
   cursor:not-allowed;
   transform:none !important;
   box-shadow:none !important;
+}
+
+/* ===== MAP ===== */
+.map-search-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.map-search-bar-loc {
+  align-items: flex-start;
+}
+
+.map-search-bar .input {
+  flex: 1;
+  min-width: 0;
+}
+
+.location-textarea {
+  min-height: 4.5rem;
+  resize: vertical;
+  line-height: 1.45;
+  field-sizing: content;
+}
+
+.btn-search-map {
+  padding: 10px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 200, 151, 0.45);
+  background: rgba(0, 200, 151, 0.15);
+  color: rgb(0, 200, 151);
+  font-weight: 900;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.btn-search-map:hover {
+  background: rgba(0, 200, 151, 0.25);
+  transform: translateY(-1px);
+}
+
+.map-container {
+  width: 100%;
+  height: 280px;
+  border-radius: 16px;
+  border: 1px solid rgba(30, 41, 59, 0.85);
+  overflow: hidden;
+  z-index: 1;
+}
+
+.map-hint {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgb(148, 163, 184);
+  line-height: 1.5;
 }

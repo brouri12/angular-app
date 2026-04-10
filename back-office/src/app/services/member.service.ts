@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
-import { Member } from '../models/member.model';
+import { Member, MemberRole, MemberStatus } from '../models/member.model';
 
 @Injectable({ providedIn: 'root' })
 export class MemberService {
@@ -22,5 +22,27 @@ export class MemberService {
 
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
+  }
+
+  getPending(): Observable<Member[]> {
+    return this.http.get<Member[]>(`${this.apiUrl}/pending`, { headers: this.getHeaders() });
+  }
+
+  accept(id: number): Observable<Member> {
+    return this.http.put<Member>(`${this.apiUrl}/${id}/accept`, {}, { headers: this.getHeaders() });
+  }
+
+  deny(id: number): Observable<Member> {
+    return this.http.put<Member>(`${this.apiUrl}/${id}/deny`, {}, { headers: this.getHeaders() });
+  }
+
+  updateRole(id: number, role: MemberRole): Observable<Member> {
+    const headers = this.getHeaders().set('Content-Type', 'application/json');
+    return this.http.put<Member>(`${this.apiUrl}/${id}/role`, { role }, { headers });
+  }
+
+  updateStatus(id: number, status: MemberStatus): Observable<Member> {
+    const headers = this.getHeaders().set('Content-Type', 'application/json');
+    return this.http.put<Member>(`${this.apiUrl}/${id}/status`, { status }, { headers });
   }
 }

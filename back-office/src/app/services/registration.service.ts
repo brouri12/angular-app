@@ -10,6 +10,8 @@ export interface Registration {
   idRegistration: number;
   eventId: number;
   userId: number;
+  nom?: string;
+  prenom?: string;
   registrationDate?: string;
   status: RegistrationStatus;
 
@@ -83,7 +85,7 @@ export class RegistrationService {
     return req$;
   }
 
-  // ✅ User name avec cache + Bearer header (sans toucher interceptor)
+  // ✅ User name avec cache — endpoint public (pas besoin de token)
   getUserNameById(userId: number): Observable<string> {
     if (!userId || userId <= 0) return of('Unknown User');
 
@@ -93,19 +95,11 @@ export class RegistrationService {
     const inflight = this.userNameInFlight.get(userId);
     if (inflight) return inflight;
 
-    const headers = this.auth.getAuthHeaders(); // ✅ Bearer token
-
-    const req$ = this.http.get<any>(`${this.userUrl}/${userId}`, { headers }).pipe(
-      map(u => {
-        const full =
-          (u?.name) ||
-          ([u?.prenom, u?.nom].filter(Boolean).join(' ').trim()) ||
-          u?.username ||
-          `User #${userId}`;
-
-        const result = String(full).trim() || `User #${userId}`;
-        this.userNameCache.set(userId, result);
-        return result;
+    const req$ = this.http.get<any>(`${this.userUrl}/${userId}/public-name`).pipe(
+      map(res => {
+        const name = res?.displayName || `User #${userId}`;
+        this.userNameCache.set(userId, name);
+        return name;
       }),
       catchError(() => of(`User #${userId}`)),
       finalize(() => this.userNameInFlight.delete(userId)),

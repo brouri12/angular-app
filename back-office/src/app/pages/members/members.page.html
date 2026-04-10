@@ -6,8 +6,6 @@
       <h1>Members Back Office</h1>
       <p>Gérez et supprimez les membres facilement.</p>
     </div>
-
-   
   </div>
 
   <!-- STATES -->
@@ -27,12 +25,27 @@
       <div class="card-top">
         <div class="title">
           <h3>{{ (m.prenom || '') + ' ' + (m.nom || '') }}</h3>
-          <span class="pill">MEMBER</span>
+          <span class="pill" [ngClass]="{
+            'pill-pending':  m.status === 'PENDING'  || !m.status,
+            'pill-accepted': m.status === 'ACCEPTED',
+            'pill-denied':   m.status === 'DENIED'
+          }">
+            {{ m.status || 'PENDING' }}
+          </span>
         </div>
 
-        <button class="btn-danger" type="button" (click)="deleteMember(m)">
-          🗑 Supprimer
-        </button>
+        <div class="card-actions">
+          <button
+            type="button"
+            class="btn-edit"
+            (click)="openEdit(m)"
+            title="Modifier le statut et le rôle">
+            Modifier
+          </button>
+          <button class="btn-danger" type="button" (click)="deleteMember(m)">
+            🗑
+          </button>
+        </div>
       </div>
 
       <div class="meta">
@@ -52,16 +65,74 @@
         </div>
 
         <div class="row">
-  <span class="k">Club</span>
-  <span class="v">{{ getClubName(m.idClub) }}</span>
-</div>
+          <span class="k">Club</span>
+          <span class="v">{{ getClubName(m.idClub) }}</span>
+        </div>
         <div class="row">
           <span class="k">Joined</span>
           <span class="v">{{ m.dateJoin ? (m.dateJoin | date:'mediumDate') : '—' }}</span>
         </div>
+
+        <div class="row">
+          <span class="k">Rôle</span>
+          <span class="v">{{ roleLabel(m.role) }}</span>
+        </div>
       </div>
 
     </article>
+  </div>
+
+  <!-- MODAL : éditer statut + rôle -->
+  <div
+    *ngIf="editOpen && editTarget"
+    class="member-edit-overlay"
+    (click)="onEditBackdrop($event)">
+    <div class="member-edit-modal" (click)="$event.stopPropagation()">
+      <div class="member-edit-header">
+        <h3 class="member-edit-title">Modifier le membre</h3>
+        <button type="button" class="member-edit-x" (click)="closeEdit()" [disabled]="editSaving">✕</button>
+      </div>
+
+      <p class="member-edit-sub">
+        {{ (editTarget.prenom || '') + ' ' + (editTarget.nom || '') }} · {{ getClubName(editTarget.idClub) }}
+      </p>
+
+      <div *ngIf="editModalError" class="member-edit-err">{{ editModalError }}</div>
+
+      <div class="member-edit-fields">
+        <label class="member-edit-label">
+          Statut
+          <select
+            class="member-edit-select"
+            [(ngModel)]="draftStatus"
+            [disabled]="editSaving">
+            <option [ngValue]="'PENDING'">En attente</option>
+            <option [ngValue]="'ACCEPTED'">Accepté</option>
+            <option [ngValue]="'DENIED'">Refusé</option>
+          </select>
+        </label>
+
+        <label class="member-edit-label">
+          Rôle
+          <select
+            class="member-edit-select"
+            [(ngModel)]="draftRole"
+            [disabled]="editSaving">
+            <option [ngValue]="'RECRUE'">Recrue (accès limité)</option>
+            <option [ngValue]="'PRESIDENT'">Président (gestion club)</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="member-edit-actions">
+        <button type="button" class="member-edit-btn cancel" (click)="closeEdit()" [disabled]="editSaving">
+          Annuler
+        </button>
+        <button type="button" class="member-edit-btn primary" (click)="saveEdit()" [disabled]="editSaving">
+          {{ editSaving ? 'Enregistrement…' : 'Enregistrer' }}
+        </button>
+      </div>
+    </div>
   </div>
 
 </div>

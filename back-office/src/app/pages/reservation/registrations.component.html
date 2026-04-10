@@ -100,6 +100,13 @@
         <!-- ✅ ACTIONS LIKE MEMBERS -->
         <div class="actions">
           <button
+            class="btn-edit"
+            type="button"
+            (click)="openEdit(r)"
+          >
+            ✏️ Modifier
+          </button>
+          <button
             class="btn-danger"
             type="button"
             (click)="openDeleteModal(r)"

@@ -1,15 +1,26 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { AfterViewInit, Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import { finalize } from 'rxjs/operators';
+import { Observable, TimeoutError, throwError } from 'rxjs';
+import { catchError, finalize, timeout } from 'rxjs/operators';
+import * as L from 'leaflet';
 
 import { EventsService } from '../../services/events.service';
 import { EventsRefreshService } from '../../services/events-refresh.service';
-import { EventModel, EventLevel, EventMode, EventType } from '../../models/event.model';
+import { Event, EventLevel, EventMode, EventType } from '../../models/event.model';
+
 import { JoinConfirmModalComponent } from '../../components/join-confirm-modal/join-confirm-modal.component';
 
-declare const google: any;
+/** Default map view (Tunis) when no coordinates yet */
+const MAP_DEFAULT_CENTER: L.LatLngTuple = [36.8065, 10.1815];
+
+/** Coordinates are appended to `location` as …|@lat,lng (no new DB columns). */
+const LOC_COORD_SUFFIX = /\|@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)\s*$/;
+
+/** If the API does not answer, the HTTP call can hang for a long time — without this, the UI stays on "Creating…" forever. */
+const HTTP_TIMEOUT_MS = 20_000;
 
 @Component({
   selector: 'app-event-form-page',
@@ -18,35 +29,42 @@ declare const google: any;
   templateUrl: './event-form-page.html',
   styleUrls: ['./event-form-page.css'],
 })
-export class EventFormPage implements OnInit, AfterViewInit {
-
+export class EventFormPage implements OnInit, AfterViewInit, OnDestroy {
   loadingAction = false;
   errorMsg = '';
 
   isEdit = false;
   idEvent?: number;
 
-  form: EventModel = this.emptyForm();
+  /** Texte du champ lieu (sans le suffixe coordonnées encodé dans `location`). */
+  locationAddress = '';
+  /** Position carte (local) — fusionnée dans `location` à l’enregistrement. */
+  pickedLat?: number;
+  pickedLng?: number;
+
+  /** Adresse affichée sous la carte (géocodage — même principe que le formulaire club). */
+  geocodingAddress = '';
+
+  form: Event = this.emptyForm();
 
   types: EventType[] = ['WORKSHOP', 'SPEAKING', 'EXAM'];
   modes: EventMode[] = ['ONLINE', 'PRESENTIEL'];
-  levels: EventLevel[] = ['A1','A2','B1','B2','C1','C2'];
+  levels: EventLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
   confirmOpen = false;
   confirmTitle = '';
   confirmMessage = '';
   private pendingAction: 'CREATE' | 'UPDATE' | null = null;
 
-  // ✅ MAP
-  private map: any;
-  private marker: any;
-  private geocoder: any;
+  private map?: L.Map;
+  private locationMarker?: L.Marker;
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private eventsService: EventsService,
-    private refreshService: EventsRefreshService
+    private refreshService: EventsRefreshService,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -59,114 +77,57 @@ export class EventFormPage implements OnInit, AfterViewInit {
       this.eventsService.getById(this.idEvent).subscribe({
         next: (ev) => {
           this.form = { ...ev };
-          // si tu veux centrer la map après load, tu peux le faire dans ngAfterViewInit via setTimeout
+          this.parseLocationFromStored(this.form.location || '');
+
+          if (ev.latitude != null && ev.longitude != null) {
+            this.pickedLat = ev.latitude;
+            this.pickedLng = ev.longitude;
+          }
+
+          this.syncFormLocation();
+          if (this.form.mode === 'PRESENTIEL') {
+            this.scheduleMapInit();
+          }
         },
-        error: () => (this.errorMsg = "Unable to load the event."),
+        error: () => {
+          this.errorMsg = 'Unable to load the event.';
+        }
       });
     }
   }
 
   ngAfterViewInit(): void {
-  // ✅ attendre que le modal soit vraiment rendu (important)
-  setTimeout(() => {
-    this.initPlacesAutocomplete();
-    this.initMap();
-
-    // ✅ resize: important dans les modals
-    setTimeout(() => {
-      if (this.map && google?.maps?.event) {
-        google.maps.event.trigger(this.map, 'resize');
-      }
-    }, 200);
-
-  }, 50);
-}
-
-  // ✅ Autocomplete (tape dans l'input)
-  private initPlacesAutocomplete() {
-    const input = document.getElementById('locationInput') as HTMLInputElement;
-    if (!input) return;
-
-    if (typeof google === 'undefined' || !google?.maps?.places) return;
-
-    const autocomplete = new google.maps.places.Autocomplete(input, {
-      fields: ['formatted_address', 'geometry', 'name'],
-    });
-
-    autocomplete.addListener('place_changed', () => {
-      const place = autocomplete.getPlace();
-      const value = place?.formatted_address || place?.name || input.value;
-
-      this.form.location = value;
-
-      // center map if geometry exists
-      if (place?.geometry?.location) {
-        const lat = place.geometry.location.lat();
-        const lng = place.geometry.location.lng();
-        this.setMarkerAndCenter(lat, lng);
-      }
-    });
+    if (this.form.mode === 'PRESENTIEL') {
+      this.scheduleMapInit();
+    }
   }
 
-  // ✅ Map click -> get address
-  private initMap() {
-  const mapDiv = document.getElementById('map');
-  if (!mapDiv) return;
-
-  // Google script not loaded
-  if (typeof google === 'undefined' || !google?.maps) return;
-
-  const defaultCenter = { lat: 36.8065, lng: 10.1815 }; // Tunis
-
-  this.map = new google.maps.Map(mapDiv, {
-    center: defaultCenter,
-    zoom: 12,
-    mapTypeControl: false,
-    streetViewControl: false,
-    fullscreenControl: false,
-  });
-
-  this.marker = new google.maps.Marker({
-    position: defaultCenter,
-    map: this.map,
-  });
-
-  // ✅ click on map
-  this.map.addListener('click', (e: any) => {
-    const lat = e.latLng.lat();
-    const lng = e.latLng.lng();
-
-    this.marker.setPosition({ lat, lng });
-
-    // ✅ sauvegarder dans ton form
-    (this.form as any).lat = lat;
-    (this.form as any).lon = lng;
-
-    // option: remplir location par coordonnées
-    this.form.location = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-  });
-
-  // ✅ important si modal
-  google.maps.event.addListenerOnce(this.map, 'idle', () => {
-    google.maps.event.trigger(this.map, 'resize');
-  });
-}
-
-  private setMarkerAndCenter(lat: number, lng: number) {
-    const pos = { lat, lng };
-    this.marker.setPosition(pos);
-    this.map.panTo(pos);
-    this.map.setZoom(14);
+  ngOnDestroy(): void {
+    this.teardownMap();
   }
 
-  private reverseGeocode(lat: number, lng: number) {
-    if (!this.geocoder) return;
+  /** Comme `onTypeChange()` du club : carte seulement en présentiel. */
+  onModeChange(): void {
+    if (this.form.mode !== 'PRESENTIEL') {
+      this.teardownMap();
+      this.geocodingAddress = '';
+      this.pickedLat = undefined;
+      this.pickedLng = undefined;
+      this.locationAddress = '';
+      this.syncFormLocation();
+      return;
+    }
+    this.scheduleMapInit();
+  }
 
-    this.geocoder.geocode({ location: { lat, lng } }, (results: any, status: any) => {
-      if (status === 'OK' && results && results[0]) {
-        this.form.location = results[0].formatted_address;
-      }
-    });
+  private scheduleMapInit(): void {
+    setTimeout(() => this.ensureMap(), 0);
+  }
+
+  private teardownMap(): void {
+    this.map?.remove();
+    this.map = undefined;
+    this.locationMarker = undefined;
   }
 
   close(withRefresh: boolean = false) {
@@ -178,11 +139,12 @@ export class EventFormPage implements OnInit, AfterViewInit {
   // =========================
   // CONFIRM FLOW
   // =========================
+
   openConfirmCreate() {
     this.errorMsg = '';
     this.pendingAction = 'CREATE';
     this.confirmTitle = 'Create event';
-    this.confirmMessage = `Confirm creation of "${this.form.title || ''}"?`;
+    this.confirmMessage = `Confirm creation of "${this.form.title}"?`;
     this.confirmOpen = true;
   }
 
@@ -190,7 +152,7 @@ export class EventFormPage implements OnInit, AfterViewInit {
     this.errorMsg = '';
     this.pendingAction = 'UPDATE';
     this.confirmTitle = 'Save changes';
-    this.confirmMessage = `Confirm update for event #${this.idEvent} "${this.form.title || ''}"?`;
+    this.confirmMessage = `Confirm update for event "${this.form.title}"?`;
     this.confirmOpen = true;
   }
 
@@ -207,60 +169,393 @@ export class EventFormPage implements OnInit, AfterViewInit {
       this.create();
       return;
     }
+
     if (this.pendingAction === 'UPDATE') {
       this.pendingAction = null;
       this.update();
       return;
     }
+
     this.pendingAction = null;
   }
 
   // =========================
-  // CREATE / UPDATE
+  // CREATE
   // =========================
+
   create() {
     this.loadingAction = true;
     this.errorMsg = '';
+    this.syncFormLocation();
 
     const payload = this.normalizePayload({ ...this.form });
-    delete (payload as any).idEvent;
+    delete payload.idEvent;
 
-    this.eventsService.create(payload)
+    this.withRequestTimeout(this.eventsService.create(payload as Event))
       .pipe(finalize(() => (this.loadingAction = false)))
       .subscribe({
         next: () => this.close(true),
-        error: () => (this.errorMsg = "Error while creating the event."),
+        error: (err) => {
+          this.errorMsg = this.httpErrorMessage(err, 'Error while creating the event.');
+        },
       });
   }
+
+  // =========================
+  // UPDATE
+  // =========================
 
   update() {
     if (!this.idEvent) return;
 
     this.loadingAction = true;
     this.errorMsg = '';
+    this.syncFormLocation();
 
     const payload = this.normalizePayload({ ...this.form });
 
-    this.eventsService.update(this.idEvent, payload)
+    this.withRequestTimeout(this.eventsService.update(this.idEvent, payload as Event))
       .pipe(finalize(() => (this.loadingAction = false)))
       .subscribe({
         next: () => this.close(true),
-        error: () => (this.errorMsg = "Error while updating the event."),
+        error: (err) => {
+          this.errorMsg = this.httpErrorMessage(err, 'Error while updating the event.');
+        },
       });
   }
 
-  private normalizePayload(p: EventModel): EventModel {
-    return {
-      ...p,
-      eventDate: (p.eventDate || '').slice(0, 10),
-      startTime: (p.startTime || '00:00:00').length === 5 ? p.startTime + ':00' : p.startTime,
-      endTime: (p.endTime || '00:00:00').length === 5 ? p.endTime + ':00' : p.endTime,
-      capacity: Number(p.capacity || 0),
-      clubId: p.clubId ? Number(p.clubId) : undefined,
+  // =========================
+  // NORMALIZE
+  // =========================
+
+  /**
+   * Corps JSON strictement compatible Spring/Jackson :
+   * - pas de chaînes vides pour les dates
+   * - heures au format HH:mm:ss
+   * - coordonnées explicites si présentes
+   */
+  private normalizePayload(p: Event): Partial<Event> {
+    const eventDateStr = (p.eventDate || '').trim().slice(0, 10);
+    const startRaw = p.startTime || '09:00:00';
+    const endRaw = p.endTime || '10:00:00';
+
+    const startTime = startRaw.length === 5 ? `${startRaw}:00` : startRaw;
+    const endTime = endRaw.length === 5 ? `${endRaw}:00` : endRaw;
+
+    const body: Partial<Event> = {
+      title: p.title,
+      description: p.description,
+      type: p.type,
+      mode: p.mode,
+      startTime,
+      endTime,
+      location: this.buildLocationForPayload(),
+      capacity: Number(p.capacity ?? 0),
+      requiredLevel: p.requiredLevel,
     };
+
+    if (eventDateStr.length === 10) {
+      body.eventDate = eventDateStr;
+    }
+
+    if (p.clubId != null) {
+      body.clubId = Number(p.clubId);
+    }
+
+    if (p.status != null) {
+      body.status = p.status;
+    }
+
+    if (this.pickedLat != null && !Number.isNaN(this.pickedLat)) {
+      body.latitude = this.pickedLat;
+    }
+
+    if (this.pickedLng != null && !Number.isNaN(this.pickedLng)) {
+      body.longitude = this.pickedLng;
+    }
+
+    return body;
   }
 
-  private emptyForm(): EventModel {
+  /** Cuts hanging requests so the button does not stay on "Creating…" indefinitely. */
+  private withRequestTimeout<T>(source: Observable<T>): Observable<T> {
+    return source.pipe(
+      timeout(HTTP_TIMEOUT_MS),
+      catchError((err: unknown) => {
+        const isTimeout =
+          err instanceof TimeoutError ||
+          (typeof err === 'object' &&
+            err !== null &&
+            (err as { name?: string }).name === 'TimeoutError');
+
+        if (isTimeout) {
+          return throwError(
+            () =>
+              new HttpErrorResponse({
+                error:
+                  'No response from the server (timeout). Start event-service on port 8082 and check that MySQL is running.',
+                status: 0,
+                statusText: 'Timeout',
+              }),
+          );
+        }
+
+        return throwError(() => err);
+      }),
+    );
+  }
+
+  private httpErrorMessage(err: unknown, fallback: string): string {
+    if (err instanceof HttpErrorResponse) {
+      const b = err.error;
+
+      if (typeof b === 'string' && b.trim()) {
+        return b.trim();
+      }
+
+      if (b && typeof b === 'object') {
+        const o = b as Record<string, unknown>;
+
+        if (typeof o['message'] === 'string' && String(o['message']).trim()) {
+          return String(o['message']).trim();
+        }
+
+        const errs = o['errors'];
+        if (Array.isArray(errs)) {
+          const parts = errs
+            .map((e: unknown) => {
+              if (e && typeof e === 'object' && 'defaultMessage' in e) {
+                return String((e as { defaultMessage?: string }).defaultMessage || '').trim();
+              }
+              return '';
+            })
+            .filter(Boolean);
+
+          if (parts.length) {
+            return parts.join(' ');
+          }
+        }
+      }
+
+      if (err.status === 0) {
+        return 'Network error — is the event service running (port 8082)?';
+      }
+
+      return err.message
+        ? `${fallback} (${err.status}: ${err.message})`
+        : `${fallback} (HTTP ${err.status})`;
+    }
+
+    return fallback;
+  }
+
+  /** Met à jour `form.location` pour la validation du formulaire (texte + optionnellement |@lat,lng). */
+  syncFormLocation(): void {
+    this.form.location = this.buildLocationForPayload();
+  }
+
+  /** Recompose le champ `location` unique avec coordonnées optionnelles. */
+  private buildLocationForPayload(): string {
+    const addr = (this.locationAddress || '').trim();
+
+    if (
+      this.pickedLat != null &&
+      this.pickedLng != null &&
+      !Number.isNaN(this.pickedLat) &&
+      !Number.isNaN(this.pickedLng)
+    ) {
+      return `${addr}|@${this.pickedLat},${this.pickedLng}`;
+    }
+
+    return addr;
+  }
+
+  /** Sépare le texte et les coordonnées stockées dans `location`. */
+  private parseLocationFromStored(stored: string): void {
+    const m = stored.match(LOC_COORD_SUFFIX);
+
+    if (m && m.index !== undefined) {
+      this.locationAddress = stored.slice(0, m.index).trimEnd();
+      this.pickedLat = Number(m[1]);
+      this.pickedLng = Number(m[2]);
+    } else {
+      this.locationAddress = stored;
+      this.pickedLat = undefined;
+      this.pickedLng = undefined;
+    }
+  }
+
+  /** Icônes Leaflet — mêmes chemins publics que le formulaire club (`/leaflet/…`). */
+  private fixLeafletDefaultIcons(): void {
+    delete (L.Icon.Default.prototype as any)._getIconUrl;
+
+    L.Icon.Default.mergeOptions({
+      iconRetinaUrl: '/leaflet/marker-icon-2x.png',
+      iconUrl: '/leaflet/marker-icon.png',
+      shadowUrl: '/leaflet/marker-shadow.png',
+    });
+  }
+
+  private ensureMap(): void {
+    if (this.form.mode !== 'PRESENTIEL') return;
+
+    const el = document.getElementById('event-map');
+    if (!el) return;
+
+    if (this.map) {
+      this.map.invalidateSize();
+      return;
+    }
+
+    this.fixLeafletDefaultIcons();
+
+    const center = this.formCenterOrDefault();
+    this.map = L.map(el).setView(center, this.hasPickedCoordinates() ? 15 : 12);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap',
+    }).addTo(this.map);
+
+    this.map.whenReady(() => {
+      this.map?.invalidateSize();
+      if (this.hasPickedCoordinates()) {
+        this.map?.setView([this.pickedLat!, this.pickedLng!], 15);
+        this.setOrMoveMarker(this.pickedLat!, this.pickedLng!);
+      }
+    });
+
+    this.map.on('click', (e: L.LeafletMouseEvent) => {
+      this.ngZone.run(() => {
+        const lat = Math.round(e.latlng.lat * 1e6) / 1e6;
+        const lng = Math.round(e.latlng.lng * 1e6) / 1e6;
+
+        this.pickedLat = lat;
+        this.pickedLng = lng;
+        this.setOrMoveMarker(lat, lng);
+        this.syncFormLocation();
+        this.reverseGeocode(lat, lng);
+      });
+    });
+  }
+
+  searchOnMap(): void {
+    const q = (this.locationAddress || '').trim();
+    if (!q) return;
+
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+      q,
+    )}&limit=1`;
+
+    fetch(url, { headers: { Accept: 'application/json' } })
+      .then((r) => r.json())
+      .then((results: { lat: string; lon: string; display_name?: string }[]) => {
+        this.ngZone.run(() => {
+          if (!results?.length) {
+            this.geocodingAddress = 'No results for this search.';
+            return;
+          }
+          const lat = parseFloat(results[0].lat);
+          const lon = parseFloat(results[0].lon);
+          this.pickedLat = lat;
+          this.pickedLng = lon;
+          this.geocodingAddress = results[0].display_name || '';
+          if (this.geocodingAddress) {
+            this.locationAddress = this.geocodingAddress;
+          }
+          if (this.map) {
+            this.map.setView([lat, lon], 15);
+            this.setOrMoveMarker(lat, lon);
+            this.syncFormLocation();
+          } else {
+            this.scheduleMapInit();
+            setTimeout(() => {
+              this.map?.setView([lat, lon], 15);
+              this.setOrMoveMarker(lat, lon);
+              this.syncFormLocation();
+            }, 100);
+          }
+        });
+      })
+      .catch(() => {
+        this.ngZone.run(() => {
+          this.geocodingAddress = 'Search failed.';
+        });
+      });
+  }
+
+  private reverseGeocode(lat: number, lng: number): void {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+
+    fetch(url, { headers: { Accept: 'application/json' } })
+      .then((r) => r.json())
+      .then((data: { display_name?: string }) => {
+        this.ngZone.run(() => {
+          // Toujours utiliser l’adresse complète Nominatim (ne pas la remplacer par la seule ville).
+          const full = (data.display_name || '').trim();
+          this.geocodingAddress = full || `${lat}, ${lng}`;
+          if (full) {
+            this.locationAddress = full;
+          }
+          this.syncFormLocation();
+        });
+      })
+      .catch(() => {
+        this.ngZone.run(() => {
+          const fallback = `${lat}, ${lng}`;
+          this.geocodingAddress = fallback;
+          if (!(this.locationAddress || '').trim()) {
+            this.locationAddress = fallback;
+          }
+          this.syncFormLocation();
+        });
+      });
+  }
+
+  private formCenterOrDefault(): L.LatLngTuple {
+    if (this.hasPickedCoordinates()) {
+      return [this.pickedLat!, this.pickedLng!];
+    }
+    return MAP_DEFAULT_CENTER;
+  }
+
+  private hasPickedCoordinates(): boolean {
+    return this.pickedLat != null && this.pickedLng != null;
+  }
+
+  /** Pour le template : lieu valide si texte assez long ou pin sur la carte. */
+  hasCoordsForLocation(): boolean {
+    return (
+      this.pickedLat != null &&
+      this.pickedLng != null &&
+      !Number.isNaN(this.pickedLat) &&
+      !Number.isNaN(this.pickedLng)
+    );
+  }
+
+  private setOrMoveMarker(lat: number, lng: number): void {
+    if (!this.map) return;
+
+    const ll: L.LatLngTuple = [lat, lng];
+
+    if (this.locationMarker) {
+      this.locationMarker.setLatLng(ll);
+    } else {
+      this.locationMarker = L.marker(ll).addTo(this.map);
+    }
+
+    this.map.panTo(ll);
+  }
+
+  // =========================
+  // EMPTY FORM
+  // =========================
+
+  private emptyForm(): Event {
+    this.locationAddress = '';
+    this.pickedLat = undefined;
+    this.pickedLng = undefined;
+
     return {
       title: '',
       description: '',
@@ -270,9 +565,10 @@ export class EventFormPage implements OnInit, AfterViewInit {
       startTime: '09:00:00',
       endTime: '10:00:00',
       location: '',
-      capacity: 0,
+    capacity: 10, // ✅ ICI
       requiredLevel: 'A1',
       clubId: undefined,
+      status: 'OPEN',
     };
   }
 }

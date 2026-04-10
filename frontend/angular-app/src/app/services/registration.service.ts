@@ -49,4 +49,12 @@ export class RegistrationService {
   getEventById(eventId: number): Observable<any> {
     return this.http.get<any>(`${this.eventUrl}/${eventId}`, { headers: this.getHeaders() });
   }
+
+  sponsorEvent(eventId: number, clubId: number): Observable<any> {
+    return this.http.put<any>(
+      `${this.eventUrl}/${eventId}/sponsor?clubId=${clubId}`,
+      {},
+      { headers: this.getHeaders() }
+    );
+  }
 }

@@ -32,46 +32,62 @@
   color: #ff4d4f;
 }
 
-/* ✅ Location row (input + button) */
-.location-row{
+/* ===== Location (aligned with club form) ===== */
+.map-search-bar {
   display: flex;
   gap: 10px;
-  align-items: center;
+  margin-bottom: 10px;
 }
 
-.btn-map{
-  padding: 12px 14px;
+.map-search-bar-loc {
+  align-items: flex-start;
+}
+
+.map-search-bar .input {
+  flex: 1;
+  min-width: 0;
+}
+
+.location-textarea {
+  min-height: 4.5rem;
+  resize: vertical;
+  line-height: 1.45;
+  field-sizing: content;
+}
+
+.btn-search-map {
+  padding: 10px 16px;
   border-radius: 14px;
-  border: 1px solid rgba(30,41,59,.8);
-  background: rgba(15,23,42,.8);
-  color: rgb(226,232,240);
+  border: 1px solid rgba(0, 200, 151, 0.45);
+  background: rgba(0, 200, 151, 0.15);
+  color: rgb(0, 200, 151);
   font-weight: 900;
+  font-size: 13px;
   cursor: pointer;
   white-space: nowrap;
-  transition: all .18s ease;
-}
-.map-wrap {
-  margin-top: 10px;
+  transition: all 0.15s ease;
 }
 
-#map {
+.btn-search-map:hover {
+  background: rgba(0, 200, 151, 0.25);
+  transform: translateY(-1px);
+}
+
+.map-container {
   width: 100%;
-  height: 260px;       /* ✅ OBLIGATOIRE */
-  min-height: 260px;   /* ✅ au cas où */
-  border-radius: 14px;
+  height: 280px;
+  border-radius: 16px;
+  border: 1px solid rgba(30, 41, 59, 0.85);
   overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(255,255,255,0.04); /* si map pas chargée tu vois un fond */
+  z-index: 1;
 }
 
 .map-hint {
-  margin-top: 6px;
+  margin-top: 8px;
   font-size: 12px;
-  opacity: 0.75;
-}
-.btn-map:hover{
-  transform: translateY(-1px);
-  background: rgba(30,41,59,.9);
+  font-weight: 700;
+  color: rgb(148, 163, 184);
+  line-height: 1.5;
 }
 /* =====================================
    WINDOW

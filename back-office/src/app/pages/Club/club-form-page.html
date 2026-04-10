@@ -1,6 +1,7 @@
 <div class="overlay" (click)="close()">
   <div class="window animate-fade-in" (click)="$event.stopPropagation()">
 
+    <!-- HEADER -->
     <div class="titlebar">
       <div class="title-left">
         <span class="app-dot"></span>
@@ -14,72 +15,168 @@
       </div>
     </div>
 
+    <!-- BODY -->
     <div class="content">
+
+      <!-- Global backend error -->
       @if (errorMsg) {
         <div class="alert">{{ errorMsg }}</div>
       }
 
-      <div class="grid">
-        <div class="field">
-          <label>Nom *</label>
-          <input class="input" [(ngModel)]="form.nomClub" placeholder="Nom du club" />
-        </div>
+      <!-- ✅ FORM -->
+      <form #f="ngForm" novalidate>
 
-        <div class="field">
-          <label>Type *</label>
-          <select class="input" [(ngModel)]="form.type">
-            @for (t of types; track t) { <option [value]="t">{{ t }}</option> }
-          </select>
-        </div>
+        <div class="grid">
 
-        <div class="field">
-          <label>Ville</label>
-          <input class="input" [(ngModel)]="form.ville" placeholder="Tunis, Sfax..." />
-        </div>
+          <!-- ✅ NOM -->
+          <div class="field">
+            <label>Nom *</label>
+            <div class="error" *ngIf="nomClub.invalid && (nomClub.touched || nomClub.dirty)">
+              <div *ngIf="nomClub.errors?.['required']">Le nom du club est obligatoire.</div>
+              <div *ngIf="nomClub.errors?.['minlength']">Le nom doit contenir au moins 3 caractères.</div>
+            </div>
+            <input
+              class="input"
+              [(ngModel)]="form.nomClub"
+              name="nomClub"
+              #nomClub="ngModel"
+              placeholder="Nom du club"
+              required
+              minlength="3"
+            />
+          </div>
 
-        <div class="field full">
-          <label>Description</label>
-          <textarea class="input" rows="4" [(ngModel)]="form.description" placeholder="Description..."></textarea>
-        </div>
+          <!-- ✅ TYPE -->
+          <div class="field">
+            <label>Type *</label>
+            <div class="error" *ngIf="type.invalid && (type.touched || type.dirty)">
+              <div *ngIf="type.errors?.['required']">Le type est obligatoire.</div>
+            </div>
+            <select
+              class="input"
+              [(ngModel)]="form.type"
+              name="type"
+              #type="ngModel"
+              (ngModelChange)="onTypeChange()"
+              required
+            >
+              @for (t of types; track t) { <option [value]="t">{{ t }}</option> }
+            </select>
+          </div>
 
-        <div class="field full">
-          <label>Logo (PNG/JPG) (optionnel)</label>
-          <input type="file" class="input" (change)="onFileChange($event)" />
-          @if (selectedFile) {
-            <div class="file-hint">📎 {{ selectedFile.name }}</div>
-          }
+          <!-- ✅ VILLE — visible seulement si PRESENTIEL -->
+          <div class="field full" *ngIf="form.type === 'PRESENTIEL'">
+            <label>Localisation *</label>
+
+            <!-- Barre de recherche (textarea = adresse Nominatim complète visible) -->
+            <div class="map-search-bar map-search-bar-loc">
+              <textarea
+                class="input location-textarea"
+                rows="3"
+                [(ngModel)]="form.ville"
+                name="ville"
+                #ville="ngModel"
+                placeholder="Tapez une adresse ou cliquez sur la carte…"
+                [required]="form.type === 'PRESENTIEL'"
+                minlength="2"
+              ></textarea>
+              <button type="button" class="btn-search-map" (click)="searchOnMap()">
+                🔍 Rechercher
+              </button>
+            </div>
+
+            <div class="error" *ngIf="ville.invalid && (ville.touched || ville.dirty)">
+              <div *ngIf="ville.errors?.['required']">La localisation est obligatoire.</div>
+              <div *ngIf="ville.errors?.['minlength']">Saisissez au moins 2 caractères ou choisissez un point sur la carte.</div>
+            </div>
+
+            <!-- Carte Leaflet -->
+            <div id="club-map" class="map-container"></div>
+
+            <p class="map-hint" *ngIf="geocodingAddress">
+              📍 {{ geocodingAddress }}
+            </p>
+            <p class="map-hint" *ngIf="!geocodingAddress">
+              💡 Cliquez sur la carte pour sélectionner la localisation
+            </p>
+          </div>
+
+          <!-- ✅ DESCRIPTION -->
+          <div class="field full">
+            <label>Description</label>
+
+            <!-- ✅ Errors ABOVE textarea (optionnel) -->
+            <div class="error" *ngIf="description.invalid && (description.touched || description.dirty)">
+              <div *ngIf="description.errors?.['minlength']">La description doit contenir au moins 10 caractères.</div>
+              <div *ngIf="description.errors?.['maxlength']">La description doit contenir au maximum 500 caractères.</div>
+            </div>
+
+            <textarea
+              class="input"
+              rows="4"
+              [(ngModel)]="form.description"
+              name="description"
+              #description="ngModel"
+              placeholder="Description..."
+              minlength="10"
+              maxlength="500"
+            ></textarea>
+          </div>
+
+          <!-- ✅ LOGO -->
+          <div class="field full">
+            <label>Logo (PNG/JPG) (optionnel)</label>
+
+            <input type="file" class="input" (change)="onFileChange($event)" />
+
+            @if (selectedFile) {
+              <div class="file-hint">📎 {{ selectedFile.name }}</div>
+            }
+          </div>
+
         </div>
-      </div>
+      </form>
     </div>
 
+    <!-- FOOTER -->
     <div class="footer">
       <div class="hint">💡 Cliquez en dehors pour fermer.</div>
 
       <div class="footer-actions">
         @if (!isEdit) {
-          <!-- ✅ confirm instead of direct create -->
-          <button class="btn-primary" (click)="openConfirmCreate()" [disabled]="loadingAction || !form.nomClub">
+          <button
+            class="btn-primary"
+            type="button"
+            (click)="openConfirmCreate()"
+            [disabled]="loadingAction || f.invalid"
+          >
             {{ loadingAction ? '⏳ Création…' : 'Créer' }}
           </button>
         } @else {
-          <!-- ✅ confirm instead of direct update -->
-          <button class="btn-primary" (click)="openConfirmUpdate()" [disabled]="loadingAction || !form.nomClub">
+          <button
+            class="btn-primary"
+            type="button"
+            (click)="openConfirmUpdate()"
+            [disabled]="loadingAction || f.invalid"
+          >
             {{ loadingAction ? '⏳ Sauvegarde…' : 'Enregistrer' }}
           </button>
         }
 
-        <button class="btn-secondary" (click)="close()">Annuler</button>
+        <button class="btn-secondary" type="button" (click)="close()">Annuler</button>
       </div>
     </div>
 
   </div>
 </div>
 
-<!-- ✅ CONFIRM MODAL (comme delete) -->
-<app-join-confirm-modal
-  [open]="confirmOpen"
-  [title]="confirmTitle"
-  [message]="confirmMessage"
-  (cancel)="cancelAction()"
-  (confirm)="confirmAction()">
-</app-join-confirm-modal>
+<!-- ✅ CONFIRM MODAL -->
+<div (click)="$event.stopPropagation()">
+  <app-join-confirm-modal
+    [open]="confirmOpen"
+    [title]="confirmTitle"
+    [message]="confirmMessage"
+    (cancel)="cancelAction()"
+    (confirm)="confirmAction()">
+  </app-join-confirm-modal>
+</div>

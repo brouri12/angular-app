@@ -70,6 +70,11 @@
             <span class="badge border" [ngClass]="badgeLevel(ev.requiredLevel)">
               {{ ev.requiredLevel }}
             </span>
+
+            <!-- ✅ STATUS -->
+            <span class="badge border" [ngClass]="badgeStatus(ev)">
+              {{ isClosed(ev) ? 'CLOSED' : 'OPEN' }}
+            </span>
           </div>
 
           <!-- TITLE -->
@@ -78,8 +83,8 @@
             {{ ev.title }}
           </h3>
 
-          <!-- DESC -->
-          <p class="text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-3 min-h-[72px] mb-6">
+          <!-- DESC (full text, no clamp) -->
+          <p class="event-desc text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
             {{ ev.description }}
           </p>
 
@@ -95,9 +100,9 @@
               <span class="meta-txt">{{ timeRange(ev) }}</span>
             </div>
 
-            <div class="meta-chip">
+            <div class="meta-chip meta-chip-location col-span-2">
               <span class="meta-ico">📍</span>
-              <span class="meta-txt">{{ ev.location }}</span>
+              <span class="meta-txt">{{ displayLocation(ev.location) }}</span>
             </div>
 
             <div class="meta-chip">
@@ -111,13 +116,16 @@
             type="button"
             class="btn-register"
             [class.btn-joined]="isRegistered(ev.idEvent)"
+            [class.btn-closed]="isClosed(ev)"
             (click)="registerAndOpen(ev)"
-            [disabled]="isRegistered(ev.idEvent) || isLoading(ev.idEvent)"
+            [disabled]="isRegistered(ev.idEvent) || isLoading(ev.idEvent) || isClosed(ev)"
           >
             {{
               isRegistered(ev.idEvent)
                 ? 'ALREADY JOINED'
-                : (isLoading(ev.idEvent) ? 'Registering...' : 'REGISTER NOW')
+                : (isClosed(ev)
+                    ? 'EVENT CLOSED'
+                    : (isLoading(ev.idEvent) ? 'Registering...' : 'REGISTER NOW'))
             }}
           </button>
 

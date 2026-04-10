@@ -1,15 +1,23 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  NgZone,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
+import * as L from 'leaflet';
 
 import { Club, ClubType } from '../../models/club.model';
 import { ClubService } from '../../services/club.service';
 import { ClubsRefreshService } from '../../services/clubs-refresh.service';
 
-// ✅ confirm modal
 import { JoinConfirmModalComponent } from '../../components/join-confirm-modal/join-confirm-modal.component';
+
+const MAP_DEFAULT_CENTER: L.LatLngTuple = [36.8065, 10.1815];
 
 @Component({
   selector: 'app-club-form-page',
@@ -18,8 +26,7 @@ import { JoinConfirmModalComponent } from '../../components/join-confirm-modal/j
   templateUrl: './club-form-page.html',
   styleUrls: ['./club-form-page.css'],
 })
-export class ClubFormPage implements OnInit {
-
+export class ClubFormPage implements OnInit, AfterViewInit, OnDestroy {
   loadingAction = false;
   errorMsg = '';
 
@@ -37,17 +44,23 @@ export class ClubFormPage implements OnInit {
 
   types: ClubType[] = ['ONLINE', 'PRESENTIEL'];
 
-  // ✅ CONFIRM CREATE/UPDATE
   confirmOpen = false;
   confirmTitle = '';
   confirmMessage = '';
   private pendingAction: 'CREATE' | 'UPDATE' | null = null;
 
+  /** Adresse affichée sous la carte (géocodage). */
+  geocodingAddress = '';
+
+  private map?: L.Map;
+  private marker?: L.Marker;
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private clubService: ClubService,
-    private refreshService: ClubsRefreshService
+    private refreshService: ClubsRefreshService,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -63,15 +76,169 @@ export class ClubFormPage implements OnInit {
             idClub: c.idClub,
             nomClub: c.nomClub || '',
             description: c.description || '',
-            type: (c.type as any) || 'ONLINE',
+            type: (c.type as ClubType) || 'ONLINE',
             ville: c.ville || '',
             dateCreation: c.dateCreation,
             logo: c.logo,
           };
+          if (this.form.type === 'PRESENTIEL') {
+            this.scheduleMapInit();
+          }
         },
-        error: () => (this.errorMsg = "Impossible de charger le club."),
+        error: () => (this.errorMsg = 'Impossible de charger le club.'),
       });
     }
+  }
+
+  ngAfterViewInit(): void {
+    if (this.form.type === 'PRESENTIEL') {
+      this.scheduleMapInit();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.teardownMap();
+  }
+
+  /** Carte : réafficher après passage en présentiel ou chargement async. */
+  onTypeChange(): void {
+    if (this.form.type !== 'PRESENTIEL') {
+      this.teardownMap();
+      this.geocodingAddress = '';
+      return;
+    }
+    this.scheduleMapInit();
+  }
+
+  private scheduleMapInit(): void {
+    setTimeout(() => this.ensureMap(), 0);
+  }
+
+  private teardownMap(): void {
+    this.map?.remove();
+    this.map = undefined;
+    this.marker = undefined;
+  }
+
+  private fixLeafletDefaultIcons(): void {
+    delete (L.Icon.Default.prototype as any)._getIconUrl;
+    L.Icon.Default.mergeOptions({
+      iconRetinaUrl: '/leaflet/marker-icon-2x.png',
+      iconUrl: '/leaflet/marker-icon.png',
+      shadowUrl: '/leaflet/marker-shadow.png',
+    });
+  }
+
+  private ensureMap(): void {
+    if (this.form.type !== 'PRESENTIEL') return;
+
+    const el = document.getElementById('club-map');
+    if (!el) return;
+
+    if (this.map) {
+      this.map.invalidateSize();
+      return;
+    }
+
+    this.fixLeafletDefaultIcons();
+
+    this.map = L.map(el).setView(MAP_DEFAULT_CENTER, 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap',
+    }).addTo(this.map);
+
+    this.map.whenReady(() => {
+      this.map?.invalidateSize();
+    });
+
+    this.map.on('click', (e: L.LeafletMouseEvent) => {
+      this.ngZone.run(() => {
+        const lat = Math.round(e.latlng.lat * 1e6) / 1e6;
+        const lng = Math.round(e.latlng.lng * 1e6) / 1e6;
+        this.setMarker(lat, lng);
+        this.reverseGeocode(lat, lng);
+      });
+    });
+  }
+
+  private setMarker(lat: number, lng: number): void {
+    if (!this.map) return;
+    const ll: L.LatLngTuple = [lat, lng];
+    if (this.marker) {
+      this.marker.setLatLng(ll);
+    } else {
+      this.marker = L.marker(ll).addTo(this.map);
+    }
+    this.map.panTo(ll);
+  }
+
+  searchOnMap(): void {
+    const q = (this.form.ville || '').trim();
+    if (!q) return;
+
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+      q
+    )}&limit=1`;
+
+    fetch(url, {
+      headers: { Accept: 'application/json' },
+    })
+      .then((r) => r.json())
+      .then((results: { lat: string; lon: string; display_name?: string }[]) => {
+        this.ngZone.run(() => {
+          if (!results?.length) {
+            this.geocodingAddress = 'Aucun résultat pour cette recherche.';
+            return;
+          }
+          const lat = parseFloat(results[0].lat);
+          const lon = parseFloat(results[0].lon);
+          this.geocodingAddress = results[0].display_name || '';
+          if (this.geocodingAddress) {
+            this.form.ville = this.geocodingAddress;
+          }
+          if (this.map) {
+            this.map.setView([lat, lon], 15);
+            this.setMarker(lat, lon);
+          } else {
+            this.scheduleMapInit();
+            setTimeout(() => {
+              this.map?.setView([lat, lon], 15);
+              this.setMarker(lat, lon);
+            }, 100);
+          }
+        });
+      })
+      .catch(() => {
+        this.ngZone.run(() => {
+          this.geocodingAddress = 'Erreur lors de la recherche.';
+        });
+      });
+  }
+
+  private reverseGeocode(lat: number, lng: number): void {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+
+    fetch(url, { headers: { Accept: 'application/json' } })
+      .then((r) => r.json())
+      .then((data: { display_name?: string }) => {
+        this.ngZone.run(() => {
+          const full = (data.display_name || '').trim();
+          this.geocodingAddress = full || `${lat}, ${lng}`;
+          if (full) {
+            this.form.ville = full;
+          }
+        });
+      })
+      .catch(() => {
+        this.ngZone.run(() => {
+          const fallback = `${lat}, ${lng}`;
+          this.geocodingAddress = fallback;
+          if (!(this.form.ville || '').trim()) {
+            this.form.ville = fallback;
+          }
+        });
+      });
   }
 
   onFileChange(e: Event) {
@@ -85,15 +252,11 @@ export class ClubFormPage implements OnInit {
     });
   }
 
-  // =========================
-  // ✅ CONFIRM FLOW
-  // =========================
   openConfirmCreate() {
     this.errorMsg = '';
     this.pendingAction = 'CREATE';
     this.confirmTitle = 'Créer le club';
-    this.confirmMessage =
-      `Confirmer la création du club "${this.form.nomClub || ''}" ?`;
+    this.confirmMessage = `Confirmer la création du club "${this.form.nomClub || ''}" ?`;
     this.confirmOpen = true;
   }
 
@@ -101,8 +264,7 @@ export class ClubFormPage implements OnInit {
     this.errorMsg = '';
     this.pendingAction = 'UPDATE';
     this.confirmTitle = 'Enregistrer les modifications';
-    this.confirmMessage =
-      `Confirmer la mise à jour du club #${this.idClub} "${this.form.nomClub || ''}" ?`;
+    this.confirmMessage = `Confirmer la mise à jour du club #${this.idClub} "${this.form.nomClub || ''}" ?`;
     this.confirmOpen = true;
   }
 
@@ -129,21 +291,19 @@ export class ClubFormPage implements OnInit {
     this.pendingAction = null;
   }
 
-  // =========================
-  // CREATE / UPDATE (unchanged logic)
-  // =========================
   create() {
     this.loadingAction = true;
     this.errorMsg = '';
 
-    this.clubService.create(this.form)
+    this.clubService
+      .create(this.form)
       .pipe(finalize(() => (this.loadingAction = false)))
       .subscribe({
         next: (created) => {
-          // upload logo optionnel
           if (this.selectedFile && created?.idClub) {
             this.loadingAction = true;
-            this.clubService.uploadLogo(created.idClub, this.selectedFile)
+            this.clubService
+              .uploadLogo(created.idClub, this.selectedFile)
               .pipe(finalize(() => (this.loadingAction = false)))
               .subscribe({
                 next: () => this.close(true),
@@ -163,13 +323,15 @@ export class ClubFormPage implements OnInit {
     this.loadingAction = true;
     this.errorMsg = '';
 
-    this.clubService.update(this.idClub, this.form)
+    this.clubService
+      .update(this.idClub, this.form)
       .pipe(finalize(() => (this.loadingAction = false)))
       .subscribe({
         next: () => {
           if (this.selectedFile) {
             this.loadingAction = true;
-            this.clubService.uploadLogo(this.idClub!, this.selectedFile)
+            this.clubService
+              .uploadLogo(this.idClub!, this.selectedFile)
               .pipe(finalize(() => (this.loadingAction = false)))
               .subscribe({
                 next: () => this.close(true),

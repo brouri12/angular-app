@@ -1,0 +1,116 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-box {
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.modal-icon { font-size: 1.5rem; }
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  flex: 1;
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #888;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+.modal-close:hover { background: #f0f0f0; }
+
+.modal-desc {
+  color: #555;
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.card-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 8px;
+}
+
+.stripe-card-wrap {
+  margin-bottom: 20px;
+}
+
+.stripe-card-el {
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  padding: 14px 12px;
+  background: #fafafa;
+  transition: border-color 0.2s;
+}
+.stripe-card-el:focus-within { border-color: #6366f1; }
+
+.error-msg {
+  background: #fef2f2;
+  color: #dc2626;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.875rem;
+  margin-bottom: 16px;
+}
+
+.btn-pay {
+  width: 100%;
+  background: #6366f1;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+}
+.btn-pay:hover:not(:disabled) { background: #4f46e5; }
+.btn-pay:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.modal-success {
+  text-align: center;
+  padding: 16px 0;
+}
+.success-icon { font-size: 2.5rem; display: block; margin-bottom: 12px; }
+.modal-success p { color: #16a34a; font-weight: 500; margin-bottom: 20px; }
+
+.btn-close-success {
+  background: #f3f4f6;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  font-weight: 500;
+}
+.btn-close-success:hover { background: #e5e7eb; }

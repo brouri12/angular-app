@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { EventModel } from '../models/event.model';
+import { Event } from '../models/event.model'; // ✅ chemin correct
 
 @Injectable({ providedIn: 'root' })
 export class EventsService {
@@ -9,29 +9,46 @@ export class EventsService {
 
   constructor(private http: HttpClient) {}
 
-  // ✅ GET /events
-  getAll(): Observable<EventModel[]> {
-    return this.http.get<EventModel[]>(this.baseUrl);
+  // ==========================
+  // CRUD
+  // ==========================
+  getAll(): Observable<Event[]> {
+    return this.http.get<Event[]>(this.baseUrl);
   }
 
-  // ✅ GET /events/{id}
-  getById(id: number): Observable<EventModel> {
-    return this.http.get<EventModel>(`${this.baseUrl}/${id}`);
+  getById(id: number): Observable<Event> {
+    return this.http.get<Event>(`${this.baseUrl}/${id}`);
   }
 
-  // ✅ POST /events
-  create(payload: EventModel): Observable<EventModel> {
-    return this.http.post<EventModel>(this.baseUrl, payload);
+  create(payload: Event): Observable<Event> {
+    return this.http.post<Event>(this.baseUrl, payload);
   }
 
-  // ✅ PUT /events/{id}
-  update(id: number, payload: EventModel): Observable<EventModel> {
-    return this.http.put<EventModel>(`${this.baseUrl}/${id}`, payload);
+  update(id: number, payload: Event): Observable<Event> {
+    return this.http.put<Event>(`${this.baseUrl}/${id}`, payload);
   }
 
-  // ✅ DELETE /events/{id}
-  deleteById(id: number) {
-  return this.http.delete<void>(`${this.baseUrl}/${id}`);
-}
+  deleteById(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
 
+  // ==========================
+  // STATS (BackOffice)
+  // ==========================
+  totalEvents(): Observable<number> {
+    return this.http.get<number>(`${this.baseUrl}/stats/total`);
+  }
+
+  // backend returns List<Object[]> => ex: [["OPEN", 3], ["CLOSED", 1]]
+  statsByStatus(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/stats/status`);
+  }
+
+  statsByType(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/stats/type`);
+  }
+
+  statsByMode(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/stats/mode`);
+  }
 }

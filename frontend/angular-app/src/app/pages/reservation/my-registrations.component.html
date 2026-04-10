@@ -1,4 +1,4 @@
-<div class="min-h-screen py-20">
+<div class="min-h-screen py-20 pb-40">
   <div class="max-w-5xl mx-auto px-4">
 
     <!-- ===================== -->
@@ -51,6 +51,19 @@
               <button class="btn-delete" (click)="openDeleteModal(r.idRegistration)">
                 Leave
               </button>
+
+              <!-- Sponsor button: visible only if CONFIRMED + user is PRESIDENT + not yet sponsored -->
+              <button
+                *ngIf="canSponsor(r)"
+                class="btn-sponsor"
+                (click)="openSponsorModal(r)">
+                🏆 Sponsor
+              </button>
+
+              <!-- Already sponsored badge -->
+              <span *ngIf="isAlreadySponsored(r)" class="sponsored-badge">
+                🏆 Sponsored
+              </span>
             </div>
 
           </div>
@@ -74,63 +87,79 @@
     <div class="res-grid-wrap" *ngIf="!loadingClubs && myClubs.length > 0">
       <div class="res-grid">
 
-        <div *ngFor="let c of myClubs" class="res-card">
-          <div class="res-top">
+        <div *ngFor="let c of myClubs" class="club-card">
 
-            <!-- LEFT -->
-            <div class="res-info">
-
-              <div class="flex flex-wrap gap-2 mb-3">
-                <span class="badge border">
-                  {{ c.type || '—' }}
-                </span>
-
-                <span class="badge border">
-                  {{ c.ville || '—' }}
-                </span>
-              </div>
-
-              <h3 class="res-title">
-                {{ c.nomClub || 'Club' }}
-              </h3>
-
-              <p class="text-gray-600 dark:text-gray-400 leading-relaxed mt-2">
-                {{ c.description || 'No description available' }}
-              </p>
-
-              <p class="text-gray-500 text-sm mt-2" *ngIf="c.dateCreation">
-                📅 Created on: {{ c.dateCreation | date:'mediumDate' }}
-              </p>
-
-              <div class="mt-3 overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800">
-                <img
-                  [src]="clubService.logoUrl(c.idClub!)"
-                  (error)="onImgError($event)"
-                  class="w-full h-32 object-cover"
-                />
-              </div>
-
+          <!-- TOP : image + status + leave -->
+          <div class="club-card-top">
+            <img
+              [src]="clubService.logoUrl(c.idClub!)"
+              (error)="onImgError($event)"
+              class="club-img"
+            />
+            <div class="club-top-actions">
+              <span class="res-status"
+                [ngClass]="{
+                  'confirmed': memberStatusByClubId.get(c.idClub!) === 'ACCEPTED',
+                  'pending':   memberStatusByClubId.get(c.idClub!) === 'PENDING' || !memberStatusByClubId.get(c.idClub!),
+                  'canceled':  memberStatusByClubId.get(c.idClub!) === 'DENIED'
+                }">
+                {{ memberStatusByClubId.get(c.idClub!) === 'ACCEPTED' ? '✅ ACCEPTED'
+                 : memberStatusByClubId.get(c.idClub!) === 'DENIED'   ? '❌ DENIED'
+                 : '⏳ PENDING' }}
+              </span>
+              <button class="btn-delete" (click)="openLeaveClubModal(c.idClub!)">Leave</button>
             </div>
-
-            <!-- RIGHT -->
-            <div class="res-right">
-              <span class="res-status confirmed">JOINED</span>
-
-              <button
-                class="btn-register"
-                (click)="getBadgeForClub(c)"
-                [disabled]="isBadgeLoading(c.idClub)"
-                style="margin-top:10px;"
-              >
-                {{ isBadgeLoading(c.idClub) ? 'Sending...' : 'Obtenir mon badge' }}
-              </button>
-
-              <button class="btn-delete" (click)="openLeaveClubModal(c.idClub!)" style="margin-top:10px;">
-                Leave
-              </button>
-            </div>
-
           </div>
+
+          <!-- BODY : type + localisation + title + description + date -->
+          <div class="club-card-body">
+            <div class="club-meta-row">
+              <span class="badge border club-type-badge">{{ c.type === 'ONLINE' ? 'En ligne' : 'Présentiel' }}</span>
+            </div>
+
+            <p class="club-location-line">
+              <span class="club-loc-icon" aria-hidden="true">📍</span>
+              <span class="club-loc-text">
+                <span class="club-loc-heading">Localisation</span>
+                <span class="club-loc-value">{{
+                  (c.ville && c.ville.trim())
+                    ? c.ville
+                    : (c.type === 'ONLINE' ? 'En ligne' : 'Non renseignée')
+                }}</span>
+              </span>
+            </p>
+
+            <h3 class="res-title">{{ c.nomClub || 'Club' }}</h3>
+
+            <p class="club-role-hint" *ngIf="memberStatusByClubId.get(c.idClub!) === 'ACCEPTED'">
+              <span *ngIf="memberRoleByClubId.get(c.idClub!) === 'PRESIDENT'" class="role-tag role-president">Président</span>
+              <span *ngIf="memberRoleByClubId.get(c.idClub!) !== 'PRESIDENT'" class="role-tag role-recrue">Recrue</span>
+            </p>
+
+            <p class="club-desc-label">Description</p>
+            <p class="club-desc">{{ c.description || 'Aucune description.' }}</p>
+
+            <p class="club-date" *ngIf="c.dateCreation">
+              📅 {{ c.dateCreation | date:'mediumDate' }}
+            </p>
+          </div>
+
+          <!-- FOOTER : bouton badge OU waiting -->
+          <div class="club-card-footer">
+            <button
+              *ngIf="memberStatusByClubId.get(c.idClub!) === 'ACCEPTED'"
+              class="btn-badge"
+              (click)="getBadgeForClub(c)"
+              [disabled]="isBadgeLoading(c.idClub)">
+              <span class="btn-badge-icon">🎖️</span>
+              <span>{{ isBadgeLoading(c.idClub) ? 'Envoi en cours...' : 'Obtenir mon badge' }}</span>
+            </button>
+
+            <div *ngIf="memberStatusByClubId.get(c.idClub!) !== 'ACCEPTED'" class="waiting-msg">
+              ⏳ Waiting to be accepted
+            </div>
+          </div>
+
         </div>
 
       </div>
@@ -138,6 +167,11 @@
 
   </div>
 </div>
+
+<app-club-chat-dock
+  [acceptedClubs]="acceptedClubsForChat"
+  [idUser]="chatUserId">
+</app-club-chat-dock>
 
 <!-- ✅ MODAL CONFIRM DELETE RESERVATION -->
 <app-join-confirm-modal
@@ -156,3 +190,13 @@
   (cancel)="cancelLeaveClub()"
   (confirm)="confirmLeaveClub()">
 </app-join-confirm-modal>
+
+<!-- ✅ MODAL SPONSOR EVENT -->
+<app-sponsor-modal
+  [open]="sponsorModalOpen"
+  [eventId]="sponsorEventId"
+  [clubId]="sponsorClubId"
+  [eventTitle]="sponsorEventTitle"
+  (closed)="onSponsorModalClosed()"
+  (sponsored)="onSponsored()">
+</app-sponsor-modal>

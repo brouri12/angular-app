@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 
 import { Club, ClubService } from '../../services/club.service';
 import { MemberService } from '../../services/member.service';
@@ -35,11 +36,21 @@ export class ClubComponent implements OnInit {
 
   // clubs already joined
   joinedClubIds = new Set<number>();
+  // statut par club (PENDING / ACCEPTED / DENIED)
+  memberStatusByClub: { [clubId: number]: string } = {};
+  /** Rôle membre par club (RECRUE / PRESIDENT) */
+  memberRoleByClub: { [clubId: number]: string } = {};
+
+  // ✅ Translation state per club - cache par langue
+  translationCache: { [clubId: number]: { fr?: string; ar?: string } } = {};
+  translatingClubId: number | null = null;
+  activeLang: { [clubId: number]: 'original' | 'fr' | 'ar' } = {};
 
   constructor(
     public clubService: ClubService,
     private memberService: MemberService,
-    private authService: AuthService
+    private authService: AuthService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -89,14 +100,21 @@ export class ClubComponent implements OnInit {
     this.memberService.getByUser(idUser).subscribe({
       next: (rows) => {
         this.joinedClubIds.clear();
+        this.memberStatusByClub = {};
+        this.memberRoleByClub = {};
         (rows || []).forEach(m => {
-          if ((m as any)?.idClub) {
-            this.joinedClubIds.add(Number((m as any).idClub));
+          const clubId = Number((m as any)?.idClub);
+          if (clubId) {
+            this.joinedClubIds.add(clubId);
+            this.memberStatusByClub[clubId] = (m as any)?.status || 'PENDING';
+            this.memberRoleByClub[clubId] = (m as any)?.role || 'RECRUE';
           }
         });
       },
       error: () => {
         this.joinedClubIds.clear();
+        this.memberStatusByClub = {};
+        this.memberRoleByClub = {};
       }
     });
   }
@@ -222,6 +240,64 @@ export class ClubComponent implements OnInit {
         this.cancelJoinConfirm();
       }
     });
+  }
+
+  // =========================
+  // TRANSLATION
+  // =========================
+  translate(club: Club, targetLang: 'fr' | 'ar') {
+    const id = club.idClub!;
+
+    // Toggle : si déjà actif → revenir à l'original
+    if (this.activeLang[id] === targetLang) {
+      this.activeLang[id] = 'original';
+      return;
+    }
+
+    // ✅ Déjà en cache → afficher directement sans appel API
+    if (this.translationCache[id]?.[targetLang]) {
+      this.activeLang[id] = targetLang;
+      return;
+    }
+
+    // Sinon appel API
+    this.doTranslate(id, club.description || '', targetLang);
+  }
+
+  private doTranslate(clubId: number, text: string, targetLang: 'fr' | 'ar') {
+    if (!text.trim()) return;
+
+    this.translatingClubId = clubId;
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
+
+    this.http.get<any>(url).subscribe({
+      next: (res) => {
+        const translated = res?.[0]?.map((c: any[]) => c?.[0] || '').join('') || text;
+
+        // ✅ Stocker dans le cache
+        if (!this.translationCache[clubId]) this.translationCache[clubId] = {};
+        this.translationCache[clubId][targetLang] = translated;
+
+        this.activeLang[clubId] = targetLang;
+        this.translatingClubId = null;
+      },
+      error: () => {
+        this.translatingClubId = null;
+      }
+    });
+  }
+
+  getDescription(club: Club): string {
+    const id = club.idClub!;
+    const lang = this.activeLang[id];
+    if (lang && lang !== 'original') {
+      return this.translationCache[id]?.[lang] || club.description || '';
+    }
+    return club.description || 'No description available';
+  }
+
+  isTranslating(clubId: number): boolean {
+    return this.translatingClubId === clubId;
   }
 
   // =========================

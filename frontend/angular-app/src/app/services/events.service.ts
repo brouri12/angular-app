@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Event  } from '../models/event.model';
+import { Event } from '../models/event.model';
 
 @Injectable({ providedIn: 'root' })
 export class EventsService {
 
-  private API = 'http://localhost:8082/events'; // ⚠️ change port si besoin
+  private API = 'http://localhost:8082/events';
 
   constructor(private http: HttpClient) {}
 
@@ -14,19 +14,27 @@ export class EventsService {
     return this.http.get<Event[]>(this.API);
   }
 
-  create(ev: Event){
+  getById(id: number): Observable<Event> {
+    return this.http.get<Event>(`${this.API}/${id}`);
+  }
+
+  create(ev: Event): Observable<Event> {
     return this.http.post<Event>(this.API, ev);
   }
 
-  delete(id:number){
+  update(id: number, ev: Event): Observable<Event> {
+    return this.http.put<Event>(`${this.API}/${id}`, ev);
+  }
+
+  delete(id: number) {
     return this.http.delete(`${this.API}/${id}`);
   }
 
-  decrement(id:number){
-    return this.http.put(`${this.API}/${id}/capacity/decrement`, {});
+  decrement(id: number): Observable<Event> {
+    return this.http.put<Event>(`${this.API}/${id}/capacity/decrement`, {});
   }
 
-  increment(id:number){
-    return this.http.put(`${this.API}/${id}/capacity/increment`, {});
+  increment(id: number): Observable<Event> {
+    return this.http.put<Event>(`${this.API}/${id}/capacity/increment`, {});
   }
 }

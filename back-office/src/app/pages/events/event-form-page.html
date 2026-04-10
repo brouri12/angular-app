@@ -45,35 +45,87 @@
             </div>
           </div>
 
-          <!-- LOCATION + MAP -->
+          <!-- TYPE -->
           <div class="field">
-            <label>Location</label>
+            <label>Type</label>
+            <select
+              class="input"
+              [(ngModel)]="form.type"
+              name="type"
+              #type="ngModel"
+              required
+            >
+              @for (t of types; track t) { <option [value]="t">{{ t }}</option> }
+            </select>
 
-            <div class="location-row">
-              <input
-                id="locationInput"
-                class="input"
-                placeholder="Search a place..."
-                [(ngModel)]="form.location"
-                name="location"
-                #location="ngModel"
-                required
-                minlength="2"
-              />
-            </div>
-
-            <!-- MAP -->
-           <div class="map-wrap">
-  <div id="map"></div>
-  <div class="map-hint">Click on the map to choose the location.</div>
-</div>
-
-            <!-- validation errors -->
-            <div class="error" *ngIf="location.invalid && location.touched">
-              <div *ngIf="location.errors?.['required']">Location is required.</div>
-              <div *ngIf="location.errors?.['minlength']">Location must be at least 2 characters.</div>
+            <div class="error" *ngIf="type.invalid && type.touched">
+              Type is required.
             </div>
           </div>
+
+          <!-- MODE (same idea as club type → localisation only if in-person) -->
+          <div class="field">
+            <label>Mode</label>
+            <select
+              class="input"
+              [(ngModel)]="form.mode"
+              name="mode"
+              #mode="ngModel"
+              (ngModelChange)="onModeChange()"
+              required
+            >
+              @for (m of modes; track m) { <option [value]="m">{{ m }}</option> }
+            </select>
+
+            <div class="error" *ngIf="mode.invalid && mode.touched">
+              Mode is required.
+            </div>
+          </div>
+
+          <!-- LOCATION — same flow as club: search + map + geocoding hints (PRESENTIEL only) -->
+          <div class="field full" *ngIf="form.mode === 'PRESENTIEL'">
+            <label>Location *</label>
+
+            <div class="map-search-bar map-search-bar-loc">
+              <textarea
+                class="input location-textarea"
+                rows="3"
+                [(ngModel)]="locationAddress"
+                (ngModelChange)="syncFormLocation()"
+                name="locationAddress"
+                #locationAddressField="ngModel"
+                placeholder="Type a place name or click on the map…"
+                autocomplete="off"
+                [required]="!hasCoordsForLocation()"
+                [minlength]="hasCoordsForLocation() ? 0 : 2"
+              ></textarea>
+              <button type="button" class="btn-search-map" (click)="searchOnMap()">
+                🔍 Search
+              </button>
+            </div>
+
+            <div
+              class="error"
+              *ngIf="locationAddressField.invalid && (locationAddressField.touched || locationAddressField.dirty)"
+            >
+              <div *ngIf="locationAddressField.errors?.['required']">
+                Enter a place name or pick a point on the map.
+              </div>
+              <div *ngIf="locationAddressField.errors?.['minlength']">
+                Enter at least 2 characters or pick a point on the map.
+              </div>
+            </div>
+
+            <div id="event-map" class="map-container"></div>
+
+            <p class="map-hint" *ngIf="geocodingAddress">📍 {{ geocodingAddress }}</p>
+            <p class="map-hint" *ngIf="!geocodingAddress">
+              💡 Click on the map to select the location (coordinates are saved with the event).
+            </p>
+          </div>
+
+          <!-- Keep model.location in sync for payload (no validators — PRESENTIEL uses field above) -->
+          <input type="hidden" [(ngModel)]="form.location" name="location" />
 
           <!-- DESCRIPTION -->
           <div class="field full">
@@ -94,42 +146,6 @@
               <div *ngIf="description.errors?.['required']">Description is required.</div>
               <div *ngIf="description.errors?.['minlength']">Description must be at least 10 characters.</div>
               <div *ngIf="description.errors?.['maxlength']">Description must be at most 500 characters.</div>
-            </div>
-          </div>
-
-          <!-- TYPE -->
-          <div class="field">
-            <label>Type</label>
-            <select
-              class="input"
-              [(ngModel)]="form.type"
-              name="type"
-              #type="ngModel"
-              required
-            >
-              @for (t of types; track t) { <option [value]="t">{{ t }}</option> }
-            </select>
-
-            <div class="error" *ngIf="type.invalid && type.touched">
-              Type is required.
-            </div>
-          </div>
-
-          <!-- MODE -->
-          <div class="field">
-            <label>Mode</label>
-            <select
-              class="input"
-              [(ngModel)]="form.mode"
-              name="mode"
-              #mode="ngModel"
-              required
-            >
-              @for (m of modes; track m) { <option [value]="m">{{ m }}</option> }
-            </select>
-
-            <div class="error" *ngIf="mode.invalid && mode.touched">
-              Mode is required.
             </div>
           </div>
 

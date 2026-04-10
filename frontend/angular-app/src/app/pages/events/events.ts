@@ -1,17 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { ChangeDetectorRef } from '@angular/core';
 
 import { RegistrationService } from '../../services/registration.service';
 import { AuthService } from '../../services/auth.service';
 import { JoinConfirmModalComponent } from '../../components/join-confirm-modal/join-confirm-modal.component';
 
+// ===== TYPES =====
 type EventType = 'WORKSHOP' | 'SPEAKING' | 'EXAM';
 type EventMode = 'ONLINE' | 'PRESENTIEL';
 type EventLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
+type EventStatus = 'OPEN' | 'CLOSED';
 
 export interface EventModel {
   idEvent: number;
@@ -26,6 +27,8 @@ export interface EventModel {
   capacity: number;
   requiredLevel: EventLevel;
   clubId?: number;
+
+  status?: EventStatus; // ✅ NEW
 }
 
 @Component({
@@ -59,7 +62,7 @@ export class Events implements OnInit {
   errorMsg = '';
   successMsg = '';
 
-  // ✅ Loading فقط للـ event اللي نعمله register
+  // ✅ Loading uniquement pour l’event en cours de register
   loadingEventId: number | null = null;
 
   // ✅ events déjà inscrits
@@ -79,7 +82,7 @@ export class Events implements OnInit {
   ngOnInit(): void {
     this.loadEvents();
 
-    // ✅ مثل Clubs: كي user يجي من API يتعبّى currentUser$ → نحمل registrations
+    // ✅ quand user arrive -> charger registrations
     this.authService.currentUser$.subscribe(user => {
       const idUser = Number((user as any)?.id_user);
       this.currentUserId = idUser || null;
@@ -92,12 +95,12 @@ export class Events implements OnInit {
       }
     });
 
-    // ✅ إذا عندك token والـ user مش متحمّل بعد
+    // ✅ si token et user pas encore chargé
     if (!this.authService.getCurrentUserValue() && this.authService.isAuthenticated()) {
       this.authService.loadUser();
     }
 
-    // ✅ إذا user موجود في cache مباشرة
+    // ✅ cache
     const cachedUser = this.authService.getCurrentUserValue();
     const cachedId = Number((cachedUser as any)?.id_user);
     if (cachedId) {
@@ -128,7 +131,18 @@ export class Events implements OnInit {
   }
 
   // ==========================
-  // REGISTRATIONS (IMPORTANT)
+  // OPEN / CLOSED
+  // ==========================
+  isClosed(ev: EventModel): boolean {
+    return (ev?.status?.toUpperCase() === 'CLOSED') || (Number(ev?.capacity) <= 0);
+  }
+
+  badgeStatus(ev: EventModel) {
+    return this.isClosed(ev) ? 'badge-closed' : 'badge-open';
+  }
+
+  // ==========================
+  // REGISTRATIONS
   // ==========================
   loadMyRegistrations(userId: number) {
     this.registrationService.getRegistrationsByUserId(userId).subscribe({
@@ -207,6 +221,13 @@ export class Events implements OnInit {
     return `${start} - ${end}`;
   }
 
+  /** Full address without encoded `|@lat,lng` suffix from the back-office map. */
+  displayLocation(raw: string | undefined | null): string {
+    if (raw == null || !String(raw).trim()) return '—';
+    const s = String(raw).replace(/\|@[-.\d]+,[-.\d]+\s*$/, '').trim();
+    return s || '—';
+  }
+
   // ==========================
   // CTA BUTTON
   // ==========================
@@ -216,15 +237,21 @@ export class Events implements OnInit {
     this.errorMsg = '';
     this.successMsg = '';
 
-    // ✅ si pas connecté -> login
+    // ✅ closed => stop
+    if (this.isClosed(ev)) {
+      this.errorMsg = 'Event Closed';
+      return;
+    }
+
+    // ✅ login
     if (!this.currentUserId) {
       this.router.navigate(['/login']);
       return;
     }
 
-    // ✅ déjà inscrit -> ne rien faire (comme clubs)
+    // ✅ already registered
     if (this.isRegistered(ev.idEvent)) {
-      return; // ✅ pas popup, pas message
+      return;
     }
 
     this.selectedEvent = ev;
@@ -238,6 +265,13 @@ export class Events implements OnInit {
 
   confirmRegister() {
     if (!this.selectedEvent?.idEvent) return;
+
+    // ✅ recheck closed
+    if (this.isClosed(this.selectedEvent)) {
+      this.errorMsg = 'Event Closed';
+      this.cancelRegisterConfirm();
+      return;
+    }
 
     if (!this.currentUserId) {
       this.errorMsg = 'Utilisateur non connecté';
@@ -259,7 +293,7 @@ export class Events implements OnInit {
     this.registrationService.createRegistration(payload).subscribe({
       next: () => {
         this.successMsg = 'Inscription créée ✅';
-        this.joinedEventIds.add(eventId); // ✅ UI direct
+        this.joinedEventIds.add(eventId);
         this.loadingEventId = null;
         this.cancelRegisterConfirm();
         this.cdr.detectChanges();
@@ -275,6 +309,14 @@ export class Events implements OnInit {
           '';
 
         const normalized = (msg || '').toLowerCase();
+
+        if (normalized.includes('closed')) {
+          this.errorMsg = 'Event Closed';
+          this.cancelRegisterConfirm();
+          this.cdr.detectChanges();
+          return;
+        }
+
         if (normalized.includes('déjà') || normalized.includes('already') || normalized.includes('exists')) {
           this.joinedEventIds.add(eventId);
           this.cancelRegisterConfirm();

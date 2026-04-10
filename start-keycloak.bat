@@ -1,0 +1,3 @@
+@echo off
+echo Demarrage Keycloak sur port 9090...
+java -jar C:\keycloak-23.0.0\lib\quarkus-run.jar start-dev --http-port=9090

@@ -32,7 +32,7 @@
             {{ club.type }}
           </span>
 
-          <span class="badge border" [ngClass]="badgeCity(club.ville)" [title]="club.ville">
+          <span class="badge border" [ngClass]="badgeCity(club.ville)" [title]="club.ville" style="max-width:none; white-space:normal; overflow:visible;">
             {{ club.ville || '—' }}
           </span>
         </div>
@@ -52,9 +52,36 @@
         </h3>
 
         <!-- DESCRIPTION -->
-        <p class="text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-3 min-h-[72px] mb-4">
-          {{ club.description || 'No description available' }}
+        <p class="text-gray-600 dark:text-gray-400 leading-relaxed mb-4"
+           [class.text-right]="activeLang[club.idClub!] === 'ar'"
+           [attr.dir]="activeLang[club.idClub!] === 'ar' ? 'rtl' : 'ltr'">
+          {{ getDescription(club) }}
         </p>
+
+        <!-- TRANSLATE BUTTONS -->
+        <div class="translate-bar mb-4">
+          <span class="translate-label">🌐</span>
+          <button
+            class="translate-btn"
+            [class.active]="activeLang[club.idClub!] === 'fr'"
+            (click)="translate(club, 'fr')"
+            [disabled]="isTranslating(club.idClub!)">
+            {{ isTranslating(club.idClub!) ? '...' : 'FR' }}
+          </button>
+          <button
+            class="translate-btn"
+            [class.active]="activeLang[club.idClub!] === 'ar'"
+            (click)="translate(club, 'ar')"
+            [disabled]="isTranslating(club.idClub!)">
+            {{ isTranslating(club.idClub!) ? '...' : 'AR' }}
+          </button>
+          <button
+            *ngIf="activeLang[club.idClub!] && activeLang[club.idClub!] !== 'original'"
+            class="translate-btn reset"
+            (click)="activeLang[club.idClub!] = 'original'">
+            ↩
+          </button>
+        </div>
 
         <!-- INFO -->
         <div class="club-infos">
@@ -68,15 +95,25 @@
         <button
           type="button"
           class="btn-register"
+          [class.btn-pending]="memberStatusByClub[club.idClub!] === 'PENDING'"
+          [class.btn-joined]="memberStatusByClub[club.idClub!] === 'ACCEPTED'"
+          [class.btn-denied]="memberStatusByClub[club.idClub!] === 'DENIED'"
           (click)="joinAndOpen(club)"
           [disabled]="isJoined(club.idClub) || isLoadingClub(club.idClub)"
         >
-          {{
-            isJoined(club.idClub)
-              ? 'ALREADY JOINED'
-              : (isLoadingClub(club.idClub) ? 'Joining...' : 'JOIN NOW')
-          }}
+          {{ isLoadingClub(club.idClub) ? 'Joining...' :
+             memberStatusByClub[club.idClub!] === 'PENDING'  ? '⏳ EN ATTENTE' :
+             memberStatusByClub[club.idClub!] === 'ACCEPTED' ? '✅ MEMBRE' :
+             memberStatusByClub[club.idClub!] === 'DENIED'   ? '❌ REFUSÉ' :
+             'JOIN NOW' }}
         </button>
+
+        <p class="club-role-line" *ngIf="memberStatusByClub[club.idClub!] === 'ACCEPTED'">
+          <span [class.role-pill-president]="memberRoleByClub[club.idClub!] === 'PRESIDENT'"
+                [class.role-pill-recrue]="memberRoleByClub[club.idClub!] !== 'PRESIDENT'">
+            {{ memberRoleByClub[club.idClub!] === 'PRESIDENT' ? 'Président' : 'Recrue' }}
+          </span>
+        </p>
 
       </article>
 
