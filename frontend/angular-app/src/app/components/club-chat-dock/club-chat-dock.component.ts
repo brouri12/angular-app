@@ -34,6 +34,8 @@ export class ClubChatDockComponent implements OnInit, OnChanges, OnDestroy, Afte
   loading = false;
   sending = false;
   sendError = '';
+  loadError = '';
+  private consecutiveErrors = 0;
   pollId: ReturnType<typeof setInterval> | null = null;
   private scrollPending = false;
 
@@ -45,14 +47,15 @@ export class ClubChatDockComponent implements OnInit, OnChanges, OnDestroy, Afte
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['acceptedClubs'] && this.acceptedClubs?.length) {
+    if (changes['acceptedClubs']) {
+      const clubs = this.acceptedClubs || [];
       const stillValid =
         this.selectedClubId != null &&
-        this.acceptedClubs.some(c => Number(c.idClub) === Number(this.selectedClubId));
+        clubs.some(c => Number(c.idClub) === Number(this.selectedClubId));
       if (!stillValid) {
         this.pickDefaultClub();
       }
-      if (this.expanded) {
+      if (this.expanded && this.selectedClubId) {
         this.loadMessages();
       }
     }
@@ -79,12 +82,17 @@ export class ClubChatDockComponent implements OnInit, OnChanges, OnDestroy, Afte
   }
 
   private pickDefaultClub(): void {
-    const first = this.acceptedClubs?.[0];
+    const clubs = this.acceptedClubs || [];
+    const first = clubs[0];
     this.selectedClubId = first?.idClub != null ? Number(first.idClub) : null;
+    this.messages = [];
+    this.loadError = '';
+    this.consecutiveErrors = 0;
   }
 
   onClubChange(): void {
     this.sendError = '';
+    this.loadError = '';
     this.loadMessages();
     this.scrollPending = true;
   }
@@ -92,15 +100,26 @@ export class ClubChatDockComponent implements OnInit, OnChanges, OnDestroy, Afte
   loadMessages(): void {
     if (!this.idUser || !this.selectedClubId) return;
     this.loading = true;
+    this.loadError = '';
     this.clubChat.getMessages(this.selectedClubId, this.idUser).subscribe({
       next: rows => {
         this.messages = rows || [];
         this.loading = false;
         this.scrollPending = true;
+        this.consecutiveErrors = 0;
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
         this.messages = [];
+        this.consecutiveErrors++;
+        const status = err?.status;
+        if (status === 403) {
+          this.loadError = 'Vous devez être membre accepté pour voir ce chat.';
+        } else if (status === 503) {
+          this.loadError = 'Service temporairement indisponible.';
+        } else {
+          this.loadError = 'Impossible de charger les messages.';
+        }
       }
     });
   }
@@ -148,11 +167,13 @@ export class ClubChatDockComponent implements OnInit, OnChanges, OnDestroy, Afte
     this.stopPoll();
     this.pollId = setInterval(() => {
       if (!this.expanded || !this.idUser || !this.selectedClubId) return;
+      if (this.consecutiveErrors >= 3) return; // stop spamming if service is down
       this.clubChat.getMessages(this.selectedClubId, this.idUser).subscribe({
         next: rows => {
           this.messages = rows || [];
+          this.consecutiveErrors = 0;
         },
-        error: () => {}
+        error: () => { this.consecutiveErrors++; }
       });
     }, 5000);
   }

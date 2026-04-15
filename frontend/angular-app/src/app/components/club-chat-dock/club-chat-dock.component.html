@@ -27,7 +27,8 @@
 
     <div class="chat-messages" #msgScroll>
       <div *ngIf="loading" class="chat-muted">⏳ Chargement…</div>
-      <div *ngIf="!loading && messages.length === 0" class="chat-muted">
+      <div *ngIf="loadError" class="chat-error">⚠️ {{ loadError }}</div>
+      <div *ngIf="!loading && !loadError && messages.length === 0" class="chat-muted">
         💬 Aucun message. Soyez le premier à écrire !
       </div>
 

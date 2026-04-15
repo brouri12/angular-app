@@ -18,7 +18,7 @@ export interface Club {
 export class ClubService {
 
   // ✅ API Gateway
-  private baseUrl = 'http://localhost:8089/clubs';
+  private baseUrl = 'http://localhost:8888/clubs';
 
   constructor(private http: HttpClient) {}
 

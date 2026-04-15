@@ -3,301 +3,207 @@
 [![Esprit](https://img.shields.io/badge/Esprit-School%20of%20Engineering-red)](https://esprit.tn)
 [![Academic Year](https://img.shields.io/badge/Academic%20Year-2026--2027-blue)](https://esprit.tn)
 [![PIDEV](https://img.shields.io/badge/Project-PIDEV-green)](https://esprit.tn)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0-brightgreen)](https://spring.io)
+[![Angular](https://img.shields.io/badge/Angular-21-red)](https://angular.io)
+[![Java](https://img.shields.io/badge/Java-17-orange)](https://java.com)
+
+## Overview
+
+**Jungle in English** is a full-stack e-learning platform built with a microservices architecture.
+It allows students to discover events, join clubs, receive digital badges with QR codes, and interact via a real-time club chat.
+Administrators manage clubs, events, registrations, and monitor statistics from a dedicated back-office.
+
+Developed at **Esprit School of Engineering – Tunisia** | Academic Year 2026–2027
+
+---
+
+## Features
+
+### User Features
+- 🔐 **Authentication** – Secure login via Keycloak (JWT)
+- 🎉 **Event Discovery** – Browse and register for events
+- 🏫 **Club Membership** – Join clubs, chat with members
+- 💬 **Club Chat** – Real-time messaging with spam & profanity filtering
+- 🏆 **Gamification** – Score system with badge levels (Bronze → Premium)
+- 🎖️ **Digital Badge** – PDF badge with QR code sent by email
+- 🌐 **Translation** – Club descriptions translated to FR/AR via Google Translate API
+- 🏆 **Event Sponsoring** – Club presidents can sponsor events via Stripe payment
+
+### Admin Features
+- 📊 **Dashboard** – Statistics on events, clubs, members
+- 🎯 **Event Management** – Create, edit, delete events with map location
+- 🏫 **Club Management** – Manage clubs and logos
+- 👥 **Member Management** – Accept/deny members, assign roles
+- 📋 **Registrations** – View and manage all registrations
+
+---
+
+## Tech Stack
+
+### Frontend
+| Technology | Usage |
+|---|---|
+| Angular 21 | Main framework |
+| Tailwind CSS | Styling |
+| Vitest | Unit testing |
+| Stripe.js | Payment integration |
+
+### Backend
+| Technology | Usage |
+|---|---|
+| Spring Boot 4.x | Microservices framework |
+| Java 17 | Language |
+| Spring Data JPA | ORM |
+| Spring Security + OAuth2 | JWT validation via Keycloak |
+| OpenFeign | Inter-service communication |
+| Eureka | Service discovery |
+| API Gateway | Request routing |
+| MySQL | Database |
+| PDFBox | Badge PDF generation |
+| ZXing | QR code generation |
+| Mockito / JUnit 5 | Unit testing |
+
+---
+
+## Architecture
+
+```
+┌─────────────────────────────────────────┐
+│         Angular Frontend (4200)         │
+└─────────────────────────────────────────┘
+                    ↓
+┌─────────────────────────────────────────┐
+│      API Gateway (8888) + Keycloak JWT  │
+└─────────────────────────────────────────┘
+                    ↓
+┌──────────────┐ ┌──────────────┐ ┌──────────────┐
+│ Club Service │ │Event Service │ │Member Service│
+│  Port: 8089  │ │  Port: 8086  │ │  Port: 8087  │
+└──────────────┘ └──────────────┘ └──────────────┘
+        ↑ OpenFeign inter-service communication ↑
+                    ↓
+┌─────────────────────────────────────────┐
+│   MySQL (Clubdb, Eventdb, Membredb)     │
+└─────────────────────────────────────────┘
+```
+
+---
+
+## Microservices
+
+### Club Service (Port: 8089)
+- CRUD clubs + logo upload
+- Club chat with profanity filter (purgomalum API) + spam detection
+- Event sponsoring with Stripe payment
+- Score notification via OpenFeign → Member Service
+
+### Event Service (Port: 8086)
+- CRUD events with map location (Leaflet + Nominatim)
+- Event status (OPEN/CLOSED) with scheduler
+- Sponsoring expiry scheduler (60s) + email notification
+
+### Member Service (Port: 8087)
+- Club membership management
+- **President uniqueness**: one president per club, one club per president
+- Score gamification (+5 message, +30 accepted, +10 badge, -10 bad words/spam)
+- Badge level: BRONZE → SILVER → GOLD → PREMIUM
+- PDF badge generation (PDFBox) + QR code (ZXing) sent by email
+- JWT validation via Keycloak OAuth2 Resource Server
 
+---
 
+## Security
 
+JWT tokens validated at two levels:
+1. **API Gateway** – Routes requests with JWT verification
+2. **Microservices** – Each service validates JWT independently via Keycloak
 
+```properties
+spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:9090/realms/wordly-realm
+```
 
+---
 
-Overview
+## Tests
 
-The Event Management Platform is a full-stack web application designed to manage university clubs, events, and member participation.
-
-The platform allows students to discover events, register for them, join clubs, and receive a digital badge with QR Code confirming their membership.
-
-Administrators can manage clubs, events, registrations, and monitor participation statistics.
-
-The system is built using a microservices architecture to ensure scalability, modularity, and maintainability.
-
-Developed at Esprit School of Engineering – Tunisia
-
-Features
-User Features
-
-🔐 Authentication & Authorization – Secure login system
-
-🎉 Event Discovery – Browse available events
-
-📝 Event Registration – Register for events with capacity management
-
-🏫 Club Membership – Join university clubs
-
-📅 Event Status Management – Events automatically close after their date
-
-📩 QR Code Badge – Members receive a digital badge with QR code
-
-👤 User Profile – View personal information and participation
-
-Admin Features
-
-📊 Dashboard & Statistics – View event and club statistics
-
-🎯 Event Management – Create, update, and delete events
-
-🏫 Club Management – Manage clubs and their information
-
-👥 Member Management – View and manage club members
-
-📉 Capacity Control – Automatic decrement/increment of event capacity
-
-📄 Badge Generation – Generate QR code badges for members
-
-Technical Features
-
-🏗 Microservices Architecture
-
-🔗 API Gateway Routing
-
-🔄 Inter-Service Communication
-
-📊 Event Statistics API
-
-📦 RESTful APIs
-
-📱 Responsive Frontend
-
-Tech Stack
-Frontend
-
-Framework: Angular
-
-Styling: Tailwind CSS
-
-Charts: Chart.js
-
-HTTP Client: Angular HttpClient
-
-Backend
-
-Framework: Spring Boot 3.x
-
-Language: Java 17
-
-ORM: Spring Data JPA / Hibernate
-
-Security: Spring Security
-
-Database: MySQL
-
-QR Code: ZXing
-
-PDF Generation: OpenPDF
-
-API Communication: RestTemplate
-
-Dev Tools
-
-Build Tool: Maven
-
-Version Control: Git / GitHub
-
-API Testing: Postman
-
-Database Management: phpMyAdmin
-
-IDE: IntelliJ IDEA / VS Code
-
-Architecture
-
-┌─────────────────────────────────────────────────────────────┐
-│                     CLIENT APPLICATION                      │
-│                                                             │
-│                  Angular Frontend                           │
-│                     Port: 4200                              │
-└─────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────┐
-│                        API GATEWAY                          │
-│                    Port: 8888                               │
-│                 Request Routing + CORS                      │
-└─────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────┐
-│                       MICROSERVICES                         │
-│                                                             │
-│   ┌──────────────┐   ┌──────────────┐   ┌──────────────┐    │
-│   │ Club Service │   │ Event Service│   │Member Service│    │
-│   │ Port: 8081   │   │ Port: 8082   │   │ Port: 8083   │    │
-│   └──────────────┘   └──────────────┘   └──────────────┘    │
-└─────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────┐
-│                          DATABASE                           │
-│                                                             │
-│        MySQL Databases (club_db, event_db, member_db)       │
-└─────────────────────────────────────────────────────────────┘
-Microservices
-Club Service
-
-Manages clubs.
-
-Functions:
-
-Create club
-
-Upload club logo
-
-View clubs
-
-Manage club information
-
-Event Service
-
-Manages events.
-
-Functions:
-
-Create events
-
-Event capacity management
-
-Event status (OPEN / CLOSED)
-
-Event statistics
-
-Member Service
-
-Manages members.
-
-Functions:
-
-Join clubs
-
-Generate QR Code badge
-
-Send email confirmation
-
-Member participation tracking
-
-Getting Started
-Prerequisites
-
-Before running the project make sure you have installed:
-
-Java 17+
-
-Node.js
-
-MySQL
-
-Maven
-
-Git
-
-Installation
-1 Clone the Repository
-git clone https://github.com/your-username/event-management-platform.git
-cd event-management-platform
-2 Setup Database
-CREATE DATABASE club_db;
-CREATE DATABASE event_db;
-CREATE DATABASE member_db;
-3 Start Backend Services
-
-Terminal 1
-
-cd club-service
-mvn spring-boot:run
-
-Terminal 2
-
-cd event-service
-mvn spring-boot:run
-
-Terminal 3
-
+### Backend (JUnit 5 + Mockito)
+```bash
 cd member-service
-mvn spring-boot:run
+mvn test
+# Tests run: 9, Failures: 0
+```
 
-Terminal 4
+Tests cover: president uniqueness, score validation, badge level computation, member creation rules.
 
-cd api-gateway
-mvn spring-boot:run
-4 Start Frontend
-cd frontend
-npm install
-npm start
+### Frontend (Vitest)
+```bash
+cd frontend/angular-app
+ng test --watch=false
+# Test Files: 3 passed | Tests: 14 passed
+```
 
-Access the application at:
+Tests cover: club loading, translation cache, isJoined logic, HTTP calls with JWT header.
 
-http://localhost:4200
-Project Structure
-event-management-platform/
+---
 
-├── club-service/
-│   ├── src/main/java/
-│   └── src/main/resources/
-│
-├── event-service/
-│   ├── src/main/java/
-│   └── src/main/resources/
-│
-├── member-service/
-│   ├── src/main/java/
-│   └── src/main/resources/
-│
-├── api-gateway/
-│   ├── src/main/java/
-│   └── src/main/resources/
-│
-├── frontend/
-│   ├── src/app/
-│   └── package.json
-│
-└── README.md
+## Getting Started
 
-API Endpoints
-Event Service
-GET /events
-POST /events
-GET /events/{id}
-DELETE /events/{id}
-Club Service
-GET /clubs
-POST /clubs
-POST /clubs/{id}/logo
-Member Service
-POST /members
-GET /members
-POST /members/badge
-Contributors
+### Prerequisites
+- Java 17+
+- Node.js 18+
+- MySQL 8+
+- Maven
+- Keycloak 23 (port 9090)
 
-Developed by students of Esprit School of Engineering.
+### Installation
 
-Academic Context
+```bash
+# 1. Clone
+git clone https://github.com/brouri12/angular-app.git
 
-Project developed as part of the PIDEV module.
+# 2. Start Eureka
+cd EurekaServer && mvn spring-boot:run
 
-Institution: Esprit School of Engineering
+# 3. Start API Gateway
+cd ApiGateway && mvn spring-boot:run
 
-Academic Year: 2025–2026
+# 4. Start microservices
+cd member-service && mvn spring-boot:run
+cd club-service && mvn spring-boot:run
+cd event-service && mvn spring-boot:run
 
-Country: Tunisia
+# 5. Start frontend
+cd frontend/angular-app && npm install && ng serve
 
-License
+# 6. Start back-office
+cd back-office && npm install && ng serve --port 4201
+```
 
-This project is developed for academic purposes.
+---
 
-If you want, I can also help you create a SUPER PROFESSIONAL README (like big GitHub projects) with:
+## API Endpoints
 
-🚀 animated badges
+### Club Service (8089)
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/clubs` | List all clubs |
+| POST | `/clubs` | Create club |
+| GET | `/clubs/{id}/chat/messages` | Get chat messages |
+| POST | `/clubs/{id}/chat/messages` | Send message |
+| PUT | `/clubs/{id}/sponsor` | Sponsor event |
 
-📸 screenshots of your app
+### Member Service (8087)
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/membres` | Join club |
+| PUT | `/membres/{id}/role` | Update role |
+| PUT | `/membres/{id}/status` | Update status |
+| POST | `/membres/score` | Update score |
+| GET | `/membres/badge/{idUser}/{idClub}` | Send badge email |
 
-📊 architecture diagrams
+---
 
-🧠 features table
+## Contributors
 
-🏆 contributors section
-
-It will make your GitHub look very professional for recruiters.
+Developed by students of **Esprit School of Engineering** – PIDEV Module  
+Academic Year: 2026–2027 | Tunisia

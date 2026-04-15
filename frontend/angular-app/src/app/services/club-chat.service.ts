@@ -13,7 +13,7 @@ export interface ClubChatMessage {
 
 @Injectable({ providedIn: 'root' })
 export class ClubChatService {
-  private baseUrl = 'http://localhost:8089/clubs';
+  private baseUrl = 'http://localhost:8888/clubs';
 
   constructor(private http: HttpClient) {}
 

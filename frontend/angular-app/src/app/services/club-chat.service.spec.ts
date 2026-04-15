@@ -37,7 +37,7 @@ describe('ClubChatService', () => {
     });
 
     const req = httpMock.expectOne(r =>
-      r.url === 'http://localhost:8089/clubs/1/chat/messages' &&
+      r.url === 'http://localhost:8888/clubs/1/chat/messages' &&
       r.params.get('idUser') === '5'
     );
     expect(req.request.method).toBe('GET');
@@ -54,7 +54,7 @@ describe('ClubChatService', () => {
       expect(msg.content).toBe('Test message');
     });
 
-    const req = httpMock.expectOne('http://localhost:8089/clubs/1/chat/messages');
+    const req = httpMock.expectOne('http://localhost:8888/clubs/1/chat/messages');
     expect(req.request.method).toBe('POST');
     expect(req.request.body.content).toBe('Test message');
     expect(req.request.body.idUser).toBe(5);
@@ -68,7 +68,7 @@ describe('ClubChatService', () => {
     });
 
     const req = httpMock.expectOne(r =>
-      r.url === 'http://localhost:8089/clubs/1/chat/messages'
+      r.url === 'http://localhost:8888/clubs/1/chat/messages'
     );
     req.flush([]);
   });
@@ -80,7 +80,7 @@ describe('ClubChatService', () => {
     service.getMessages(1, 5).subscribe();
 
     const req = httpMock.expectOne(r =>
-      r.url === 'http://localhost:8089/clubs/1/chat/messages'
+      r.url === 'http://localhost:8888/clubs/1/chat/messages'
     );
     expect(req.request.headers.get('Authorization')).toBe('Bearer fake-jwt-token');
     req.flush([]);
