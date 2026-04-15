@@ -1,6 +1,7 @@
 import { Component, signal, OnInit, OnDestroy, inject, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 import { AbonnementService } from '../../services/abonnement.service';
 import { AuthService } from '../../services/auth.service';
 import { PaymentService, PaymentRequest } from '../../services/payment.service';
@@ -9,13 +10,23 @@ import { Abonnement, HistoriqueAbonnement } from '../../models/abonnement.model'
 import { User } from '../../models/user.model';
 import { Stripe, StripeElements, StripeCardElement } from '@stripe/stripe-js';
 
+/** Devise affichée : dinar tunisien */
+const CURRENCY_TND = 'TND';
+const CURRENCY_LABEL = 'DT';
+
+const DEFAULT_ABONNEMENTS: Abonnement[] = [
+  { nom: 'Gratuit', description: 'Essai gratuit pour découvrir le niveau créé par les professeurs', prix: 0, duree_jours: 30, niveau_acces: 'Débutant', acces_illimite: false, support_prioritaire: false, statut: 'Actif' },
+  { nom: 'Pro', description: 'Pour progresser avec les cours de niveau intermédiaire', prix: 90, duree_jours: 30, niveau_acces: 'Intermédiaire', acces_illimite: false, support_prioritaire: true, statut: 'Actif' },
+  { nom: 'Complet', description: 'Accès illimité à tous les niveaux et support prioritaire', prix: 300, duree_jours: 365, niveau_acces: 'Tous niveaux', acces_illimite: true, support_prioritaire: true, statut: 'Actif' },
+];
+
 @Component({
   selector: 'app-pricing',
   imports: [CommonModule, FormsModule],
   templateUrl: './pricing.html',
   styleUrl: './pricing.css'
 })
-export class Pricing implements OnInit {
+export class Pricing implements OnInit, OnDestroy {
   private abonnementService = inject(AbonnementService);
   private authService = inject(AuthService);
   private paymentService = inject(PaymentService);
@@ -50,32 +61,38 @@ export class Pricing implements OnInit {
 
   faqs = [
     {
-      q: 'Can I switch plans later?',
-      a: 'Yes! You can upgrade or downgrade your plan at any time. Changes will be reflected in your next billing cycle.',
+      q: 'Les niveaux correspondent-ils aux cours des professeurs ?',
+      a: 'Oui. Les niveaux (Débutant, Intermédiaire, Tous niveaux) sont ceux créés par les professeurs. En essai gratuit vous pouvez voir un aperçu du niveau avant d’acheter.',
     },
     {
-      q: 'Is there a free trial?',
-      a: 'Yes, all paid plans come with a 7-day free trial. No credit card required for the Free plan.',
+      q: 'Comment fonctionne l’essai gratuit ?',
+      a: 'Le plan Gratuit vous permet de découvrir les cours du niveau Débutant sans engagement. Cliquez sur « Voir un aperçu » pour avoir une idée avant d’acheter un niveau.',
     },
     {
-      q: 'What payment methods do you accept?',
-      a: 'We accept all major credit cards, PayPal, and bank transfers for Enterprise plans.',
+      q: 'Quels moyens de paiement acceptez-vous ?',
+      a: 'Carte bancaire, PayPal et virement. Les tarifs sont en dinars tunisiens (DT).',
     },
     {
-      q: 'Can I get a refund?',
-      a: 'Yes, we offer a 30-day money-back guarantee on all paid plans. No questions asked.',
+      q: 'Puis-je changer de formule plus tard ?',
+      a: 'Oui. Vous pouvez passer à une formule supérieure ou inférieure à tout moment.',
     },
   ];
 
   ngOnInit() {
+    this.recoverTokenFromUrl();
     this.loadAbonnements();
     this.loadCurrentUser();
   }
 
-  ngOnDestroy() {
-    if (this.successRedirectTimer) {
-      clearTimeout(this.successRedirectTimer);
-      this.successRedirectTimer = null;
+  private recoverTokenFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    if (token) {
+      this.authService.saveToken(token);
+      (this.authService as any).isAuthenticatedSubject?.next(true);
+      this.authService.loadUser();
+      const cleanUrl = window.location.pathname + (window.location.hash || '');
+      window.history.replaceState({}, '', cleanUrl);
     }
   }
 
@@ -89,11 +106,13 @@ export class Pricing implements OnInit {
     this.loading.set(true);
     this.abonnementService.getAllAbonnements().subscribe({
       next: (data) => {
-        this.abonnements.set(data.filter(a => a.statut === 'Actif'));
+        const list = Array.isArray(data) ? data.filter((a: Abonnement) => a.statut === 'Actif') : [];
+        this.abonnements.set(list.length > 0 ? list : DEFAULT_ABONNEMENTS);
         this.loading.set(false);
       },
       error: (err) => {
         console.error('Error loading abonnements:', err);
+        this.abonnements.set(DEFAULT_ABONNEMENTS);
         this.loading.set(false);
       }
     });
@@ -106,12 +125,22 @@ export class Pricing implements OnInit {
   getPrice(abonnement: Abonnement): string {
     const prix = this.billingCycle() === 'monthly' 
       ? abonnement.prix 
-      : abonnement.prix * 10; // Annual = 10 months price
-    return `$${prix}`;
+      : Math.round(abonnement.prix * 10); // Annuel = 10 mois
+    if (prix === 0) return '0 ' + CURRENCY_LABEL;
+    return `${prix} ${CURRENCY_LABEL}`;
   }
 
   getSavings(): string {
-    return this.billingCycle() === 'annual' ? 'Save 17%' : '';
+    return this.billingCycle() === 'annual' ? 'Économisez 17 %' : '';
+  }
+
+  /** Ouvre l’aperçu gratuit (page étudiant ou cours) pour voir le niveau avant d’acheter */
+  openApercuGratuit(niveauAcces: string) {
+    const base = 'http://localhost:8083/front-office/student.html';
+    const params = new URLSearchParams();
+    params.set('apercu', '1');
+    params.set('niveau', (niveauAcces || 'Débutant').trim());
+    window.open(base + '?' + params.toString(), '_blank');
   }
 
   openPurchaseModal(abonnement: Abonnement) {
@@ -168,10 +197,11 @@ export class Pricing implements OnInit {
   }
 
   async initializeStripe() {
+    if (this.card) return;
     try {
       this.stripe = await this.stripeService.getStripe();
       if (!this.stripe) {
-        alert('Failed to load Stripe');
+        alert('Stripe is not loaded. Check your connection and Stripe keys.');
         return;
       }
 
@@ -191,8 +221,8 @@ export class Pricing implements OnInit {
         }
       });
 
-      const cardElement = document.getElementById('card-element');
-      if (cardElement) {
+      const cardEl = document.getElementById('card-element');
+      if (cardEl && !cardEl.hasChildNodes()) {
         this.card.mount('#card-element');
       }
     } catch (error) {
@@ -208,10 +238,11 @@ export class Pricing implements OnInit {
     this.processingPayment.set(true);
 
     try {
-      const amount = this.billingCycle() === 'monthly' ? abonnement.prix : abonnement.prix * 10;
+      const amountTND = this.billingCycle() === 'monthly' ? abonnement.prix : Math.round(abonnement.prix * 10);
+      // Stripe TND : montant en millimes (1 TND = 1000 millimes)
+      const amountMillimes = amountTND * 1000;
       
-      // Create payment intent
-      const intentResponse = await this.stripeService.createPaymentIntent(amount, 'usd').toPromise();
+      const intentResponse = await this.stripeService.createPaymentIntent(amountMillimes, 'tnd').toPromise();
       
       if (!intentResponse || !intentResponse.clientSecret) {
         throw new Error('Failed to create payment intent');
@@ -236,15 +267,25 @@ export class Pricing implements OnInit {
       }
 
       if (paymentIntent && paymentIntent.status === 'succeeded') {
-        // Save payment record
-        const currentUser = this.currentUser();
+        // Resolve idUser: use current user or fetch by email so backend can save and create subscription
+        let idUser: number | undefined = this.currentUser()?.id_user;
+        if (idUser == null && this.purchaseForm.email_client) {
+          try {
+            const user = await firstValueFrom(this.authService.getUserByEmail(this.purchaseForm.email_client));
+            idUser = user?.id_user;
+            if (user) this.currentUser.set(user);
+          } catch (_) {
+            // keep idUser undefined; backend will still save payment (subscription skipped if null)
+          }
+        }
+
         const paymentRequest: PaymentRequest = {
-          idUser: currentUser?.id_user,
-          idAbonnement: abonnement.id_abonnement,
+          idUser: idUser ?? undefined,
+          idAbonnement: abonnement.id_abonnement ?? undefined,
           nomClient: this.purchaseForm.nom_client,
           emailClient: this.purchaseForm.email_client,
           typeAbonnement: abonnement.nom,
-          montant: amount,
+          montant: amountTND,
           methodePaiement: this.purchaseForm.methode_paiement,
           referenceTransaction: paymentIntent.id,
           stripePaymentId: paymentIntent.id
@@ -256,8 +297,17 @@ export class Pricing implements OnInit {
             this.showPaymentSuccessExperience(paymentIntent.id);
           },
           error: (err) => {
-            console.error('Error saving payment:', err);
-            alert('Payment succeeded but failed to save record. Please contact support.');
+            const status = err?.status;
+            const msg = err?.error?.message ?? (typeof err?.error === 'string' ? err.error : err?.error?.error) ?? err?.message ?? err?.statusText ?? 'Unknown error';
+            console.error('Error saving payment:', err?.error || err);
+            // Paiement Stripe réussi : on redirige quand même vers l'interface student (le prélèvement est fait)
+            this.closePurchaseModal();
+            this.paymentSuccessTransaction.set(paymentIntent.id);
+            this.showPaymentSuccess.set(true);
+            this.playPaymentSuccessSound();
+            if (this.successRedirectTimer) clearTimeout(this.successRedirectTimer);
+            this.successRedirectTimer = setTimeout(() => this.closeSuccessAndRedirectNow(), 3200);
+            /* Pas d'alert : l'overlay animé suffit */
           }
         });
       }
@@ -348,9 +398,15 @@ export class Pricing implements OnInit {
     this.selectedReceipt.set(null);
   }
 
+  /** Redirection vers l'interface étudiant (port 8083). */
   private redirectToStudentPage() {
-    const email = encodeURIComponent(this.currentUser()?.email || this.purchaseForm.email_client || '');
-    const targetUrl = `${window.location.protocol}//${window.location.hostname}:8083/front-office/student.html${email ? `?email=${email}` : ''}`;
+    const params = new URLSearchParams();
+    const email = this.currentUser()?.email || this.purchaseForm.email_client || '';
+    const token = this.authService.getToken();
+    if (email) params.set('email', email);
+    if (token) params.set('token', token);
+    const qs = params.toString();
+    const targetUrl = `http://localhost:8083/front-office/student.html${qs ? `?${qs}` : ''}`;
     window.location.href = targetUrl;
   }
 
@@ -394,5 +450,18 @@ export class Pricing implements OnInit {
     } catch (_) {
       // no-op when audio is blocked by browser policy
     }
+  }
+
+  ngOnDestroy() {
+    if (this.successRedirectTimer) {
+      clearTimeout(this.successRedirectTimer);
+      this.successRedirectTimer = null;
+    }
+    if (this.card && this.card.unmount) {
+      try { this.card.unmount(); } catch (_) {}
+      this.card = null;
+    }
+    this.elements = null;
+    this.stripe = null;
   }
 }

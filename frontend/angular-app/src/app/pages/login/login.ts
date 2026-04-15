@@ -20,11 +20,8 @@ export class Login {
 
   errorMessage = '';
   isLoading = false;
-
-  private hasRole(roles: string[], role: string): boolean {
-    const upper = String(role || '').toUpperCase();
-    return roles.includes(upper) || roles.includes(`ROLE_${upper}`);
-  }
+  testUsersMessage = '';
+  testUsersLoading = false;
 
   constructor(
     private authService: AuthService,
@@ -43,53 +40,51 @@ export class Login {
     this.authService.login(this.loginData).subscribe({
       next: () => {
         this.isLoading = false;
-        this.authService.getUserByEmail(this.loginData.email).subscribe({
-          next: (user) => {
-            const role = String(user?.role || '').toUpperCase();
-            if (role === 'ADMIN') {
-              window.location.href = 'http://localhost:8083/back-office/';
-              return;
-            }
-            if (role === 'TEACHER') {
-              window.location.href = 'http://localhost:8083/front-office/teacher.html';
-              return;
-            }
-            if (role === 'STUDENT') {
-              window.location.href = 'http://localhost:4201/pricing';
-              return;
-            }
-            this.router.navigate(['/']);
-          },
-          error: () => {
-            const token = this.authService.getToken();
-            if (token) {
-              try {
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                const roles = payload.realm_access?.roles || [];
-                if (this.hasRole(roles, 'ADMIN')) {
-                  window.location.href = 'http://localhost:8083/back-office/';
-                  return;
-                }
-                if (this.hasRole(roles, 'TEACHER')) {
-                  window.location.href = 'http://localhost:8083/front-office/teacher.html';
-                  return;
-                }
-                if (this.hasRole(roles, 'STUDENT')) {
-                  window.location.href = 'http://localhost:4201/pricing';
-                  return;
-                }
-              } catch (e) {
-                console.error('Error decoding token:', e);
-              }
-            }
-            this.router.navigate(['/']);
-          }
-        });
+        const token = this.authService.getToken();
+        const tokenParam = token ? '?token=' + encodeURIComponent(token) : '';
+        const loginEmail = this.loginData.email || '';
+        const emailParam = loginEmail ? (tokenParam ? '&' : '?') + 'email=' + encodeURIComponent(loginEmail) : '';
+
+        // Tous les comptes ouvrent l'espace étudiant
+        const studentUrl = 'http://localhost:8083/front-office/student.html' + tokenParam + emailParam;
+        setTimeout(() => { window.location.href = studentUrl; }, 250);
       },
       error: (error) => {
         this.isLoading = false;
         console.error('Login error:', error);
-        this.errorMessage = 'Invalid email or password';
+        const status = error?.status;
+        const desc = error?.error?.error_description;
+        if (status === 0) {
+          this.errorMessage = 'UserService (port 8085) non démarré ou bloqué. Démarrez-le puis réessayez.';
+          return;
+        }
+        if (status === 404) {
+          this.errorMessage = 'Compte introuvable en base. Cliquez sur « Créer les comptes de test » puis réessayez.';
+          return;
+        }
+        if (status === 500 && (desc === 'unknown_error' || !desc)) {
+          this.errorMessage = 'Keycloak a renvoyé une erreur interne (HTTP 500). Relancez Keycloak (9090) avec le script CORRIGER_ET_DEMARRER_KEYCLOAK, puis AUTO_CONFIGURE_KEYCLOAK et CREER_COMPTES_KEYCLOAK.';
+          return;
+        }
+        this.errorMessage = desc || error?.error?.error || error?.message || 'Invalid email or password';
+      }
+    });
+  }
+
+  createTestUsers(): void {
+    this.testUsersMessage = '';
+    this.testUsersLoading = true;
+    this.authService.ensureTestUsers().subscribe({
+      next: (res) => {
+        this.testUsersLoading = false;
+        this.testUsersMessage = res.message || 'Comptes créés. Connectez-vous avec : ppp@gmail.com / Ppp@123 (Teacher), alrahalimohamed3@gmail.com / Rahali@123 (Student), admin1772054577@wordly.com / Admin@123 (Admin).';
+        if (res.errors?.length) {
+          this.testUsersMessage += ' Erreurs: ' + res.errors.join('; ');
+        }
+      },
+      error: (err) => {
+        this.testUsersLoading = false;
+        this.testUsersMessage = 'Erreur: ' + (err?.error?.error_description || err?.message || 'Keycloak ou UserService non démarré (9090, 8085).');
       }
     });
   }

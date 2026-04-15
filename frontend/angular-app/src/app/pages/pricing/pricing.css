@@ -7,10 +7,10 @@
   justify-content: center;
   overflow: hidden;
   background:
-    radial-gradient(circle at 20% 20%, rgba(0, 200, 151, 0.25), transparent 42%),
-    radial-gradient(circle at 80% 30%, rgba(255, 127, 80, 0.22), transparent 45%),
-    linear-gradient(145deg, rgba(6, 16, 35, 0.95), rgba(17, 29, 58, 0.97));
-  animation: successOverlayIn 350ms ease-out;
+    radial-gradient(circle at 20% 20%, rgba(0, 200, 151, 0.28), transparent 45%),
+    radial-gradient(circle at 80% 30%, rgba(255, 127, 80, 0.25), transparent 48%),
+    linear-gradient(145deg, rgba(6, 16, 35, 0.97), rgba(17, 29, 58, 0.98));
+  animation: successOverlayIn 400ms ease-out;
 }
 
 .payment-success-glow {
@@ -18,86 +18,134 @@
   width: 70vmax;
   height: 70vmax;
   border-radius: 9999px;
-  background: radial-gradient(circle, rgba(0, 200, 151, 0.22), rgba(0, 0, 0, 0));
-  filter: blur(14px);
-  animation: pulseGlow 2s ease-in-out infinite;
+  background: radial-gradient(circle, rgba(0, 200, 151, 0.25), rgba(0, 0, 0, 0));
+  filter: blur(18px);
+  animation: pulseGlow 2.2s ease-in-out infinite;
+}
+
+.payment-success-glow-2 {
+  background: radial-gradient(circle, rgba(255, 127, 80, 0.2), rgba(0, 0, 0, 0));
+  animation-delay: 0.5s;
+  transform: scale(0.85);
 }
 
 .payment-success-card {
   position: relative;
   z-index: 2;
-  width: min(92vw, 560px);
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
-  backdrop-filter: blur(12px);
-  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
-  padding: 2rem 1.5rem;
+  width: min(92vw, 420px);
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.06));
+  backdrop-filter: blur(16px);
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+  padding: 2.25rem 1.75rem;
   text-align: center;
   color: #fff;
-  animation: successCardIn 480ms cubic-bezier(0.22, 1, 0.36, 1);
+  animation: successCardIn 550ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.payment-success-card:hover {
+  animation: successCardPulse 2s ease-in-out infinite;
 }
 
 .payment-success-icon-wrap {
-  margin: 0 auto 1rem;
-  width: 90px;
-  height: 90px;
+  margin: 0 auto 1.25rem;
+  width: 88px;
+  height: 88px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, rgba(0, 200, 151, 0.95), rgba(255, 127, 80, 0.95));
-  box-shadow: 0 0 0 8px rgba(0, 200, 151, 0.18), 0 20px 40px rgba(0, 0, 0, 0.35);
-  animation: successIconPop 540ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  background: linear-gradient(135deg, rgb(0, 200, 151), rgb(40, 180, 140));
+  box-shadow: 0 0 0 10px rgba(0, 200, 151, 0.2), 0 22px 44px rgba(0, 0, 0, 0.4);
+  animation: successIconPop 600ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .payment-success-icon {
-  font-size: 2.3rem;
-  font-weight: 900;
-  line-height: 1;
+  width: 44px;
+  height: 44px;
+  color: #fff;
+}
+
+.payment-success-check {
+  width: 100%;
+  height: 100%;
+}
+
+.payment-success-check-path {
+  stroke-dasharray: 80;
+  stroke-dashoffset: 80;
+  animation: successCheckDraw 0.6s ease-out 0.25s forwards;
 }
 
 .payment-success-title {
   margin: 0;
-  font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
   font-weight: 800;
   letter-spacing: 0.02em;
+  color: #fff;
 }
 
 .payment-success-subtitle {
-  margin: 0.85rem auto 0;
-  max-width: 460px;
-  color: rgba(255, 255, 255, 0.88);
-  font-size: 1rem;
+  margin: 0.6rem auto 0;
+  max-width: 320px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.05rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }
 
-.payment-success-tx {
+.payment-success-ref {
   margin: 1rem auto 0;
-  max-width: 100%;
-  padding: 0.7rem 0.9rem;
-  border-radius: 12px;
-  background: rgba(7, 12, 25, 0.5);
-  color: rgba(255, 255, 255, 0.92);
-  font-size: 0.9rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 10px;
+  background: rgba(0, 200, 151, 0.15);
+  border: 1px solid rgba(0, 200, 151, 0.35);
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 0.8rem;
   overflow-wrap: anywhere;
+}
+
+.payment-success-ref code {
+  font-family: ui-monospace, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  color: rgb(0, 230, 180);
+}
+
+.payment-success-progress {
+  margin-top: 1.25rem;
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.payment-success-progress-bar {
+  height: 100%;
+  width: 0;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgb(0, 200, 151), rgb(255, 127, 80));
+  animation: progressFill 3.2s ease-out forwards;
 }
 
 .payment-success-btn {
   margin-top: 1.25rem;
   border: none;
-  border-radius: 12px;
-  padding: 0.8rem 1.2rem;
-  min-width: 180px;
+  border-radius: 14px;
+  padding: 0.85rem 1.5rem;
+  min-width: 200px;
   font-weight: 700;
+  font-size: 1rem;
   color: #fff;
   cursor: pointer;
   background: linear-gradient(90deg, rgb(0, 200, 151), rgb(255, 127, 80));
-  box-shadow: 0 8px 26px rgba(0, 200, 151, 0.35);
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  box-shadow: 0 10px 30px rgba(0, 200, 151, 0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .payment-success-btn:hover {
-  transform: translateY(-2px);
-  opacity: 0.95;
+  transform: translateY(-3px);
+  box-shadow: 0 14px 36px rgba(0, 200, 151, 0.5);
 }
 
 .payment-confetti {
@@ -124,7 +172,7 @@
 @keyframes successCardIn {
   from {
     opacity: 0;
-    transform: translateY(16px) scale(0.96);
+    transform: translateY(24px) scale(0.92);
   }
   to {
     opacity: 1;
@@ -132,15 +180,28 @@
   }
 }
 
+@keyframes successCardPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.01); }
+}
+
 @keyframes successIconPop {
-  0% { transform: scale(0.4); }
-  60% { transform: scale(1.14); }
-  100% { transform: scale(1); }
+  0% { transform: scale(0.3); opacity: 0; }
+  55% { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes successCheckDraw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes progressFill {
+  to { width: 100%; }
 }
 
 @keyframes pulseGlow {
-  0%, 100% { transform: scale(0.9); opacity: 0.7; }
-  50% { transform: scale(1.04); opacity: 1; }
+  0%, 100% { transform: scale(0.9); opacity: 0.65; }
+  50% { transform: scale(1.06); opacity: 1; }
 }
 
 @keyframes confettiFall {

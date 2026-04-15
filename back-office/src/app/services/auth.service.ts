@@ -7,9 +7,9 @@ import { User, RegisterRequest, LoginRequest, TokenResponse } from '../models/us
   providedIn: 'root'
 })
 export class AuthService {
-  // Call through API Gateway
-  private apiUrl = 'http://localhost:8888/user-service/api/auth';
-  private keycloakUrl = 'http://localhost:9090/realms/wordly-realm/protocol/openid-connect/token';
+  // UserService direct (8085) pour eviter erreur 0 avec la gateway
+  private apiUrl = 'http://localhost:8085/api/auth';
+  private keycloakUrl = 'http://localhost:8085/api/auth/token';
   
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
@@ -37,18 +37,12 @@ export class AuthService {
         return throwError(() => error);
       }),
       switchMap(user => {
-        const body = new URLSearchParams();
-        body.set('username', user.username);
-        body.set('password', request.password);
-        body.set('grant_type', 'password');
-        body.set('client_id', 'wordly-client');
-
+        const body = { username: user.username, password: request.password };
         const headers = new HttpHeaders({
-          'Content-Type': 'application/x-www-form-urlencoded'
+          'Content-Type': 'application/json'
         });
-
-        return this.http.post<TokenResponse>(this.keycloakUrl, body.toString(), { headers }).pipe(
-          timeout(10000), // 10 second timeout
+        return this.http.post<TokenResponse>(this.keycloakUrl, body, { headers }).pipe(
+          timeout(10000),
           catchError(error => {
             console.error('Error logging in to Keycloak:', error);
             return throwError(() => error);

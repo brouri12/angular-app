@@ -1,0 +1,8 @@
+{
+  "/keycloak": {
+    "target": "http://localhost:9090",
+    "secure": false,
+    "pathRewrite": { "^/keycloak": "" },
+    "changeOrigin": true
+  }
+}

@@ -19,6 +19,7 @@ export class Header {
   isAuthenticated = false;
 
   navLinks = [
+    { name: 'Accueil', path: '/home' },
     { name: 'Courses', path: '/courses' },
     { name: 'Pricing', path: '/pricing' },
     { name: 'About', path: '/about' },
@@ -67,5 +68,12 @@ export class Header {
     this.authService.logout();
     this.userMenuOpen = false;
     this.router.navigate(['/']);
+  }
+
+  /** Lien vers le back-office (8083) avec token si connecté, pour que le lien fonctionne. */
+  get backOfficeUrl(): string {
+    const base = 'http://localhost:8083/back-office/';
+    const token = this.authService.getToken();
+    return token ? base + '?token=' + encodeURIComponent(token) : base;
   }
 }
