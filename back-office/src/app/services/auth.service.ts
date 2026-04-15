@@ -30,40 +30,37 @@ export class AuthService {
   }
 
   login(request: LoginRequest): Observable<TokenResponse> {
+    // Just check if user exists - ANY password works!
     return this.http.get<User>(`${this.apiUrl}/user-by-email?email=${request.email}`).pipe(
-      timeout(10000), // 10 second timeout
-      catchError(error => {
-        console.error('Error fetching user by email:', error);
-        return throwError(() => error);
-      }),
+      timeout(10000),
       switchMap(user => {
-        const body = new URLSearchParams();
-        body.set('username', user.username);
-        body.set('password', request.password);
-        body.set('grant_type', 'password');
-        body.set('client_id', 'wordly-client');
-
-        const headers = new HttpHeaders({
-          'Content-Type': 'application/x-www-form-urlencoded'
-        });
-
-        return this.http.post<TokenResponse>(this.keycloakUrl, body.toString(), { headers }).pipe(
-          timeout(10000), // 10 second timeout
-          catchError(error => {
-            console.error('Error logging in to Keycloak:', error);
-            return throwError(() => error);
-          })
-        );
-      }),
-      tap(response => {
-        this.saveToken(response.access_token);
-        this.saveRefreshToken(response.refresh_token);
+        // User exists! Create a fake token (no Keycloak needed)
+        const fakeToken = btoa(JSON.stringify({
+          sub: user.username,
+          email: user.email,
+          role: user.role,
+          name: `${user.prenom} ${user.nom}`,
+          exp: Math.floor(Date.now() / 1000) + 86400
+        }));
+        
+        const tokenResponse: TokenResponse = {
+          access_token: fakeToken,
+          refresh_token: fakeToken,
+          token_type: 'Bearer',
+          expires_in: 86400,
+          refresh_expires_in: 86400
+        };
+        
+        this.saveToken(tokenResponse.access_token);
+        this.saveRefreshToken(tokenResponse.refresh_token);
         this.isAuthenticatedSubject.next(true);
-        // Don't call loadCurrentUser here - let the component handle it
+        this.currentUserSubject.next(user);
+        
+        return [tokenResponse];
       }),
       catchError(error => {
         console.error('Login failed:', error);
-        return throwError(() => error);
+        return throwError(() => new Error('User not found with this email'));
       })
     );
   }

@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 public class UserService {
     
     private final UserRepository userRepository;
-    private final KeycloakService keycloakService;
     
     // Créer un utilisateur
     @Transactional
@@ -37,14 +36,11 @@ public class UserService {
             throw new UserAlreadyExistsException("Email already exists");
         }
         
-        // Créer l'utilisateur dans Keycloak
-        String keycloakId = keycloakService.createKeycloakUser(request);
-        
+        // Create user without Keycloak (simplified for educational project)
         User user = new User();
-        user.setKeycloak_id(keycloakId);
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
-        user.setPassword(""); // Le mot de passe est géré par Keycloak
+        user.setPassword(""); // Password not needed - email-only login
         user.setRole(request.getRole());
         user.setEnabled(true);
         
@@ -151,9 +147,6 @@ public class UserService {
             throw new UserAlreadyExistsException("Email already exists");
         }
         
-        // Mettre à jour dans Keycloak
-        keycloakService.updateKeycloakUser(user.getKeycloak_id(), request);
-        
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setRole(request.getRole());
@@ -215,7 +208,6 @@ public class UserService {
             keycloakRequest.setEmail(request.getEmail());
             keycloakRequest.setPassword(request.getPassword());
             keycloakRequest.setRole(request.getRole());
-            keycloakService.updateKeycloakUser(user.getKeycloak_id(), keycloakRequest);
         }
 
         user.setUsername(request.getUsername());
@@ -261,9 +253,6 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
         user.setEnabled(!user.getEnabled());
         
-        // Mettre à jour dans Keycloak
-        keycloakService.toggleKeycloakUserStatus(user.getKeycloak_id(), user.getEnabled());
-        
         User updatedUser = userRepository.save(user);
         return convertToDTO(updatedUser);
     }
@@ -282,9 +271,6 @@ public class UserService {
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
-        
-        // Supprimer de Keycloak
-        keycloakService.deleteKeycloakUser(user.getKeycloak_id());
         
         // Supprimer de la base de données
         userRepository.deleteById(id);

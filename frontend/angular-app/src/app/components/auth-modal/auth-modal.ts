@@ -124,7 +124,9 @@ export class AuthModal implements OnInit {
               return;
             }
             if (role === 'STUDENT') {
-              window.location.href = 'http://localhost:4201/pricing';
+              this.ngZone.run(() => {
+                this.router.navigate(['/my-groups']);
+              });
               return;
             }
             this.authService.loadUser();
@@ -145,7 +147,9 @@ export class AuthModal implements OnInit {
                   return;
                 }
                 if (this.hasRole(roles, 'STUDENT')) {
-                  window.location.href = 'http://localhost:4201/pricing';
+                  this.ngZone.run(() => {
+                    this.router.navigate(['/my-groups']);
+                  });
                   return;
                 }
               } catch (e) {

@@ -13,6 +13,7 @@ interface DisplayUser {
   joinDate: string;
   avatar: string;
   username: string;
+  level?: string; // Student level (niveau_actuel)
 }
 
 @Component({
@@ -50,7 +51,8 @@ export class Users implements OnInit {
           enrolledCourses: 0, // TODO: Get from courses service when available
           joinDate: this.formatDate(user.date_creation),
           avatar: this.getAvatarUrl(user),
-          username: user.username
+          username: user.username,
+          level: user.niveau_actuel || '-' // Add student level
         }));
         this.users.set(displayUsers);
         this.loading.set(false);

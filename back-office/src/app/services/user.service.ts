@@ -18,7 +18,11 @@ export interface User {
   date_naissance?: string;
   statut?: string;
   specialite?: string;
-  niveau?: string;
+  niveau_actuel?: string; // Student level
+  statut_etudiant?: string; // Student status
+  experience?: number; // Teacher experience
+  disponibilite?: string; // Teacher availability
+  poste?: string; // Admin position
 }
 
 export interface UserStats {

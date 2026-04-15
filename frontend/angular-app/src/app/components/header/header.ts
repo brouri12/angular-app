@@ -24,6 +24,19 @@ export class Header {
     { name: 'About', path: '/about' },
   ];
 
+  // Dynamic nav links based on user role
+  get displayNavLinks() {
+    if (this.isAuthenticated && this.currentUser?.role === 'STUDENT') {
+      return [
+        { name: 'My Groups', path: '/my-groups' },
+        { name: 'Courses', path: '/courses' },
+        { name: 'Pricing', path: '/pricing' },
+        { name: 'About', path: '/about' },
+      ];
+    }
+    return this.navLinks;
+  }
+
   constructor(
     public themeService: Theme,
     private authService: AuthService,
