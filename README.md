@@ -450,3 +450,121 @@ Angular Frontend (4300)          Angular Back-Office (4301)
 | Dark Mode | Toggle light/dark avec persistance | ✅ |
 | Chatbot IA | 50+ mots-clés, historique localStorage | ✅ |
 | Upload Multimédia | Images, audio, documents, YouTube | ✅ |
+
+
+---
+
+## 🏆 Innovation — Fonctionnalités Originales à Haute Complexité
+
+### 1. Scoring Automatique des Candidatures (0-100)
+
+**Fichier** : `recrutement-service/.../service/ScoringService.java`
+
+Algorithme multi-critères qui calcule un score pour chaque candidature :
+
+| Critère | Points | Logique |
+|---------|--------|---------|
+| Expérience | 40 pts | Proportionnel à l'expérience requise |
+| Qualité lettre | 35 pts | NLP : longueur, vocabulaire, mots-clés |
+| Rapidité | 15 pts | Candidature dans les 2 premiers jours = 15 pts |
+| Complétude | 10 pts | CV présent, email, nom, prénom |
+
+**Endpoint** :
+```
+GET http://localhost:8083/api/recrutement/offres/{id}/classement
+```
+
+**Réponse** :
+```json
+[
+  { "rang": 1, "nom": "Dupont", "prenom": "Jean", "score": 87, "niveauScore": "EXCELLENT", "qualiteLettre": "EXCELLENTE" },
+  { "rang": 2, "nom": "Azouzi", "prenom": "Marwen", "score": 62, "niveauScore": "BON", "qualiteLettre": "BONNE" }
+]
+```
+
+### 2. Analyse NLP de la Lettre de Motivation
+
+**Analyse automatique** de la qualité d'une lettre selon :
+- Richesse du vocabulaire (ratio mots uniques)
+- Présence de 25 mots-clés pédagogiques (pédagogie, enseignement, encadrement...)
+- Structure (introduction + conclusion)
+- Longueur et densité
+
+**Endpoint** :
+```
+POST http://localhost:8083/api/recrutement/analyse-lettre
+Body: { "lettre": "Madame, Monsieur, je suis très motivé..." }
+```
+
+**Réponse** :
+```json
+{
+  "qualite": "BONNE",
+  "score": 22,
+  "scoreMax": 35,
+  "nbMots": 187,
+  "ratioUnicite": 0.68,
+  "motsClesPedagogiques": ["pédagogie", "enseignement", "formation"],
+  "aIntroduction": true,
+  "aConclusion": true,
+  "conseil": "Enrichissez votre vocabulaire avec des termes pédagogiques."
+}
+```
+
+### 3. Classement Visuel dans le Back-Office
+
+Bouton **"🏆 Classement"** dans la section candidatures :
+- Barre de progression colorée (vert ≥75, bleu ≥50, jaune ≥25, rouge <25)
+- Médailles 🥇🥈🥉 pour les 3 premiers
+- Badge qualité lettre (EXCELLENTE / BONNE / CORRECTE / INSUFFISANTE)
+- Score individuel `/100` affiché
+
+### 4. Score Détaillé d'une Candidature
+
+```
+GET http://localhost:8083/api/recrutement/candidatures/{id}/scoring
+```
+
+Retourne le détail complet : score total, niveau, analyse complète de la lettre.
+
+
+---
+
+## 🔧 Correction CORS — Spring Security
+
+### Problème
+Après l'ajout de Spring Security + JWT, les requêtes `POST` depuis Angular (port 4300) vers le recrutement-service (port 8083) étaient bloquées :
+```
+Access to XMLHttpRequest blocked by CORS policy:
+No 'Access-Control-Allow-Origin' header is present
+```
+
+### Cause
+Spring Security interceptait les requêtes `OPTIONS` (preflight CORS) **avant** que la configuration CORS ne puisse répondre avec les headers appropriés.
+
+### Solution appliquée dans `SecurityConfig.java`
+
+```java
+@Bean
+public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration config = new CorsConfiguration();
+    config.setAllowedOriginPatterns(List.of("*"));
+    config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
+    config.setAllowedHeaders(List.of("*"));
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", config);
+    return source;
+}
+
+// Dans filterChain :
+http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+    .authorizeHttpRequests(auth -> auth
+        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // ← clé du fix
+        ...
+    )
+```
+
+**3 fixes combinés :**
+1. `CorsConfigurationSource` bean dédié avec `setAllowedOriginPatterns("*")`
+2. `.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()` — preflight toujours autorisé
+3. `.cors(cors -> cors.configurationSource(...))` — CORS appliqué avant le filtre JWT

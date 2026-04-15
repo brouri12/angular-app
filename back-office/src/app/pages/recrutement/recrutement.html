@@ -258,16 +258,79 @@
             Expérience: {{ selectedOffre.experience_min }} an(s) minimum
           </p>
         </div>
-        <button
-          (click)="showCandidatureForm = true"
-          class="bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white px-4 py-2 rounded-lg hover:opacity-90 transition flex items-center gap-2 font-medium"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-          </svg>
-          Nouvelle Candidature
-        </button>
+        <div class="flex gap-2">
+          <button
+            (click)="toggleClassement()"
+            class="px-4 py-2 rounded-lg text-sm font-medium transition-all border"
+            [class.bg-gradient-to-r]="showClassement"
+            [class.from-\[rgb\(0\,200\,151\)\]]="showClassement"
+            [class.to-\[rgb\(255\,127\,80\)\]]="showClassement"
+            [class.text-white]="showClassement"
+            [class.border-transparent]="showClassement"
+            [class.bg-white]="!showClassement"
+            [class.text-gray-700]="!showClassement"
+            [class.border-gray-300]="!showClassement">
+            🏆 {{ showClassement ? 'Masquer' : 'Classement' }}
+          </button>
+          <button
+            (click)="showCandidatureForm = true"
+            class="bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white px-4 py-2 rounded-lg hover:opacity-90 transition flex items-center gap-2 font-medium"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Nouvelle Candidature
+          </button>
+        </div>
       </div>
+
+      <!-- 🏆 Classement automatique par score -->
+      @if (showClassement && classement.length > 0) {
+        <div class="px-6 py-4 bg-gradient-to-r from-green-50 to-orange-50 dark:from-gray-700 dark:to-gray-700 border-b border-gray-200">
+          <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">🏆 Classement automatique par score</h3>
+          <div class="space-y-2">
+            @for (item of classement; track item.id) {
+              <div class="flex items-center gap-3 bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow-sm">
+                <span class="text-lg font-bold w-8 text-center">
+                  {{ item.rang === 1 ? '🥇' : item.rang === 2 ? '🥈' : item.rang === 3 ? '🥉' : '#' + item.rang }}
+                </span>
+                <span class="flex-1 text-sm font-medium text-gray-800 dark:text-gray-200">
+                  {{ item.prenom }} {{ item.nom }}
+                </span>
+                <span class="text-xs px-2 py-0.5 rounded-full"
+                  [class.bg-green-100]="item.qualiteLettre === 'EXCELLENTE'"
+                  [class.text-green-700]="item.qualiteLettre === 'EXCELLENTE'"
+                  [class.bg-blue-100]="item.qualiteLettre === 'BONNE'"
+                  [class.text-blue-700]="item.qualiteLettre === 'BONNE'"
+                  [class.bg-yellow-100]="item.qualiteLettre === 'CORRECTE'"
+                  [class.text-yellow-700]="item.qualiteLettre === 'CORRECTE'"
+                  [class.bg-red-100]="item.qualiteLettre === 'INSUFFISANTE'"
+                  [class.text-red-700]="item.qualiteLettre === 'INSUFFISANTE'">
+                  {{ item.qualiteLettre }}
+                </span>
+                <div class="flex items-center gap-2">
+                  <div class="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div class="h-full rounded-full"
+                      [style.width.%]="item.score"
+                      [class.bg-green-500]="item.score >= 75"
+                      [class.bg-blue-500]="item.score >= 50 && item.score < 75"
+                      [class.bg-yellow-500]="item.score >= 25 && item.score < 50"
+                      [class.bg-red-400]="item.score < 25">
+                    </div>
+                  </div>
+                  <span class="text-sm font-bold w-12 text-right"
+                    [class.text-green-600]="item.score >= 75"
+                    [class.text-blue-600]="item.score >= 50 && item.score < 75"
+                    [class.text-yellow-600]="item.score >= 25 && item.score < 50"
+                    [class.text-red-500]="item.score < 25">
+                    {{ item.score }}/100
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
       
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">

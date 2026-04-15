@@ -39,6 +39,8 @@ export class RecrutementComponent implements OnInit {
   offresDisponibles: OffreRecrutement[] = [];
   offreSelectionnee: OffreRecrutement | null = null;
   reaffectationCandidature: CandidatureEnseignant | null = null;
+  showClassement = false;
+  classement: any[] = [];
 
   ngOnInit() {
     this.loadOffres();
@@ -100,6 +102,8 @@ export class RecrutementComponent implements OnInit {
   selectOffre(offre: OffreRecrutement) {
     this.selectedOffre = offre;
     this.loadCandidatures(offre.id!);
+    this.showClassement = false;
+    this.classement = [];
     this.cdr.detectChanges();
   }
 
@@ -384,6 +388,16 @@ export class RecrutementComponent implements OnInit {
       lettre_motivation: '',
       statut: 'EN_ATTENTE'
     };
+  }
+
+  toggleClassement() {
+    this.showClassement = !this.showClassement;
+    if (this.showClassement && this.selectedOffre?.id && this.classement.length === 0) {
+      this.recrutementService.getClassement(this.selectedOffre.id).subscribe({
+        next: (data) => { this.classement = data; this.cdr.detectChanges(); },
+        error: () => { this.showClassement = false; }
+      });
+    }
   }
 
   rechercherOffreCompatible(candidature: CandidatureEnseignant) {

@@ -94,4 +94,16 @@ export class RecrutementService {
       `${this.apiUrl}/candidatures/${candidatureId}/offre-compatible`
     );
   }
+
+  getClassement(offreId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/offres/${offreId}/classement`);
+  }
+
+  getScoringDetail(candidatureId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/candidatures/${candidatureId}/scoring`);
+  }
+
+  analyserLettre(lettre: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/analyse-lettre`, { lettre });
+  }
 }
