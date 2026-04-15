@@ -46,6 +46,7 @@
     radial-gradient(520px circle at 92% 28%, rgba(255,127,80,.12), transparent 55%);
   opacity: 0.9;
   pointer-events: none;
+  display: none;
 }
 
 :host-context(.dark) .clubs-page .card{
@@ -75,10 +76,7 @@
   padding: 18px;
   border-radius: 18px;
   border: 1px solid rgba(226,232,240,.9);
-  background:
-    radial-gradient(900px 260px at 10% 10%, rgba(0,200,151,.12), transparent 60%),
-    radial-gradient(900px 260px at 90% 20%, rgba(255,127,80,.10), transparent 60%),
-    rgba(255,255,255,.85);
+  background: #ffffff;
   box-shadow: 0 14px 44px rgba(15,23,42,.08);
 }
 
@@ -539,10 +537,7 @@
 }
 
 :host-context(.dark) .event-card{
-  background:
-    radial-gradient(500px circle at 12% 10%, rgba(0,200,151,.12), transparent 55%),
-    radial-gradient(500px circle at 90% 30%, rgba(255,127,80,.08), transparent 55%),
-    rgba(2,6,23,.55);
+  background: rgb(15,23,42);
   border-color: rgba(30,41,59,.85);
   box-shadow: 0 25px 70px rgba(0,0,0,.5);
 }

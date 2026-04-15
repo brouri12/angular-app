@@ -15,10 +15,7 @@
   padding: 24px 28px;
   border-radius: 22px;
   border: 1px solid rgba(226,232,240,.9);
-  background:
-    radial-gradient(900px 260px at 10% 10%, rgba(0,200,151,.14), transparent 60%),
-    radial-gradient(900px 260px at 90% 20%, rgba(99,102,241,.10), transparent 60%),
-    rgba(255,255,255,.92);
+  background: #ffffff;
   box-shadow: 0 20px 60px rgba(15,23,42,.08);
 }
 
@@ -179,6 +176,7 @@
     radial-gradient(500px circle at 90% 30%, rgba(99,102,241,.10), transparent 55%);
   opacity: .8;
   pointer-events: none;
+  display: none;
 }
 .card:hover {
   transform: translateY(-5px);

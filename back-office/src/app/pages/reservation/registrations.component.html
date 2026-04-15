@@ -4,7 +4,7 @@
   <div class="hero">
     <div class="hero-left">
       <h1>Registrations Back Office</h1>
-      <p>Gérez, filtrez et supprimez les inscriptions facilement.</p>
+      <p>Manage, filter and delete registrations easily.</p>
     </div>
 
     
@@ -13,7 +13,7 @@
   <!-- ERROR -->
   @if (errorMsg) {
     <div class="state error">
-      <div class="font-bold">Erreur</div>
+      <div class="font-bold">Error</div>
       <div class="text-sm opacity-90">{{ errorMsg }}</div>
     </div>
   }
@@ -31,7 +31,7 @@
     </div>
 
     <div class="field">
-      <label>Event Name (optionnel)</label>
+      <label>Event Name (optional)</label>
       <input
         class="select"
         type="text"
@@ -44,17 +44,17 @@
 
   <!-- LIST WRAP -->
   <div class="list-head">
-    <div class="list-title">📌 Inscriptions</div>
-    <div class="list-count">{{ filtered.length }} résultat(s)</div>
+    <div class="list-title">📌 Registrations</div>
+    <div class="list-count">{{ filtered.length }} result(s)</div>
   </div>
 
   @if (loadingList) {
-    <div class="state loading">⏳ Chargement des registrations…</div>
+    <div class="state loading">⏳ Loading registrations…</div>
   } @else if (filtered.length === 0) {
     <div class="empty">
       <div class="text-3xl">🗂️</div>
-      <div class="font-bold mt-2">Aucune registration</div>
-      <div class="text-sm text-gray-500">Essayez d'ajuster vos filtres.</div>
+      <div class="font-bold mt-2">No registrations</div>
+      <div class="text-sm text-gray-500">Try adjusting your filters.</div>
     </div>
   } @else {
 
@@ -104,7 +104,7 @@
             type="button"
             (click)="openEdit(r)"
           >
-            ✏️ Modifier
+            ✏️ Edit
           </button>
           <button
             class="btn-danger"
@@ -112,7 +112,7 @@
             (click)="openDeleteModal(r)"
             [disabled]="loadingAction"
           >
-            🗑 Supprimer
+            🗑 Delete
           </button>
         </div>
 
@@ -125,8 +125,8 @@
 <!-- ✅ MODAL CONFIRM DELETE -->
 <app-join-confirm-modal
   [open]="confirmOpen"
-  title="Supprimer la registration"
-  [message]="'Voulez-vous vraiment supprimer Registration #' + (selectedRegistration?.idRegistration || '') + ' ?'"
+  title="Delete registration"
+  [message]="'Are you sure you want to delete Registration #' + (selectedRegistration?.idRegistration || '') + '?'"
   (cancel)="cancelDelete()"
   (confirm)="confirmDelete()">
 </app-join-confirm-modal>

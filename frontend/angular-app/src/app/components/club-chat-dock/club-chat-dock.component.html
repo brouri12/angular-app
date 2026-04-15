@@ -54,8 +54,8 @@
         placeholder="Écrire un message…"
         autocomplete="off"
       />
-      <button type="submit" class="chat-send" [disabled]="!draft.trim()">
-        ➤ Envoyer
+      <button type="submit" class="chat-send" [disabled]="!draft.trim() || sending">
+        {{ sending ? '...' : '➤ Envoyer' }}
       </button>
     </form>
 

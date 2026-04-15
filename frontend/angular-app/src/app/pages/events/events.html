@@ -137,7 +137,7 @@
     <app-join-confirm-modal
       [open]="isConfirmOpen"
       [title]="'Register to Event'"
-      [message]="'Voulez-vous vous inscrire à : ' + (selectedEvent?.title || '') + ' ?'"
+      [message]="'Would you like to register for: ' + (selectedEvent?.title || '') + '?'"
       (cancel)="cancelRegisterConfirm()"
       (confirm)="confirmRegister()"
     ></app-join-confirm-modal>

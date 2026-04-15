@@ -35,3 +35,55 @@
     scrollbar-width: none;
   }
 }
+
+/* ── Events page dark mode fix ── */
+.dark app-events .card,
+.dark app-events .hero,
+.dark app-events .empty {
+  background: rgb(30,41,59) !important;
+  border-color: rgba(51,65,85,.8) !important;
+}
+.dark app-events .stat-row,
+.dark app-events .search-pill,
+.dark app-events .select {
+  background: rgb(15,23,42) !important;
+  border-color: rgba(51,65,85,.8) !important;
+  color: rgb(226,232,240) !important;
+}
+.dark app-events .event-card-title,
+.dark app-events .v,
+.dark app-events .num,
+.dark app-events .chip,
+.dark app-events .hero h1,
+.dark app-events .list-title,
+.dark app-events .filter-title { color: rgb(226,232,240) !important; }
+.dark app-events .k,
+.dark app-events .subline,
+.dark app-events .desc,
+.dark app-events .hero p,
+.dark app-events .list-count,
+.dark app-events .stat-sub { color: rgb(148,163,184) !important; }
+.dark app-events .pill {
+  background: rgb(15,23,42) !important;
+  border-color: rgba(51,65,85,.8) !important;
+  color: rgb(203,213,225) !important;
+}
+.dark app-events .search-input { color: rgb(226,232,240) !important; }
+.dark app-events .btn-secondary {
+  background: rgb(15,23,42) !important;
+  border-color: rgba(51,65,85,.8) !important;
+  color: rgb(203,213,225) !important;
+}
+
+/* ── Event form Cancel button fix ── */
+app-event-form-page .btn-secondary,
+app-event-form-page .footer .btn-secondary {
+  background: #f8fafc !important;
+  border: 1.5px solid rgba(226,232,240,.95) !important;
+  color: rgb(51,65,85) !important;
+}
+.dark app-event-form-page .btn-secondary {
+  background: rgb(30,41,59) !important;
+  border-color: rgba(51,65,85,.8) !important;
+  color: rgb(203,213,225) !important;
+}

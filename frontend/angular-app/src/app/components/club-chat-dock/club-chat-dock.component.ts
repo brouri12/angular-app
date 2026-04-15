@@ -32,6 +32,7 @@ export class ClubChatDockComponent implements OnInit, OnChanges, OnDestroy, Afte
   messages: ClubChatMessage[] = [];
   draft = '';
   loading = false;
+  sending = false;
   sendError = '';
   pollId: ReturnType<typeof setInterval> | null = null;
   private scrollPending = false;
@@ -107,20 +108,38 @@ export class ClubChatDockComponent implements OnInit, OnChanges, OnDestroy, Afte
   send(): void {
     this.sendError = '';
     const text = (this.draft || '').trim();
-    if (!text || !this.idUser || !this.selectedClubId) return;
+    if (!text || !this.idUser || !this.selectedClubId || this.sending) return;
+
+    // Optimistic update : afficher immédiatement sans attendre le backend
+    const tempId = -Date.now();
+    const tempMsg: ClubChatMessage = {
+      id: tempId,
+      idClub: this.selectedClubId,
+      idUser: this.idUser,
+      senderName: 'Vous',
+      content: text,
+      createdAt: new Date().toISOString()
+    };
+    this.messages = [...this.messages, tempMsg];
+    this.draft = '';
+    this.sending = true;
+    this.scrollPending = true;
 
     this.clubChat.postMessage(this.selectedClubId, this.idUser, text).subscribe({
       next: msg => {
-        this.draft = '';
-        this.messages = [...this.messages, msg];
-        this.scrollPending = true;
+        // Remplacer le message temporaire par le vrai
+        this.messages = this.messages.map(m => m.id === tempId ? msg : m);
+        this.sending = false;
       },
       error: err => {
+        // Supprimer le message temporaire si refusé (bad word, spam...)
+        this.messages = this.messages.filter(m => m.id !== tempId);
         const body = err?.error;
         this.sendError =
           typeof body === 'string' && body.length
             ? body
-            : err?.message || 'Impossible d’envoyer le message.';
+            : err?.message || 'Impossible d\'envoyer le message.';
+        this.sending = false;
       }
     });
   }

@@ -4,7 +4,7 @@
   <div class="hero">
     <div class="hero-left">
       <h1>Members Back Office</h1>
-      <p>Gérez et supprimez les membres facilement.</p>
+      <p>Manage and delete members easily.</p>
     </div>
   </div>
 
@@ -15,7 +15,7 @@
 
   <!-- EMPTY -->
   <div *ngIf="!loading && !errorMsg && members.length === 0" class="empty">
-    Aucun membre pour le moment.
+    No members yet.
   </div>
 
   <!-- GRID -->
@@ -39,8 +39,8 @@
             type="button"
             class="btn-edit"
             (click)="openEdit(m)"
-            title="Modifier le statut et le rôle">
-            Modifier
+            title="Edit status and role">
+            Edit
           </button>
           <button class="btn-danger" type="button" (click)="deleteMember(m)">
             🗑
@@ -55,7 +55,7 @@
         </div>
 
         <div class="row">
-          <span class="k">Téléphone</span>
+          <span class="k">Phone</span>
           <span class="v">{{ m.telephone || '—' }}</span>
         </div>
 
@@ -74,7 +74,7 @@
         </div>
 
         <div class="row">
-          <span class="k">Rôle</span>
+          <span class="k">Role</span>
           <span class="v">{{ roleLabel(m.role) }}</span>
         </div>
       </div>
@@ -89,7 +89,7 @@
     (click)="onEditBackdrop($event)">
     <div class="member-edit-modal" (click)="$event.stopPropagation()">
       <div class="member-edit-header">
-        <h3 class="member-edit-title">Modifier le membre</h3>
+        <h3 class="member-edit-title">Edit member</h3>
         <button type="button" class="member-edit-x" (click)="closeEdit()" [disabled]="editSaving">✕</button>
       </div>
 
@@ -101,35 +101,35 @@
 
       <div class="member-edit-fields">
         <label class="member-edit-label">
-          Statut
+          Status
           <select
             class="member-edit-select"
             [(ngModel)]="draftStatus"
             [disabled]="editSaving">
-            <option [ngValue]="'PENDING'">En attente</option>
-            <option [ngValue]="'ACCEPTED'">Accepté</option>
-            <option [ngValue]="'DENIED'">Refusé</option>
+            <option [ngValue]="'PENDING'">Pending</option>
+            <option [ngValue]="'ACCEPTED'">Accepted</option>
+            <option [ngValue]="'DENIED'">Denied</option>
           </select>
         </label>
 
         <label class="member-edit-label">
-          Rôle
+          Role
           <select
             class="member-edit-select"
             [(ngModel)]="draftRole"
             [disabled]="editSaving">
-            <option [ngValue]="'RECRUE'">Recrue (accès limité)</option>
-            <option [ngValue]="'PRESIDENT'">Président (gestion club)</option>
+            <option [ngValue]="'RECRUE'">Recruit (limited access)</option>
+            <option [ngValue]="'PRESIDENT'">President (club management)</option>
           </select>
         </label>
       </div>
 
       <div class="member-edit-actions">
         <button type="button" class="member-edit-btn cancel" (click)="closeEdit()" [disabled]="editSaving">
-          Annuler
+          Cancel
         </button>
         <button type="button" class="member-edit-btn primary" (click)="saveEdit()" [disabled]="editSaving">
-          {{ editSaving ? 'Enregistrement…' : 'Enregistrer' }}
+          {{ editSaving ? 'Saving…' : 'Save' }}
         </button>
       </div>
     </div>

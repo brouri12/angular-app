@@ -26,44 +26,40 @@
     <div class="res-grid-wrap" *ngIf="myRegs.length > 0">
       <div class="res-grid">
         <div *ngFor="let r of myRegs" class="res-card">
-          <div class="res-top">
 
-            <div class="res-info">
-              <h3 class="res-title">
-                {{ r.eventTitle || ('Event #' + r.eventId) }}
-              </h3>
+          <div class="res-card-side"
+            [ngClass]="{
+              'side-confirmed': r.status==='CONFIRMED',
+              'side-pending':   r.status==='PENDING',
+              'side-canceled':  r.status==='CANCELED'
+            }">
+          </div>
 
-              <p class="res-date">
-                📅 {{ r.registrationDate | date:'mediumDate' }}
-              </p>
-            </div>
+          <div class="res-card-inner">
 
-            <div class="res-right">
+            <!-- TOP : titre + date + statut en haut à droite -->
+            <div class="res-top-row">
+              <div class="res-info">
+                <h3 class="res-title">{{ r.eventTitle || ('Event #' + r.eventId) }}</h3>
+                <p class="res-date">📅 {{ r.registrationDate | date:'mediumDate' }}</p>
+              </div>
               <span class="res-status"
                 [ngClass]="{
-                  'pending': r.status==='PENDING',
+                  'pending':   r.status==='PENDING',
                   'confirmed': r.status==='CONFIRMED',
-                  'canceled': r.status==='CANCELED'
+                  'canceled':  r.status==='CANCELED'
                 }">
-                {{ r.status }}
+                {{ r.status === 'CONFIRMED' ? '✓ Confirmed' : r.status === 'PENDING' ? '⏳ Pending' : '✕ Canceled' }}
               </span>
+            </div>
 
-              <button class="btn-delete" (click)="openDeleteModal(r.idRegistration)">
-                Leave
-              </button>
-
-              <!-- Sponsor button: visible only if CONFIRMED + user is PRESIDENT + not yet sponsored -->
-              <button
-                *ngIf="canSponsor(r)"
-                class="btn-sponsor"
-                (click)="openSponsorModal(r)">
-                🏆 Sponsor
-              </button>
-
-              <!-- Already sponsored badge -->
-              <span *ngIf="isAlreadySponsored(r)" class="sponsored-badge">
-                🏆 Sponsored
-              </span>
+            <!-- BOTTOM : sponsor bas gauche, leave bas droite -->
+            <div class="res-footer">
+              <div class="res-footer-left">
+                <button *ngIf="canSponsor(r)" class="btn-sponsor" (click)="openSponsorModal(r)">🏆 Sponsor</button>
+                <span *ngIf="isAlreadySponsored(r)" class="sponsored-badge">🏆 Sponsored</span>
+              </div>
+              <button class="btn-delete" (click)="openDeleteModal(r.idRegistration)">Leave</button>
             </div>
 
           </div>
@@ -89,62 +85,61 @@
 
         <div *ngFor="let c of myClubs" class="club-card">
 
-          <!-- TOP : image + status + leave -->
+          <!-- IMAGE -->
           <div class="club-card-top">
             <img
               [src]="clubService.logoUrl(c.idClub!)"
               (error)="onImgError($event)"
               class="club-img"
             />
-            <div class="club-top-actions">
+          </div>
+
+          <!-- BODY -->
+          <div class="club-card-body">
+
+            <!-- Type + Statut sur la même ligne -->
+            <div class="club-meta-row">
+              <span class="badge border club-type-badge">{{ c.type === 'ONLINE' ? 'Online' : 'In-Person' }}</span>
               <span class="res-status"
                 [ngClass]="{
                   'confirmed': memberStatusByClubId.get(c.idClub!) === 'ACCEPTED',
                   'pending':   memberStatusByClubId.get(c.idClub!) === 'PENDING' || !memberStatusByClubId.get(c.idClub!),
                   'canceled':  memberStatusByClubId.get(c.idClub!) === 'DENIED'
                 }">
-                {{ memberStatusByClubId.get(c.idClub!) === 'ACCEPTED' ? '✅ ACCEPTED'
-                 : memberStatusByClubId.get(c.idClub!) === 'DENIED'   ? '❌ DENIED'
-                 : '⏳ PENDING' }}
+                {{ memberStatusByClubId.get(c.idClub!) === 'ACCEPTED' ? '✅ Accepted'
+                 : memberStatusByClubId.get(c.idClub!) === 'DENIED'   ? '❌ Denied'
+                 : '⏳ Pending' }}
               </span>
-              <button class="btn-delete" (click)="openLeaveClubModal(c.idClub!)">Leave</button>
-            </div>
-          </div>
-
-          <!-- BODY : type + localisation + title + description + date -->
-          <div class="club-card-body">
-            <div class="club-meta-row">
-              <span class="badge border club-type-badge">{{ c.type === 'ONLINE' ? 'En ligne' : 'Présentiel' }}</span>
             </div>
 
+            <!-- Location -->
             <p class="club-location-line">
-              <span class="club-loc-icon" aria-hidden="true">📍</span>
+              <span class="club-loc-icon">📍</span>
               <span class="club-loc-text">
-                <span class="club-loc-heading">Localisation</span>
+                <span class="club-loc-heading">Location</span>
                 <span class="club-loc-value">{{
                   (c.ville && c.ville.trim())
                     ? c.ville
-                    : (c.type === 'ONLINE' ? 'En ligne' : 'Non renseignée')
+                    : (c.type === 'ONLINE' ? 'Online' : 'Not specified')
                 }}</span>
               </span>
             </p>
 
+            <!-- Name + Role -->
             <h3 class="res-title">{{ c.nomClub || 'Club' }}</h3>
-
             <p class="club-role-hint" *ngIf="memberStatusByClubId.get(c.idClub!) === 'ACCEPTED'">
-              <span *ngIf="memberRoleByClubId.get(c.idClub!) === 'PRESIDENT'" class="role-tag role-president">Président</span>
-              <span *ngIf="memberRoleByClubId.get(c.idClub!) !== 'PRESIDENT'" class="role-tag role-recrue">Recrue</span>
+              <span *ngIf="memberRoleByClubId.get(c.idClub!) === 'PRESIDENT'" class="role-tag role-president">👑 President</span>
+              <span *ngIf="memberRoleByClubId.get(c.idClub!) !== 'PRESIDENT'" class="role-tag role-recrue">Member</span>
             </p>
 
+            <!-- Description -->
             <p class="club-desc-label">Description</p>
-            <p class="club-desc">{{ c.description || 'Aucune description.' }}</p>
+            <p class="club-desc">{{ c.description || 'No description available.' }}</p>
 
-            <p class="club-date" *ngIf="c.dateCreation">
-              📅 {{ c.dateCreation | date:'mediumDate' }}
-            </p>
+            <p class="club-date" *ngIf="c.dateCreation">📅 {{ c.dateCreation | date:'mediumDate' }}</p>
           </div>
 
-          <!-- FOOTER : bouton badge OU waiting -->
+          <!-- FOOTER : badge + leave côte à côte -->
           <div class="club-card-footer">
             <button
               *ngIf="memberStatusByClubId.get(c.idClub!) === 'ACCEPTED'"
@@ -152,12 +147,16 @@
               (click)="getBadgeForClub(c)"
               [disabled]="isBadgeLoading(c.idClub)">
               <span class="btn-badge-icon">🎖️</span>
-              <span>{{ isBadgeLoading(c.idClub) ? 'Envoi en cours...' : 'Obtenir mon badge' }}</span>
+              <span>{{ isBadgeLoading(c.idClub) ? 'Sending...' : 'Get my badge' }}</span>
             </button>
 
             <div *ngIf="memberStatusByClubId.get(c.idClub!) !== 'ACCEPTED'" class="waiting-msg">
-              ⏳ Waiting to be accepted
+              ⏳ Waiting for approval
             </div>
+
+            <button class="btn-leave-footer" (click)="openLeaveClubModal(c.idClub!)">
+              Leave
+            </button>
           </div>
 
         </div>
