@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { Theme } from '../../services/theme';
@@ -7,7 +7,7 @@ import { LanguageSwitcherComponent } from '../language-switcher/language-switche
 
 @Component({
   selector: 'app-header',
-  imports: [CommonModule, RouterLink, RouterLinkActive, TranslateModule, LanguageSwitcherComponent],
+  imports: [CommonModule, RouterLink, TranslateModule, LanguageSwitcherComponent],
   templateUrl: './header.html',
   styleUrl: './header.css'
 })

@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { RecrutementService } from '../../services/recrutement.service';
 import { OffreRecrutement, CandidatureEnseignant } from '../../models/recrutement.model';
 import { ModalComponent } from '../../components/modal/modal.component';
@@ -15,6 +16,7 @@ import { ModalComponent } from '../../components/modal/modal.component';
 export class RecrutementComponent implements OnInit {
   private recrutementService = inject(RecrutementService);
   private cdr = inject(ChangeDetectorRef);
+  private route = inject(ActivatedRoute);
 
   offres: OffreRecrutement[] = [];
   selectedOffre: OffreRecrutement | null = null;
@@ -30,9 +32,37 @@ export class RecrutementComponent implements OnInit {
   newCandidature: CandidatureEnseignant = this.initNewCandidature();
   showOffreForm = false;
   showCandidatureForm = false;
+  showDuplicateModal = false;
+  duplicateMessage = '';
+  showReaffectationModal = false;
+  offreCompatible: OffreRecrutement | null = null;
+  offresDisponibles: OffreRecrutement[] = [];
+  offreSelectionnee: OffreRecrutement | null = null;
+  reaffectationCandidature: CandidatureEnseignant | null = null;
 
   ngOnInit() {
     this.loadOffres();
+    // Subscribe to queryParams so it works even when already on this page
+    this.route.queryParamMap.subscribe(params => {
+      const offreId = params.get('offreId');
+      if (offreId && this.offres.length > 0) {
+        this.autoSelectOffre(+offreId);
+      } else if (offreId) {
+        // Store for after offres load
+        (this as any)._pendingOffreId = +offreId;
+      }
+    });
+  }
+
+  private autoSelectOffre(offreId: number) {
+    const offre = this.offres.find(o => o.id === offreId);
+    if (offre) {
+      this.selectOffre(offre);
+      setTimeout(() => {
+        const el = document.getElementById('candidatures-section');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+    }
   }
 
   loadOffres() {
@@ -43,6 +73,20 @@ export class RecrutementComponent implements OnInit {
         this.offres = data;
         this.loading = false;
         this.cdr.detectChanges();
+
+        // Auto-select offer from notification query param
+        const offreId = this.route.snapshot.queryParamMap.get('offreId');
+        if (offreId) {
+          const offre = this.offres.find(o => o.id === +offreId);
+          if (offre) {
+            this.selectOffre(offre);
+            // Scroll to candidatures section after a short delay
+            setTimeout(() => {
+              const el = document.getElementById('candidatures-section');
+              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
+          }
+        }
       },
       error: (err) => {
         this.error = 'Erreur lors du chargement des offres';
@@ -155,24 +199,11 @@ export class RecrutementComponent implements OnInit {
   postuler() {
     if (!this.selectedOffre?.id) return;
 
-    // Check if file is selected
-    if (!this.selectedFile) {
-      this.error = 'Veuillez sélectionner un fichier CV';
-      this.cdr.detectChanges();
-      return;
-    }
-
-    // Convert file to Base64
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64String = (reader.result as string).split(',')[1]; // Remove data:application/pdf;base64, prefix
-      
+    const envoyer = (cvBase64?: string, cvFilename?: string, cvContentType?: string) => {
       const candidatureToCreate = {
         ...this.newCandidature,
         date_candidature: new Date().toISOString().split('T')[0],
-        cv_pdf: base64String,
-        cv_filename: this.selectedFile!.name,
-        cv_content_type: this.selectedFile!.type
+        ...(cvBase64 && { cv_pdf: cvBase64, cv_filename: cvFilename, cv_content_type: cvContentType })
       };
 
       this.recrutementService.postuler(this.selectedOffre!.id!, candidatureToCreate).subscribe({
@@ -188,110 +219,76 @@ export class RecrutementComponent implements OnInit {
           this.cdr.detectChanges();
         },
         error: (err) => {
-          console.error('Erreur complète:', err);
-          console.error('Error status:', err.status);
-          console.error('Error error:', err.error);
-          console.error('Error type:', typeof err.error);
-          console.error('Error stringified:', JSON.stringify(err.error));
-          
-          // Display the actual error message from backend
-          if (err.error && err.error.errors && typeof err.error.errors === 'object') {
-            // Validation errors from backend
-            const errors = Object.entries(err.error.errors)
-              .map(([field, message]) => `• ${field}: ${message}`)
-              .join('\n');
-            this.error = `Erreur de validation:\n\n${errors}`;
-          } else if (err.error && typeof err.error === 'string') {
-            this.error = err.error;
-          } else if (err.error && err.error.message) {
-            this.error = err.error.message;
-          } else if (err.error && err.error.error) {
-            this.error = err.error.error;
-          } else if (err.status === 409) {
-            this.error = 'Erreur 409: Conflit - Vérifiez que l\'email est unique et que le fichier n\'est pas trop volumineux.';
-          } else if (err.status === 400) {
-            this.error = `Erreur 400: Requête invalide. Vérifiez les logs de la console (F12) pour plus de détails.`;
+          this.error = '';
+          if (err.status === 409) {
+            // Back-office has no interceptor — err.error is the raw backend string
+            const msg = typeof err.error === 'string'
+              ? err.error
+              : (err as any).customMessage
+              || 'Vous avez déjà postulé à cette offre.';
+            this.duplicateMessage = msg;
+            this.showDuplicateModal = true;
           } else {
-            this.error = `Erreur ${err.status}: ${err.statusText || 'Erreur lors de la candidature'}`;
+            this.error = typeof err.error === 'string'
+              ? err.error
+              : `Erreur ${err.status}: Erreur lors de la candidature`;
           }
           this.cdr.detectChanges();
         }
       });
     };
 
-    reader.onerror = () => {
-      this.error = 'Erreur lors de la lecture du fichier';
-      this.cdr.detectChanges();
-    };
-
-    reader.readAsDataURL(this.selectedFile);
+    if (this.selectedFile) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = (reader.result as string).split(',')[1];
+        envoyer(base64, this.selectedFile!.name, this.selectedFile!.type);
+      };
+      reader.onerror = () => {
+        this.error = 'Erreur lors de la lecture du fichier';
+        this.cdr.detectChanges();
+      };
+      reader.readAsDataURL(this.selectedFile);
+    } else {
+      envoyer();
+    }
   }
 
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      const file = input.files[0];
-      
-      // Validate file size (700KB max - will be ~950KB after Base64 encoding)
-      const maxSize = 700 * 1024; // 700KB in bytes
-      if (file.size > maxSize) {
-        this.error = 'Le fichier est trop volumineux. Taille maximale: 700KB (le fichier sera encodé et deviendra plus gros). Veuillez compresser votre PDF davantage.';
-        this.selectedFile = null;
-        this.selectedFileName = '';
-        input.value = '';
-        this.cdr.detectChanges();
-        return;
-      }
-
-      // Validate file type
-      const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-      if (!allowedTypes.includes(file.type)) {
-        this.error = 'Format de fichier non valide. Utilisez PDF, DOC ou DOCX';
-        this.selectedFile = null;
-        this.selectedFileName = '';
-        input.value = '';
-        this.cdr.detectChanges();
-        return;
-      }
-
-      this.selectedFile = file;
-      this.selectedFileName = file.name;
+      this.selectedFile = input.files[0];
+      this.selectedFileName = this.selectedFile.name;
       this.error = '';
       this.cdr.detectChanges();
     }
   }
 
   downloadCV(candidature: CandidatureEnseignant) {
-    if (!candidature.cv_pdf) {
-      this.error = 'Aucun CV disponible pour cette candidature';
+    if (!candidature.id_candidature) {
+      this.error = 'ID candidature introuvable';
       this.cdr.detectChanges();
       return;
     }
 
-    try {
-      // Convert Base64 to Blob
-      const byteCharacters = atob(candidature.cv_pdf);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
+    this.recrutementService.downloadCV(candidature.id_candidature).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = candidature.cv_filename || `CV_${candidature.nom_candidat}_${candidature.prenom_candidat}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        this.error = '';
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.error = err.status === 404 ? 'Aucun CV disponible pour cette candidature' : 'Erreur lors du téléchargement du CV';
+        this.cdr.detectChanges();
       }
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: candidature.cv_content_type || 'application/pdf' });
-
-      // Create download link
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = candidature.cv_filename || `CV_${candidature.nom_candidat}_${candidature.prenom_candidat}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Erreur lors du téléchargement du CV:', error);
-      this.error = 'Erreur lors du téléchargement du CV';
-      this.cdr.detectChanges();
-    }
+    });
   }
 
   changerStatut(candidatureId: number, statut: string) {
@@ -387,5 +384,54 @@ export class RecrutementComponent implements OnInit {
       lettre_motivation: '',
       statut: 'EN_ATTENTE'
     };
+  }
+
+  rechercherOffreCompatible(candidature: CandidatureEnseignant) {
+    if (!candidature.id_candidature) return;
+    this.reaffectationCandidature = candidature;
+    this.offreCompatible = null;
+    this.offresDisponibles = [];
+    this.offreSelectionnee = null;
+
+    // Load all open offers for manual selection
+    this.recrutementService.getOffresByStatut('OUVERTE').subscribe({
+      next: (offres) => {
+        // Exclude the current offer
+        this.offresDisponibles = offres.filter(o => o.id !== this.selectedOffre?.id);
+        this.showReaffectationModal = true;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.showReaffectationModal = true;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  confirmerReaffectation() {
+    if (!this.reaffectationCandidature || !this.offreSelectionnee) return;
+
+    const nouvelleCandidature: CandidatureEnseignant = {
+      nom_candidat: this.reaffectationCandidature.nom_candidat,
+      prenom_candidat: this.reaffectationCandidature.prenom_candidat,
+      email: this.reaffectationCandidature.email,
+      lettre_motivation: this.reaffectationCandidature.lettre_motivation,
+      statut: 'EN_ATTENTE'
+    };
+
+    this.recrutementService.postuler(this.offreSelectionnee.id!, nouvelleCandidature).subscribe({
+      next: () => {
+        this.showReaffectationModal = false;
+        this.successMessage = `✅ ${this.reaffectationCandidature?.nom_candidat} réaffecté(e) à "${this.offreSelectionnee?.titre}" avec succès !`;
+        setTimeout(() => this.successMessage = '', 5000);
+        this.loadOffres();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.showReaffectationModal = false;
+        this.error = typeof err.error === 'string' ? err.error : 'Erreur lors de la réaffectation';
+        this.cdr.detectChanges();
+      }
+    });
   }
 }

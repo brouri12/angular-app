@@ -127,82 +127,71 @@
     <form (ngSubmit)="postuler()" class="space-y-4">
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nom *</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nom</label>
           <input
             type="text"
             [(ngModel)]="newCandidature.nom_candidat"
             name="nom"
             placeholder="Dupont"
             class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent"
-            required
           />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Prénom *</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Prénom</label>
           <input
             type="text"
             [(ngModel)]="newCandidature.prenom_candidat"
             name="prenom"
             placeholder="Jean"
             class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent"
-            required
           />
         </div>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email *</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
         <input
           type="email"
           [(ngModel)]="newCandidature.email"
           name="email"
           placeholder="votre.email@example.com"
           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent"
-          required
         />
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">CV *</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">CV</label>
         <div class="relative">
           <input
             type="file"
             (change)="onFileSelected($event)"
             accept=".pdf,.doc,.docx"
             class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gradient-to-r file:from-[rgb(0,200,151)] file:to-[rgb(255,127,80)] file:text-white hover:file:opacity-90 file:cursor-pointer"
-            required
           />
           @if (selectedFileName) {
             <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
               Fichier sélectionné: {{ selectedFileName }}
             </p>
           }
-          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            Formats acceptés: PDF, DOC, DOCX (Max 700KB)
-          </p>
         </div>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Lettre de motivation *</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Lettre de motivation</label>
         <textarea
           [(ngModel)]="newCandidature.lettre_motivation"
           name="lettre"
-          placeholder="Je suis très intéressé par ce poste d'enseignant dans votre établissement. Mon parcours académique et professionnel m'a permis d'acquérir des compétences solides..."
+          placeholder="Je suis très intéressé par ce poste d'enseignant dans votre établissement..."
           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent"
           rows="6"
-          required
         ></textarea>
-        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-          Minimum 100 caractères, texte varié (pas répétitif)
-        </p>
       </div>
 
       <div class="flex gap-3 pt-4">
         <button
           type="submit"
           class="flex-1 px-6 py-3 bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white rounded-lg hover:opacity-90 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-          [disabled]="loading || !newCandidature.nom_candidat || !newCandidature.prenom_candidat || !newCandidature.email || !selectedFile || !newCandidature.lettre_motivation"
+          [disabled]="loading"
         >
           @if (loading) {
             <span class="flex items-center justify-center gap-2">
@@ -349,3 +338,33 @@
     </div>
   }
 </app-modal>
+
+<!-- 🚫 Popup Doublon de Candidature -->
+@if (showDuplicateModal) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden animate-bounce-in">
+      <!-- Header rouge -->
+      <div class="bg-gradient-to-r from-red-500 to-orange-500 px-6 py-5 text-center">
+        <div class="text-5xl mb-2">🚫</div>
+        <h2 class="text-white text-xl font-bold">Candidature refusée</h2>
+      </div>
+      <!-- Body -->
+      <div class="px-6 py-6 text-center">
+        <p class="text-gray-700 dark:text-gray-200 text-base leading-relaxed">
+          {{ duplicateMessage }}
+        </p>
+        <p class="text-gray-500 dark:text-gray-400 text-sm mt-3">
+          Vous ne pouvez postuler qu'une seule fois par offre.
+        </p>
+      </div>
+      <!-- Footer -->
+      <div class="px-6 pb-6 flex justify-center">
+        <button
+          (click)="showDuplicateModal = false; showCandidatureForm = false"
+          class="px-8 py-3 bg-gradient-to-r from-red-500 to-orange-500 text-white font-semibold rounded-xl hover:opacity-90 transition-all shadow-lg">
+          Compris
+        </button>
+      </div>
+    </div>
+  </div>
+}

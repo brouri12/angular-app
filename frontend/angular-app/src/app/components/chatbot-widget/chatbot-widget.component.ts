@@ -198,7 +198,7 @@ import { ChatbotImprovedService, ChatMessage } from '../../services/chatbot-impr
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: #9ca3af;
+      background: #374151;
       animation: typing 1.4s infinite;
     }
 
@@ -308,7 +308,7 @@ export class ChatbotWidgetComponent implements OnInit {
     this.isTyping = true;
 
     this.chatbotService.sendMessage(messageToSend).subscribe({
-      next: (response) => {
+      next: () => {
         this.isTyping = false;
         setTimeout(() => this.scrollToBottom(), 100);
       },

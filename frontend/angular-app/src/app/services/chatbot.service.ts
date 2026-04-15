@@ -23,14 +23,13 @@ export class ChatbotService {
 
   private knowledgeBase = {
     // Forums et Messages
-    'forum': 'Les formats d\'images supportés sont: JPEG, PNG, GIF et WebP. La taille maximale est de 10MB.',
+    'forum': 'Le forum vous permet de créer des discussions, répondre aux messages, liker, et partager des fichiers multimédias. Les formats d\'images supportés sont: JPEG, PNG, GIF et WebP.',
     'video': 'Vous pouvez intégrer des vidéos YouTube et Vimeo en collant simplement l\'URL dans votre message.',
     'audio': 'Pour enregistrer un audio, cliquez sur l\'icône microphone. Les formats supportés sont MP3, WAV et OGG (max 25MB).',
     'document': 'Les documents supportés incluent: PDF, ZIP, RAR, DOC, DOCX, XLS, XLSX. Taille max: 50MB.',
     'notification': 'Gérez vos préférences de notification email dans votre profil. Vous pouvez activer/désactiver les notifications pour les réponses, mentions, et résumés.',
     'email': 'Vous recevrez des emails pour: bienvenue, réponses à vos messages, mentions @username, digest hebdomadaire, et résumé quotidien.',
     'preference': 'Accédez à vos préférences email via votre profil pour personnaliser les notifications que vous souhaitez recevoir.',
-    'forum': 'Le forum vous permet de créer des discussions, répondre aux messages, liker, et partager des fichiers multimédias.',
     'aide': 'Je peux vous aider avec: upload de fichiers, notifications email, fonctionnalités du forum, et navigation.',
     'help': 'Je peux vous aider avec: upload de fichiers, notifications email, fonctionnalités du forum, et navigation.'
   };
@@ -67,7 +66,7 @@ export class ChatbotService {
     this.saveConversationHistory();
     this.conversationSubject.next([...this.conversationHistory]);
 
-    return of(response).pipe(delay(500)); // Simulate API delay
+    return of(response).pipe(delay(150)); // Simulate API delay - reduced for faster response
   }
 
   private generateResponse(message: string): ChatbotResponse {

@@ -111,7 +111,7 @@ export class ChatbotImprovedService {
 
     // Generate response after delay
     return of(null).pipe(
-      delay(500), // Simulate typing delay
+      delay(150), // Simulate typing delay - reduced for faster response
       map(() => {
         const response = this.generateResponse(message);
         

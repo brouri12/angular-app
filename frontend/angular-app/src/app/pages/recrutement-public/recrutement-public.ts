@@ -30,6 +30,8 @@ export class RecrutementPublicComponent implements OnInit {
   showSuccessModal = false;
   showProcessingModal = false;
   submittedCandidature: any = null;
+  showDuplicateModal = false;
+  duplicateMessage = '';
 
   newCandidature: CandidatureEnseignant = this.initNewCandidature();
   showCandidatureForm = false;
@@ -97,27 +99,6 @@ export class RecrutementPublicComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-      
-      // Validate file size (700KB max)
-      const maxSize = 700 * 1024;
-      if (file.size > maxSize) {
-        this.notificationService.error('Le fichier est trop volumineux. Taille maximale: 700KB');
-        this.selectedFile = null;
-        this.selectedFileName = '';
-        input.value = '';
-        return;
-      }
-
-      // Validate file type
-      const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-      if (!allowedTypes.includes(file.type)) {
-        this.notificationService.error('Format de fichier non valide. Utilisez PDF, DOC ou DOCX');
-        this.selectedFile = null;
-        this.selectedFileName = '';
-        input.value = '';
-        return;
-      }
-
       this.selectedFile = file;
       this.selectedFileName = file.name;
       this.cdr.detectChanges();
@@ -127,85 +108,74 @@ export class RecrutementPublicComponent implements OnInit {
   postuler() {
     if (!this.selectedOffre?.id) return;
 
-    if (!this.selectedFile) {
-      this.notificationService.error('Veuillez sélectionner un fichier CV');
-      return;
-    }
-
-    // Afficher le modal de traitement
     this.showProcessingModal = true;
     this.showCandidatureForm = false;
     this.loading = true;
 
-    // Convert file to Base64
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64String = (reader.result as string).split(',')[1];
-      
+    const envoyer = (cvBase64?: string, cvFilename?: string, cvContentType?: string) => {
       const candidatureToCreate = {
         ...this.newCandidature,
         date_candidature: new Date().toISOString().split('T')[0],
-        cv_pdf: base64String,
-        cv_filename: this.selectedFile!.name,
-        cv_content_type: this.selectedFile!.type
+        ...(cvBase64 && { cv_pdf: cvBase64, cv_filename: cvFilename, cv_content_type: cvContentType })
       };
 
-      console.log('📤 Envoi de la candidature:', {
-        nom: candidatureToCreate.nom_candidat,
-        prenom: candidatureToCreate.prenom_candidat,
-        email: candidatureToCreate.email,
-        cv_filename: candidatureToCreate.cv_filename,
-        cv_size: base64String.length,
-        lettre_motivation_length: candidatureToCreate.lettre_motivation?.length || 0,
-        date_candidature: candidatureToCreate.date_candidature,
-        statut: candidatureToCreate.statut
-      });
-      console.log('📦 Objet complet:', candidatureToCreate);
-
-      // Envoyer la candidature en arrière-plan
       this.recrutementService.postuler(this.selectedOffre!.id!, candidatureToCreate).subscribe({
         next: (response) => {
           console.log('✅ Candidature envoyée avec succès:', response);
+          this.showProcessingModal = false;
+          this.loading = false;
+          this.notificationService.success('✅ Candidature envoyée avec succès !', 5000);
+          this.newCandidature = this.initNewCandidature();
+          this.selectedFile = null;
+          this.selectedFileName = '';
+          this.cdr.detectChanges();
+          setTimeout(() => this.router.navigateByUrl('/'), 1000);
         },
         error: (err: any) => {
-          console.error('❌ Erreur lors de l\'envoi:', err);
+          this.showProcessingModal = false;
+          this.loading = false;
+
+          if (err.status === 409) {
+            // Use customMessage from interceptor or fallback
+            const message = err.customMessage
+              || (typeof err.error === 'string' ? err.error : null)
+              || 'Vous avez déjà postulé à cette offre.';
+            this.showDuplicatePopup(message);
+          } else {
+            this.notificationService.error(err.customMessage || 'Erreur lors de l\'envoi', 7000);
+            this.showCandidatureForm = true;
+          }
+          this.cdr.detectChanges();
         }
       });
+    };
 
-      // Afficher le modal de traitement pendant 2 secondes puis rediriger
-      setTimeout(() => {
-        console.log('🔄 Fermeture du modal et redirection vers la page d\'accueil...');
+    if (this.selectedFile) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = (reader.result as string).split(',')[1];
+        envoyer(base64, this.selectedFile!.name, this.selectedFile!.type);
+      };
+      reader.onerror = () => {
         this.showProcessingModal = false;
-        this.notificationService.success('✅ Votre candidature est en cours de traitement !', 5000);
-        this.newCandidature = this.initNewCandidature();
-        this.selectedFile = null;
-        this.selectedFileName = '';
         this.loading = false;
+        this.notificationService.error('Erreur lors de la lecture du fichier');
         this.cdr.detectChanges();
-        
-        // Redirection vers la page d'accueil
-        setTimeout(() => {
-          console.log('🏠 Redirection vers la page d\'accueil...');
-          this.router.navigateByUrl('/').then(
-            () => console.log('✅ Redirection réussie'),
-            (error) => console.error('❌ Erreur de redirection:', error)
-          );
-        }, 500);
-      }, 2000);
-    };
-
-    reader.onerror = () => {
-      this.showProcessingModal = false;
-      this.notificationService.error('Erreur lors de la lecture du fichier');
-      this.loading = false;
-      this.cdr.detectChanges();
-    };
-
-    reader.readAsDataURL(this.selectedFile);
+      };
+      reader.readAsDataURL(this.selectedFile);
+    } else {
+      envoyer();
+    }
   }
 
   isDateExpired(date: Date): boolean {
     return new Date(date) < new Date();
+  }
+
+  showDuplicatePopup(message: string) {
+    this.duplicateMessage = message;
+    this.showDuplicateModal = true;
+    this.cdr.detectChanges();
   }
 
   closeSuccessModal() {

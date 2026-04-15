@@ -28,7 +28,9 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
             errorMessage = 'Ressource non trouvée';
             break;
           case 409:
-            errorMessage = error.error?.message || 'Conflit de données';
+            errorMessage = typeof error.error === 'string'
+              ? error.error
+              : error.error?.message || 'Conflit de données';
             break;
           case 500:
             errorMessage = 'Erreur serveur. Veuillez réessayer plus tard.';

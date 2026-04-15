@@ -1,0 +1,37 @@
+{
+  "FORUMS": {
+    "MANAGEMENT": "Gestion des Forums",
+    "TITLE": "Forums",
+    "MESSAGES": "Messages",
+    "LOADING": "Chargement...",
+    "NO_MESSAGES": "Aucun message",
+    "STUDENT": "ÉTUDIANT",
+    "TEACHER": "ENSEIGNANT",
+    "ADMIN": "ADMIN"
+  },
+  "RECRUITMENT": {
+    "TITLE": "Recrutement",
+    "OFFERS": "Offres",
+    "APPLICATIONS": "Candidatures",
+    "LOADING": "Chargement...",
+    "NO_OFFERS": "Aucune offre"
+  },
+  "SIDEBAR": {
+    "DASHBOARD": "Tableau de bord",
+    "COURSES": "Cours",
+    "FORUMS": "Forums",
+    "RECRUITMENT": "Recrutement",
+    "USERS": "Utilisateurs",
+    "ANALYTICS": "Analytiques"
+  },
+  "COMMON": {
+    "EDIT": "Modifier",
+    "DELETE": "Supprimer",
+    "SAVE": "Enregistrer",
+    "CANCEL": "Annuler",
+    "LOADING": "Chargement...",
+    "ERROR": "Erreur",
+    "SUCCESS": "Succès",
+    "SEARCH": "Rechercher"
+  }
+}

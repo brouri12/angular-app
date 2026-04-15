@@ -84,4 +84,14 @@ export class RecrutementService {
   convertirEnEnseignant(id: number): Observable<string> {
     return this.http.post<string>(`${this.apiUrl}/candidatures/${id}/convertir`, {});
   }
+
+  downloadCV(id: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/candidatures/${id}/cv`, { responseType: 'blob' });
+  }
+
+  getOffreCompatible(candidatureId: number): Observable<{ offreCompatible: OffreRecrutement | null, message: string }> {
+    return this.http.get<{ offreCompatible: OffreRecrutement | null, message: string }>(
+      `${this.apiUrl}/candidatures/${candidatureId}/offre-compatible`
+    );
+  }
 }
