@@ -23,10 +23,16 @@
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
             </svg>
           </div>
-          <div class="ml-3">
-            <p class="text-sm font-medium text-red-800 dark:text-red-200">
-              {{ errorMessage }}
-            </p>
+          <div class="ml-3 flex-1">
+            <p class="text-sm font-medium text-red-800 dark:text-red-200">{{ errorMessage }}</p>
+            <div *ngIf="errorMessage === 'Invalid email or password'" class="mt-3 pt-3 border-t border-red-200 text-xs text-gray-700 dark:text-gray-300">
+              <p class="font-medium">Pour vous connecter :</p>
+              <ol class="list-decimal list-inside mt-1 space-y-0.5">
+                <li>Démarrez <strong>Keycloak</strong> (port 9090).</li>
+                <li>Cliquez sur <strong>« Créer les comptes de test »</strong> ci-dessous.</li>
+                <li>Identifiants : <strong>ppp@gmail.com</strong> / <strong>Ppp@123</strong> (Teacher)</li>
+              </ol>
+            </div>
           </div>
         </div>
       </div>
@@ -97,6 +103,19 @@
           <span *ngIf="!isLoading">Sign in</span>
           <span *ngIf="isLoading">Signing in...</span>
         </button>
+      </div>
+
+      <div class="pt-2">
+        <button
+          type="button"
+          [disabled]="testUsersLoading"
+          (click)="createTestUsers()"
+          class="w-full py-2 px-4 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
+        >
+          <span *ngIf="!testUsersLoading">Créer les comptes de test (Teacher, Student, Admin)</span>
+          <span *ngIf="testUsersLoading">Création...</span>
+        </button>
+        <p *ngIf="testUsersMessage" class="mt-2 text-sm text-gray-600 dark:text-gray-400">{{ testUsersMessage }}</p>
       </div>
     </form>
 

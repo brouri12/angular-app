@@ -111,37 +111,34 @@ export class AuthModal implements OnInit {
         this.closeModal();
         this.cdr.detectChanges();
         
-        // Role from backend profile first, token as fallback
+        const token = this.authService.getToken();
+        const tokenParam = token ? '?token=' + encodeURIComponent(token) : '';
+
         this.authService.getUserByEmail(loginEmail).subscribe({
           next: (user) => {
-            const role = String(user?.role || '').toUpperCase();
+            const role = String(user?.role ?? '').toUpperCase().trim();
             if (role === 'TEACHER') {
-              window.location.href = 'http://localhost:8083/front-office/teacher.html';
+              window.location.assign('http://localhost:8083/front-office/teacher.html' + tokenParam);
               return;
             }
             if (role === 'STUDENT') {
-              window.location.href = 'http://localhost:4201/pricing';
+              window.location.assign('http://localhost:4201/pricing' + tokenParam);
               return;
             }
             this.authService.loadUser();
-            setTimeout(() => {
-              this.router.navigate(['/dashboard']).then(() => {
-                window.location.reload();
-              });
-            }, 100);
+            this.router.navigate(['/dashboard']);
           },
           error: () => {
-            const token = this.authService.getToken();
             if (token) {
               try {
                 const payload = JSON.parse(atob(token.split('.')[1]));
                 const roles = payload.realm_access?.roles || [];
                 if (this.hasRole(roles, 'TEACHER')) {
-                  window.location.href = 'http://localhost:8083/front-office/teacher.html';
+                  window.location.assign('http://localhost:8083/front-office/teacher.html' + tokenParam);
                   return;
                 }
                 if (this.hasRole(roles, 'STUDENT')) {
-                  window.location.href = 'http://localhost:4201/pricing';
+                  window.location.assign('http://localhost:4201/pricing' + tokenParam);
                   return;
                 }
               } catch (e) {
@@ -149,11 +146,7 @@ export class AuthModal implements OnInit {
               }
             }
             this.authService.loadUser();
-            setTimeout(() => {
-              this.router.navigate(['/dashboard']).then(() => {
-                window.location.reload();
-              });
-            }, 100);
+            this.router.navigate(['/dashboard']);
           }
         });
       },

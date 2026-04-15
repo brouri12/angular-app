@@ -31,7 +31,7 @@ export interface ValidationRequest {
   providedIn: 'root'
 })
 export class PaymentService {
-  private apiUrl = 'http://localhost:8888/user-service/api/payments';
+  private apiUrl = 'http://localhost:8085/api/payments';
 
   constructor(
     private http: HttpClient,

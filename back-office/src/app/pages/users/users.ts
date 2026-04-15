@@ -29,6 +29,9 @@ export class Users implements OnInit {
   selectedRole = 'all';
   selectedStatus = 'all';
 
+  pageSize = 10;
+  currentPage = 1;
+
   constructor(private userService: UserService) {}
 
   ngOnInit() {
@@ -39,6 +42,7 @@ export class Users implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
+    this.currentPage = 1;
     this.userService.getAllUsers().subscribe({
       next: (apiUsers: User[]) => {
         const displayUsers: DisplayUser[] = apiUsers.map(user => ({
@@ -96,6 +100,34 @@ export class Users implements OnInit {
       const statusMatch = this.selectedStatus === 'all' || user.status === this.selectedStatus;
       return roleMatch && statusMatch;
     });
+  }
+
+  get paginatedUsers() {
+    const list = this.filteredUsers;
+    const start = (this.currentPage - 1) * this.pageSize;
+    return list.slice(start, start + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredUsers.length / this.pageSize));
+  }
+
+  get paginationStart(): number {
+    return this.filteredUsers.length === 0 ? 0 : (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get paginationEnd(): number {
+    return Math.min(this.currentPage * this.pageSize, this.filteredUsers.length);
+  }
+
+  goToPage(page: number) {
+    const p = Math.max(1, Math.min(page, this.totalPages));
+    if (p !== this.currentPage) this.currentPage = p;
+  }
+
+  get pageNumbers(): number[] {
+    const n = this.totalPages;
+    return Array.from({ length: n }, (_, i) => i + 1);
   }
 
   editUser(user: DisplayUser) {

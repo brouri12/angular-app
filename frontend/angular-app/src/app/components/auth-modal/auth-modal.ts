@@ -38,11 +38,8 @@ export class AuthModal implements OnInit {
   errorMessage = '';
   successMessage = '';
   isLoading = false;
-
-  private hasRole(roles: string[], role: string): boolean {
-    const upper = String(role || '').toUpperCase();
-    return roles.includes(upper) || roles.includes(`ROLE_${upper}`);
-  }
+  testUsersMessage = '';
+  testUsersLoading = false;
 
   constructor(
     private modalService: ModalService,
@@ -111,69 +108,54 @@ export class AuthModal implements OnInit {
         this.closeModal();
         this.cdr.detectChanges();
 
-        // Prefer role from backend profile (more reliable), token as fallback
-        this.authService.getUserByEmail(loginEmail).subscribe({
-          next: (user) => {
-            const role = String(user?.role || '').toUpperCase();
-            if (role === 'ADMIN') {
-              window.location.href = 'http://localhost:8083/back-office/';
-              return;
-            }
-            if (role === 'TEACHER') {
-              window.location.href = 'http://localhost:8083/front-office/teacher.html';
-              return;
-            }
-            if (role === 'STUDENT') {
-              window.location.href = 'http://localhost:4201/pricing';
-              return;
-            }
-            this.authService.loadUser();
-            setTimeout(() => window.location.reload(), 100);
-          },
-          error: () => {
-            const token = this.authService.getToken();
-            if (token) {
-              try {
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                const roles = payload.realm_access?.roles || [];
-                if (this.hasRole(roles, 'ADMIN')) {
-                  window.location.href = 'http://localhost:8083/back-office/';
-                  return;
-                }
-                if (this.hasRole(roles, 'TEACHER')) {
-                  window.location.href = 'http://localhost:8083/front-office/teacher.html';
-                  return;
-                }
-                if (this.hasRole(roles, 'STUDENT')) {
-                  window.location.href = 'http://localhost:4201/pricing';
-                  return;
-                }
-              } catch (e) {
-                console.error('Error decoding token:', e);
-              }
-            }
-            this.authService.loadUser();
-            setTimeout(() => window.location.reload(), 100);
-          }
-        });
+        const token = this.authService.getToken();
+        const tokenParam = token ? '?token=' + encodeURIComponent(token) : '';
+        const emailParam = loginEmail ? (tokenParam ? '&' : '?') + 'email=' + encodeURIComponent(loginEmail) : '';
+
+        // Tous les comptes (étudiant, enseignant, admin) ouvrent l'interface étudiante
+        const studentUrl = 'http://localhost:8083/front-office/student.html' + tokenParam + emailParam;
+        setTimeout(() => {
+          window.location.href = studentUrl;
+        }, 250);
       },
       error: (error) => {
         console.error('Login error:', error);
-        
-        // Extract detailed error message
-        if (error.status === 401) {
+        const status = error?.status;
+        if (status === 401) {
           this.errorMessage = 'Invalid email or password';
-        } else if (error.status === 404) {
-          this.errorMessage = 'User not found with this email';
-        } else if (error.error?.error_description) {
+        } else if (status === 0) {
+          this.errorMessage = 'UserService (port 8085) non démarré. Lancez DEMARRER_USER_SERVICE.ps1 puis cliquez sur "Créer les comptes de test" si besoin.';
+        } else if (status === 404) {
+          this.errorMessage = 'Compte introuvable en base. Cliquez sur "Créer les comptes de test" puis réessayez.';
+        } else if (error?.error?.error_description) {
           this.errorMessage = error.error.error_description;
-        } else if (error.error?.error) {
+        } else if (error?.error?.error) {
           this.errorMessage = error.error.error;
-        } else if (error.message) {
+        } else if (error?.message) {
           this.errorMessage = error.message;
         } else {
-          this.errorMessage = 'Login failed. Please check if all services are running.';
+          this.errorMessage = 'Connexion impossible. Démarrez UserService (8085) et Keycloak (9090), puis "Créer les comptes de test".';
         }
+      }
+    });
+  }
+
+  createTestUsers(): void {
+    this.testUsersMessage = '';
+    this.testUsersLoading = true;
+    this.authService.ensureTestUsers().subscribe({
+      next: (res) => {
+        this.testUsersLoading = false;
+        this.testUsersMessage = res.message || 'Comptes créés. Connectez-vous avec ppp@gmail.com / Ppp@123, alrahalimohamed3@gmail.com / Rahali@123, admin1772054577@wordly.com / Admin@123.';
+        if (res.errors?.length) {
+          this.testUsersMessage += ' Erreurs: ' + res.errors.join('; ');
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.testUsersLoading = false;
+        this.testUsersMessage = 'Erreur: ' + (err?.error?.error_description || err?.message || 'Keycloak ou UserService non démarré (9090, 8085).');
+        this.cdr.detectChanges();
       }
     });
   }

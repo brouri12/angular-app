@@ -9,7 +9,7 @@ import { AuthService } from './auth.service';
 })
 export class StripeService {
   private stripePromise: Promise<Stripe | null>;
-  private apiUrl = 'http://localhost:8888/user-service/api/payments';
+  private apiUrl = 'http://localhost:8085/api/payments';
   
   // Test publishable key - replace with your actual key
   private publishableKey = 'pk_test_51T4T13CmhqMbGh2rgELLpfm9qBwyRj8CrJTISITJkWaPLmZk1mYj7zO55JNIEpq38yWPaiMWxIVnkMOLaixK0FGB00RGj3bUrQ';

@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap, switchMap, timeout, catchError, throwError, finalize } from 'rxjs';
+import { Observable, BehaviorSubject, tap, switchMap, timeout, catchError, throwError, finalize, of } from 'rxjs';
 import { RegisterRequest, LoginRequest, TokenResponse, User } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  // Call through API Gateway
-  private apiUrl = 'http://localhost:8888/user-service/api/auth';
-  private keycloakUrl = 'http://localhost:9090/realms/wordly-realm/protocol/openid-connect/token';
+  // UserService direct (8085) pour tout l'auth - evite erreur 0 avec la gateway (8888)
+  private apiUrl = 'http://localhost:8085/api/auth';
+  private keycloakUrl = 'http://localhost:8085/api/auth/token';
   
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
@@ -35,19 +35,33 @@ export class AuthService {
     return this.http.get<User>(`${this.apiUrl}/user-by-email?email=${encodeURIComponent(email)}`);
   }
 
+  /** Cree les 3 comptes de test (Teacher, Student, Admin) s'ils n'existent pas. */
+  ensureTestUsers(): Observable<{ message: string; created: unknown[]; skipped: unknown[]; errors: string[] }> {
+    return this.http.get<{ message: string; created: unknown[]; skipped: unknown[]; errors: string[] }>(
+      `${this.apiUrl}/ensure-test-users`
+    );
+  }
+
   // Login with Keycloak (using email)
   login(request: LoginRequest): Observable<TokenResponse> {
-    // First, get the username from email
-    return this.http.get<User>(`${this.apiUrl}/user-by-email?email=${encodeURIComponent(request.email)}`).pipe(
-      timeout(10000), // 10 second timeout
-      catchError(error => {
-        console.error('Error fetching user by email:', error);
-        return throwError(() => error);
+    const email = (request.email || '').trim();
+    const localPart = email.split('@')[0] || '';
+
+    return this.http.get<User>(`${this.apiUrl}/user-by-email?email=${encodeURIComponent(email)}`).pipe(
+      timeout(10000),
+      catchError(err => {
+        if (err?.status === 404) {
+          // Plus d'utilisateur en base ni dans Keycloak pour cet email, ou UserService indisponible côté sync
+          return of(null as User | null);
+        }
+        console.error('Error fetching user by email:', err);
+        return throwError(() => err);
       }),
       switchMap(user => {
-        // Try multiple username candidates to handle MySQL/Keycloak desync.
-        const localPart = (request.email || '').split('@')[0] || '';
-        const candidates = [user.username, localPart, request.email]
+        const candidates = (user
+          ? [user.username, localPart, email]
+          : [localPart, email]
+        )
           .map(v => (v || '').trim())
           .filter((v, i, arr) => !!v && arr.indexOf(v) === i);
         return this.tryLoginCandidates(candidates, request.password);
@@ -56,7 +70,6 @@ export class AuthService {
         this.saveToken(response.access_token);
         this.saveRefreshToken(response.refresh_token);
         this.isAuthenticatedSubject.next(true);
-        // Don't call loadCurrentUser here - let the component handle it
       }),
       catchError(error => {
         console.error('Login failed:', error);
@@ -66,17 +79,11 @@ export class AuthService {
   }
 
   private requestKeycloakToken(username: string, password: string): Observable<TokenResponse> {
-    const body = new URLSearchParams();
-    body.set('username', username);
-    body.set('password', password);
-    body.set('grant_type', 'password');
-    body.set('client_id', 'wordly-client');
-
+    const body = { username, password };
     const headers = new HttpHeaders({
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/json'
     });
-
-    return this.http.post<TokenResponse>(this.keycloakUrl, body.toString(), { headers }).pipe(
+    return this.http.post<TokenResponse>(this.keycloakUrl, body, { headers }).pipe(
       timeout(10000)
     );
   }
