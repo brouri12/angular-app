@@ -1,0 +1,27 @@
+# Créer le .gitignore à la racine du projet
+@"
+# Maven
+**/target/
+**/.mvn/wrapper/maven-wrapper.jar
+**/mvnw
+**/mvnw.cmd
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.classpath
+*.project
+*.settings/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+*.env
+"@ | Out-File -FilePath ".gitignore" -Encoding utf8

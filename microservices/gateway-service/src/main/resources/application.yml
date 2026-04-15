@@ -1,0 +1,78 @@
+server:
+  port: 8888
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/ramzi_realm
+          jwk-set-uri: http://localhost:8080/realms/ramzi_realm/protocol/openid-connect/cert
+  application:
+    name: gateway-service
+  main:
+    web-application-type: reactive
+
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:4200"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+              - PATCH
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+            maxAge: 3600
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+      routes:
+        - id: pronunciation-service
+          uri: lb://service-pronunciation
+          predicates:
+            - Path=/api/pronunciation/**
+
+        - id: user-service
+          uri: lb://service-user
+          predicates:
+            - Path=/api/users/**
+
+        - id: feedback-service
+          uri: lb://service-feedback
+          predicates:
+            - Path=/api/feedbacks/**
+
+        - id: reclamations-service
+          uri: lb://service-feedback
+          predicates:
+            - Path=/api/reclamations/**
+
+        - id: resolutions-service
+          uri: lb://service-feedback
+          predicates:
+            - Path=/api/resolutions/**
+
+        - id: reports-service
+          uri: lb://service-feedback
+          predicates:
+            - Path=/api/reports/**
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+logging:
+  level:
+    org.springframework.web.cors: TRACE
+    org.springframework.security: TRACE
+    org.springframework.cloud.gateway: TRACE

@@ -1,0 +1,9 @@
+/* Header fallback CSS */
+header {
+  display: block !important;
+  min-height: 64px;
+}
+nav {
+  display: flex !important;
+}
+

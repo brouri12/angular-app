@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap');
+
+.leaderboard-container {
+  font-family: 'Syne', sans-serif;
+}
+
+.rank-gold {
+  background: linear-gradient(135deg, #facc15 0%, #eab308 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 20px rgba(250, 204, 21, 0.5);
+}
+
+.rank-silver {
+  color: #d1d5db;
+  text-shadow: 0 0 20px rgba(209, 213, 219, 0.5);
+}
+
+.rank-bronze {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 20px rgba(245, 115, 22, 0.5);
+}
+
+.card-glow {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.hover-scale {
+  transition: transform 0.2s ease-in-out;
+}
+
+.hover-scale:hover {
+  transform: translateY(-2px);
+}
+
+.level-badge {
+  box-shadow: 0 4px 14px rgba(168, 85, 247, 0.4);
+}
+
+.challenge-btn {
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+}
