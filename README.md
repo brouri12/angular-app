@@ -285,3 +285,168 @@ export const environment = {
 ---
 
 *© 2025-2026 Esprit School of Engineering — Tunisie*
+
+
+---
+
+## 🔗 OpenFeign — Communication Inter-Services
+
+### Fichiers créés (recrutement-service)
+- `feign/ForumServiceClient.java` — Interface Feign
+- `feign/ForumServiceClientFallback.java` — Fallback Circuit Breaker
+
+### Comment ça marche
+
+```java
+@FeignClient(name = "forum-service", fallback = ForumServiceClientFallback.class)
+public interface ForumServiceClient {
+    @GetMapping("/api/forum/messages/count-by-email")
+    int countMessagesByEmail(@RequestParam("email") String email);
+}
+```
+
+- `@FeignClient(name = "forum-service")` → Eureka résout automatiquement l'URL du service
+- `fallback` → si forum-service est down, retourne `0` sans planter
+- `@EnableFeignClients` ajouté dans `RecrutementApplication.java`
+
+### Tester OpenFeign
+```
+GET http://localhost:8083/api/recrutement/candidatures/doublon?email=test@gmail.com&specialite=francais
+```
+
+---
+
+## 🔐 JWT Security
+
+### Fichiers créés (recrutement-service)
+- `security/JwtUtil.java` — Génère et valide les tokens HS256
+- `security/JwtAuthFilter.java` — Filtre chaque requête HTTP (OncePerRequestFilter)
+- `security/SecurityConfig.java` — Règles d'accès par rôle
+- `controller/AuthController.java` — Endpoint de login
+
+### Règles d'accès
+
+| Endpoint | Accès |
+|----------|-------|
+| `GET /offres/**` | Public |
+| `POST /candidatures/offre/**` | Public (candidats) |
+| `GET /candidatures/*/cv` | Public |
+| `POST /offres` | ADMIN seulement |
+| `PUT/DELETE /offres/**` | ADMIN seulement |
+| `PATCH /candidatures/*/statut` | ADMIN seulement |
+| `/notifications/**` | ADMIN seulement |
+
+### Obtenir un token JWT
+
+```bash
+POST http://localhost:8083/api/recrutement/auth/login
+Content-Type: application/json
+
+{"username": "admin", "password": "admin123"}
+```
+
+Réponse :
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiJ9...",
+  "role": "ADMIN",
+  "message": "Connexion réussie"
+}
+```
+
+### Utiliser le token
+
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
+```
+
+### Comptes disponibles
+
+| Username | Password | Rôle |
+|----------|----------|------|
+| `admin` | `admin123` | ADMIN |
+| `user` | `user123` | USER |
+
+---
+
+## 🧪 Tests JUnit / Mockito
+
+### Fichiers créés
+- `recrutement-service/src/test/.../CandidatureServiceTest.java` — 8 tests
+- `recrutement-service/src/test/.../OffreServiceTest.java` — 9 tests
+
+### Lancer les tests
+
+```bash
+cd recrutement-service
+mvn test
+```
+
+### Tests couverts
+
+| Test | Scénario |
+|------|----------|
+| `postuler_Success` | Candidature créée avec succès |
+| `postuler_OffreNotFound` | Offre inexistante → `Optional.empty()` |
+| `postuler_DoublonDetecte` | Email déjà utilisé → `RuntimeException` |
+| `changerStatut_Acceptee` | Email envoyé automatiquement |
+| `changerStatut_Refusee` | Offre reste OUVERTE |
+| `estCandidatDoublon_True` | Doublon détecté dans 30 jours |
+| `fermerOffre` | Statut → FERMEE |
+| `deleteOffre_NotFound` | Retourne `false` |
+| `addOffre_SetsDatePublication` | Date auto + statut OUVERTE |
+| `getAllOffres_ReturnsList` | Liste complète retournée |
+| `rouvrirOffre` | Statut → OUVERTE |
+| `getOffresByStatut` | Filtrage par statut |
+
+---
+
+## 🏗️ Architecture Complète
+
+```
+Angular Frontend (4300)          Angular Back-Office (4301)
+        │                                    │
+        └──────────────┬─────────────────────┘
+                       │
+              API Gateway (8086)
+              ┌─────────────────┐
+              │ JWT Validation  │
+              │ CORS Config     │
+              │ Load Balancing  │
+              └────────┬────────┘
+                       │
+          ┌────────────┴────────────┐
+          │                         │
+   Forum Service (8082)    Recrutement Service (8083)
+   - Messages/Forums        - Offres/Candidatures
+   - Multimedia             - JWT Security ✅
+   - Email                  - OpenFeign ✅
+                            - Scheduler ✅
+                            - Email notifications ✅
+          │                         │
+          └────────────┬────────────┘
+                       │
+              Eureka Server (8761)
+              Service Discovery
+```
+
+---
+
+## 📋 Fonctionnalités Avancées — Récapitulatif
+
+| Fonctionnalité | Description | Statut |
+|----------------|-------------|--------|
+| Détection doublons | Vérifie email + spécialité dans 30 jours | ✅ |
+| Réaffectation automatique | Popup avec offres disponibles après refus | ✅ |
+| Scheduler 13:30 | Notifie l'admin des candidatures EN_ATTENTE | ✅ |
+| Notifications in-app | Badge temps réel sans refresh (polling 10s) | ✅ |
+| Email acceptation | Email HTML envoyé quand admin accepte | ✅ |
+| Popup doublon | 409 Conflict avec popup personnalisé | ✅ |
+| Téléchargement CV | Endpoint dédié `/candidatures/{id}/cv` | ✅ |
+| OpenFeign | Communication recrutement → forum via Eureka | ✅ |
+| JWT Security | Protection endpoints sensibles par rôle | ✅ |
+| Tests Mockito | 17 tests unitaires (CandidatureService + OffreService) | ✅ |
+| Language Switcher | FR/EN temps réel avec persistance | ✅ |
+| Dark Mode | Toggle light/dark avec persistance | ✅ |
+| Chatbot IA | 50+ mots-clés, historique localStorage | ✅ |
+| Upload Multimédia | Images, audio, documents, YouTube | ✅ |
