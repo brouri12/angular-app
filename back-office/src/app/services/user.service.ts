@@ -19,6 +19,11 @@ export interface User {
   statut?: string;
   specialite?: string;
   niveau?: string;
+  niveau_actuel?: string;
+  statut_etudiant?: string;
+  experience?: number;
+  disponibilite?: string;
+  poste?: string;
 }
 
 export interface UserStats {

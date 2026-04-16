@@ -2,77 +2,53 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 export interface Notification {
-  id: string;
-  type: 'success' | 'error' | 'warning' | 'info' | 'confirm';
+  id: number;
   title: string;
   message: string;
+  type: 'success' | 'error' | 'info' | 'warning' | 'confirm';
   confirmCallback?: () => void;
   cancelCallback?: () => void;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class NotificationService {
-  private notificationSubject = new BehaviorSubject<Notification | null>(null);
-  public notification$ = this.notificationSubject.asObservable();
+  // Single notification (used by notification.component.ts)
+  notification$ = new BehaviorSubject<Notification | null>(null);
+  private nextId = 1;
 
-  success(title: string, message: string) {
-    this.show({
-      id: this.generateId(),
-      type: 'success',
-      title,
-      message
-    });
+  success(title: string, message?: string): void {
+    this.show(title, message || '', 'success');
   }
 
-  error(title: string, message: string) {
-    this.show({
-      id: this.generateId(),
-      type: 'error',
-      title,
-      message
-    });
+  error(title: string, message?: string): void {
+    this.show(title, message || '', 'error');
   }
 
-  warning(title: string, message: string) {
-    this.show({
-      id: this.generateId(),
-      type: 'warning',
-      title,
-      message
-    });
+  info(title: string, message?: string): void {
+    this.show(title, message || '', 'info');
   }
 
-  info(title: string, message: string) {
-    this.show({
-      id: this.generateId(),
-      type: 'info',
-      title,
-      message
-    });
+  warning(title: string, message?: string): void {
+    this.show(title, message || '', 'warning');
   }
 
-  confirm(title: string, message: string, onConfirm: () => void, onCancel?: () => void) {
-    this.show({
-      id: this.generateId(),
-      type: 'confirm',
+  confirm(title: string, message: string, onConfirm: () => void, onCancel?: () => void): void {
+    this.notification$.next({
+      id: this.nextId++,
       title,
       message,
+      type: 'confirm',
       confirmCallback: onConfirm,
       cancelCallback: onCancel
     });
   }
 
-  private show(notification: Notification) {
-    this.notificationSubject.next(notification);
+  close(): void {
+    this.notification$.next(null);
   }
 
-  close() {
-    this.notificationSubject.next(null);
-  }
-
-  private generateId(): string {
-    return `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  private show(title: string, message: string, type: 'success' | 'error' | 'info' | 'warning'): void {
+    this.notification$.next({ id: this.nextId++, title, message, type });
+    setTimeout(() => this.close(), 5000);
   }
 }

@@ -1,0 +1,195 @@
+<div class="container mx-auto px-4 py-8">
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">📊 Room Utilization Dashboard</h1>
+    <p class="text-gray-600">Analyze room usage and optimize scheduling</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center py-12">
+    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+    <p class="mt-4 text-gray-600">Loading analytics...</p>
+  </div>
+
+  <!-- Analytics Content -->
+  <div *ngIf="!loading && analytics">
+    
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <!-- Total Rooms -->
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-500 text-sm">Total Rooms</p>
+            <p class="text-3xl font-bold text-gray-800">{{ analytics.totalRooms }}</p>
+          </div>
+          <div class="text-4xl">🏢</div>
+        </div>
+      </div>
+
+      <!-- Active Rooms -->
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-500 text-sm">Active Rooms</p>
+            <p class="text-3xl font-bold text-green-600">{{ analytics.activeRooms }}</p>
+          </div>
+          <div class="text-4xl">✅</div>
+        </div>
+      </div>
+
+      <!-- Underutilized -->
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-500 text-sm">Underutilized</p>
+            <p class="text-3xl font-bold text-yellow-600">{{ analytics.underutilizedRooms }}</p>
+          </div>
+          <div class="text-4xl">⚠️</div>
+        </div>
+      </div>
+
+      <!-- Average Utilization -->
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-500 text-sm">Avg Utilization</p>
+            <p class="text-3xl font-bold text-primary">{{ analytics.averageUtilization }}%</p>
+          </div>
+          <div class="text-4xl">📈</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div *ngIf="analytics.recommendations.length > 0" class="bg-blue-50 border-l-4 border-blue-500 p-6 mb-8 rounded-lg">
+      <h3 class="text-lg font-semibold text-blue-800 mb-3">💡 Recommendations</h3>
+      <ul class="space-y-2">
+        <li *ngFor="let rec of analytics.recommendations" class="text-blue-700 flex items-start">
+          <span class="mr-2">•</span>
+          <span>{{ rec }}</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      
+      <!-- Schedules by Day -->
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">📅 Schedules by Day</h3>
+        <div class="space-y-3">
+          <div *ngFor="let day of getDayKeys()" class="flex items-center">
+            <div class="w-24 text-sm text-gray-600">{{ day }}</div>
+            <div class="flex-1 bg-gray-200 rounded-full h-6 relative">
+              <div 
+                class="bg-primary h-6 rounded-full flex items-center justify-end pr-2 text-white text-xs font-semibold"
+                [style.width.%]="(analytics!.schedulesByDay[day] / getMaxScheduleCount()) * 100">
+                {{ analytics!.schedulesByDay[day] }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schedules by Time Slot -->
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">⏰ Schedules by Time Slot</h3>
+        <div class="space-y-3">
+          <div *ngFor="let slot of getTimeSlotKeys()" class="flex items-center">
+            <div class="w-32 text-sm text-gray-600">{{ slot }}</div>
+            <div class="flex-1 bg-gray-200 rounded-full h-6 relative">
+              <div 
+                class="bg-indigo-500 h-6 rounded-full flex items-center justify-end pr-2 text-white text-xs font-semibold"
+                [style.width.%]="(analytics!.schedulesByTimeSlot[slot] / getMaxTimeSlotCount()) * 100">
+                {{ analytics!.schedulesByTimeSlot[slot] }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Room Details Table -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-800">🏢 Room Utilization Details</h3>
+      </div>
+      
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Capacity</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Schedules</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hours/Week</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Utilization</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Peak Day</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Peak Time</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr *ngFor="let room of analytics.roomUtilizations" class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">{{ room.roomName }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-500">{{ room.location }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">{{ room.capacity }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">{{ room.totalSchedules }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">{{ room.hoursPerWeek }}h</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="w-24 bg-gray-200 rounded-full h-4 mr-2">
+                    <div 
+                      [class]="getUtilizationBarColor(room.utilizationPercentage)"
+                      class="h-4 rounded-full"
+                      [style.width.%]="room.utilizationPercentage > 100 ? 100 : room.utilizationPercentage">
+                    </div>
+                  </div>
+                  <span class="text-sm font-medium text-gray-900">{{ room.utilizationPercentage }}%</span>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-500">{{ room.peakDay }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-500">{{ room.peakTimeSlot }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span [class]="getStatusColor(room.status)" class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full">
+                  {{ getStatusIcon(room.status) }} {{ room.status }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Refresh Button -->
+    <div class="mt-6 text-center">
+      <button 
+        (click)="loadAnalytics()"
+        class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors">
+        🔄 Refresh Analytics
+      </button>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && !analytics" class="text-center py-12">
+    <div class="text-6xl mb-4">📊</div>
+    <p class="text-gray-600 text-lg">No analytics data available</p>
+  </div>
+</div>

@@ -27,6 +27,7 @@ export class Header {
     { name: 'Courses', path: '/courses' },
     { name: 'Challenges', path: '/challenges' },
     { name: 'Stats', path: '/challenge-stats' },
+    { name: 'My Group', path: '/my-groups' },
     { name: 'Pricing', path: '/pricing' },
     { name: 'About', path: '/about' },
   ];
