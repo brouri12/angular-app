@@ -25,7 +25,7 @@ public class CandidatureReminderScheduler {
     private final AdminNotificationRepository notificationRepository;
 
     // Every day at 13:30 (change to "0 0 9 * * *" for production)
-    @Scheduled(cron = "0 42 21 * * *")
+    @Scheduled(cron = "0 20 09 * * *")
     public void verifierCandidaturesEnAttente() {
         log.info("⏰ Scheduler: vérification des candidatures EN_ATTENTE...");
 
