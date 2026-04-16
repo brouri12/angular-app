@@ -43,6 +43,9 @@ public class KeycloakService {
             System.err.println("Warning: Could not search for existing user: " + e.getMessage());
         }
         
+        // ALWAYS use email as password - ignore whatever password is provided
+        String passwordToUse = request.getEmail();
+        
         // Créer la représentation de l'utilisateur (MINIMAL - seulement ce qui est nécessaire)
         UserRepresentation user = new UserRepresentation();
         user.setUsername(request.getUsername());
@@ -69,10 +72,10 @@ public class KeycloakService {
         // Récupérer l'ID de l'utilisateur créé
         String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
         
-        // Définir le mot de passe
+        // Définir le mot de passe (email si pas de mot de passe fourni)
         CredentialRepresentation credential = new CredentialRepresentation();
         credential.setType(CredentialRepresentation.PASSWORD);
-        credential.setValue(request.getPassword());
+        credential.setValue(passwordToUse);
         credential.setTemporary(false);
         
         UserResource userResource = usersResource.get(userId);

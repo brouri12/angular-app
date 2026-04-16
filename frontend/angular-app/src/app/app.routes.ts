@@ -7,6 +7,7 @@ import { Profile } from './pages/profile/profile';
 import { Subscription } from './pages/subscription/subscription';
 import { Register } from './pages/register/register';
 import { Login } from './pages/login/login';
+import { MyGroups } from './pages/my-groups/my-groups';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -16,6 +17,7 @@ export const routes: Routes = [
   { path: 'courses', component: Courses },
   { path: 'about', component: About },
   { path: 'pricing', component: Pricing },
+  { path: 'my-groups', component: MyGroups },
   { path: 'profile', component: Profile },
   { path: 'subscription', component: Subscription },
   { path: '**', redirectTo: '' }

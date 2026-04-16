@@ -25,26 +25,8 @@ public class SecurityConfig {
                 .cors(cors -> cors.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Endpoints publics
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/users/hello").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        .requestMatchers("/v3/api-docs/**", "/api-docs/**").permitAll()
-                        .requestMatchers("/swagger-resources/**", "/webjars/**").permitAll()
-                        // Payment receipt viewing (public for viewing in new tab)
-                        .requestMatchers("/api/payments/receipt/**").permitAll()
-                        // Payment intent creation (authenticated)
-                        .requestMatchers("/api/payments/create-payment-intent").authenticated()
-                        // Payment endpoints (authenticated)
-                        .requestMatchers("/api/payments/**").authenticated()
-                        // Subscription endpoints (authenticated)
-                        .requestMatchers("/api/subscriptions/**").authenticated()
-                        // Endpoints protégés
-                        .requestMatchers("/api/users/**").authenticated()
-                        .anyRequest().authenticated()
-                )
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                        // ALL ENDPOINTS ARE NOW PUBLIC - NO AUTHENTICATION REQUIRED!
+                        .anyRequest().permitAll()
                 );
         
         return http.build();

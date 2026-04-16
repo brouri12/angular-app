@@ -116,8 +116,8 @@ export class AuthService {
     console.log('Making request to:', `${this.apiUrl}/me`);
     return this.http.get<User>(`${this.apiUrl}/me`, { headers }).pipe(
       tap(user => {
-        console.log('✓ User received from API:', user);
-        console.log('✓ User fields:', {
+        console.log('User received from API:', user);
+        console.log('User fields:', {
           username: user.username,
           email: user.email,
           role: user.role,
@@ -131,9 +131,9 @@ export class AuthService {
         this.currentUserSubject.next(user);
       }),
       catchError(error => {
-        console.error('✗ getCurrentUser error:', error);
-        console.error('✗ Error status:', error.status);
-        console.error('✗ Error message:', error.message);
+        console.error('getCurrentUser error:', error);
+        console.error('Error status:', error.status);
+        console.error('Error message:', error.message);
         return throwError(() => error);
       })
     );

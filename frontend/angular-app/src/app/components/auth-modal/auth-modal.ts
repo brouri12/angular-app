@@ -108,15 +108,55 @@ export class AuthModal implements OnInit {
         this.closeModal();
         this.cdr.detectChanges();
 
-        const token = this.authService.getToken();
-        const tokenParam = token ? '?token=' + encodeURIComponent(token) : '';
-        const emailParam = loginEmail ? (tokenParam ? '&' : '?') + 'email=' + encodeURIComponent(loginEmail) : '';
-
-        // Tous les comptes (étudiant, enseignant, admin) ouvrent l'interface étudiante
-        const studentUrl = 'http://localhost:8083/front-office/student.html' + tokenParam + emailParam;
-        setTimeout(() => {
-          window.location.href = studentUrl;
-        }, 250);
+        // Intégration jasser11 : redirection par rôle + page my-groups (étudiant), tout en gardant Keycloak (rahali).
+        this.authService.getUserByEmail(loginEmail).subscribe({
+          next: (user) => {
+            const role = String(user?.role || '').toUpperCase();
+            if (role === 'ADMIN') {
+              window.location.href = 'http://localhost:8083/back-office/';
+              return;
+            }
+            if (role === 'TEACHER') {
+              window.location.href = 'http://localhost:8083/front-office/teacher.html';
+              return;
+            }
+            if (role === 'STUDENT') {
+              this.ngZone.run(() => {
+                this.router.navigate(['/my-groups']);
+              });
+              return;
+            }
+            this.authService.loadUser();
+            setTimeout(() => window.location.reload(), 100);
+          },
+          error: () => {
+            const token = this.authService.getToken();
+            if (token) {
+              try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const roles = payload.realm_access?.roles || [];
+                if (this.hasRole(roles, 'ADMIN')) {
+                  window.location.href = 'http://localhost:8083/back-office/';
+                  return;
+                }
+                if (this.hasRole(roles, 'TEACHER')) {
+                  window.location.href = 'http://localhost:8083/front-office/teacher.html';
+                  return;
+                }
+                if (this.hasRole(roles, 'STUDENT')) {
+                  this.ngZone.run(() => {
+                    this.router.navigate(['/my-groups']);
+                  });
+                  return;
+                }
+              } catch (e) {
+                console.error('Error decoding token:', e);
+              }
+            }
+            this.authService.loadUser();
+            setTimeout(() => window.location.reload(), 100);
+          }
+        });
       },
       error: (error) => {
         console.error('Login error:', error);
@@ -244,4 +284,10 @@ export class AuthModal implements OnInit {
     this.registerData.niveau_actuel = undefined;
     this.registerData.statut_etudiant = undefined;
   }
+
+  private hasRole(roles: string[], role: string): boolean {
+    const r = role.toUpperCase();
+    return roles.some((x) => String(x).toUpperCase() === r);
+  }
 }
+

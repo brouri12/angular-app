@@ -1,0 +1,222 @@
+<div class="planifs-container p-6">
+    <div class="header-section flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Schedule Management</h1>
+            <p class="text-gray-600">Create and manage courses, exams, and meetings</p>
+        </div>
+
+    </div>
+
+    <!-- Edit Panel (shows when editing a planification) -->
+    <div *ngIf="editingPlanif" class="bg-amber-50 border border-amber-300 p-6 rounded-lg shadow-md mb-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold text-amber-800">✏️ Edit Activity</h2>
+            <button (click)="cancelEditPlanif()"
+                class="text-gray-500 hover:text-gray-800 text-sm font-medium">Cancel</button>
+        </div>
+        <div class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                    <input type="text" [(ngModel)]="editingPlanif!.titre" name="edit-titre"
+                        class="w-full px-3 py-2 border border-gray-300 rounded text-gray-900 bg-white focus:outline-none focus:ring-1 focus:ring-amber-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                    <select [(ngModel)]="editingPlanif!.type" name="edit-type"
+                        class="w-full px-3 py-2 border border-gray-300 rounded text-gray-900 bg-white focus:outline-none focus:ring-1 focus:ring-amber-500">
+                        <option *ngFor="let t of types" [value]="t">{{ t }}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                    <input type="date" [(ngModel)]="editingPlanif!.date" name="edit-date"
+                        class="w-full px-3 py-2 border border-gray-300 rounded text-gray-900 bg-white focus:outline-none focus:ring-1 focus:ring-amber-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
+                    <input type="time" [(ngModel)]="editingPlanif!.heureDebut" name="edit-debut"
+                        class="w-full px-3 py-2 border border-gray-300 rounded text-gray-900 bg-white focus:outline-none focus:ring-1 focus:ring-amber-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">End Time</label>
+                    <input type="time" [(ngModel)]="editingPlanif!.heureFin" name="edit-fin"
+                        class="w-full px-3 py-2 border border-gray-300 rounded text-gray-900 bg-white focus:outline-none focus:ring-1 focus:ring-amber-500">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Room</label>
+                    <select [(ngModel)]="editingPlanif!.salleId" name="edit-salle"
+                        class="w-full px-3 py-2 border border-gray-300 rounded text-gray-900 bg-white focus:outline-none focus:ring-1 focus:ring-amber-500">
+                        <option *ngFor="let s of salles" [ngValue]="s.idSalle">{{ s.nomSalle }} ({{ s.capacite }} seats)
+                        </option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Target Group</label>
+                    <select [(ngModel)]="editingPlanif!.groupId" name="edit-group"
+                        class="w-full px-3 py-2 border border-gray-300 rounded text-gray-900 bg-white focus:outline-none focus:ring-1 focus:ring-amber-500">
+                        <option *ngFor="let g of groups" [ngValue]="g.id">Group #{{ g.id }} - {{ g.level }}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="text-right">
+                <button (click)="saveEditPlanif()" [disabled]="actionLoading"
+                    class="bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white font-medium py-2 px-6 rounded shadow transition-colors">
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="showAddForm" class="bg-white p-6 rounded-lg shadow-md mb-6 border border-gray-200">
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">Add New Activity</h2>
+
+        <div *ngIf="formError" class="mb-4 bg-red-50 text-red-700 p-3 rounded text-sm border border-red-200">
+            <span class="font-bold">Error:</span> {{ formError }}
+        </div>
+
+        <form (ngSubmit)="savePlanification()" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                    <input type="text" [(ngModel)]="newPlanif.titre" name="titre" placeholder="e.g. Mathematics 101"
+                        class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                    <select [(ngModel)]="newPlanif.type" name="type"
+                        class="w-full px-3 py-2 border border-gray-300 rounded text-gray-900 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        <option *ngFor="let t of types" [value]="t">{{ t }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                    <input type="date" [(ngModel)]="newPlanif.date" name="date"
+                        class="w-full px-3 py-2 border border-gray-300 rounded text-gray-900 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
+                    <input type="time" [(ngModel)]="newPlanif.heureDebut" name="heureDebut"
+                        class="w-full px-3 py-2 border border-gray-300 rounded text-gray-900 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">End Time</label>
+                    <input type="time" [(ngModel)]="newPlanif.heureFin" name="heureFin"
+                        class="w-full px-3 py-2 border border-gray-300 rounded text-gray-900 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Room</label>
+                    <select [(ngModel)]="newPlanif.salleId" name="salle"
+                        class="w-full px-3 py-2 border border-gray-300 rounded text-gray-900 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        <option [ngValue]="undefined" disabled>Select Room</option>
+                        <option *ngFor="let s of salles" [ngValue]="s.idSalle">{{ s.nomSalle }} ({{ s.capacite }} seats)
+                        </option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Target Group</label>
+                    <select [(ngModel)]="newPlanif.groupId" name="group"
+                        class="w-full px-3 py-2 border border-gray-300 rounded text-gray-900 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        <option [ngValue]="undefined" disabled>Select Group</option>
+                        <option *ngFor="let g of groups" [ngValue]="g.id">Group #{{ g.id }} - {{ g.level }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="pt-2 text-right">
+                <button type="submit" [disabled]="actionLoading"
+                    class="bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-medium py-2 px-6 rounded shadow transition-colors inline-flex items-center gap-2">
+                    <span *ngIf="actionLoading"
+                        class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
+                    Schedule Activity
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div *ngIf="loading" class="text-center py-12 text-gray-500">Loading schedules...</div>
+    <div *ngIf="error" class="bg-red-50 text-red-600 p-4 rounded mb-6">{{ error }}</div>
+
+    <!-- Schedules List -->
+    <div *ngIf="!loading && !error" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div *ngIf="planifications.length === 0"
+            class="col-span-full bg-white rounded-lg shadow border border-gray-200 p-12 text-center text-gray-500">
+            <p>No schedules found.</p>
+        </div>
+
+        <div *ngFor="let p of planifications"
+            class="bg-white rounded-lg shadow border border-gray-200 overflow-hidden flex flex-col relative">
+            <!-- Status band -->
+            <div class="h-1 w-full absolute top-0 left-0" [ngClass]="{
+            'bg-blue-500': p.type === 'COURS',
+            'bg-red-500': p.type === 'EXAMEN',
+            'bg-yellow-500': p.type === 'REUNION'
+           }"></div>
+
+            <div class="px-6 pt-5 pb-4">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-lg font-bold text-gray-900 line-clamp-1">{{ p.titre }}</h3>
+                    <span
+                        class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                        {{ p.type }}
+                    </span>
+                </div>
+
+                <div class="space-y-3 mt-4">
+                    <div class="flex items-center text-sm text-gray-600">
+                        <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                            </path>
+                        </svg>
+                        {{ p.date }}
+                    </div>
+                    <div class="flex items-center text-sm text-gray-600">
+                        <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        {{ p.heureDebut.substring(0,5) }} - {{ p.heureFin.substring(0,5) }}
+                    </div>
+                    <div class="flex items-center text-sm text-gray-600">
+                        <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                            </path>
+                        </svg>
+                        {{ $any(p).salle?.nomSalle || 'Room ' + p.salleId }}
+                    </div>
+                    <div class="flex items-center text-sm text-gray-600">
+                        <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                            </path>
+                        </svg>
+                        Group #{{ p.groupId }} ({{ $any(p).group?.level }})
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-100 px-6 py-3 bg-gray-50 flex justify-end gap-4">
+                <button (click)="startEditPlanif(p)"
+                    class="text-sm font-medium text-indigo-600 hover:text-indigo-900 transition-colors">
+                    Edit
+                </button>
+                <button (click)="deletePlanification(p.idPlanification)"
+                    class="text-sm font-medium text-red-600 hover:text-red-900 transition-colors">
+                    Cancel Activity
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
