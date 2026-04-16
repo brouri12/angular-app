@@ -78,7 +78,13 @@ public class Challenge {
     private String audioUrl; // For listening challenges
     
     private String imageUrl; // For visual challenges
-    
+
+    // ── Expiration ─────────────────────────────────────────────────────────────
+    private LocalDateTime expiresAt; // null = never expires
+
+    @Column(nullable = false)
+    private Boolean isExpired = false;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

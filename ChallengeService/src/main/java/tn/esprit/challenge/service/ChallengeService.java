@@ -25,8 +25,16 @@ public class ChallengeService {
     private final ChallengeRepository challengeRepository;
     private final QuestionRepository questionRepository;
     
-    // Get all challenges
+    // Get all challenges (active only — excludes expired)
     public List<ChallengeDTO> getAllChallenges() {
+        return challengeRepository.findAll().stream()
+            .filter(c -> Boolean.FALSE.equals(c.getIsExpired()))
+            .map(c -> ChallengeMapper.toDTO(c, false))
+            .collect(Collectors.toList());
+    }
+
+    // Get all challenges including expired (admin use)
+    public List<ChallengeDTO> getAllChallengesIncludingExpired() {
         return challengeRepository.findAll().stream()
             .map(c -> ChallengeMapper.toDTO(c, false))
             .collect(Collectors.toList());

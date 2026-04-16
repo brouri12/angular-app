@@ -1,172 +1,353 @@
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
-  <div class="container mx-auto px-4">
-    <!-- Header -->
-    <div class="text-center mb-12">
-      <h1 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-        English Learning Challenges
+<div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 py-12">
+  <div class="container mx-auto px-4 max-w-7xl">
+
+    <!-- ===== HERO HEADER ===== -->
+    <div class="text-center mb-10">
+      <div class="inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-4 py-1.5 rounded-full text-sm font-semibold mb-4">
+        🎯 Interactive Learning
+      </div>
+      <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-4 tracking-tight">
+        English <span class="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)]">Challenges</span>
       </h1>
-      <p class="text-xl text-gray-600 dark:text-gray-300">
-        Test your English skills with interactive challenges
+      <p class="text-lg text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
+        Test your skills, earn points, and track your progress with our interactive challenges.
       </p>
+
+      <!-- Quick Stats -->
+      <div class="flex flex-wrap justify-center gap-6 mt-6">
+        <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+          <span class="text-2xl font-bold text-green-600">{{ challenges().length }}</span>
+          <span class="text-sm">Challenges</span>
+        </div>
+        <div class="w-px bg-gray-300 dark:bg-gray-700 hidden sm:block"></div>
+        <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+          <span class="text-2xl font-bold text-blue-600">6</span>
+          <span class="text-sm">Levels</span>
+        </div>
+        <div class="w-px bg-gray-300 dark:bg-gray-700 hidden sm:block"></div>
+        <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+          <span class="text-2xl font-bold text-purple-600">8</span>
+          <span class="text-sm">Types</span>
+        </div>
+      </div>
     </div>
 
-    <!-- Filters -->
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-8">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <!-- Search -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Search
-          </label>
-          <input
-            type="text"
-            [value]="searchTerm()"
-            (input)="onSearchChange($any($event.target).value)"
-            placeholder="Search challenges..."
-            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
-          />
-        </div>
+    <!-- ===== TAB BAR ===== -->
+    <div class="flex gap-2 mb-8 bg-white dark:bg-gray-800 rounded-2xl p-1.5 border border-gray-100 dark:border-gray-700 w-fit mx-auto shadow-sm">
+      <button
+        (click)="activeTab.set('challenges')"
+        class="px-6 py-2.5 rounded-xl font-semibold text-sm transition-all"
+        [ngClass]="activeTab() === 'challenges'
+          ? 'bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(0,180,135)] text-white shadow-md'
+          : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'">
+        🎯 Challenges
+      </button>
+      <button
+        (click)="activeTab.set('leaderboard')"
+        class="px-6 py-2.5 rounded-xl font-semibold text-sm transition-all"
+        [ngClass]="activeTab() === 'leaderboard'
+          ? 'bg-gradient-to-r from-yellow-400 to-orange-400 text-white shadow-md'
+          : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'">
+        🏆 Weekly Leaderboard
+      </button>
+    </div>
 
-        <!-- Level Filter -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Proficiency Level
-          </label>
-          <select
-            [value]="selectedLevel()"
-            (change)="onLevelChange($any($event.target).value)"
-            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
-          >
-            <option value="all">All Levels</option>
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- TAB: CHALLENGES                                             -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    @if (activeTab() === 'challenges') {
+
+      <!-- FILTERS -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+            <input type="text"
+              [value]="searchTerm()"
+              (input)="onSearchChange($any($event.target).value)"
+              placeholder="Search challenges..."
+              class="w-full pl-9 pr-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-400 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm transition-all"/>
+          </div>
+          <select [value]="selectedLevel()" (change)="onLevelChange($any($event.target).value)"
+            class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-400 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm transition-all">
+            <option value="all">🎓 All Levels</option>
             @for (level of levels; track level) {
               <option [value]="level">{{ getLevelLabel(level) }} ({{ level }})</option>
             }
           </select>
-        </div>
-
-        <!-- Type Filter -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Challenge Type
-          </label>
-          <select
-            [value]="selectedType()"
-            (change)="onTypeChange($any($event.target).value)"
-            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
-          >
-            <option value="all">All Types</option>
+          <select [value]="selectedType()" (change)="onTypeChange($any($event.target).value)"
+            class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-400 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm transition-all">
+            <option value="all">📚 All Types</option>
             @for (type of types; track type) {
               <option [value]="type">{{ getTypeIcon(type) }} {{ type }}</option>
             }
           </select>
         </div>
+        @if (selectedLevel() !== 'all' || selectedType() !== 'all' || searchTerm()) {
+          <div class="flex items-center justify-between mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+            <span class="text-sm text-gray-500">
+              Showing <strong class="text-gray-900 dark:text-white">{{ filteredChallenges().length }}</strong> of {{ challenges().length }} challenges
+            </span>
+            <button (click)="selectedLevel.set('all'); selectedType.set('all'); searchTerm.set(''); applyFilters()"
+              class="text-sm text-red-500 hover:text-red-600 font-medium flex items-center gap-1">
+              ✕ Clear filters
+            </button>
+          </div>
+        }
       </div>
-    </div>
 
-    <!-- Loading State -->
-    @if (loading()) {
-      <div class="text-center py-12">
-        <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-green-500 border-t-transparent"></div>
-        <p class="mt-4 text-gray-600 dark:text-gray-300">Loading challenges...</p>
-      </div>
-    }
-
-    <!-- Challenges Grid -->
-    @if (!loading() && filteredChallenges().length > 0) {
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        @for (challenge of filteredChallenges(); track challenge.id) {
-          <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-            <!-- Challenge Header -->
-            <div class="p-6">
-              <div class="flex items-start justify-between mb-4">
-                <span class="text-3xl">{{ getTypeIcon(challenge.type) }}</span>
-                <span [class]="getLevelColor(challenge.level)" class="px-3 py-1 rounded-full text-xs font-semibold">
-                  {{ challenge.level }}
-                </span>
+      <!-- LOADING SKELETON -->
+      @if (loading()) {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          @for (i of [1,2,3,4,5,6]; track i) {
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 animate-pulse">
+              <div class="flex justify-between mb-4">
+                <div class="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+                <div class="w-16 h-6 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
               </div>
+              <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-3/4"></div>
+              <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-4 w-full"></div>
+              <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+            </div>
+          }
+        </div>
+      }
 
-              <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                {{ challenge.title }}
-              </h3>
+      <!-- CHALLENGES GRID -->
+      @if (!loading() && filteredChallenges().length > 0) {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          @for (challenge of filteredChallenges(); track challenge.id) {
+            <div class="group bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-300 flex flex-col"
+                 [ngClass]="challenge.isExpired
+                   ? 'opacity-60 cursor-not-allowed'
+                   : 'hover:shadow-xl hover:-translate-y-1'">
 
-              <p class="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2">
-                {{ challenge.description }}
-              </p>
+              <!-- Top accent bar -->
+              <div class="h-1.5 w-full" [ngClass]="getTypeGradient(challenge.type)"></div>
 
-              <!-- Stats -->
-              <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
-                <div class="flex items-center gap-1">
-                  <span>⭐</span>
-                  <span>{{ challenge.points }} pts</span>
+              <div class="p-6 flex flex-col flex-1">
+                <!-- Header Row -->
+                <div class="flex items-start justify-between mb-4">
+                  <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-sm"
+                       [ngClass]="getTypeBackground(challenge.type)">
+                    {{ getTypeIcon(challenge.type) }}
+                  </div>
+                  <div class="flex flex-col items-end gap-1">
+                    <!-- EXPIRED badge -->
+                    @if (challenge.isExpired) {
+                      <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400">
+                        ⌛ EXPIRED
+                      </span>
+                    } @else {
+                      <span class="px-2.5 py-0.5 rounded-full text-xs font-bold" [ngClass]="getLevelColor(challenge.level)">
+                        {{ challenge.level }}
+                      </span>
+                    }
+                    <span class="text-xs text-gray-400 dark:text-gray-500">{{ getLevelLabel(challenge.level) }}</span>
+                  </div>
                 </div>
-                @if (challenge.timeLimit) {
-                  <div class="flex items-center gap-1">
-                    <span>⏱️</span>
-                    <span>{{ challenge.timeLimit }} min</span>
+
+                <!-- Title & Description -->
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 line-clamp-1"
+                    [ngClass]="challenge.isExpired ? '' : 'group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors'">
+                  {{ challenge.title }}
+                </h3>
+                <p class="text-gray-500 dark:text-gray-400 text-sm mb-4 line-clamp-2 flex-1">
+                  {{ challenge.description }}
+                </p>
+
+                <!-- Stats Pills -->
+                <div class="flex flex-wrap gap-2 mb-4">
+                  <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 rounded-lg text-xs font-medium">
+                    ⭐ {{ challenge.points }} pts
+                  </span>
+                  @if (challenge.timeLimit) {
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-lg text-xs font-medium">
+                      ⏱️ {{ challenge.timeLimit }}m
+                    </span>
+                  }
+                  <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 rounded-lg text-xs font-medium">
+                    📝 {{ challenge.questions?.length || 0 }} Q
+                  </span>
+                  <!-- Weekly badge -->
+                  @if (challenge.tags?.includes('weekly')) {
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 rounded-lg text-xs font-bold">
+                      📅 Weekly
+                    </span>
+                  }
+                </div>
+
+                <!-- Success Rate Bar -->
+                @if (challenge.totalAttempts && challenge.totalAttempts > 0) {
+                  <div class="mb-4">
+                    <div class="flex justify-between text-xs mb-1">
+                      <span class="text-gray-500 dark:text-gray-400">{{ challenge.totalAttempts }} attempts</span>
+                      <span class="font-semibold" [ngClass]="getSuccessRateColor(challenge.successRate)">
+                        {{ challenge.successRate?.toFixed(0) || 0 }}% pass rate
+                      </span>
+                    </div>
+                    <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5">
+                      <div class="h-1.5 rounded-full transition-all duration-500"
+                           [ngClass]="getSuccessRateBar(challenge.successRate)"
+                           [style.width.%]="challenge.successRate || 0">
+                      </div>
+                    </div>
                   </div>
                 }
-                <div class="flex items-center gap-1">
-                  <span>📝</span>
-                  <span>{{ challenge.questions.length || 0 }} questions</span>
-                </div>
-              </div>
 
-              <!-- Success Rate -->
-              @if (challenge.totalAttempts && challenge.totalAttempts > 0) {
-                <div class="mb-4">
-                  <div class="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
-                    <span>Success Rate</span>
-                    <span [class]="getSuccessRateColor(challenge.successRate)">
-                      {{ challenge.successRate?.toFixed(0) }}%
-                    </span>
+                <!-- Start / Expired Button -->
+                @if (challenge.isExpired) {
+                  <div class="w-full py-3 rounded-xl font-semibold text-sm text-center bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed">
+                    ⌛ Challenge Expired
                   </div>
-                  <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div
-                      class="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-300"
-                      [style.width.%]="challenge.successRate || 0"
-                    ></div>
-                  </div>
-                </div>
-              }
-
-              <!-- Category -->
-              <div class="flex items-center gap-2 mb-4">
-                <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded">
-                  {{ challenge.category }}
-                </span>
-                <span class="text-xs text-gray-500 dark:text-gray-400">
-                  {{ challenge.totalAttempts || 0 }} attempts
-                </span>
+                } @else {
+                  <button (click)="startChallenge(challenge)"
+                    class="w-full py-3 rounded-xl font-semibold text-sm transition-all duration-200 bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(0,180,135)] text-white hover:from-[rgb(0,180,135)] hover:to-[rgb(0,160,120)] hover:shadow-lg hover:shadow-green-200 dark:hover:shadow-green-900/30 active:scale-95">
+                    Start Challenge →
+                  </button>
+                }
               </div>
-
-              <!-- Start Button -->
-              <button
-                (click)="startChallenge(challenge)"
-                class="w-full px-6 py-3 rounded-lg font-medium transition-opacity bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white hover:opacity-90">
-                Start Challenge
-              </button>
             </div>
+          }
+        </div>
+      }
+
+      <!-- EMPTY STATE -->
+      @if (!loading() && filteredChallenges().length === 0) {
+        <div class="text-center py-20">
+          <div class="text-7xl mb-6">🔍</div>
+          <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">No challenges found</h3>
+          <p class="text-gray-500 dark:text-gray-400 mb-8">Try adjusting your filters or search term</p>
+          <button (click)="selectedLevel.set('all'); selectedType.set('all'); searchTerm.set(''); applyFilters()"
+            class="px-8 py-3 rounded-xl font-semibold bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white hover:opacity-90 transition-opacity shadow-lg">
+            Clear All Filters
+          </button>
+        </div>
+      }
+    }
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- TAB: WEEKLY LEADERBOARD                                     -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    @if (activeTab() === 'leaderboard') {
+      <div class="max-w-3xl mx-auto">
+
+        @if (loadingLeaderboard()) {
+          <div class="flex flex-col items-center justify-center py-20 gap-4">
+            <div class="animate-spin rounded-full h-12 w-12 border-4 border-yellow-400 border-t-transparent"></div>
+            <p class="text-gray-500 dark:text-gray-400 text-sm">Loading leaderboard...</p>
           </div>
+        } @else if (weeklyLeaderboard().length === 0) {
+          <!-- No data yet -->
+          <div class="bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-300 dark:border-gray-600 p-16 text-center">
+            <div class="text-6xl mb-4">🏆</div>
+            <h3 class="text-xl font-bold text-gray-700 dark:text-gray-300 mb-2">No weekly data yet</h3>
+            <p class="text-gray-500 dark:text-gray-400 text-sm">
+              The weekly leaderboard resets every Monday at 07:00.<br>
+              Complete challenges this week to appear here!
+            </p>
+          </div>
+        } @else {
+          <!-- Header -->
+          <div class="text-center mb-8">
+            <h2 class="text-2xl font-extrabold text-gray-900 dark:text-white mb-1">🏆 Weekly Leaderboard</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              Week of {{ weeklyLeaderboard()[0]?.weekStart | date:'dd/MM/yyyy' }}
+              → {{ weeklyLeaderboard()[0]?.weekEnd | date:'dd/MM/yyyy' }}
+            </p>
+          </div>
+
+          <!-- Top 3 Podium -->
+          @if (weeklyLeaderboard().length >= 3) {
+            <div class="bg-gradient-to-b from-yellow-50 to-white dark:from-yellow-900/10 dark:to-gray-800 rounded-2xl border border-yellow-100 dark:border-yellow-900/30 p-8 mb-6">
+              <div class="flex items-end justify-center gap-4">
+
+                <!-- 2nd -->
+                <div class="flex flex-col items-center">
+                  <div class="w-16 h-16 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center text-2xl shadow-lg mb-2 ring-4 ring-gray-200">
+                    🥈
+                  </div>
+                  <div class="bg-gray-200 dark:bg-gray-600 rounded-t-xl w-20 h-16 flex flex-col items-center justify-center">
+                    <p class="text-xs font-bold text-gray-700 dark:text-gray-200">User #{{ weeklyLeaderboard()[1].userId }}</p>
+                    <p class="text-sm font-extrabold text-gray-600 dark:text-gray-300">{{ weeklyLeaderboard()[1].totalScore }}pts</p>
+                  </div>
+                </div>
+
+                <!-- 1st -->
+                <div class="flex flex-col items-center">
+                  <div class="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-500 flex items-center justify-center text-3xl shadow-xl mb-2 ring-4 ring-yellow-300">
+                    🥇
+                  </div>
+                  <div class="bg-gradient-to-b from-yellow-400 to-yellow-500 rounded-t-xl w-24 h-24 flex flex-col items-center justify-center shadow-lg">
+                    <p class="text-xs font-bold text-yellow-900">User #{{ weeklyLeaderboard()[0].userId }}</p>
+                    <p class="text-xl font-extrabold text-yellow-900">{{ weeklyLeaderboard()[0].totalScore }}pts</p>
+                    <p class="text-xs text-yellow-800">{{ weeklyLeaderboard()[0].passRate | number:'1.0-0' }}% pass</p>
+                  </div>
+                </div>
+
+                <!-- 3rd -->
+                <div class="flex flex-col items-center">
+                  <div class="w-16 h-16 rounded-full bg-gradient-to-br from-orange-300 to-orange-400 flex items-center justify-center text-2xl shadow-lg mb-2 ring-4 ring-orange-200">
+                    🥉
+                  </div>
+                  <div class="bg-orange-200 dark:bg-orange-800 rounded-t-xl w-20 h-12 flex flex-col items-center justify-center">
+                    <p class="text-xs font-bold text-orange-800 dark:text-orange-200">User #{{ weeklyLeaderboard()[2].userId }}</p>
+                    <p class="text-sm font-extrabold text-orange-700 dark:text-orange-300">{{ weeklyLeaderboard()[2].totalScore }}pts</p>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          }
+
+          <!-- Full Table -->
+          <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden shadow-sm">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
+                  <th class="px-4 py-3 text-left">Rank</th>
+                  <th class="px-4 py-3 text-left">User</th>
+                  <th class="px-4 py-3 text-right">Score</th>
+                  <th class="px-4 py-3 text-right">Passed</th>
+                  <th class="px-4 py-3 text-right">Pass Rate</th>
+                  <th class="px-4 py-3 text-right">Accuracy</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                @for (entry of weeklyLeaderboard(); track entry.userId) {
+                  <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors"
+                      [ngClass]="{
+                        'bg-yellow-50 dark:bg-yellow-900/20 font-semibold': entry.rank === 1,
+                        'bg-gray-50/50 dark:bg-gray-700/20 font-semibold': entry.rank === 2,
+                        'bg-orange-50/50 dark:bg-orange-900/10 font-semibold': entry.rank === 3
+                      }">
+                    <td class="px-4 py-3 text-lg font-bold">{{ getRankMedal(entry.rank) }}</td>
+                    <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">User #{{ entry.userId }}</td>
+                    <td class="px-4 py-3 text-right font-bold text-indigo-600 dark:text-indigo-400">{{ entry.totalScore }}</td>
+                    <td class="px-4 py-3 text-right">
+                      <span class="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 px-2 py-0.5 rounded-full text-xs font-medium">
+                        {{ entry.challengesPassed }}
+                      </span>
+                    </td>
+                    <td class="px-4 py-3 text-right font-medium" [ngClass]="getPassRateColor(entry.passRate)">
+                      {{ entry.passRate | number:'1.1-1' }}%
+                    </td>
+                    <td class="px-4 py-3 text-right text-gray-500 dark:text-gray-400">
+                      {{ entry.averageAccuracy | number:'1.1-1' }}%
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Info note -->
+          <p class="text-center text-xs text-gray-400 dark:text-gray-500 mt-4">
+            🔄 Leaderboard resets every Monday at 07:00 · Historical snapshots are preserved
+          </p>
         }
       </div>
     }
 
-    <!-- Empty State -->
-    @if (!loading() && filteredChallenges().length === 0) {
-      <div class="text-center py-12">
-        <div class="text-6xl mb-4">🔍</div>
-        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          No challenges found
-        </h3>
-        <p class="text-gray-600 dark:text-gray-300 mb-6">
-          Try adjusting your filters or search term
-        </p>
-        <button
-          (click)="selectedLevel.set('all'); selectedType.set('all'); searchTerm.set(''); applyFilters()"
-          class="px-8 py-3 rounded-lg font-medium transition-opacity bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white hover:opacity-90">
-          Clear Filters
-        </button>
-      </div>
-    }
   </div>
 </div>

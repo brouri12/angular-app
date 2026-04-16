@@ -24,6 +24,12 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
     
     // Find public challenges
     List<Challenge> findByIsPublicTrue();
+
+    // Find active (non-expired) public challenges
+    List<Challenge> findByIsPublicTrueAndIsExpiredFalse();
+
+    // Find expired challenges
+    List<Challenge> findByIsExpiredTrue();
     
     // Find by level and type
     List<Challenge> findByLevelAndType(ProficiencyLevel level, ChallengeType type);

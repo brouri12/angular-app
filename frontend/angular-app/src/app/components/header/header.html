@@ -71,7 +71,7 @@
           </button>
         } @else {
           <!-- User Menu -->
-          <div class="relative">
+          <div class="relative user-menu-container">
             <button 
               (click)="toggleUserMenu()"
               class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
@@ -85,38 +85,134 @@
             </button>
 
             @if (userMenuOpen) {
-              <div class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
-                <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
-                  <p class="text-sm font-medium text-gray-900 dark:text-white">{{ currentUser?.username }}</p>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">{{ currentUser?.email }}</p>
-                  <span class="inline-block mt-1 px-2 py-0.5 text-xs rounded-full bg-primary/10 text-primary">
-                    {{ currentUser?.role }}
-                  </span>
-                </div>
-                <a 
-                  routerLink="/profile"
-                  (click)="closeUserMenu()"
-                  class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                  Profile
-                </a>
-                @if (currentUser?.role === 'ADMIN') {
-                  <a 
-                    href="http://localhost:4201/dashboard"
-                    target="_blank"
-                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors border-t border-gray-200 dark:border-gray-700">
-                    <div class="flex items-center gap-2">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                      </svg>
-                      <span>Dashboard</span>
+              <div class="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden z-50">
+                
+                <!-- User Info -->
+                <div class="px-4 py-3 bg-gradient-to-r from-green-50 to-teal-50 dark:from-gray-700 dark:to-gray-700 border-b border-gray-100 dark:border-gray-600">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] flex items-center justify-center text-white font-bold text-lg">
+                      {{ currentUser?.prenom?.charAt(0) || 'U' }}
                     </div>
+                    <div>
+                      <p class="text-sm font-bold text-gray-900 dark:text-white">{{ currentUser?.username }}</p>
+                      <p class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[150px]">{{ currentUser?.email }}</p>
+                      <span class="inline-block mt-0.5 px-2 py-0.5 text-xs rounded-full font-semibold"
+                            [ngClass]="{
+                              'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400': currentUser?.role === 'ADMIN',
+                              'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400': currentUser?.role === 'TEACHER',
+                              'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400': currentUser?.role === 'STUDENT'
+                            }">
+                        {{ currentUser?.role }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Menu Items -->
+                <div class="py-1">
+                  <!-- Profile -->
+                  <a routerLink="/profile"
+                     (click)="closeUserMenu()"
+                     class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <span class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-600 flex items-center justify-center text-base">👤</span>
+                    <span class="font-medium">Profile</span>
                   </a>
-                }
-                <button 
-                  (click)="logout()"
-                  class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                  Sign Out
-                </button>
+
+                  <!-- My Challenges Button -->
+                  <button
+                    (click)="toggleChallengesPanel()"
+                    class="w-full flex items-center justify-between gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <div class="flex items-center gap-3">
+                      <span class="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-base">🎯</span>
+                      <span class="font-medium">My Challenges</span>
+                    </div>
+                    <svg class="w-4 h-4 transition-transform duration-200"
+                         [ngClass]="challengesPanelOpen ? 'rotate-180' : ''"
+                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                  </button>
+
+                  <!-- Challenges Panel (inline dropdown) -->
+                  @if (challengesPanelOpen) {
+                    <div class="mx-3 mb-2 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-100 dark:border-gray-600 overflow-hidden">
+                      @if (loadingSubmissions) {
+                        <div class="flex items-center justify-center py-6 gap-2">
+                          <div class="animate-spin rounded-full h-5 w-5 border-2 border-green-500 border-t-transparent"></div>
+                          <span class="text-xs text-gray-500">Loading...</span>
+                        </div>
+                      } @else if (userSubmissions.length === 0) {
+                        <div class="text-center py-6 px-4">
+                          <div class="text-3xl mb-2">🎯</div>
+                          <p class="text-xs text-gray-500 dark:text-gray-400">No challenges completed yet.</p>
+                          <a routerLink="/challenges"
+                             (click)="closeUserMenu()"
+                             class="inline-block mt-2 text-xs text-green-600 font-semibold hover:underline">
+                            Start one now →
+                          </a>
+                        </div>
+                      } @else {
+                        <div class="max-h-64 overflow-y-auto">
+                          @for (sub of userSubmissions; track sub.id) {
+                            <div class="px-3 py-2.5 border-b border-gray-100 dark:border-gray-600 last:border-0 hover:bg-white dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                                 (click)="closeUserMenu(); router.navigate(['/challenge-result', sub.id])">
+                              <div class="flex items-center justify-between mb-1.5">
+                                <div class="flex items-center gap-1.5 min-w-0">
+                                  <span class="text-sm shrink-0">{{ getStatusIcon(sub.status) }}</span>
+                                  <span class="text-xs font-semibold text-gray-800 dark:text-gray-200 truncate" [title]="sub.challengeTitle">
+                                    {{ sub.challengeTitle || ('Challenge #' + sub.challengeId) }}
+                                  </span>
+                                </div>
+                                <span class="text-xs font-bold shrink-0 ml-2" [ngClass]="getStatusColor(sub.status)">
+                                  {{ sub.score }} pts
+                                </span>
+                              </div>
+                              <!-- Progress bar -->
+                              <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-1.5 mb-1">
+                                <div class="h-1.5 rounded-full transition-all"
+                                     [ngClass]="getProgressBarColor(sub.percentage || 0)"
+                                     [style.width.%]="sub.percentage || 0">
+                                </div>
+                              </div>
+                              <div class="flex justify-between text-xs text-gray-400">
+                                <span>{{ sub.correctAnswers }}/{{ sub.totalQuestions }} correct</span>
+                                <span class="font-medium" [ngClass]="getStatusColor(sub.status)">
+                                  {{ (sub.percentage || 0).toFixed(0) }}%
+                                </span>
+                              </div>
+                            </div>
+                          }
+                        </div>
+                        <!-- Footer -->
+                        <div class="px-3 py-2 bg-white dark:bg-gray-700 border-t border-gray-100 dark:border-gray-600">
+                          <a routerLink="/challenges"
+                             (click)="closeUserMenu()"
+                             class="text-xs text-green-600 dark:text-green-400 font-semibold hover:underline flex items-center justify-center gap-1">
+                            Browse all challenges →
+                          </a>
+                        </div>
+                      }
+                    </div>
+                  }
+
+                  <!-- Dashboard (admin only) -->
+                  @if (currentUser?.role === 'ADMIN') {
+                    <a href="http://localhost:4201/dashboard"
+                       target="_blank"
+                       class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-t border-gray-100 dark:border-gray-700">
+                      <span class="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-base">📊</span>
+                      <span class="font-medium">Dashboard</span>
+                    </a>
+                  }
+
+                  <!-- Sign Out -->
+                  <button
+                    (click)="logout()"
+                    class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors border-t border-gray-100 dark:border-gray-700">
+                    <span class="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-base">🚪</span>
+                    <span class="font-medium">Sign Out</span>
+                  </button>
+                </div>
               </div>
             }
           </div>

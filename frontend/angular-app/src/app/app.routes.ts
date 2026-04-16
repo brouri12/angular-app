@@ -9,6 +9,7 @@ import { TestNotifications } from './pages/test-notifications/test-notifications
 import { Challenges } from './pages/challenges/challenges';
 import { ChallengeDetail } from './pages/challenge-detail/challenge-detail';
 import { ChallengeResult } from './pages/challenge-result/challenge-result';
+import { ChallengeStats } from './pages/challenge-stats/challenge-stats';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -20,6 +21,7 @@ export const routes: Routes = [
   { path: 'challenges', component: Challenges },
   { path: 'challenge/:id', component: ChallengeDetail },
   { path: 'challenge-result/:id', component: ChallengeResult },
+  { path: 'challenge-stats', component: ChallengeStats },
   { path: 'test-notifications', component: TestNotifications },
   { path: '**', redirectTo: '' }
 ];

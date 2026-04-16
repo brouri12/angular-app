@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AbonnementService, AbonnementAnalytics } from '../../services/abonnement.service';
 import { AuthService } from '../../services/auth.service';
+import { ChallengeService, GlobalStatsDTO, UserRankDTO } from '../../services/challenge.service';
 import { HistoriqueAbonnement } from '../../models/abonnement.model';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
@@ -18,16 +19,24 @@ Chart.register(...registerables);
 export class Dashboard implements OnInit, AfterViewInit {
   private abonnementService = inject(AbonnementService);
   private authService = inject(AuthService);
+  private challengeService = inject(ChallengeService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   
   @ViewChild('accessLevelChart') accessLevelChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('statusChart') statusChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('popularityChart') popularityChartRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('levelChart') levelChartRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('typeChart') typeChartRef!: ElementRef<HTMLCanvasElement>;
   
   loading = signal(true);
   analytics = signal<AbonnementAnalytics | null>(null);
   paiements = signal<HistoriqueAbonnement[]>([]);
+  
+  // Challenge stats signals
+  challengeStats = signal<GlobalStatsDTO | null>(null);
+  leaderboard = signal<UserRankDTO[]>([]);
+  loadingChallengeStats = signal(true);
   
   private charts: Chart[] = [];
   
@@ -115,6 +124,32 @@ export class Dashboard implements OnInit, AfterViewInit {
         this.loading.set(false);
       }
     });
+
+    // Load challenge global stats
+    this.loadingChallengeStats.set(true);
+    this.challengeService.getGlobalStats().subscribe({
+      next: (data) => {
+        console.log('✓ Challenge stats loaded:', data);
+        this.challengeStats.set(data);
+        this.loadingChallengeStats.set(false);
+        setTimeout(() => this.createChallengeCharts(), 100);
+      },
+      error: (err) => {
+        console.error('✗ Error loading challenge stats:', err);
+        this.loadingChallengeStats.set(false);
+      }
+    });
+
+    // Load leaderboard
+    this.challengeService.getLeaderboard(10).subscribe({
+      next: (data) => {
+        console.log('✓ Leaderboard loaded:', data);
+        this.leaderboard.set(data);
+      },
+      error: (err) => {
+        console.error('✗ Error loading leaderboard:', err);
+      }
+    });
   }
 
   updateStats() {
@@ -165,8 +200,7 @@ export class Dashboard implements OnInit, AfterViewInit {
     return this.paiements().slice(0, 4);
   }
 
-  createCharts() {
-    const analytics = this.analytics();
+  createCharts() {    const analytics = this.analytics();
     if (!analytics) return;
 
     // Destroy existing charts
@@ -315,5 +349,134 @@ export class Dashboard implements OnInit, AfterViewInit {
       });
       this.charts.push(popularityChart);
     }
+  }
+
+  // ── Challenge chart helpers ────────────────────────────────────────────────
+
+  createChallengeCharts() {
+    const stats = this.challengeStats();
+    if (!stats) return;
+
+    // Submissions by Level (Bar)
+    if (this.levelChartRef) {
+      const existing = this.charts.find(c => (c as any).__id === 'level');
+      if (existing) existing.destroy();
+
+      const levelChart = new Chart(this.levelChartRef.nativeElement, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(stats.submissionsByLevel),
+          datasets: [{
+            label: 'Submissions',
+            data: Object.values(stats.submissionsByLevel),
+            backgroundColor: [
+              'rgba(34,197,94,0.8)',
+              'rgba(59,130,246,0.8)',
+              'rgba(234,179,8,0.8)',
+              'rgba(249,115,22,0.8)',
+              'rgba(239,68,68,0.8)',
+              'rgba(168,85,247,0.8)'
+            ],
+            borderRadius: 8,
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: 'rgba(0,0,0,0.05)' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+      (levelChart as any).__id = 'level';
+      this.charts.push(levelChart);
+    }
+
+    // Submissions by Type (Doughnut)
+    if (this.typeChartRef) {
+      const existing = this.charts.find(c => (c as any).__id === 'type');
+      if (existing) existing.destroy();
+
+      const typeChart = new Chart(this.typeChartRef.nativeElement, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(stats.submissionsByType),
+          datasets: [{
+            data: Object.values(stats.submissionsByType),
+            backgroundColor: [
+              'rgb(0,200,151)',
+              'rgb(255,127,80)',
+              'rgb(100,149,237)',
+              'rgb(255,193,7)',
+              'rgb(239,68,68)',
+              'rgb(168,85,247)',
+              'rgb(20,184,166)',
+              'rgb(251,146,60)'
+            ],
+            borderWidth: 2,
+            borderColor: '#fff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: { position: 'bottom', labels: { padding: 12, font: { size: 11 } } }
+          }
+        }
+      });
+      (typeChart as any).__id = 'type';
+      this.charts.push(typeChart);
+    }
+  }
+
+  getPassRateColor(rate: number): string {
+    if (rate >= 70) return 'text-green-500';
+    if (rate >= 40) return 'text-yellow-500';
+    return 'text-red-500';
+  }
+
+  getPassRateBg(rate: number): string {
+    if (rate >= 70) return 'bg-green-500';
+    if (rate >= 40) return 'bg-yellow-500';
+    return 'bg-red-500';
+  }
+
+  getRankMedal(rank: number): string {
+    if (rank === 1) return '🥇';
+    if (rank === 2) return '🥈';
+    if (rank === 3) return '🥉';
+    return `#${rank}`;
+  }
+
+  getRankRowClass(rank: number): string {
+    if (rank === 1) return 'bg-yellow-50 dark:bg-yellow-900/20 font-semibold';
+    if (rank === 2) return 'bg-gray-50 dark:bg-gray-700/30 font-semibold';
+    if (rank === 3) return 'bg-orange-50 dark:bg-orange-900/20 font-semibold';
+    return '';
+  }
+
+  getTypeIcon(type: string): string {
+    const icons: { [key: string]: string } = {
+      VOCABULARY: '📚', GRAMMAR: '✍️', READING: '📖',
+      LISTENING: '👂', WRITING: '📝', SPEAKING: '🗣️',
+      IDIOMS: '💬', MIXED: '🎯'
+    };
+    return icons[type] || '📋';
+  }
+
+  getLevelBadgeClass(level: string): string {
+    const classes: { [key: string]: string } = {
+      A1: 'bg-green-100 text-green-800',
+      A2: 'bg-blue-100 text-blue-800',
+      B1: 'bg-yellow-100 text-yellow-800',
+      B2: 'bg-orange-100 text-orange-800',
+      C1: 'bg-red-100 text-red-800',
+      C2: 'bg-purple-100 text-purple-800'
+    };
+    return classes[level] || 'bg-gray-100 text-gray-800';
   }
 }

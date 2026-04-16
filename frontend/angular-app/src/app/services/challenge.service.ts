@@ -56,9 +56,45 @@ export class ChallengeService {
     return this.http.get<any[]>(`${this.apiUrl}/submissions/user/${userId}`);
   }
 
+  // Get user submissions with challenge title, type and level
+  getUserSubmissionsWithChallenge(userId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/submissions/user/${userId}/with-challenges`);
+  }
+
   // Get user total score
   getUserTotalScore(userId: number): Observable<number> {
     return this.http.get<number>(`${this.apiUrl}/submissions/user/${userId}/total-score`);
+  }
+
+  // ── Statistics / Calculation endpoints ──────────────────────────────────────
+
+  getUserStats(userId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/stats/users/${userId}`);
+  }
+
+  getChallengeStats(challengeId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/stats/challenges/${challengeId}`);
+  }
+
+  getGlobalStats(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/stats/global`);
+  }
+
+  getLeaderboard(limit: number = 10): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/stats/leaderboard?limit=${limit}`);
+  }
+
+  // Predict success probability for a user on a challenge
+  predictSuccess(userId: number, challengeId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/stats/predict?userId=${userId}&challengeId=${challengeId}`);
+  }
+
+  // Weekly leaderboard history
+  getWeeklyLeaderboard(weekStart?: string): Observable<any[]> {
+    const url = weekStart
+      ? `${this.apiUrl}/stats/weekly-leaderboard?weekStart=${weekStart}`
+      : `${this.apiUrl}/stats/weekly-leaderboard`;
+    return this.http.get<any[]>(url);
   }
 
   // Create challenge (for teachers)

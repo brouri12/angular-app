@@ -1,196 +1,332 @@
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+<div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 py-8">
   @if (loading()) {
-    <div class="flex justify-center items-center h-64">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+    <div class="flex flex-col justify-center items-center h-64 gap-4">
+      <div class="animate-spin rounded-full h-14 w-14 border-4 border-green-500 border-t-transparent"></div>
+      <p class="text-gray-500 dark:text-gray-400 text-sm">Loading challenge...</p>
     </div>
   } @else if (challenge()) {
-    <div class="max-w-4xl mx-auto px-4">
-      <!-- Header -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-        <div class="flex items-start justify-between">
-          <div class="flex-1">
-            <div class="flex items-center gap-3 mb-2">
-              <span class="text-3xl">{{ getTypeIcon(challenge()!.type) }}</span>
-              <span class="px-3 py-1 rounded-full text-sm font-medium" 
-                    [ngClass]="getLevelColor(challenge()!.level)">
-                {{ challenge()!.level }} - {{ getLevelLabel(challenge()!.level) }}
+    <div class="max-w-3xl mx-auto px-4 space-y-5">
+
+      <!-- ===== CHALLENGE HEADER CARD ===== -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <!-- Top color bar -->
+        <div class="h-1.5 bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)]"></div>
+
+        <div class="p-6">
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex-1">
+              <!-- Type + Level badges -->
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="text-2xl">{{ getTypeIcon(challenge()!.type) }}</span>
+                <span class="px-3 py-1 rounded-full text-xs font-bold"
+                      [ngClass]="getLevelColor(challenge()!.level)">
+                  {{ challenge()!.level }} · {{ getLevelLabel(challenge()!.level) }}
+                </span>
+                <span class="px-2.5 py-1 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 rounded-full text-xs font-semibold">
+                  ⭐ {{ challenge()!.points }} pts
+                </span>
+                @if (challenge()!.timeLimit) {
+                  <span class="px-2.5 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-full text-xs font-semibold">
+                    ⏱️ {{ challenge()!.timeLimit }} min
+                  </span>
+                }
+              </div>
+
+              <h1 class="text-2xl font-extrabold text-gray-900 dark:text-white mb-1">
+                {{ challenge()!.title }}
+              </h1>
+              <p class="text-gray-500 dark:text-gray-400 text-sm">
+                {{ challenge()!.description }}
+              </p>
+            </div>
+
+            <!-- Timer -->
+            @if (timeRemaining() !== null) {
+              <div class="shrink-0 text-center bg-gray-50 dark:bg-gray-700 rounded-2xl px-4 py-3 min-w-[80px]">
+                <div class="text-xs text-gray-500 dark:text-gray-400 mb-1 font-medium">Time Left</div>
+                <div class="text-2xl font-extrabold tabular-nums"
+                     [ngClass]="timeRemaining()! < 60 ? 'text-red-500 animate-pulse' : 'text-green-600'">
+                  {{ formatTime(timeRemaining()!) }}
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Progress -->
+          <div class="mt-5">
+            <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1.5">
+              <span class="font-medium">Progress</span>
+              <span>
+                <strong class="text-gray-900 dark:text-white">{{ Object.keys(answers()).length }}</strong>
+                / {{ challenge()!.questions.length }} answered
               </span>
             </div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              {{ challenge()!.title }}
-            </h1>
-            <p class="text-gray-600 dark:text-gray-400">
-              {{ challenge()!.description }}
-            </p>
-          </div>
-          
-          @if (timeRemaining() !== null) {
-            <div class="ml-4 text-center">
-              <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Time Left</div>
-              <div class="text-2xl font-bold" 
-                   [ngClass]="timeRemaining()! < 60 ? 'text-red-600' : 'text-green-600'">
-                {{ formatTime(timeRemaining()!) }}
+            <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+              <div class="h-2.5 rounded-full bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(0,180,135)] transition-all duration-500"
+                   [style.width.%]="progress()">
               </div>
             </div>
-          }
-        </div>
-
-        <!-- Progress Bar -->
-        <div class="mt-4">
-          <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
-            <span>Progress</span>
-            <span>{{ Object.keys(answers()).length }} / {{ challenge()!.questions.length }} answered</span>
-          </div>
-          <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-            <div class="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-300"
-                 [style.width.%]="progress()"></div>
-          </div>
-        </div>
-
-        <!-- Question Navigation -->
-        <div class="mt-4 flex flex-wrap gap-2">
-          @for (q of challenge()!.questions; track q.id; let i = $index) {
-            <button
-              (click)="goToQuestion(i)"
-              class="w-10 h-10 rounded-lg font-medium transition-all"
-              [ngClass]="{
-                'bg-green-600 text-white': i === currentQuestionIndex(),
-                'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200': i !== currentQuestionIndex() && answers()[q.id!],
-                'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300': i !== currentQuestionIndex() && !answers()[q.id!]
-              }">
-              {{ i + 1 }}
-            </button>
-          }
-        </div>
-      </div>
-
-      <!-- Question Card -->
-      @if (currentQuestion()) {
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-          <div class="mb-4">
-            <span class="text-sm text-gray-600 dark:text-gray-400">
-              Question {{ currentQuestionIndex() + 1 }} of {{ challenge()!.questions.length }}
-            </span>
-            <span class="ml-4 text-sm font-medium text-green-600">
-              {{ currentQuestion()!.points }} points
-            </span>
           </div>
 
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">
-            {{ currentQuestion()!.questionText }}
-          </h2>
-
-          @if (currentQuestion()!.imageUrl) {
-            <img [src]="currentQuestion()!.imageUrl" 
-                 alt="Question image"
-                 class="w-full max-w-md mx-auto rounded-lg mb-6">
-          }
-
-          <!-- Multiple Choice -->
-          @if (currentQuestion()!.type === 'MULTIPLE_CHOICE' && currentQuestion()!.options) {
-            <div class="space-y-3">
-              @for (option of currentQuestion()!.options; track option) {
-                <label class="flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all hover:border-green-500"
-                       [ngClass]="answers()[currentQuestion()!.id!] === option ? 'border-green-600 bg-green-50 dark:bg-green-900/20' : 'border-gray-300 dark:border-gray-600'">
-                  <input type="radio"
-                         [name]="'question-' + currentQuestion()!.id"
-                         [value]="option"
-                         [checked]="answers()[currentQuestion()!.id!] === option"
-                         (change)="setAnswer(currentQuestion()!.id!, option)"
-                         class="w-5 h-5 text-green-600">
-                  <span class="ml-3 text-gray-900 dark:text-white">{{ option }}</span>
-                </label>
-              }
-            </div>
-          }
-
-          <!-- True/False -->
-          @if (currentQuestion()!.type === 'TRUE_FALSE') {
-            <div class="space-y-3">
-              @for (option of ['True', 'False']; track option) {
-                <label class="flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all hover:border-green-500"
-                       [ngClass]="answers()[currentQuestion()!.id!] === option ? 'border-green-600 bg-green-50 dark:bg-green-900/20' : 'border-gray-300 dark:border-gray-600'">
-                  <input type="radio"
-                         [name]="'question-' + currentQuestion()!.id"
-                         [value]="option"
-                         [checked]="answers()[currentQuestion()!.id!] === option"
-                         (change)="setAnswer(currentQuestion()!.id!, option)"
-                         class="w-5 h-5 text-green-600">
-                  <span class="ml-3 text-gray-900 dark:text-white">{{ option }}</span>
-                </label>
-              }
-            </div>
-          }
-
-          <!-- Fill in the Blank -->
-          @if (currentQuestion()!.type === 'FILL_BLANK') {
-            <input type="text"
-                   [value]="answers()[currentQuestion()!.id!] || ''"
-                   (input)="setAnswer(currentQuestion()!.id!, $any($event.target).value)"
-                   placeholder="Type your answer here..."
-                   class="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:border-green-600 focus:outline-none dark:bg-gray-700 dark:text-white">
-          }
-
-          <!-- Open Ended -->
-          @if (currentQuestion()!.type === 'OPEN_ENDED') {
-            <textarea
-              [value]="answers()[currentQuestion()!.id!] || ''"
-              (input)="setAnswer(currentQuestion()!.id!, $any($event.target).value)"
-              placeholder="Write your answer here..."
-              rows="6"
-              class="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:border-green-600 focus:outline-none dark:bg-gray-700 dark:text-white resize-none"></textarea>
-          }
-
-          <div class="flex justify-between mt-8">
-            <button
-              (click)="previousQuestion()"
-              [disabled]="currentQuestionIndex() === 0"
-              class="px-6 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800">
-              ← Previous
-            </button>
-
-            @if (currentQuestionIndex() < challenge()!.questions.length - 1) {
+          <!-- Question Navigation Dots -->
+          <div class="mt-4 flex flex-wrap gap-2">
+            @for (q of challenge()!.questions; track q.id; let i = $index) {
               <button
-                (click)="nextQuestion()"
-                class="px-6 py-2 rounded-lg font-medium transition-opacity bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white hover:opacity-90">
-                Next →
+                (click)="goToQuestion(i)"
+                class="w-9 h-9 rounded-xl text-sm font-bold transition-all duration-200 hover:scale-110"
+                [ngClass]="{
+                  'bg-gradient-to-br from-[rgb(0,200,151)] to-[rgb(0,180,135)] text-white shadow-md shadow-green-200 dark:shadow-green-900/30': i === currentQuestionIndex(),
+                  'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300': i !== currentQuestionIndex() && answers()[q.id!],
+                  'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400': i !== currentQuestionIndex() && !answers()[q.id!]
+                }">
+                {{ i + 1 }}
               </button>
             }
           </div>
         </div>
+      </div>
+
+      <!-- ===== PREDICTION CARD ===== -->
+      @if (loadingPrediction()) {
+        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-4 animate-pulse flex items-center gap-3">
+          <div class="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+          <div class="flex-1">
+            <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-2"></div>
+            <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+          </div>
+        </div>
       }
 
-      <!-- Submit Button -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-gray-600 dark:text-gray-400">
-              @if (canSubmit()) {
-                All questions answered! Ready to submit?
+      @if (!loadingPrediction() && prediction() && showPrediction()) {
+        <div class="rounded-2xl border-2 p-5 transition-all" [ngClass]="getPredictionBg()">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-center gap-3 flex-1">
+              <!-- Gauge -->
+              <div class="relative w-16 h-16 shrink-0">
+                <svg class="w-16 h-16 -rotate-90" viewBox="0 0 36 36">
+                  <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e5e7eb" stroke-width="3"/>
+                  <circle cx="18" cy="18" r="15.9" fill="none"
+                    [attr.stroke]="prediction()!.successProbability >= 70 ? '#22c55e' : prediction()!.successProbability >= 45 ? '#eab308' : '#ef4444'"
+                    stroke-width="3" stroke-linecap="round"
+                    [attr.stroke-dasharray]="(prediction()!.successProbability / 100 * 100) + ' 100'"
+                    stroke-dashoffset="0"/>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <span class="text-xs font-extrabold" [ngClass]="getPredictionColor()">
+                    {{ prediction()!.successProbability | number:'1.0-0' }}%
+                  </span>
+                </div>
+              </div>
+
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-base">{{ getPredictionIcon() }}</span>
+                  <span class="font-bold text-gray-900 dark:text-white text-sm">
+                    Success Prediction
+                  </span>
+                  <span class="text-xs px-2 py-0.5 rounded-full font-semibold"
+                    [ngClass]="{
+                      'bg-green-100 text-green-700': prediction()!.confidence === 'HIGH',
+                      'bg-yellow-100 text-yellow-700': prediction()!.confidence === 'MEDIUM',
+                      'bg-red-100 text-red-700': prediction()!.confidence === 'LOW'
+                    }">
+                    {{ prediction()!.confidence }} confidence
+                  </span>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400">{{ prediction()!.advice }}</p>
+
+                <!-- Factor breakdown -->
+                <div class="grid grid-cols-2 gap-x-6 gap-y-1 mt-3">
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="text-gray-500">Overall pass rate</span>
+                    <span class="font-semibold">{{ prediction()!.userOverallPassRate }}%</span>
+                  </div>
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="text-gray-500">Same type</span>
+                    <span class="font-semibold">{{ prediction()!.userTypePassRate }}%</span>
+                  </div>
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="text-gray-500">Same level</span>
+                    <span class="font-semibold">{{ prediction()!.userLevelPassRate }}%</span>
+                  </div>
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="text-gray-500">🔥 Streak</span>
+                    <span class="font-semibold">{{ prediction()!.currentStreak }} days</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button (click)="showPrediction.set(false)"
+              class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-lg leading-none shrink-0">✕</button>
+          </div>
+        </div>
+      }
+
+      <!-- ===== QUESTION CARD ===== -->
+      @if (currentQuestion()) {
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+          <!-- Question header bar -->
+          <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-[rgb(0,200,151)] to-[rgb(0,180,135)] text-white text-sm font-bold flex items-center justify-center shadow-sm">
+                {{ currentQuestionIndex() + 1 }}
+              </span>
+              <span class="text-sm text-gray-500 dark:text-gray-400">
+                of {{ challenge()!.questions.length }} questions
+              </span>
+            </div>
+            <span class="inline-flex items-center gap-1 px-3 py-1 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 rounded-full text-xs font-bold">
+              ⭐ {{ currentQuestion()!.points }} pts
+            </span>
+          </div>
+
+          <div class="p-6">
+            <!-- Question Text -->
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6 leading-relaxed">
+              {{ currentQuestion()!.questionText }}
+            </h2>
+
+            @if (currentQuestion()!.imageUrl) {
+              <img [src]="currentQuestion()!.imageUrl"
+                   alt="Question image"
+                   class="w-full max-w-md mx-auto rounded-xl mb-6 shadow-md">
+            }
+
+            <!-- MULTIPLE CHOICE -->
+            @if (currentQuestion()!.type === 'MULTIPLE_CHOICE' && currentQuestion()!.options) {
+              <div class="space-y-3">
+                @for (option of currentQuestion()!.options; track $index; let idx = $index) {
+                  <label class="flex items-center gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/10 group"
+                         [ngClass]="answers()[currentQuestion()!.id!] === option
+                           ? 'border-green-500 bg-green-50 dark:bg-green-900/20 shadow-sm'
+                           : 'border-gray-200 dark:border-gray-600'">
+                    <!-- Option letter -->
+                    <span class="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold shrink-0 transition-colors"
+                          [ngClass]="answers()[currentQuestion()!.id!] === option
+                            ? 'bg-green-500 text-white'
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 group-hover:bg-green-100 dark:group-hover:bg-green-900/30'">
+                      {{ ['A','B','C','D'][idx] }}
+                    </span>
+                    <input type="radio"
+                           [name]="'question-' + currentQuestion()!.id"
+                           [value]="option"
+                           [checked]="answers()[currentQuestion()!.id!] === option"
+                           (change)="setAnswer(currentQuestion()!.id!, option)"
+                           class="hidden">
+                    <span class="text-gray-800 dark:text-gray-200 font-medium">{{ option }}</span>
+                  </label>
+                }
+              </div>
+            }
+
+            <!-- TRUE / FALSE -->
+            @if (currentQuestion()!.type === 'TRUE_FALSE') {
+              <div class="grid grid-cols-2 gap-4">
+                @for (option of ['True', 'False']; track option) {
+                  <label class="flex flex-col items-center justify-center gap-2 p-5 border-2 rounded-xl cursor-pointer transition-all duration-200 hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/10"
+                         [ngClass]="answers()[currentQuestion()!.id!] === option
+                           ? 'border-green-500 bg-green-50 dark:bg-green-900/20 shadow-sm'
+                           : 'border-gray-200 dark:border-gray-600'">
+                    <span class="text-3xl">{{ option === 'True' ? '✅' : '❌' }}</span>
+                    <span class="font-bold text-gray-800 dark:text-gray-200">{{ option }}</span>
+                    <input type="radio"
+                           [name]="'question-' + currentQuestion()!.id"
+                           [value]="option"
+                           [checked]="answers()[currentQuestion()!.id!] === option"
+                           (change)="setAnswer(currentQuestion()!.id!, option)"
+                           class="hidden">
+                  </label>
+                }
+              </div>
+            }
+
+            <!-- FILL IN THE BLANK -->
+            @if (currentQuestion()!.type === 'FILL_BLANK') {
+              <div class="relative">
+                <input type="text"
+                       [value]="answers()[currentQuestion()!.id!] || ''"
+                       (input)="setAnswer(currentQuestion()!.id!, $any($event.target).value)"
+                       placeholder="Type your answer here..."
+                       class="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-900/30 focus:outline-none dark:bg-gray-700 dark:text-white text-base transition-all placeholder-gray-400">
+                @if (answers()[currentQuestion()!.id!]) {
+                  <span class="absolute right-4 top-1/2 -translate-y-1/2 text-green-500 text-xl">✓</span>
+                }
+              </div>
+            }
+
+            <!-- OPEN ENDED -->
+            @if (currentQuestion()!.type === 'OPEN_ENDED') {
+              <textarea
+                [value]="answers()[currentQuestion()!.id!] || ''"
+                (input)="setAnswer(currentQuestion()!.id!, $any($event.target).value)"
+                placeholder="Write your answer here..."
+                rows="5"
+                class="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-900/30 focus:outline-none dark:bg-gray-700 dark:text-white text-base transition-all resize-none placeholder-gray-400">
+              </textarea>
+            }
+
+            <!-- Navigation -->
+            <div class="flex justify-between items-center mt-8 pt-5 border-t border-gray-100 dark:border-gray-700">
+              <button
+                (click)="previousQuestion()"
+                [disabled]="currentQuestionIndex() === 0"
+                class="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed border-2 border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">
+                ← Previous
+              </button>
+
+              <span class="text-xs text-gray-400 font-medium">
+                {{ currentQuestionIndex() + 1 }} / {{ challenge()!.questions.length }}
+              </span>
+
+              @if (currentQuestionIndex() < challenge()!.questions.length - 1) {
+                <button
+                  (click)="nextQuestion()"
+                  class="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(0,180,135)] text-white hover:opacity-90 shadow-sm hover:shadow-md hover:shadow-green-200 dark:hover:shadow-green-900/30">
+                  Next →
+                </button>
               } @else {
-                Please answer all questions before submitting.
+                <div class="w-24"></div>
               }
-            </p>
-            <p class="text-sm text-gray-500 dark:text-gray-500 mt-1">
-              {{ Object.keys(answers()).length }} / {{ challenge()!.questions.length }} questions completed
-            </p>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- ===== SUBMIT CARD ===== -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            @if (canSubmit()) {
+              <div class="flex items-center gap-2 text-green-600 dark:text-green-400 font-semibold mb-1">
+                <span class="text-xl">🎉</span> All questions answered!
+              </div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">You're ready to submit your challenge.</p>
+            } @else {
+              <div class="flex items-center gap-2 text-gray-700 dark:text-gray-300 font-semibold mb-1">
+                <span class="text-xl">📝</span>
+                {{ Object.keys(answers()).length }} / {{ challenge()!.questions.length }} answered
+              </div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Answer all questions to submit.</p>
+            }
           </div>
 
           <button
             (click)="submitChallenge()"
             [disabled]="!canSubmit() || submitting()"
-            class="px-8 py-3 rounded-lg font-medium transition-opacity disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white hover:opacity-90">
+            class="shrink-0 px-8 py-3 rounded-xl font-bold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white hover:opacity-90 shadow-md hover:shadow-lg hover:shadow-green-200 dark:hover:shadow-green-900/30 active:scale-95">
             @if (submitting()) {
               <span class="flex items-center gap-2">
-                <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                <span class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
                 Submitting...
               </span>
             } @else {
-              Submit Challenge
+              Submit Challenge 🚀
             }
           </button>
         </div>
       </div>
+
     </div>
   }
 </div>

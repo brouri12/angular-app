@@ -22,29 +22,34 @@ export class ChallengeDetail implements OnInit {
   challenge = signal<Challenge | null>(null);
   loading = signal(true);
   submitting = signal(false);
-  
+
+  // Prediction
+  prediction = signal<any | null>(null);
+  loadingPrediction = signal(false);
+  showPrediction = signal(true);
+
   // User answers
   answers = signal<{ [questionId: number]: string }>({});
-  
+
   // Timer
   timeRemaining = signal<number | null>(null);
   timerInterval: any;
-  
+
   // Progress
   currentQuestionIndex = signal(0);
   hintsUsed = signal(0);
-  startTime = Date.now();
-  
+  startTime: number = 0;
+
   // Expose Object for template
   Object = Object;
-  
+
   // Computed
   currentQuestion = computed(() => {
     const ch = this.challenge();
     if (!ch || !ch.questions) return null;
     return ch.questions[this.currentQuestionIndex()];
   });
-  
+
   progress = computed(() => {
     const ch = this.challenge();
     if (!ch || !ch.questions) return 0;
@@ -71,18 +76,64 @@ export class ChallengeDetail implements OnInit {
       next: (data) => {
         this.challenge.set(data);
         this.loading.set(false);
-        
-        // Start timer if challenge has time limit
+        this.startTime = Date.now();
+
         if (data.timeLimit) {
-          this.timeRemaining.set(data.timeLimit * 60); // Convert minutes to seconds
+          this.timeRemaining.set(data.timeLimit * 60);
           this.startTimer();
         }
+
+        // Load prediction for current user
+        this.loadPrediction(id);
       },
       error: (err) => {
         console.error('Error loading challenge:', err);
         this.loading.set(false);
       }
     });
+  }
+
+  loadPrediction(challengeId: number) {
+    let user: any = null;
+    this.authService.currentUser$.subscribe(u => user = u).unsubscribe();
+    if (!user) return;
+
+    const userId = user.id_user || user.id;
+    this.loadingPrediction.set(true);
+    this.challengeService.predictSuccess(userId, challengeId).subscribe({
+      next: (data) => {
+        this.prediction.set(data);
+        this.loadingPrediction.set(false);
+      },
+      error: () => {
+        // Prediction is optional — fail silently
+        this.loadingPrediction.set(false);
+      }
+    });
+  }
+
+  getPredictionColor(): string {
+    const p = this.prediction();
+    if (!p) return 'text-gray-500';
+    if (p.successProbability >= 70) return 'text-green-600';
+    if (p.successProbability >= 45) return 'text-yellow-600';
+    return 'text-red-500';
+  }
+
+  getPredictionBg(): string {
+    const p = this.prediction();
+    if (!p) return 'bg-gray-50 border-gray-200';
+    if (p.successProbability >= 70) return 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800';
+    if (p.successProbability >= 45) return 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800';
+    return 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800';
+  }
+
+  getPredictionIcon(): string {
+    const p = this.prediction();
+    if (!p) return '🎯';
+    if (p.successProbability >= 70) return '🟢';
+    if (p.successProbability >= 45) return '🟡';
+    return '🔴';
   }
 
   startTimer() {
@@ -134,29 +185,31 @@ export class ChallengeDetail implements OnInit {
 
   submitChallenge() {
     const ch = this.challenge();
-    
     if (!ch) return;
 
-    // Get current user from auth service
     let user: any = null;
     this.authService.currentUser$.subscribe(u => user = u).unsubscribe();
-    
+
     if (!user) {
       alert('Please login to submit challenge');
       return;
     }
 
-    // Stop timer
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
     }
 
     const completionTime = Math.floor((Date.now() - this.startTime) / 1000);
 
+    const answersMap: { [key: number]: string } = {};
+    Object.entries(this.answers()).forEach(([k, v]) => {
+      answersMap[Number(k)] = v;
+    });
+
     const request: SubmissionRequest = {
       challengeId: ch.id!,
-      userId: user.id,
-      answers: this.answers(),
+      userId: user.id_user || user.id,
+      answers: answersMap,
       completionTime,
       hintsUsed: this.hintsUsed()
     };

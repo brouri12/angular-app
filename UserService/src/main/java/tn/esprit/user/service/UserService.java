@@ -15,6 +15,7 @@ import tn.esprit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -293,6 +294,28 @@ public class UserService {
     // Compter les utilisateurs par rôle
     public Long countUsersByRole(UserRole role) {
         return userRepository.countByRole(role);
+    }
+
+    // ── Inter-service methods ──────────────────────────────────────────────────
+
+    /**
+     * Returns the email address of a user by their ID.
+     * Called by ChallengeService scheduler for streak reminder emails.
+     */
+    public String getUserEmailById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+        return user.getEmail();
+    }
+
+    /**
+     * Returns a map of userId → email for a list of IDs.
+     * Called by ChallengeService scheduler for bulk email resolution.
+     * Users not found are silently skipped.
+     */
+    public Map<Long, String> getEmailsByIds(List<Long> ids) {
+        return userRepository.findAllById(ids).stream()
+                .collect(Collectors.toMap(User::getId_user, User::getEmail));
     }
     
     // Convertir User en UserDTO

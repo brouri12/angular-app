@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NotificationService, Notification } from '../../services/notification.service';
 
@@ -12,11 +12,12 @@ import { NotificationService, Notification } from '../../services/notification.s
 export class NotificationComponent implements OnInit {
   notification: Notification | null = null;
 
-  constructor(private notificationService: NotificationService) {}
+  constructor(private notificationService: NotificationService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.notificationService.notification$.subscribe(notification => {
       this.notification = notification;
+      this.cdr.detectChanges();
     });
   }
 

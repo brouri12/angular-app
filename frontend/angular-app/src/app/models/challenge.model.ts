@@ -80,6 +80,8 @@ export interface Challenge {
   successRate?: number;
   audioUrl?: string;
   imageUrl?: string;
+  isExpired?: boolean;
+  expiresAt?: string;
 }
 
 export interface Hint {

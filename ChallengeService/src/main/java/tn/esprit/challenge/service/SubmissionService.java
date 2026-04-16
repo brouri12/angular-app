@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import tn.esprit.challenge.dto.QuestionResultDTO;
 import tn.esprit.challenge.dto.SubmissionRequest;
 import tn.esprit.challenge.dto.SubmissionResponse;
+import tn.esprit.challenge.dto.SubmissionWithChallengeDTO;
 import tn.esprit.challenge.entity.Challenge;
 import tn.esprit.challenge.entity.Question;
 import tn.esprit.challenge.entity.Submission;
@@ -187,6 +188,37 @@ public class SubmissionService {
     // Get user's submissions
     public List<Submission> getUserSubmissions(Long userId) {
         return submissionRepository.findByUserIdOrderBySubmittedAtDesc(userId);
+    }
+
+    // Get user's submissions enriched with challenge title
+    public List<SubmissionWithChallengeDTO> getUserSubmissionsWithChallenge(Long userId) {
+        List<Submission> submissions = submissionRepository.findByUserIdOrderBySubmittedAtDesc(userId);
+        return submissions.stream().map(s -> {
+            String title = challengeRepository.findById(s.getChallengeId())
+                    .map(c -> c.getTitle())
+                    .orElse("Challenge #" + s.getChallengeId());
+            String type = challengeRepository.findById(s.getChallengeId())
+                    .map(c -> c.getType().name())
+                    .orElse("");
+            String level = challengeRepository.findById(s.getChallengeId())
+                    .map(c -> c.getLevel().name())
+                    .orElse("");
+            return SubmissionWithChallengeDTO.builder()
+                    .id(s.getId())
+                    .challengeId(s.getChallengeId())
+                    .challengeTitle(title)
+                    .challengeType(type)
+                    .challengeLevel(level)
+                    .userId(s.getUserId())
+                    .status(s.getStatus())
+                    .score(s.getScore())
+                    .correctAnswers(s.getCorrectAnswers())
+                    .totalQuestions(s.getTotalQuestions())
+                    .percentage(s.getPercentage())
+                    .submittedAt(s.getSubmittedAt())
+                    .completionTime(s.getCompletionTime())
+                    .build();
+        }).collect(java.util.stream.Collectors.toList());
     }
     
     // Get user's total score

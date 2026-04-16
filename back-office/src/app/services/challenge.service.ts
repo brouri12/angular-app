@@ -3,6 +3,39 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Challenge, SubmissionRequest, SubmissionResponse, ProficiencyLevel, ChallengeType } from '../models/challenge.model';
 
+export interface UserRankDTO {
+  userId: number;
+  rank: number;
+  totalScore: number;
+  challengesPassed: number;
+  passRate: number;
+  averageAccuracy: number;
+}
+
+export interface ChallengeDTO {
+  id: number;
+  title: string;
+  type: string;
+  level: string;
+  attemptCount?: number;
+  passRate?: number;
+}
+
+export interface GlobalStatsDTO {
+  totalChallenges: number;
+  totalSubmissions: number;
+  totalUsers: number;
+  totalPassedSubmissions: number;
+  globalPassRate: number;
+  globalAverageScore: number;
+  globalAverageAccuracy: number;
+  topUsers: UserRankDTO[];
+  mostAttemptedChallenges: ChallengeDTO[];
+  hardestChallenges: ChallengeDTO[];
+  submissionsByLevel: { [key: string]: number };
+  submissionsByType: { [key: string]: number };
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -74,6 +107,16 @@ export class ChallengeService {
   // Delete challenge (for teachers)
   deleteChallenge(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/challenges/${id}`);
+  }
+
+  // Statistics endpoints
+  getGlobalStats(): Observable<GlobalStatsDTO> {
+    return this.http.get<GlobalStatsDTO>(`${this.apiUrl}/stats/global`);
+  }
+
+  getLeaderboard(limit: number = 10): Observable<UserRankDTO[]> {
+    const params = new HttpParams().set('limit', limit.toString());
+    return this.http.get<UserRankDTO[]>(`${this.apiUrl}/stats/leaderboard`, { params });
   }
 
   // Helper methods
