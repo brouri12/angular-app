@@ -1,0 +1,194 @@
+<div class="p-6 max-w-4xl mx-auto">
+  <!-- Header -->
+  <div class="flex items-center gap-4 mb-8">
+    <button (click)="goBack()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+    </button>
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Add Question</h1>
+      <p class="text-gray-500 dark:text-gray-400 text-sm">Add questions to Quiz or Sentence games</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Game Selection -->
+    <div class="lg:col-span-1">
+      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+        <h2 class="font-semibold text-gray-900 dark:text-white mb-4">Select Game</h2>
+
+        @if (loading() && games().length === 0) {
+          <div class="flex justify-center py-8">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          </div>
+        }
+
+        <div class="space-y-2">
+          @for (game of games(); track game.id) {
+            <button
+              (click)="selectGame(game)"
+              class="w-full text-left px-4 py-3 rounded-lg border-2 transition-all"
+              [ngClass]="selectedGame()?.id === game.id
+                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'">
+              <div class="font-medium text-sm">{{ game.title }}</div>
+              <div class="flex gap-2 mt-1">
+                <span class="text-xs px-2 py-0.5 rounded-full"
+                      [ngClass]="game.type === 'QUIZ' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300' : 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300'">
+                  {{ game.type }}
+                </span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
+                  {{ game.difficulty }}
+                </span>
+              </div>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Question Form -->
+    <div class="lg:col-span-2">
+      @if (!selectedGame()) {
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
+          <div class="text-5xl mb-4">📝</div>
+          <p class="text-gray-500 dark:text-gray-400">Select a game from the left to add questions</p>
+        </div>
+      } @else {
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="font-semibold text-gray-900 dark:text-white">
+              New Question for: <span class="text-blue-600 dark:text-blue-400">{{ selectedGame()!.title }}</span>
+            </h2>
+            <span class="text-xs px-3 py-1 rounded-full font-medium"
+                  [ngClass]="isQuizGame() ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300' : 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300'">
+              {{ selectedGame()!.type }}
+            </span>
+          </div>
+
+          <!-- Success Message -->
+          @if (success()) {
+            <div class="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg flex items-center gap-3">
+              <span class="text-green-500 text-xl">✅</span>
+              <span class="text-green-700 dark:text-green-300 font-medium">Question added successfully!</span>
+            </div>
+          }
+
+          <!-- Error Message -->
+          @if (error()) {
+            <div class="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg flex items-center gap-3">
+              <span class="text-red-500 text-xl">❌</span>
+              <span class="text-red-700 dark:text-red-300">{{ error() }}</span>
+            </div>
+          }
+
+          <div class="space-y-5">
+            <!-- Question Text -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Question Text <span class="text-red-500">*</span>
+              </label>
+              <textarea
+                [ngModel]="questionText()"
+                (ngModelChange)="questionText.set($event)"
+                rows="3"
+                placeholder="Enter the question..."
+                class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none">
+              </textarea>
+            </div>
+
+            <!-- Correct Answer -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Correct Answer <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                [ngModel]="correctAnswer()"
+                (ngModelChange)="correctAnswer.set($event)"
+                placeholder="Enter the correct answer..."
+                class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+
+            <!-- Options (Quiz only) -->
+            @if (isQuizGame()) {
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Answer Options <span class="text-red-500">*</span>
+                  <span class="text-gray-400 font-normal ml-1">(include the correct answer as one of the options)</span>
+                </label>
+                <div class="grid grid-cols-2 gap-3">
+                  <input type="text" [ngModel]="option1()" (ngModelChange)="option1.set($event)"
+                    placeholder="Option A" class="px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <input type="text" [ngModel]="option2()" (ngModelChange)="option2.set($event)"
+                    placeholder="Option B" class="px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <input type="text" [ngModel]="option3()" (ngModelChange)="option3.set($event)"
+                    placeholder="Option C" class="px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <input type="text" [ngModel]="option4()" (ngModelChange)="option4.set($event)"
+                    placeholder="Option D" class="px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+              </div>
+            }
+
+            <!-- Sentence hint options (optional) -->
+            @if (isSentenceGame()) {
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Wrong Options <span class="text-gray-400 font-normal">(optional — shown as distractors)</span>
+                </label>
+                <div class="grid grid-cols-3 gap-3">
+                  <input type="text" [ngModel]="option1()" (ngModelChange)="option1.set($event)"
+                    placeholder="Wrong option 1" class="px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <input type="text" [ngModel]="option2()" (ngModelChange)="option2.set($event)"
+                    placeholder="Wrong option 2" class="px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <input type="text" [ngModel]="option3()" (ngModelChange)="option3.set($event)"
+                    placeholder="Wrong option 3" class="px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+              </div>
+            }
+
+            <!-- Explanation -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Explanation <span class="text-gray-400 font-normal">(shown after answering)</span>
+              </label>
+              <textarea
+                [ngModel]="explanation()"
+                (ngModelChange)="explanation.set($event)"
+                rows="2"
+                placeholder="Explain why this is the correct answer..."
+                class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none">
+              </textarea>
+            </div>
+
+            <!-- Submit -->
+            <div class="flex gap-3 pt-2">
+              <button
+                (click)="submitQuestion()"
+                [disabled]="!canSubmit() || loading()"
+                class="flex-1 py-3 px-6 rounded-lg font-semibold transition-all"
+                [ngClass]="canSubmit() && !loading()
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'">
+                @if (loading()) {
+                  <span class="flex items-center justify-center gap-2">
+                    <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Saving...
+                  </span>
+                } @else {
+                  ➕ Add Question
+                }
+              </button>
+              <button
+                (click)="resetForm()"
+                class="px-6 py-3 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300">
+                Reset
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

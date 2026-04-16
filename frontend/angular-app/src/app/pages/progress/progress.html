@@ -1,0 +1,359 @@
+<div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 py-10">
+  <div class="max-w-6xl mx-auto px-4 space-y-6">
+
+    <!-- ===== HERO ===== -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-4 py-1.5 rounded-full text-sm font-semibold mb-3">
+        📊 Platform Analytics
+      </div>
+      <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+        Game <span class="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)]">Progress</span>
+      </h1>
+      <p class="text-gray-500 dark:text-gray-400 mt-2">Live stats, leaderboard and your personal progress</p>
+    </div>
+
+    <!-- ===== TABS ===== -->
+    <div class="flex gap-2 bg-white dark:bg-gray-800 rounded-2xl p-1.5 shadow-sm border border-gray-100 dark:border-gray-700 w-fit mx-auto">
+      @for (tab of [
+        {id:'overview', label:'🌐 Overview'},
+        {id:'leaderboard', label:'🏆 Leaderboard'},
+        {id:'my-stats', label:'👤 My Stats'}
+      ]; track tab.id) {
+        <button (click)="setTab(tab.id)"
+                class="px-5 py-2 rounded-xl text-sm font-semibold transition-all"
+                [ngClass]="activeTab() === tab.id
+                  ? 'bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(0,180,135)] text-white shadow-md'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'">
+          {{ tab.label }}
+        </button>
+      }
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         TAB 1 — OVERVIEW
+    ══════════════════════════════════════════════════════ -->
+    @if (activeTab() === 'overview') {
+      @if (loadingGlobal()) {
+        <div class="flex justify-center py-20">
+          <div class="animate-spin rounded-full h-12 w-12 border-4 border-green-500 border-t-transparent"></div>
+        </div>
+      } @else if (globalStats()) {
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          @for (kpi of [
+            {icon:'🎮', label:'Total Games', value: globalStats()!.totalGames, color:'from-green-400 to-green-600'},
+            {icon:'📝', label:'Submissions', value: globalStats()!.totalSubmissions, color:'from-blue-400 to-blue-600'},
+            {icon:'👥', label:'Players', value: globalStats()!.totalPlayers, color:'from-purple-400 to-purple-600'},
+            {icon:'✅', label:'Pass Rate', value: globalStats()!.globalPassRate + '%', color:'from-orange-400 to-orange-600'}
+          ]; track kpi.label) {
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700 text-center">
+              <div class="text-3xl mb-2">{{ kpi.icon }}</div>
+              <div class="text-3xl font-extrabold text-gray-900 dark:text-white">{{ kpi.value }}</div>
+              <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">{{ kpi.label }}</div>
+            </div>
+          }
+        </div>
+
+        <!-- Global Rates -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          @for (rate of [
+            {label:'Global Pass Rate', value: globalStats()!.globalPassRate, suffix:'%', icon:'🎯'},
+            {label:'Avg Score', value: globalStats()!.globalAverageScore, suffix:' pts', icon:'⭐'}
+          ]; track rate.label) {
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-sm font-semibold text-gray-600 dark:text-gray-400">{{ rate.label }}</span>
+                <span class="text-xl">{{ rate.icon }}</span>
+              </div>
+              <div class="text-3xl font-extrabold text-gray-900 dark:text-white mb-2">
+                {{ rate.value }}{{ rate.suffix }}
+              </div>
+              <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+                <div class="h-2 rounded-full bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(0,180,135)]"
+                     [style.width.%]="rate.suffix === ' pts' ? (rate.value / 50 * 100) : rate.value">
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Top Players Preview -->
+        @if (globalStats()!.leaderboard && globalStats()!.leaderboard.length > 0) {
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+            <h3 class="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              🏆 Top Players
+            </h3>
+            <div class="space-y-3">
+              @for (user of globalStats()!.leaderboard.slice(0, 5); track user.userId; let i = $index) {
+                <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-700"
+                     [ngClass]="isCurrentUser(user.userId) ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800' : ''">
+                  <div class="flex items-center gap-3">
+                    <span class="text-lg font-bold w-8 text-center">{{ getRankMedal(user.rank) }}</span>
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[rgb(0,200,151)] to-[rgb(255,127,80)] flex items-center justify-center text-white text-xs font-bold">
+                      {{ getInitial(user.userId) }}
+                    </div>
+                    <div>
+                      <div class="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                        {{ user.userId }}
+                        @if (isCurrentUser(user.userId)) {
+                          <span class="ml-1 text-xs text-green-600 font-bold">(You)</span>
+                        }
+                      </div>
+                      <div class="text-xs text-gray-500">Level {{ user.level }}</div>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-sm font-extrabold text-yellow-600 dark:text-yellow-400">{{ user.totalScore }} XP</div>
+                    <div class="text-xs" [ngClass]="getPassRateColor(user.passRate)">{{ user.passRate }}% pass</div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      }
+    }
+
+    <!-- ══════════════════════════════════════════════════════
+         TAB 2 — LEADERBOARD
+    ══════════════════════════════════════════════════════ -->
+    @if (activeTab() === 'leaderboard') {
+      @if (loadingLeaderboard()) {
+        <div class="flex justify-center py-20">
+          <div class="animate-spin rounded-full h-12 w-12 border-4 border-green-500 border-t-transparent"></div>
+        </div>
+      } @else {
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+
+          <!-- Top 3 podium -->
+          @if (leaderboard().length >= 3) {
+            <div class="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-gray-700 dark:to-gray-700 p-6 border-b border-gray-100 dark:border-gray-600">
+              <div class="flex items-end justify-center gap-6">
+                <!-- 2nd -->
+                <div class="text-center">
+                  <div class="text-3xl mb-1">🥈</div>
+                  <div class="w-16 h-16 rounded-full bg-gradient-to-br from-gray-300 to-gray-500 flex items-center justify-center text-white font-bold text-xl mx-auto mb-2">
+                    {{ getInitial(leaderboard()[1]?.userId) }}
+                  </div>
+                  <div class="text-xs font-bold text-gray-700 dark:text-gray-300">{{ leaderboard()[1]?.userId }}</div>
+                  <div class="text-sm font-extrabold text-gray-600 dark:text-gray-400">{{ leaderboard()[1]?.totalScore }} XP</div>
+                </div>
+                <!-- 1st -->
+                <div class="text-center -mb-2">
+                  <div class="text-4xl mb-1">🥇</div>
+                  <div class="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white font-bold text-2xl mx-auto mb-2 shadow-lg shadow-yellow-200 dark:shadow-yellow-900/30">
+                    {{ getInitial(leaderboard()[0]?.userId) }}
+                  </div>
+                  <div class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ leaderboard()[0]?.userId }}</div>
+                  <div class="text-base font-extrabold text-yellow-600">{{ leaderboard()[0]?.totalScore }} XP</div>
+                </div>
+                <!-- 3rd -->
+                <div class="text-center">
+                  <div class="text-3xl mb-1">🥉</div>
+                  <div class="w-16 h-16 rounded-full bg-gradient-to-br from-orange-300 to-orange-500 flex items-center justify-center text-white font-bold text-xl mx-auto mb-2">
+                    {{ getInitial(leaderboard()[2]?.userId) }}
+                  </div>
+                  <div class="text-xs font-bold text-gray-700 dark:text-gray-300">{{ leaderboard()[2]?.userId }}</div>
+                  <div class="text-sm font-extrabold text-orange-600">{{ leaderboard()[2]?.totalScore }} XP</div>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Full table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="bg-gray-50 dark:bg-gray-700/50 text-xs uppercase text-gray-500 dark:text-gray-400">
+                <tr>
+                  <th class="px-4 py-3 text-left">Rank</th>
+                  <th class="px-4 py-3 text-left">Player</th>
+                  <th class="px-4 py-3 text-right">Level</th>
+                  <th class="px-4 py-3 text-right">XP</th>
+                  <th class="px-4 py-3 text-right">Won</th>
+                  <th class="px-4 py-3 text-right">Pass Rate</th>
+                  <th class="px-4 py-3 text-right">Streak</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                @for (user of leaderboard(); track user.userId) {
+                  <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                      [ngClass]="isCurrentUser(user.userId) ? 'bg-green-50 dark:bg-green-900/20' : ''">
+                    <td class="px-4 py-3 font-bold text-gray-700 dark:text-gray-300 text-lg">
+                      {{ getRankMedal(user.rank) }}
+                    </td>
+                    <td class="px-4 py-3">
+                      <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[rgb(0,200,151)] to-[rgb(255,127,80)] flex items-center justify-center text-white text-xs font-bold">
+                          {{ getInitial(user.userId) }}
+                        </div>
+                        <span class="font-medium text-gray-800 dark:text-gray-200">
+                          {{ user.userId }}
+                          @if (isCurrentUser(user.userId)) {
+                            <span class="ml-1 text-xs text-green-600 font-bold">(You)</span>
+                          }
+                        </span>
+                      </div>
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                      <span class="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-bold">
+                        Lv {{ user.level }}
+                      </span>
+                    </td>
+                    <td class="px-4 py-3 text-right font-extrabold text-yellow-600 dark:text-yellow-400">
+                      {{ user.totalScore }}
+                    </td>
+                    <td class="px-4 py-3 text-right text-gray-700 dark:text-gray-300 font-semibold">
+                      {{ user.gamesPassed }}
+                    </td>
+                    <td class="px-4 py-3 text-right font-semibold" [ngClass]="getPassRateColor(user.passRate)">
+                      {{ user.passRate }}%
+                    </td>
+                    <td class="px-4 py-3 text-right text-orange-500 font-bold">
+                      @if (user.winStreak > 0) { 🔥{{ user.winStreak }} } @else { — }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+    }
+
+    <!-- ══════════════════════════════════════════════════════
+         TAB 3 — MY STATS
+    ══════════════════════════════════════════════════════ -->
+    @if (activeTab() === 'my-stats') {
+      @if (loadingUser()) {
+        <div class="flex justify-center py-20">
+          <div class="animate-spin rounded-full h-12 w-12 border-4 border-green-500 border-t-transparent"></div>
+        </div>
+      } @else if (userStats()) {
+
+        <!-- XP Level Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 rounded-full bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] flex items-center justify-center text-white font-bold text-2xl shadow-lg">
+                {{ userStats()!.level }}
+              </div>
+              <div>
+                <div class="text-xs text-gray-500 dark:text-gray-400 font-medium">Current Level</div>
+                <div class="text-2xl font-extrabold text-gray-900 dark:text-white">Level {{ userStats()!.level }}</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">{{ userStats()!.totalXP }} total XP</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-700">
+                <span>{{ getPerformanceBadge().icon }}</span>
+                <span class="text-sm font-semibold" [ngClass]="getPerformanceBadge().color">
+                  {{ getPerformanceBadge().label }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- XP Progress Bar -->
+          <div class="mb-2">
+            <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1.5">
+              <span class="font-medium">Level {{ userStats()!.level }}</span>
+              <span class="font-bold text-green-600">{{ userStats()!.progressBar }}% → Level {{ userStats()!.level + 1 }}</span>
+            </div>
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden">
+              <div class="h-4 rounded-full bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] transition-all duration-700"
+                   [style.width.%]="userStats()!.progressBar">
+              </div>
+            </div>
+            <div class="flex justify-between text-xs text-gray-400 mt-1">
+              <span>0 XP</span>
+              <span class="text-green-600 font-medium">{{ userStats()!.progressBar }}/100 XP</span>
+              <span>100 XP</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Personal KPIs -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          @for (kpi of [
+            {icon:'⭐', label:'Total XP', value: userStats()!.totalXP, suffix:'', color:'text-yellow-600'},
+            {icon:'✅', label:'Games Won', value: userStats()!.totalGamesPassed, suffix:'', color:'text-green-600'},
+            {icon:'🎯', label:'Pass Rate', value: userStats()!.passRate, suffix:'%', color:'text-blue-600'},
+            {icon:'🧠', label:'Accuracy', value: userStats()!.overallAccuracy, suffix:'%', color:'text-purple-600'}
+          ]; track kpi.label) {
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700 text-center">
+              <div class="text-3xl mb-2">{{ kpi.icon }}</div>
+              <div class="text-3xl font-extrabold" [ngClass]="kpi.color">{{ kpi.value }}{{ kpi.suffix }}</div>
+              <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">{{ kpi.label }}</div>
+            </div>
+          }
+        </div>
+
+        <!-- Attempt Breakdown + Streaks -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <!-- Attempt breakdown -->
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+            <h3 class="font-bold text-gray-900 dark:text-white mb-4">📊 Attempt Breakdown</h3>
+            <div class="space-y-3">
+              @for (item of [
+                {label:'Passed', value: userStats()!.totalGamesPassed, color:'bg-green-500'},
+                {label:'Failed', value: userStats()!.totalGamesFailed, color:'bg-red-500'},
+                {label:'Total Played', value: userStats()!.totalGamesPlayed, color:'bg-blue-500'}
+              ]; track item.label) {
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span class="font-medium text-gray-700 dark:text-gray-300">{{ item.label }}</span>
+                    <span class="font-bold text-gray-900 dark:text-white">{{ item.value }}</span>
+                  </div>
+                  <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5">
+                    <div class="h-2.5 rounded-full transition-all duration-700" [ngClass]="item.color"
+                         [style.width.%]="userStats()!.totalGamesPlayed > 0 ? (item.value / userStats()!.totalGamesPlayed * 100) : 0">
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Streaks -->
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+            <h3 class="font-bold text-gray-900 dark:text-white mb-4">⚡ Performance</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-orange-50 dark:bg-orange-900/20 rounded-xl p-4 text-center">
+                <div class="text-3xl font-extrabold text-orange-600">{{ userStats()!.currentStreak }}</div>
+                <div class="text-xs text-orange-700 dark:text-orange-400 font-medium mt-1">Current Streak 🔥</div>
+              </div>
+              <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-xl p-4 text-center">
+                <div class="text-3xl font-extrabold text-yellow-600">{{ userStats()!.bestStreak }}</div>
+                <div class="text-xs text-yellow-700 dark:text-yellow-400 font-medium mt-1">Best Streak 🏆</div>
+              </div>
+              <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center col-span-2">
+                <div class="text-3xl font-extrabold text-green-600">{{ userStats()!.passRate }}%</div>
+                <div class="text-xs text-green-700 dark:text-green-400 font-medium mt-1">Overall Pass Rate</div>
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mt-2">
+                  <div class="h-2 rounded-full transition-all duration-700"
+                       [ngClass]="getBarColor(userStats()!.passRate)"
+                       [style.width.%]="userStats()!.passRate">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      } @else {
+        <div class="text-center py-20">
+          <div class="text-6xl mb-4">📊</div>
+          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">No stats yet</h3>
+          <p class="text-gray-500 dark:text-gray-400 mb-6">Play some games to see your progress here!</p>
+          <a routerLink="/games"
+             class="inline-block px-8 py-3 rounded-xl font-semibold bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white hover:opacity-90 shadow-lg transition-opacity">
+            Play Now →
+          </a>
+        </div>
+      }
+    }
+
+  </div>
+</div>

@@ -1,0 +1,27 @@
+server:
+  port: 9001
+
+spring:
+  application:
+    name: GAME-SERVICE
+  datasource:
+    url: jdbc:mysql://localhost:3307/gamified_learning?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+    username: root
+    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+
+# APIVerve crossword API key
+apiverve:
+  key: apv_fb93dab9-0638-4cd6-a5a2-8d6ae5818fe6
+

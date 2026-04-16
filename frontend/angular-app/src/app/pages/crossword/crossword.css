@@ -1,0 +1,6 @@
+/* Crossword grid cell focus */
+div[tabindex="0"]:focus {
+  outline: 2px solid rgb(0, 200, 151);
+  outline-offset: -2px;
+  z-index: 1;
+}

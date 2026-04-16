@@ -1,0 +1,241 @@
+<div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 py-8">
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="flex flex-col justify-center items-center h-64 gap-4">
+      <div class="animate-spin rounded-full h-14 w-14 border-4 border-green-500 border-t-transparent"></div>
+      <p class="text-gray-500 dark:text-gray-400 text-sm">Generating crossword puzzle...</p>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (!loading() && error()) {
+    <div class="max-w-xl mx-auto px-4 text-center py-20">
+      <div class="text-6xl mb-4">⚠️</div>
+      <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Cannot generate crossword</h2>
+      <p class="text-gray-500 dark:text-gray-400 mb-6">{{ error() }}</p>
+      <div class="flex justify-center gap-3">
+        <button (click)="loadNewPuzzle()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white font-semibold hover:opacity-90">
+          🔄 Try Again
+        </button>
+        <button (click)="goHome()" class="px-6 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-gray-700">
+          ← Back to Games
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Puzzle -->
+  @if (!loading() && !error() && clues().length > 0) {
+    <div class="max-w-6xl mx-auto px-4">
+
+      <!-- Header Card -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden mb-6">
+        <div class="h-1.5 bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)]"></div>
+        <div class="p-5 flex items-center justify-between flex-wrap gap-4">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-2xl">🔤</span>
+              <h1 class="text-xl font-extrabold text-gray-900 dark:text-white capitalize">
+                {{ theme() }} Crossword
+              </h1>
+              <span class="px-2 py-0.5 rounded-full text-xs font-bold capitalize"
+                    [ngClass]="difficulty() === 'easy' ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300'
+                      : difficulty() === 'hard' ? 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300'
+                      : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300'">
+                {{ difficulty() }}
+              </span>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              {{ totalWords() }} words · +10 XP per correct word
+            </p>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <!-- New puzzle button -->
+            @if (!showResults()) {
+              <button (click)="loadNewPuzzle()"
+                class="px-4 py-2 rounded-xl text-sm font-semibold border-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                🔀 New Puzzle
+              </button>
+            }
+
+            <!-- Timer -->
+            @if (timerActive() && !showResults()) {
+              <div class="text-center bg-gray-50 dark:bg-gray-700 rounded-2xl px-5 py-3 min-w-[80px]">
+                <div class="text-xs text-gray-500 dark:text-gray-400 mb-1 font-medium">
+                  Time Left
+                  <span class="ml-1 text-gray-400 dark:text-gray-500">
+                    ({{ difficulty() === 'easy' ? 'Easy' : difficulty() === 'hard' ? 'Hard' : 'Medium' }})
+                  </span>
+                </div>
+                <div class="text-2xl font-extrabold tabular-nums"
+                     [ngClass]="timeRemaining() < 60 ? 'text-red-500 animate-pulse' : timeRemaining() < 120 ? 'text-yellow-500' : 'text-green-600'">
+                  {{ formatTime(timeRemaining()) }}
+                </div>
+              </div>
+            }
+
+            <!-- XP earned -->
+            @if (showResults()) {
+              <div class="text-center bg-green-50 dark:bg-green-900/20 rounded-2xl px-5 py-3 border border-green-200 dark:border-green-800">
+                <div class="text-xs text-green-600 dark:text-green-400 mb-1 font-medium">XP Earned</div>
+                <div class="text-2xl font-extrabold text-green-600">+{{ xpEarned() }}</div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Banner -->
+      @if (showResults()) {
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 mb-6 text-center">
+          <div class="text-5xl mb-3">
+            {{ correctWords() === totalWords() ? '🏆' : correctWords() > totalWords() / 2 ? '👍' : '📚' }}
+          </div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+            {{ correctWords() }}/{{ totalWords() }} words correct
+          </h2>
+          <p class="text-gray-500 dark:text-gray-400 mb-5">
+            {{ correctWords() === totalWords() ? 'Perfect score! All words correct!' : 'Green = correct · Red = wrong · Keep practicing!' }}
+          </p>
+          <!-- Score bar -->
+          <div class="max-w-xs mx-auto mb-5">
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
+              <div class="h-3 rounded-full transition-all duration-700"
+                   [ngClass]="correctWords() / totalWords() >= 0.7 ? 'bg-gradient-to-r from-green-400 to-emerald-500'
+                     : correctWords() / totalWords() >= 0.5 ? 'bg-gradient-to-r from-yellow-400 to-orange-500'
+                     : 'bg-gradient-to-r from-red-400 to-rose-500'"
+                   [style.width.%]="totalWords() > 0 ? (correctWords() / totalWords() * 100) : 0">
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-center gap-3">
+            <button (click)="playAgain()"
+              class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white font-semibold hover:opacity-90 shadow-md">
+              🔄 New Puzzle
+            </button>
+            <button (click)="goHome()"
+              class="px-6 py-2.5 rounded-xl border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-gray-700">
+              📚 More Games
+            </button>
+          </div>
+        </div>
+      }
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- ===== CROSSWORD GRID ===== -->
+        <div class="lg:col-span-2">
+          <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 overflow-auto">
+            <div class="inline-block border-2 border-gray-800 dark:border-gray-200">
+              @for (row of getRows(); track row) {
+                <div class="flex">
+                  @for (col of getCols(); track col) {
+                    @if (isBlack(row, col)) {
+                      <!-- Black cell -->
+                      <div class="w-8 h-8 bg-gray-900 dark:bg-gray-100 flex-shrink-0 border border-gray-700 dark:border-gray-300"></div>
+                    } @else {
+                      <!-- White cell -->
+                      <div class="w-8 h-8 relative flex-shrink-0 border border-gray-400 dark:border-gray-500 cursor-pointer select-none"
+                           [ngClass]="{
+                             'bg-blue-200 dark:bg-blue-800': isSelected(row, col) && !showResults(),
+                             'bg-blue-50 dark:bg-blue-900/30': isHighlighted(row, col) && !isSelected(row, col) && !showResults(),
+                             'bg-green-200 dark:bg-green-800/60': isCorrect(row, col),
+                             'bg-red-200 dark:bg-red-800/60': isWrong(row, col),
+                             'bg-white dark:bg-gray-800': !isSelected(row, col) && !isHighlighted(row, col) && !isCorrect(row, col) && !isWrong(row, col)
+                           }"
+                           (click)="selectCell(row, col)"
+                           (keydown)="onKeyDown($event, row, col)"
+                           tabindex="0">
+                        <!-- Clue number -->
+                        @if (getCellNumber(row, col)) {
+                          <span class="absolute top-0 left-0.5 text-[7px] font-bold text-gray-600 dark:text-gray-400 leading-none">
+                            {{ getCellNumber(row, col) }}
+                          </span>
+                        }
+                        <!-- User input letter -->
+                        <span class="absolute inset-0 flex items-center justify-center text-xs font-bold leading-none pt-1"
+                              [ngClass]="isCorrect(row, col) ? 'text-green-800 dark:text-green-200'
+                                : isWrong(row, col) ? 'text-red-800 dark:text-red-200'
+                                : 'text-gray-900 dark:text-white'">
+                          {{ getUserLetter(row, col) }}
+                        </span>
+                      </div>
+                    }
+                  }
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Progress + Submit -->
+          @if (!showResults()) {
+            <div class="mt-4 flex items-center justify-between">
+              <div class="text-sm text-gray-500 dark:text-gray-400">
+                <span class="font-bold text-gray-900 dark:text-white">{{ answeredCount }}</span>
+                / {{ totalWords() }} words filled
+              </div>
+              <button (click)="checkAnswers()"
+                class="px-8 py-3 rounded-xl font-bold bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white hover:opacity-90 shadow-md active:scale-95 transition-all">
+                Submit 🚀
+              </button>
+            </div>
+          }
+        </div>
+
+        <!-- ===== CLUES PANEL ===== -->
+        <div class="space-y-4 max-h-[600px] overflow-y-auto">
+
+          <!-- Across -->
+          <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-4">
+            <h3 class="font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2 text-sm uppercase tracking-wide">
+              ➡️ Across
+            </h3>
+            <div class="space-y-1">
+              @for (clue of acrossClues; track clue.number) {
+                <button (click)="selectClue(clue)"
+                  class="w-full text-left px-2 py-1.5 rounded-lg text-sm transition-colors"
+                  [ngClass]="selectedClue()?.number === clue.number && selectedClue()?.direction === 'ACROSS'
+                    ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 font-semibold'
+                    : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'">
+                  <span class="font-bold mr-1 text-gray-500 dark:text-gray-400">{{ clue.number }}.</span>
+                  {{ clue.clue }}
+                  <span class="text-xs text-gray-400 ml-1">({{ clue.length }})</span>
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Down -->
+          <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-4">
+            <h3 class="font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2 text-sm uppercase tracking-wide">
+              ⬇️ Down
+            </h3>
+            <div class="space-y-1">
+              @for (clue of downClues; track clue.number) {
+                <button (click)="selectClue(clue)"
+                  class="w-full text-left px-2 py-1.5 rounded-lg text-sm transition-colors"
+                  [ngClass]="selectedClue()?.number === clue.number && selectedClue()?.direction === 'DOWN'
+                    ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 font-semibold'
+                    : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'">
+                  <span class="font-bold mr-1 text-gray-500 dark:text-gray-400">{{ clue.number }}.</span>
+                  {{ clue.clue }}
+                  <span class="text-xs text-gray-400 ml-1">({{ clue.length }})</span>
+                </button>
+              }
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="text-center mt-6 pb-4">
+        <button (click)="goHome()" class="text-green-600 hover:text-green-700 dark:text-green-400 font-semibold text-sm">
+          ← Browse All Games
+        </button>
+      </div>
+
+    </div>
+  }
+</div>
