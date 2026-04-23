@@ -1,0 +1,61 @@
+<div class="min-h-screen py-20">
+  <div class="max-w-xl mx-auto px-4">
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+
+      <h2 class="text-2xl font-extrabold mb-1">Register to Event</h2>
+      <p class="text-gray-600 mb-5">
+        Event ID: <b>{{ eventId }}</b>
+      </p>
+
+      <div *ngIf="errorMsg" class="mb-4 p-3 rounded-lg bg-red-100 text-red-700">
+        {{ errorMsg }}
+      </div>
+
+      <div *ngIf="successMsg" class="mb-4 p-3 rounded-lg bg-green-100 text-green-700">
+        {{ successMsg }}
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
+
+        <div>
+          <label class="block font-semibold mb-1">User ID</label>
+          <input
+            type="number"
+            formControlName="userId"
+            class="w-full border rounded-lg px-3 py-2"
+            placeholder="Ex: 1"
+            readonly
+          />
+
+          <small class="text-red-600" *ngIf="form.get('userId')?.touched && form.get('userId')?.invalid">
+            User ID obligatoire (>= 1)
+          </small>
+        </div>
+
+        <p class="text-sm text-gray-500">
+          Status sera <b>PENDING</b> par défaut (backend).
+        </p>
+
+        <div class="flex gap-3 pt-2">
+          <button
+            type="submit"
+            class="px-5 py-2 rounded-lg bg-black text-white disabled:opacity-60"
+            [disabled]="loading"
+          >
+            {{ loading ? 'Saving...' : 'Confirm Registration' }}
+          </button>
+
+          <button
+            type="button"
+            class="px-5 py-2 rounded-lg border"
+            (click)="cancel()"
+            [disabled]="loading"
+          >
+            Cancel
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

@@ -189,7 +189,7 @@ public class AdvancedScheduler {
      *   If a challenge has the "weekly" tag but no expiresAt set,
      *   it is automatically given expiresAt = createdAt + 7 days.
      */
-    @Scheduled(cron = "0 0 9 * * *")
+    @Scheduled(cron = "0 35 16 * * *")
     @Transactional
     public void expireChallenges() {
         log.info("⏰ [AdvancedScheduler] Daily 09:00 — checking challenge expiration...");

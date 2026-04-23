@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenue sur le Forum</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #007bff;
+        }
+        .header h1 {
+            color: #007bff;
+            margin: 0;
+        }
+        .content {
+            padding: 20px 0;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #007bff;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .instructions {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 12px;
+            color: #666;
+        }
+        .footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Bienvenue sur le Forum !</h1>
+        </div>
+        
+        <div class="content">
+            <p>Bonjour <strong th:text="${username}">Utilisateur</strong>,</p>
+            
+            <p>Nous sommes ravis de vous accueillir sur notre plateforme de forum ! Votre compte a été créé avec succès.</p>
+            
+            <div class="instructions">
+                <h3>Pour bien démarrer :</h3>
+                <ul>
+                    <li>Explorez les différentes catégories de discussion</li>
+                    <li>Créez votre premier message pour vous présenter</li>
+                    <li>Répondez aux discussions qui vous intéressent</li>
+                    <li>Personnalisez vos préférences de notification</li>
+                    <li>Gagnez des badges en participant activement</li>
+                </ul>
+            </div>
+            
+            <p style="text-align: center;">
+                <a href="http://localhost:65198" class="button">Accéder au Forum</a>
+            </p>
+            
+            <p>Si vous avez des questions, n'hésitez pas à contacter notre équipe d'assistance ou à utiliser notre chatbot d'aide disponible sur toutes les pages du forum.</p>
+        </div>
+        
+        <div class="footer">
+            <p>Vous recevez cet email car vous vous êtes inscrit sur notre forum.</p>
+            <p><a th:href="@{http://localhost:65198/preferences}">Gérer mes préférences de notification</a></p>
+        </div>
+    </div>
+</body>
+</html>

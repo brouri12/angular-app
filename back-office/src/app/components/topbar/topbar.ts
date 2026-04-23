@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Theme } from '../../services/theme';
@@ -20,33 +20,22 @@ export class Topbar {
   constructor(
     public themeService: Theme,
     private authService: AuthService,
-    private modalService: ModalService
+    private modalService: ModalService,
+    private cdr: ChangeDetectorRef
   ) {
-    // Subscribe to authentication state
-    this.authService.isAuthenticated$.subscribe(
-      isAuth => this.isAuthenticated = isAuth
-    );
+    this.authService.isAuthenticated$.subscribe(isAuth => {
+      this.isAuthenticated = isAuth;
+      this.cdr.markForCheck();
+    });
 
-    // Subscribe to current user
-    this.authService.currentUser$.subscribe(
-      user => this.currentUser = user
-    );
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUser = user;
+      this.cdr.markForCheck();
+    });
   }
 
-  toggleUserMenu() {
-    this.userMenuOpen = !this.userMenuOpen;
-  }
-
-  closeUserMenu() {
-    this.userMenuOpen = false;
-  }
-
-  openLogin() {
-    this.modalService.openLogin();
-  }
-
-  logout() {
-    this.authService.logout();
-    this.userMenuOpen = false;
-  }
+  toggleUserMenu() { this.userMenuOpen = !this.userMenuOpen; }
+  closeUserMenu() { this.userMenuOpen = false; }
+  openLogin() { this.modalService.openLogin(); }
+  logout() { this.authService.logout(); this.userMenuOpen = false; }
 }

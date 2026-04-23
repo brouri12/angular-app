@@ -1,0 +1,37 @@
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { OffreRecrutement, CandidatureEnseignant } from '../models/recrutement.model';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class RecrutementService {
+  private http = inject(HttpClient);
+  private apiUrl = 'http://localhost:8888/api/recrutement';
+
+  // CRUD Offres
+  getAllOffres(): Observable<OffreRecrutement[]> {
+    return this.http.get<OffreRecrutement[]>(`${this.apiUrl}/offres`);
+  }
+
+  getOffreById(id: number): Observable<OffreRecrutement> {
+    return this.http.get<OffreRecrutement>(`${this.apiUrl}/offres/${id}`);
+  }
+
+  getOffresByStatut(statut: string): Observable<OffreRecrutement[]> {
+    return this.http.get<OffreRecrutement[]>(`${this.apiUrl}/offres/statut/${statut}`);
+  }
+
+  getOffresBySpecialite(specialite: string): Observable<OffreRecrutement[]> {
+    return this.http.get<OffreRecrutement[]>(`${this.apiUrl}/offres/specialite/${specialite}`);
+  }
+
+  // Candidatures
+  postuler(offreId: number, candidature: CandidatureEnseignant): Observable<CandidatureEnseignant> {
+    return this.http.post<CandidatureEnseignant>(
+      `${this.apiUrl}/candidatures/offre/${offreId}`,
+      candidature
+    );
+  }
+}

@@ -1,0 +1,167 @@
+<div class="clubs-page">
+
+  <!-- HERO (comme Events) -->
+  <div class="hero">
+    <div class="hero-left">
+      <h1>Clubs Back-Office</h1>
+      <p>Manage, filter, create and edit your clubs quickly.</p>
+
+      <div class="hero-actions">
+        <button class="btn-create" (click)="openCreate()">+ Create club</button>
+
+        <div class="search-pill">
+          <span class="search-ico">🔎</span>
+          <input
+            class="search-input"
+            placeholder="Search by club name…"
+            [(ngModel)]="searchText"
+            (ngModelChange)="applyFilters()"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATISTIQUES -->
+  <div class="stats-grid">
+    <div class="card stat-card">
+      <div class="stat-title">Total clubs</div>
+      <div class="stat-value">{{ totalClubs }}</div>
+      <div class="stat-sub">All clubs in database</div>
+    </div>
+
+    <div class="card stat-card">
+      <div class="stat-title">By type</div>
+      <div class="stat-list">
+        @for (t of byType; track t.label) {
+          <div class="stat-row">
+            <span class="chip">{{ t.label }}</span>
+            <span class="num">{{ t.total }}</span>
+          </div>
+        }
+        @if (!byType.length) {
+          <div class="stat-empty">No data</div>
+        }
+      </div>
+    </div>
+
+    <div class="card stat-card">
+      <div class="stat-title">Locations</div>
+      <div class="stat-value stat-value--sm">{{ distinctVillesCount }}</div>
+      <div class="stat-sub">Distinct cities / venues entered</div>
+    </div>
+
+    <div class="card stat-card">
+      <div class="stat-title">With location</div>
+      <div class="stat-value stat-value--sm">{{ withLocationCount }}</div>
+      <div class="stat-sub">Clubs with a location entered</div>
+    </div>
+  </div>
+
+  @if (errorMsg) {
+    <div class="state error">
+      <div class="state-title">Error</div>
+      <div class="state-msg">{{ errorMsg }}</div>
+    </div>
+  }
+
+  <!-- FILTRES : type + emplacement -->
+  <div class="card filter-card">
+    <div class="filter-head">
+      <div class="filter-title">🎛️ Filters</div>
+      <button class="btn-reset" type="button" (click)="resetFilters()">Reset</button>
+    </div>
+
+    <div class="filters">
+      <div class="field">
+        <label>Type</label>
+        <select class="select" [(ngModel)]="typeFilter" (ngModelChange)="applyFilters()">
+          <option value="">All types</option>
+          <option value="ONLINE">ONLINE</option>
+          <option value="PRESENTIEL">PRESENTIEL</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Location</label>
+        <select class="select" [(ngModel)]="villeFilter" (ngModelChange)="applyFilters()">
+          <option value="">All locations</option>
+          <option *ngFor="let v of uniqueVilles" [value]="v">{{ v }}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="list-head">
+    <div class="list-title">🏷️ Clubs</div>
+    <div class="list-count">{{ filtered.length }} result(s)</div>
+  </div>
+
+  @if (loading) {
+    <div class="state loading">⏳ Loading clubs…</div>
+  } @else if (filtered.length === 0) {
+    <div class="empty">
+      <div class="empty-ico">🗂️</div>
+      <div class="empty-title">No club found</div>
+      <div class="empty-sub">Try adjusting the filters or create a new club.</div>
+      <button class="btn-create mt" type="button" (click)="openCreate()">+ Create club</button>
+    </div>
+  } @else {
+    <div class="clubs-grid">
+      <div *ngFor="let c of filtered" class="card event-card animate-fade-in">
+
+        <img
+          [src]="logoUrl(c.idClub)"
+          class="w-full h-40 object-cover rounded-xl mb-4 border"
+        />
+
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <div class="event-title">{{ c.nomClub }}</div>
+            <div class="event-sub text-gray-500">#{{ c.idClub }}</div>
+          </div>
+          <div class="pill">🏷️ {{ c.type }}</div>
+        </div>
+
+        <div class="event-desc mt-3">
+          {{ c.description || 'No description' }}
+        </div>
+
+        <div class="event-meta mt-4">
+          <div class="meta-row">
+            <span class="meta-ico" aria-hidden="true">📍</span>
+            <span class="meta-value">{{ c.ville || '-' }}</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-ico" aria-hidden="true">📅</span>
+            <span class="meta-value">{{ c.dateCreation || '-' }}</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 mt-5">
+          <button class="btn-secondary" type="button" (click)="openEdit(c)">✏️ Edit</button>
+
+          <button
+            class="btn-danger"
+            type="button"
+            (click)="openDeleteModal(c)"
+            [disabled]="loadingAction"
+          >
+            🗑️ Delete
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+  <app-join-confirm-modal
+    [open]="confirmOpen"
+    title="Delete club"
+    [message]="'Are you sure you want to delete « ' + (selectedClub?.nomClub || '') + ' »?'"
+    (cancel)="cancelDelete()"
+    (confirm)="confirmDelete()">
+  </app-join-confirm-modal>
+
+  <router-outlet></router-outlet>
+</div>

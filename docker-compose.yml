@@ -1,0 +1,454 @@
+# ============================================================
+#  Wordly Platform – Full Docker Compose Stack
+#  Services: MySQL, Keycloak, Eureka, API Gateway,
+#            10 microservices, 2 Angular frontends,
+#            Jenkins, SonarQube, Prometheus, Grafana
+# ============================================================
+
+networks:
+  wordly-net:
+    driver: bridge
+
+volumes:
+  mysql-data:
+  keycloak-data:
+  jenkins-data:
+  sonarqube-data:
+  sonarqube-extensions:
+  sonarqube-logs:
+  sonarqube-db-data:
+  prometheus-data:
+  grafana-data:
+
+# ─────────────────────────────────────────────────────────────
+#  INFRASTRUCTURE
+# ─────────────────────────────────────────────────────────────
+services:
+
+  # ── MySQL (single instance, multiple databases) ──────────
+  mysql:
+    image: mysql:8.0
+    container_name: wordly-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_HOST: "%"
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./devops/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - wordly-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ── Keycloak ─────────────────────────────────────────────
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0.0
+    container_name: wordly-keycloak
+    restart: unless-stopped
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: mysql
+      KC_DB_URL: jdbc:mysql://mysql:3306/keycloak_db
+      KC_DB_USERNAME: root
+      KC_DB_PASSWORD: root
+      KC_HTTP_PORT: 9090
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+    ports:
+      - "9090:9090"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - wordly-net
+
+  # ── Eureka Server ─────────────────────────────────────────
+  eureka-server:
+    build:
+      context: ./EurekaServer
+      dockerfile: Dockerfile
+    container_name: wordly-eureka
+    restart: unless-stopped
+    ports:
+      - "8761:8761"
+    networks:
+      - wordly-net
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8761/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  # ── API Gateway ───────────────────────────────────────────
+  api-gateway:
+    build:
+      context: ./ApiGateway
+      dockerfile: Dockerfile
+    container_name: wordly-gateway
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - wordly-net
+
+# ─────────────────────────────────────────────────────────────
+#  MICROSERVICES
+# ─────────────────────────────────────────────────────────────
+
+  user-service:
+    build:
+      context: ./UserService
+      dockerfile: Dockerfile
+    container_name: wordly-user-service
+    restart: unless-stopped
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/user_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:9090/realms/wordly-realm
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:9090/realms/wordly-realm/protocol/openid-connect/certs
+      KEYCLOAK_AUTH_SERVER_URL: http://keycloak:9090
+      KEYCLOAK_ADMIN_SERVER_URL: http://keycloak:9090
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - wordly-net
+
+  abonnement-service:
+    build:
+      context: ./AbonnementService
+      dockerfile: Dockerfile
+    container_name: wordly-abonnement-service
+    restart: unless-stopped
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/abonnement_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - wordly-net
+
+  challenge-service:
+    build:
+      context: ./ChallengeService
+      dockerfile: Dockerfile
+    container_name: wordly-challenge-service
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/challenge_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - wordly-net
+
+  planification-service:
+    build:
+      context: ./PlanificationService
+      dockerfile: Dockerfile
+    container_name: wordly-planification-service
+    restart: unless-stopped
+    ports:
+      - "8087:8087"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/planification_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - wordly-net
+
+  event-service:
+    build:
+      context: ./event-service
+      dockerfile: Dockerfile
+    container_name: wordly-event-service
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/eventdb?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - wordly-net
+
+  reservation-service:
+    build:
+      context: ./reservation-service
+      dockerfile: Dockerfile
+    container_name: wordly-reservation-service
+    restart: unless-stopped
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/registrationdb?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - wordly-net
+
+  recrutement-service:
+    build:
+      context: ./recrutement-service
+      dockerfile: Dockerfile
+    container_name: wordly-recrutement-service
+    restart: unless-stopped
+    ports:
+      - "8093:8093"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/recrutement_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - wordly-net
+
+  club-service:
+    build:
+      context: ./club-service
+      dockerfile: Dockerfile
+    container_name: wordly-club-service
+    restart: unless-stopped
+    ports:
+      - "8089:8089"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/Clubdb?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:9090/realms/wordly-realm
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:9090/realms/wordly-realm/protocol/openid-connect/certs
+      CLUB_CHAT_MEMBER_SERVICE_BASE_URL: http://member-service:8091
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - wordly-net
+
+  member-service:
+    build:
+      context: ./member-service
+      dockerfile: Dockerfile
+    container_name: wordly-member-service
+    restart: unless-stopped
+    ports:
+      - "8091:8091"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/Membredb?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:9090/realms/wordly-realm
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:9090/realms/wordly-realm/protocol/openid-connect/certs
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - wordly-net
+
+  forum-service:
+    build:
+      context: ./forum-service
+      dockerfile: Dockerfile
+    container_name: wordly-forum-service
+    restart: unless-stopped
+    ports:
+      - "8094:8094"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/forum_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    volumes:
+      - ./forum-uploads:/app/uploads
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - wordly-net
+
+# ─────────────────────────────────────────────────────────────
+#  FRONTENDS
+# ─────────────────────────────────────────────────────────────
+
+  frontend:
+    build:
+      context: ./frontend/angular-app
+      dockerfile: Dockerfile
+    container_name: wordly-frontend
+    restart: unless-stopped
+    ports:
+      - "4200:80"
+    networks:
+      - wordly-net
+
+  back-office:
+    build:
+      context: ./back-office
+      dockerfile: Dockerfile
+    container_name: wordly-backoffice
+    restart: unless-stopped
+    ports:
+      - "4201:80"
+    networks:
+      - wordly-net
+
+# ─────────────────────────────────────────────────────────────
+#  CI/CD – JENKINS
+# ─────────────────────────────────────────────────────────────
+
+  jenkins:
+    image: jenkins/jenkins:lts-jdk17
+    container_name: wordly-jenkins
+    restart: unless-stopped
+    privileged: true
+    user: root
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins-data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
+    networks:
+      - wordly-net
+
+# ─────────────────────────────────────────────────────────────
+#  CODE QUALITY – SONARQUBE
+# ─────────────────────────────────────────────────────────────
+
+  sonarqube-db:
+    image: postgres:15-alpine
+    container_name: wordly-sonar-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+      POSTGRES_DB: sonarqube
+    volumes:
+      - sonarqube-db-data:/var/lib/postgresql/data
+    networks:
+      - wordly-net
+
+  sonarqube:
+    image: sonarqube:9.9-community
+    container_name: wordly-sonarqube
+    restart: unless-stopped
+    depends_on:
+      - sonarqube-db
+    ports:
+      - "9000:9000"
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://sonarqube-db:5432/sonarqube
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
+    volumes:
+      - sonarqube-data:/opt/sonarqube/data
+      - sonarqube-extensions:/opt/sonarqube/extensions
+      - sonarqube-logs:/opt/sonarqube/logs
+    networks:
+      - wordly-net
+
+# ─────────────────────────────────────────────────────────────
+#  MONITORING – PROMETHEUS + GRAFANA
+# ─────────────────────────────────────────────────────────────
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: wordly-prometheus
+    restart: unless-stopped
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./devops/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - wordly-net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: wordly-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./devops/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+    networks:
+      - wordly-net

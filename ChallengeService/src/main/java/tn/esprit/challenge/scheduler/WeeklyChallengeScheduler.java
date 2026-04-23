@@ -44,7 +44,7 @@ public class WeeklyChallengeScheduler {
     private final Random random = new Random();
 
     // ── Cron: every Monday at 08:00:00 ────────────────────────────────────────
-    @Scheduled(cron = "0 0 8 * * MON")
+    @Scheduled(cron = "0 20 16 * * thu")
     @Transactional
     public void createWeeklyChallenge() {
         log.info("⏰ [WeeklyChallengeScheduler] Monday 08:00 — generating Challenge of the Week...");

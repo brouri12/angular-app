@@ -31,6 +31,27 @@ public class GatewayConfig {
                         .path("/planification-service/**")
                         .filters(f -> f.stripPrefix(1))
                         .uri("lb://PLANIFICATION-SERVICE"))
+
+                // ── Club / Event / Member / Registration services (no stripPrefix) ──
+                .route("event-service", r -> r
+                        .path("/events/**")
+                        .uri("lb://EVENT-SERVICE"))
+                .route("registration-service", r -> r
+                        .path("/registrations/**")
+                        .uri("lb://REGISTRATION-SERVICE"))
+                .route("club-service", r -> r
+                        .path("/clubs/**")
+                        .uri("lb://CLUB-SERVICE"))
+                .route("membre-service", r -> r
+                        .path("/membres/**")
+                        .uri("lb://MEMBRE-SERVICE"))
+                // ── Forum / Recrutement services ──────────────────────────────────────
+                .route("forum-service", r -> r
+                        .path("/api/forum/**")
+                        .uri("lb://FORUM-SERVICE"))
+                .route("recrutement-service", r -> r
+                        .path("/api/recrutement/**")
+                        .uri("lb://RECRUTEMENT-SERVICE"))
                 .build();
     }
 }

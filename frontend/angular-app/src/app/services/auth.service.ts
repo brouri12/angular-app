@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap, switchMap, timeout, catchError, throwError, finalize } from 'rxjs';
+import { Observable, BehaviorSubject, tap, switchMap, timeout, catchError, throwError, finalize, from } from 'rxjs';
 import { RegisterRequest, LoginRequest, TokenResponse, User } from '../models/user.model';
 
 @Injectable({
@@ -21,8 +21,18 @@ export class AuthService {
     // Check if user is already logged in
     const token = this.getToken();
     if (token) {
-      this.isAuthenticatedSubject.next(true);
-      this.loadCurrentUser();
+      if (this.isTokenExpired(token)) {
+        // Token expired — try to refresh silently
+        this.refreshTokenSilently().subscribe({
+          next: () => this.loadCurrentUser(),
+          error: () => {
+            this.logout();
+          }
+        });
+      } else {
+        this.isAuthenticatedSubject.next(true);
+        this.loadCurrentUser();
+      }
     }
   }
 
@@ -142,6 +152,48 @@ export class AuthService {
       console.error('Error decoding token:', e);
       return {};
     }
+  }
+
+  // Check if JWT token is expired
+  isTokenExpired(token: string): boolean {
+    try {
+      const decoded = this.decodeToken(token);
+      if (!decoded?.exp) return true;
+      // exp is in seconds, Date.now() is in ms
+      return decoded.exp * 1000 < Date.now();
+    } catch {
+      return true;
+    }
+  }
+
+  // Silently refresh the access token using the refresh token
+  refreshTokenSilently(): Observable<TokenResponse> {
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) {
+      return throwError(() => new Error('No refresh token available'));
+    }
+
+    const body = new URLSearchParams();
+    body.set('grant_type', 'refresh_token');
+    body.set('refresh_token', refreshToken);
+    body.set('client_id', 'wordly-client');
+    body.set('client_secret', 'C4AwjGMHVZNVihLwb1WQ0gMj5aPIE05M');
+
+    const headers = new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' });
+
+    return this.http.post<TokenResponse>(this.keycloakUrl, body.toString(), { headers }).pipe(
+      tap(response => {
+        this.saveToken(response.access_token);
+        if (response.refresh_token) {
+          this.saveRefreshToken(response.refresh_token);
+        }
+        this.isAuthenticatedSubject.next(true);
+      }),
+      catchError(error => {
+        console.error('Token refresh failed:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
   // Logout

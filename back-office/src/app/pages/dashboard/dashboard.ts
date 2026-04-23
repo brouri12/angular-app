@@ -1,18 +1,24 @@
 import { Component, OnInit, inject, signal, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AbonnementService, AbonnementAnalytics } from '../../services/abonnement.service';
 import { AuthService } from '../../services/auth.service';
 import { ChallengeService, GlobalStatsDTO, UserRankDTO } from '../../services/challenge.service';
+import { EventsService } from '../../services/events.service';
+import { ClubService } from '../../services/club.service';
+import { MemberAdminService } from '../../services/member-admin.service';
+import { RegistrationAdminService } from '../../services/registration-admin.service';
 import { HistoriqueAbonnement } from '../../models/abonnement.model';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 // Register Chart.js components
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
@@ -20,6 +26,10 @@ export class Dashboard implements OnInit, AfterViewInit {
   private abonnementService = inject(AbonnementService);
   private authService = inject(AuthService);
   private challengeService = inject(ChallengeService);
+  private eventsService = inject(EventsService);
+  private clubService = inject(ClubService);
+  private memberService = inject(MemberAdminService);
+  private registrationService = inject(RegistrationAdminService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   
@@ -28,6 +38,9 @@ export class Dashboard implements OnInit, AfterViewInit {
   @ViewChild('popularityChart') popularityChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('levelChart') levelChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('typeChart') typeChartRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('eventStatusChart') eventStatusChartRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('eventTypeChart') eventTypeChartRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('eventModeChart') eventModeChartRef!: ElementRef<HTMLCanvasElement>;
   
   loading = signal(true);
   analytics = signal<AbonnementAnalytics | null>(null);
@@ -37,6 +50,16 @@ export class Dashboard implements OnInit, AfterViewInit {
   challengeStats = signal<GlobalStatsDTO | null>(null);
   leaderboard = signal<UserRankDTO[]>([]);
   loadingChallengeStats = signal(true);
+
+  // Mahdi services stats
+  loadingMahdiStats = signal(true);
+  totalEvents = signal(0);
+  totalClubs = signal(0);
+  totalMembers = signal(0);
+  totalRegistrations = signal(0);
+  eventsByStatus = signal<{ label: string; count: number }[]>([]);
+  eventsByType = signal<{ label: string; count: number }[]>([]);
+  eventsByMode = signal<{ label: string; count: number }[]>([]);
   
   private charts: Chart[] = [];
   
@@ -150,6 +173,84 @@ export class Dashboard implements OnInit, AfterViewInit {
         console.error('✗ Error loading leaderboard:', err);
       }
     });
+
+    // Load Mahdi services stats
+    this.loadMahdiStats();
+  }
+
+  loadMahdiStats() {
+    this.loadingMahdiStats.set(true);
+
+    // Total counts via forkJoin — each call is independent, errors are swallowed
+    forkJoin({
+      events: this.eventsService.getAll().pipe(catchError(() => of([]))),
+      clubs: this.clubService.getAll().pipe(catchError(() => of([]))),
+      members: this.memberService.getAll().pipe(catchError(() => of([]))),
+      registrations: this.registrationService.getAll().pipe(catchError(() => of([]))),
+      byStatus: this.eventsService.statsByStatus().pipe(catchError(() => of([]))),
+      byType: this.eventsService.statsByType().pipe(catchError(() => of([]))),
+      byMode: this.eventsService.statsByMode().pipe(catchError(() => of([]))),
+    }).subscribe({
+      next: (res) => {
+        this.totalEvents.set((res.events as any[]).length);
+        this.totalClubs.set((res.clubs as any[]).length);
+        this.totalMembers.set((res.members as any[]).length);
+        this.totalRegistrations.set((res.registrations as any[]).length);
+        this.eventsByStatus.set((res.byStatus as any[]).map(r => ({ label: String(r[0]), count: Number(r[1]) })));
+        this.eventsByType.set((res.byType as any[]).map(r => ({ label: String(r[0]), count: Number(r[1]) })));
+        this.eventsByMode.set((res.byMode as any[]).map(r => ({ label: String(r[0]), count: Number(r[1]) })));
+        this.loadingMahdiStats.set(false);
+        setTimeout(() => this.createMahdiCharts(), 100);
+      },
+      error: () => this.loadingMahdiStats.set(false)
+    });
+  }
+
+  createMahdiCharts() {
+    const COLORS = [
+      'rgba(0,200,151,0.85)', 'rgba(255,127,80,0.85)', 'rgba(100,149,237,0.85)',
+      'rgba(255,193,7,0.85)', 'rgba(239,68,68,0.85)', 'rgba(168,85,247,0.85)'
+    ];
+
+    const makeChart = (ref: ElementRef<HTMLCanvasElement> | undefined, id: string, type: 'doughnut' | 'bar', labels: string[], data: number[]) => {
+      if (!ref) return;
+      const existing = this.charts.find(c => (c as any).__id === id);
+      if (existing) existing.destroy();
+      const chart = new Chart(ref.nativeElement, {
+        type,
+        data: {
+          labels,
+          datasets: [{
+            data,
+            backgroundColor: COLORS,
+            borderColor: type === 'bar' ? COLORS : '#fff',
+            borderWidth: type === 'bar' ? 0 : 2,
+            borderRadius: type === 'bar' ? 8 : undefined,
+          } as any]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: { position: 'bottom', labels: { padding: 12, font: { size: 11 } } }
+          },
+          scales: type === 'bar' ? {
+            y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: 'rgba(0,0,0,0.05)' } },
+            x: { grid: { display: false } }
+          } : undefined
+        }
+      });
+      (chart as any).__id = id;
+      this.charts.push(chart);
+    };
+
+    const byStatus = this.eventsByStatus();
+    const byType = this.eventsByType();
+    const byMode = this.eventsByMode();
+
+    if (byStatus.length) makeChart(this.eventStatusChartRef, 'evStatus', 'doughnut', byStatus.map(r => r.label), byStatus.map(r => r.count));
+    if (byType.length) makeChart(this.eventTypeChartRef, 'evType', 'bar', byType.map(r => r.label), byType.map(r => r.count));
+    if (byMode.length) makeChart(this.eventModeChartRef, 'evMode', 'doughnut', byMode.map(r => r.label), byMode.map(r => r.count));
   }
 
   updateStats() {

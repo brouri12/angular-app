@@ -1,0 +1,439 @@
+# ============================================================
+#  All microservice Deployments + Services
+# ============================================================
+
+# ── User Service ─────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: wordly
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+        - name: user-service
+          image: your-dockerhub-username/user-service:latest
+          ports:
+            - containerPort: 8085
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql:3306/user_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: root
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: http://eureka-server:8761/eureka/
+            - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI
+              value: http://keycloak:9090/realms/wordly-realm
+            - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI
+              value: http://keycloak:9090/realms/wordly-realm/protocol/openid-connect/certs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: wordly
+spec:
+  selector:
+    app: user-service
+  ports:
+    - port: 8085
+      targetPort: 8085
+---
+# ── Abonnement Service ────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: abonnement-service
+  namespace: wordly
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: abonnement-service
+  template:
+    metadata:
+      labels:
+        app: abonnement-service
+    spec:
+      containers:
+        - name: abonnement-service
+          image: your-dockerhub-username/abonnement-service:latest
+          ports:
+            - containerPort: 8084
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql:3306/abonnement_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: root
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: http://eureka-server:8761/eureka/
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: abonnement-service
+  namespace: wordly
+spec:
+  selector:
+    app: abonnement-service
+  ports:
+    - port: 8084
+      targetPort: 8084
+---
+# ── Challenge Service ─────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: challenge-service
+  namespace: wordly
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: challenge-service
+  template:
+    metadata:
+      labels:
+        app: challenge-service
+    spec:
+      containers:
+        - name: challenge-service
+          image: your-dockerhub-username/challenge-service:latest
+          ports:
+            - containerPort: 8086
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql:3306/challenge_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: root
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: http://eureka-server:8761/eureka/
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: challenge-service
+  namespace: wordly
+spec:
+  selector:
+    app: challenge-service
+  ports:
+    - port: 8086
+      targetPort: 8086
+---
+# ── Planification Service ─────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: planification-service
+  namespace: wordly
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: planification-service
+  template:
+    metadata:
+      labels:
+        app: planification-service
+    spec:
+      containers:
+        - name: planification-service
+          image: your-dockerhub-username/planification-service:latest
+          ports:
+            - containerPort: 8087
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql:3306/planification_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: root
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: http://eureka-server:8761/eureka/
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: planification-service
+  namespace: wordly
+spec:
+  selector:
+    app: planification-service
+  ports:
+    - port: 8087
+      targetPort: 8087
+---
+# ── Event Service ─────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: event-service
+  namespace: wordly
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: event-service
+  template:
+    metadata:
+      labels:
+        app: event-service
+    spec:
+      containers:
+        - name: event-service
+          image: your-dockerhub-username/event-service:latest
+          ports:
+            - containerPort: 8082
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql:3306/eventdb?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: root
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: http://eureka-server:8761/eureka/
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: event-service
+  namespace: wordly
+spec:
+  selector:
+    app: event-service
+  ports:
+    - port: 8082
+      targetPort: 8082
+---
+# ── Reservation Service ───────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reservation-service
+  namespace: wordly
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reservation-service
+  template:
+    metadata:
+      labels:
+        app: reservation-service
+    spec:
+      containers:
+        - name: reservation-service
+          image: your-dockerhub-username/reservation-service:latest
+          ports:
+            - containerPort: 8083
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql:3306/registrationdb?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: root
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: http://eureka-server:8761/eureka/
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reservation-service
+  namespace: wordly
+spec:
+  selector:
+    app: reservation-service
+  ports:
+    - port: 8083
+      targetPort: 8083
+---
+# ── Recrutement Service ───────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recrutement-service
+  namespace: wordly
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: recrutement-service
+  template:
+    metadata:
+      labels:
+        app: recrutement-service
+    spec:
+      containers:
+        - name: recrutement-service
+          image: your-dockerhub-username/recrutement-service:latest
+          ports:
+            - containerPort: 8093
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql:3306/recrutement_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: root
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: http://eureka-server:8761/eureka/
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: recrutement-service
+  namespace: wordly
+spec:
+  selector:
+    app: recrutement-service
+  ports:
+    - port: 8093
+      targetPort: 8093
+---
+# ── Club Service ──────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: club-service
+  namespace: wordly
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: club-service
+  template:
+    metadata:
+      labels:
+        app: club-service
+    spec:
+      containers:
+        - name: club-service
+          image: your-dockerhub-username/club-service:latest
+          ports:
+            - containerPort: 8089
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql:3306/Clubdb?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: root
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: http://eureka-server:8761/eureka/
+            - name: CLUB_CHAT_MEMBER_SERVICE_BASE_URL
+              value: http://member-service:8091
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: club-service
+  namespace: wordly
+spec:
+  selector:
+    app: club-service
+  ports:
+    - port: 8089
+      targetPort: 8089
+---
+# ── Member Service ────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: member-service
+  namespace: wordly
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: member-service
+  template:
+    metadata:
+      labels:
+        app: member-service
+    spec:
+      containers:
+        - name: member-service
+          image: your-dockerhub-username/member-service:latest
+          ports:
+            - containerPort: 8091
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql:3306/Membredb?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: root
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: http://eureka-server:8761/eureka/
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: member-service
+  namespace: wordly
+spec:
+  selector:
+    app: member-service
+  ports:
+    - port: 8091
+      targetPort: 8091
+---
+# ── Forum Service ─────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: forum-service
+  namespace: wordly
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: forum-service
+  template:
+    metadata:
+      labels:
+        app: forum-service
+    spec:
+      containers:
+        - name: forum-service
+          image: your-dockerhub-username/forum-service:latest
+          ports:
+            - containerPort: 8094
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql:3306/forum_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: root
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: http://eureka-server:8761/eureka/
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: forum-service
+  namespace: wordly
+spec:
+  selector:
+    app: forum-service
+  ports:
+    - port: 8094
+      targetPort: 8094

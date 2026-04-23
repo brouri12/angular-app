@@ -1,0 +1,64 @@
+<div class="chat-dock" *ngIf="idUser && acceptedClubs.length > 0">
+
+  <!-- ── BAR ── -->
+  <div class="chat-dock-bar">
+    <button type="button" class="chat-toggle" (click)="toggleExpanded()" [attr.aria-expanded]="expanded">
+      <span class="chat-toggle-icon">{{ expanded ? '▼' : '💬' }}</span>
+      <span class="chat-toggle-label">Discussion du club</span>
+      <span class="chat-online-dot"></span>
+    </button>
+
+    <label class="chat-club-select-wrap">
+      <span class="sr-only">Club</span>
+      <select
+        class="chat-club-select"
+        [(ngModel)]="selectedClubId"
+        (change)="onClubChange()"
+        name="clubChatClub">
+        <option *ngFor="let c of acceptedClubs" [ngValue]="c.idClub">
+          {{ c.nomClub || ('Club #' + c.idClub) }}
+        </option>
+      </select>
+    </label>
+  </div>
+
+  <!-- ── PANEL ── -->
+  <div class="chat-dock-panel" *ngIf="expanded">
+
+    <div class="chat-messages" #msgScroll>
+      <div *ngIf="loading" class="chat-muted">⏳ Chargement…</div>
+      <div *ngIf="loadError" class="chat-error">⚠️ {{ loadError }}</div>
+      <div *ngIf="!loading && !loadError && messages.length === 0" class="chat-muted">
+        💬 Aucun message. Soyez le premier à écrire !
+      </div>
+
+      <div *ngFor="let m of messages; trackBy: trackById" class="chat-msg">
+        <div class="chat-msg-meta">
+          <span class="chat-msg-name">{{ m.senderName || 'Membre' }}</span>
+          <span class="chat-msg-time" *ngIf="m.createdAt">
+            {{ m.createdAt | date:'HH:mm' }}
+          </span>
+        </div>
+        <div class="chat-msg-body">{{ m.content }}</div>
+      </div>
+    </div>
+
+    <div *ngIf="sendError" class="chat-error">⚠️ {{ sendError }}</div>
+
+    <form class="chat-form" (ngSubmit)="send()">
+      <input
+        type="text"
+        class="chat-input"
+        [(ngModel)]="draft"
+        name="draft"
+        maxlength="2000"
+        placeholder="Écrire un message…"
+        autocomplete="off"
+      />
+      <button type="submit" class="chat-send" [disabled]="!draft.trim() || sending">
+        {{ sending ? '...' : '➤ Envoyer' }}
+      </button>
+    </form>
+
+  </div>
+</div>

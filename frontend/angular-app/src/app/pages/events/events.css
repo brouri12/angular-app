@@ -1,0 +1,239 @@
+/* ========== EVENTS PAGE ========== */
+
+/* ── CARD ── */
+.event-card {
+  position: relative;
+  border-radius: 24px;
+  border: 1.5px solid rgba(226,232,240,.9);
+  background: #fff;
+  box-shadow: 0 2px 16px rgba(15,23,42,.06);
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+:host-context(.dark) .event-card {
+  border-color: rgba(30,41,59,.8);
+  background: rgba(15,23,42,.75);
+  box-shadow: 0 4px 24px rgba(0,0,0,.3);
+}
+.event-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(0,200,151,.4);
+  box-shadow: 0 16px 48px rgba(15,23,42,.12);
+}
+:host-context(.dark) .event-card:hover {
+  border-color: rgba(0,200,151,.45);
+  box-shadow: 0 20px 60px rgba(0,0,0,.45);
+}
+
+/* ── TOP ACCENT LINE ── */
+.event-card::before {
+  display: none;
+}
+
+/* ── STATUS BADGES ── */
+.badge-open {
+  border-color: rgba(34,197,94,.35);
+  background: rgba(34,197,94,.1);
+  color: rgb(22,101,52);
+}
+:host-context(.dark) .badge-open {
+  background: rgba(34,197,94,.15);
+  color: rgb(187,247,208);
+}
+.badge-closed {
+  border-color: rgba(239,68,68,.35);
+  background: rgba(239,68,68,.1);
+  color: rgb(153,27,27);
+}
+:host-context(.dark) .badge-closed {
+  background: rgba(239,68,68,.15);
+  color: rgb(254,202,202);
+}
+
+/* ── CLOSED BUTTON ── */
+.btn-closed {
+  background: linear-gradient(135deg, rgb(239,68,68), rgb(185,28,28)) !important;
+  box-shadow: 0 8px 24px rgba(239,68,68,.2) !important;
+  cursor: not-allowed;
+  opacity: .85;
+}
+
+/* ── BADGE BASE ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  border: 1px solid rgba(226,232,240,.9);
+  background: rgba(248,250,252,.9);
+  color: rgb(51,65,85);
+}
+:host-context(.dark) .badge {
+  border-color: rgba(30,41,59,.8);
+  background: rgba(15,23,42,.5);
+  color: rgb(203,213,225);
+}
+
+/* ── BADGE VARIANTS ── */
+.badge-green  { border-color: rgba(0,200,151,.35);  background: rgba(0,200,151,.1);  color: rgb(0,120,90); }
+.badge-mint   { border-color: rgba(20,184,166,.35); background: rgba(20,184,166,.1); color: rgb(13,148,136); }
+.badge-orange { border-color: rgba(255,127,80,.35); background: rgba(255,127,80,.1); color: rgb(194,65,12); }
+.badge-blue   { border-color: rgba(59,130,246,.35); background: rgba(59,130,246,.1); color: rgb(29,78,216); }
+.badge-purple { border-color: rgba(139,92,246,.35); background: rgba(139,92,246,.1); color: rgb(109,40,217); }
+.badge-gray   { border-color: rgba(148,163,184,.4); background: rgba(148,163,184,.1); color: rgb(71,85,105); }
+
+:host-context(.dark) .badge-green  { background: rgba(0,200,151,.15);  color: rgb(110,231,183); }
+:host-context(.dark) .badge-orange { background: rgba(255,127,80,.15); color: rgb(253,186,116); }
+:host-context(.dark) .badge-blue   { background: rgba(59,130,246,.15); color: rgb(147,197,253); }
+:host-context(.dark) .badge-purple { background: rgba(139,92,246,.15); color: rgb(196,181,253); }
+
+/* ── DESCRIPTION ── */
+.event-desc {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* ── META CHIPS ── */
+.meta-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(226,232,240,.85);
+  background: rgba(248,250,252,.9);
+  transition: border-color .2s ease;
+}
+.meta-chip-location { align-items: flex-start; }
+.meta-chip-location .meta-txt {
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.4;
+}
+:host-context(.dark) .meta-chip {
+  border-color: rgba(30,41,59,.8);
+  background: rgba(2,6,23,.4);
+}
+.event-card:hover .meta-chip { border-color: rgba(0,200,151,.3); }
+
+.meta-ico { font-size: 15px; flex-shrink: 0; }
+.meta-txt { font-size: 13px; font-weight: 700; color: rgb(30,41,59); }
+:host-context(.dark) .meta-txt { color: rgb(203,213,225); }
+
+/* ── REGISTER BUTTON ── */
+.btn-register {
+  position: relative;
+  height: 50px;
+  width: 100%;
+  border-radius: 16px;
+  border: none;
+  font-weight: 900;
+  font-size: 13px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: white;
+  background: linear-gradient(135deg, rgb(0,200,151), rgb(255,127,80));
+  box-shadow: 0 8px 24px rgba(0,200,151,.2);
+  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+  overflow: hidden;
+  cursor: pointer;
+}
+.btn-register::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,.2) 40%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform .6s ease;
+}
+.btn-register:hover::before { transform: translateX(120%); }
+.btn-register:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 36px rgba(0,200,151,.28);
+  filter: brightness(1.04);
+}
+.btn-register:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+/* ── FILTER CONTAINER ── */
+.filter-container {
+  display: flex;
+  gap: 24px;
+  padding: 20px 24px;
+  border-radius: 22px;
+  background: rgba(255,255,255,.9);
+  border: 1.5px solid rgba(226,232,240,.9);
+  box-shadow: 0 8px 32px rgba(15,23,42,.07);
+  backdrop-filter: blur(12px);
+}
+:host-context(.dark) .filter-container {
+  background: rgba(15,23,42,.6);
+  border-color: rgba(30,41,59,.8);
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 200px;
+}
+.filter-group label {
+  font-weight: 900;
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgb(100,116,139);
+}
+:host-context(.dark) .filter-group label { color: rgb(148,163,184); }
+
+.select-wrapper { position: relative; }
+.select-wrapper select {
+  width: 100%;
+  padding: 12px 40px 12px 14px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(226,232,240,.95);
+  font-weight: 700;
+  font-size: 13px;
+  background: #fff;
+  appearance: none;
+  cursor: pointer;
+  transition: border-color .2s ease, box-shadow .2s ease;
+  color: rgb(15,23,42);
+}
+:host-context(.dark) .select-wrapper select {
+  background: rgba(15,23,42,.6);
+  border-color: rgba(30,41,59,.8);
+  color: rgb(226,232,240);
+}
+.select-wrapper select:hover { border-color: rgba(0,200,151,.5); }
+.select-wrapper select:focus {
+  border-color: rgb(0,200,151);
+  box-shadow: 0 0 0 3px rgba(0,200,151,.15);
+  outline: none;
+}
+.select-icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: 13px;
+  color: rgb(148,163,184);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .filter-container { flex-direction: column; gap: 14px; width: 100%; }
+  .filter-group { min-width: 100%; }
+}
+@media (max-width: 640px) {
+  .event-card { border-radius: 20px; }
+  .btn-register { border-radius: 14px; height: 46px; }
+}

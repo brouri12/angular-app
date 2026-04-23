@@ -26,5 +26,42 @@ export const routes: Routes = [
   { path: 'groups', component: GroupsComponent },
   { path: 'planifications', component: PlanificationsComponent },
   { path: 'room-analytics', component: RoomAnalyticsComponent },
+
+  // ── Events (Mahdi) ─────────────────────────────────────────────────────────
+  {
+    path: 'events',
+    loadComponent: () => import('./pages/events-admin/events').then(m => m.Events),
+    children: [
+      { path: 'new', loadComponent: () => import('./pages/events-admin/event-form-page').then(m => m.EventFormPage) },
+      { path: ':id/edit', loadComponent: () => import('./pages/events-admin/event-form-page').then(m => m.EventFormPage) },
+    ]
+  },
+
+  // ── Clubs (Mahdi) ──────────────────────────────────────────────────────────
+  {
+    path: 'clubs',
+    loadComponent: () => import('./pages/clubs-admin/clubs.component').then(m => m.ClubsComponent),
+    children: [
+      { path: 'new', loadComponent: () => import('./pages/clubs-admin/club-form-page').then(m => m.ClubFormPage) },
+      { path: ':id/edit', loadComponent: () => import('./pages/clubs-admin/club-form-page').then(m => m.ClubFormPage) },
+    ]
+  },
+
+  // ── Members (Mahdi) ────────────────────────────────────────────────────────
+  { path: 'members', loadComponent: () => import('./pages/members-admin/members.page').then(m => m.MembersPage) },
+
+  // ── Registrations (Mahdi) ──────────────────────────────────────────────────
+  {
+    path: 'registrations',
+    loadComponent: () => import('./pages/registrations-admin/registrations.component').then(m => m.RegistrationsComponent),
+    children: [
+      { path: ':id/edit', loadComponent: () => import('./pages/registrations-admin/registration-edit.component').then(m => m.RegistrationEditComponent) },
+    ]
+  },
+
+  // ── Forum & Recrutement (Rahma) ────────────────────────────────────────────
+  { path: 'forum', loadComponent: () => import('./pages/forum/forum').then(m => m.ForumComponent) },
+  { path: 'recrutement', loadComponent: () => import('./pages/recrutement/recrutement').then(m => m.RecrutementComponent) },
+
   { path: '**', redirectTo: '/dashboard' }
 ];

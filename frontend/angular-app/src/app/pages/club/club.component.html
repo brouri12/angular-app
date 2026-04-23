@@ -1,0 +1,128 @@
+<div class="min-h-screen py-20">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- HERO -->
+    <div class="text-center mb-12">
+      <div class="tracking-[0.35em] text-xs font-extrabold text-[rgb(0,200,151)] mb-4">
+        OUR CLUBS
+      </div>
+      <h1 class="text-5xl md:text-6xl font-black leading-[1.05]">
+        Explore Our <span class="text-[rgb(255,127,80)]">Clubs</span>
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mt-4 text-lg leading-relaxed">
+        Join communities, improve your English and grow together.
+      </p>
+    </div>
+
+    <!-- ERROR -->
+    <div *ngIf="errorMsg" class="mb-6 p-3 rounded-lg bg-red-100 text-red-700">
+      {{ errorMsg }}
+    </div>
+
+    <!-- GRID -->
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+      <article *ngFor="let club of clubs" class="event-card p-6">
+
+        <!-- BADGES -->
+        <div class="flex flex-wrap gap-2 mb-4">
+          <span class="badge" [ngClass]="badgeType(club.type)">
+            {{ club.type === 'ONLINE' ? 'Online' : 'In-Person' }}
+          </span>
+        </div>
+
+        <!-- IMAGE -->
+        <div class="overflow-hidden rounded-xl mb-4">
+          <img
+            [src]="clubService.logoUrl(club.idClub!)"
+            (error)="onImgError($event)"
+            class="w-full h-40 object-cover club-image"
+          />
+        </div>
+
+        <!-- TITLE -->
+        <h3 class="text-xl font-extrabold leading-snug mb-2">
+          {{ club.nomClub }}
+        </h3>
+
+        <!-- DESCRIPTION -->
+        <p class="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mb-4"
+           [class.text-right]="activeLang[club.idClub!] === 'ar'"
+           [attr.dir]="activeLang[club.idClub!] === 'ar' ? 'rtl' : 'ltr'">
+          {{ getDescription(club) }}
+        </p>
+
+        <!-- TRANSLATE BUTTONS -->
+        <div class="translate-bar mb-4">
+          <span class="translate-label">🌐</span>
+          <button class="translate-btn"
+            [class.active]="activeLang[club.idClub!] === 'fr'"
+            (click)="translate(club, 'fr')"
+            [disabled]="isTranslating(club.idClub!)">
+            {{ isTranslating(club.idClub!) ? '...' : 'FR' }}
+          </button>
+          <button class="translate-btn"
+            [class.active]="activeLang[club.idClub!] === 'ar'"
+            (click)="translate(club, 'ar')"
+            [disabled]="isTranslating(club.idClub!)">
+            {{ isTranslating(club.idClub!) ? '...' : 'AR' }}
+          </button>
+          <button *ngIf="activeLang[club.idClub!] && activeLang[club.idClub!] !== 'original'"
+            class="translate-btn reset"
+            (click)="activeLang[club.idClub!] = 'original'">↩</button>
+        </div>
+
+        <!-- DATE + LOCATION -->
+        <div class="club-infos">
+          <div class="info-chip" *ngIf="club.dateCreation">
+            <span class="chip-ico">📅</span>
+            <span>{{ club.dateCreation | date:'dd MMM yyyy' }}</span>
+          </div>
+          <div class="info-chip" *ngIf="club.ville">
+            <span class="chip-ico">📍</span>
+            <span>{{ club.ville }}</span>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <button
+          type="button"
+          class="btn-register"
+          [class.btn-pending]="memberStatusByClub[club.idClub!] === 'PENDING'"
+          [class.btn-joined]="memberStatusByClub[club.idClub!] === 'ACCEPTED'"
+          [class.btn-denied]="memberStatusByClub[club.idClub!] === 'DENIED'"
+          (click)="joinAndOpen(club)"
+          [disabled]="isJoined(club.idClub) || isLoadingClub(club.idClub)">
+          {{ isLoadingClub(club.idClub) ? 'Joining...' :
+             memberStatusByClub[club.idClub!] === 'PENDING'  ? '⏳ Pending' :
+             memberStatusByClub[club.idClub!] === 'ACCEPTED' ? '✅ Member' :
+             memberStatusByClub[club.idClub!] === 'DENIED'   ? '❌ Denied' :
+             'JOIN NOW' }}
+        </button>
+
+        <p class="club-role-line" *ngIf="memberStatusByClub[club.idClub!] === 'ACCEPTED'">
+          <span [class.role-pill-president]="memberRoleByClub[club.idClub!] === 'PRESIDENT'"
+                [class.role-pill-recrue]="memberRoleByClub[club.idClub!] !== 'PRESIDENT'">
+            {{ memberRoleByClub[club.idClub!] === 'PRESIDENT' ? '👑 President' : 'Member' }}
+          </span>
+        </p>
+
+      </article>
+    </div>
+
+    <!-- POPUP CONFIRMATION -->
+    <app-join-confirm-modal
+      [open]="isConfirmOpen"
+      [title]="'Join Club'"
+      [message]="'Would you like to join: ' + (selectedClub?.nomClub || '') + '?'"
+      (cancel)="cancelJoinConfirm()"
+      (confirm)="confirmJoin()">
+    </app-join-confirm-modal>
+
+    <!-- SUCCESS MESSAGE -->
+    <div *ngIf="successMsg" class="mt-6 p-3 rounded-lg bg-green-100 text-green-700">
+      {{ successMsg }}
+    </div>
+
+  </div>
+</div>

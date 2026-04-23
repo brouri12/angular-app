@@ -1,0 +1,180 @@
+// ============================================================
+//  FRONTEND PIPELINE – Wordly Platform
+//  Repo:     https://github.com/brouri12/angular-app.git
+//  Registry: brouri12 (Docker Hub)
+//  Stages:   Checkout → Install → Build → SonarQube
+//            → Quality Gate → Docker Build & Push → Deploy to Kubernetes
+// ============================================================
+pipeline {
+    agent any
+
+    environment {
+        REGISTRY    = 'brouri12'
+        IMAGE_TAG   = "${env.BUILD_NUMBER}"
+        SONAR_HOST  = 'http://wordly-sonarqube:9000'
+        SONAR_TOKEN = credentials('sonar-token')
+        GIT_REPO    = 'https://github.com/brouri12/angular-app.git'
+    }
+
+    tools {
+        nodejs 'Node-20'
+    }
+
+    stages {
+
+        // ── 1. Checkout ──────────────────────────────────────────
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: "${GIT_REPO}",
+                    credentialsId: 'github-credentials'
+                echo "Branch: ${env.GIT_BRANCH} | Commit: ${env.GIT_COMMIT}"
+            }
+        }
+
+        // ── 2. Install Dependencies (parallel) ───────────────────
+        stage('Install Dependencies') {
+            parallel {
+
+                stage('Frontend – Install') {
+                    steps {
+                        dir('frontend/angular-app') {
+                            sh 'npm ci --legacy-peer-deps'
+                        }
+                    }
+                }
+
+                stage('Back Office – Install') {
+                    steps {
+                        dir('back-office') {
+                            sh 'npm ci --legacy-peer-deps'
+                        }
+                    }
+                }
+
+            }
+        }
+
+        // ── 3. Production Build (parallel) ───────────────────────
+        stage('Build') {
+            parallel {
+
+                stage('Frontend – Build') {
+                    steps {
+                        dir('frontend/angular-app') {
+                            sh 'npm run build -- --configuration production'
+                        }
+                    }
+                }
+
+                stage('Back Office – Build') {
+                    steps {
+                        dir('back-office') {
+                            sh 'npm run build -- --configuration production'
+                        }
+                    }
+                }
+
+            }
+        }
+
+        // ── 4. SonarQube Analysis ─────────────────────────────────
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh """
+                        cd frontend/angular-app && npx sonar-scanner \
+                            -Dsonar.projectKey=wordly-frontend \
+                            -Dsonar.projectName="Wordly Frontend" \
+                            -Dsonar.sources=src \
+                            -Dsonar.exclusions=**/node_modules/**,**/*.spec.ts,**/dist/** \
+                            -Dsonar.host.url=${SONAR_HOST} \
+                            -Dsonar.token=${SONAR_TOKEN}
+                    """
+                    sh """
+                        cd back-office && npx sonar-scanner \
+                            -Dsonar.projectKey=wordly-backoffice \
+                            -Dsonar.projectName="Wordly Back Office" \
+                            -Dsonar.sources=src \
+                            -Dsonar.exclusions=**/node_modules/**,**/*.spec.ts,**/dist/** \
+                            -Dsonar.host.url=${SONAR_HOST} \
+                            -Dsonar.token=${SONAR_TOKEN}
+                    """
+                }
+            }
+        }
+
+        // ── 5. Quality Gate ───────────────────────────────────────
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: false
+                }
+            }
+        }
+
+        // ── 6. Docker Build & Push ────────────────────────────────
+        stage('Docker Build & Push') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+
+                        sh """
+                            docker build \
+                                -t ${REGISTRY}/wordly-frontend:${IMAGE_TAG} \
+                                -t ${REGISTRY}/wordly-frontend:latest \
+                                ./frontend/angular-app
+                            docker push ${REGISTRY}/wordly-frontend:${IMAGE_TAG}
+                            docker push ${REGISTRY}/wordly-frontend:latest
+                        """
+
+                        sh """
+                            docker build \
+                                -t ${REGISTRY}/wordly-backoffice:${IMAGE_TAG} \
+                                -t ${REGISTRY}/wordly-backoffice:latest \
+                                ./back-office
+                            docker push ${REGISTRY}/wordly-backoffice:${IMAGE_TAG}
+                            docker push ${REGISTRY}/wordly-backoffice:latest
+                        """
+                    }
+                }
+            }
+        }
+
+        // ── 7. Deploy to Kubernetes ───────────────────────────────
+        stage('Deploy to Kubernetes') {
+            when {
+                branch 'main'
+            }
+            steps {
+                withKubeConfig([credentialsId: 'kubeconfig']) {
+                    sh 'kubectl apply -f devops/k8s/05-frontends.yml'
+                    sh "kubectl set image deployment/frontend frontend=${REGISTRY}/wordly-frontend:${IMAGE_TAG} -n wordly"
+                    sh "kubectl set image deployment/back-office back-office=${REGISTRY}/wordly-backoffice:${IMAGE_TAG} -n wordly"
+                    sh 'kubectl rollout status deployment/frontend    -n wordly --timeout=120s'
+                    sh 'kubectl rollout status deployment/back-office -n wordly --timeout=120s'
+                }
+            }
+        }
+
+    } // end stages
+
+    post {
+        always {
+            archiveArtifacts allowEmptyArchive: true,
+                             artifacts: 'frontend/angular-app/dist/**,back-office/dist/**'
+            cleanWs()
+        }
+        success {
+            echo "Frontend pipeline succeeded – build #${env.BUILD_NUMBER}"
+        }
+        failure {
+            echo "Frontend pipeline failed – check logs above"
+        }
+    }
+}

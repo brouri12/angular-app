@@ -11,6 +11,11 @@ import { ChallengeDetail } from './pages/challenge-detail/challenge-detail';
 import { ChallengeResult } from './pages/challenge-result/challenge-result';
 import { ChallengeStats } from './pages/challenge-stats/challenge-stats';
 import { MyGroups } from './pages/my-groups/my-groups';
+import { Events } from './pages/events/events';
+import { ClubComponent } from './pages/club/club.component';
+import { MyRegistrationsComponent } from './pages/reservation/my-registrations.component';
+import { ForumsPublicComponent } from './pages/forums-public/forums-public';
+import { RecrutementPublicComponent } from './pages/recrutement-public/recrutement-public';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -24,6 +29,18 @@ export const routes: Routes = [
   { path: 'challenge-result/:id', component: ChallengeResult },
   { path: 'challenge-stats', component: ChallengeStats },
   { path: 'my-groups', component: MyGroups },
+  { path: 'events', component: Events },
+  { path: 'clubs', component: ClubComponent },
+  { path: 'my-registrations', component: MyRegistrationsComponent },
+  {
+    path: 'registrations/new/:eventId',
+    loadComponent: () =>
+      import('./pages/reservation/registration-form.component')
+        .then(m => m.RegistrationFormComponent)
+  },
   { path: 'test-notifications', component: TestNotifications },
+  // ── Forum & Recrutement (Rahma) ──────────────────────────────────────────
+  { path: 'forums', component: ForumsPublicComponent },
+  { path: 'recrutement', component: RecrutementPublicComponent },
   { path: '**', redirectTo: '' }
 ];

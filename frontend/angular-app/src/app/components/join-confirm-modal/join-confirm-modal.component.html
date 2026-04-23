@@ -1,0 +1,15 @@
+<div *ngIf="open" class="overlay" (click)="onBackdropClick($event)">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title">{{ title }}</h3>
+      <button class="x-btn" type="button" (click)="cancel.emit()">✕</button>
+    </div>
+
+    <p class="modal-text">{{ message }}</p>
+
+    <div class="actions">
+      <button class="btn cancel" type="button" (click)="cancel.emit()">Annuler</button>
+      <button class="btn confirm" type="button" (click)="confirm.emit()">Confirmer</button>
+    </div>
+  </div>
+</div>

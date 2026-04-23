@@ -17,7 +17,7 @@ export class NotificationService {
   private notificationSubject = new BehaviorSubject<Notification | null>(null);
   public notification$ = this.notificationSubject.asObservable();
 
-  success(title: string, message: string) {
+  success(title: string, message: string = '') {
     this.show({
       id: this.generateId(),
       type: 'success',
@@ -26,7 +26,7 @@ export class NotificationService {
     });
   }
 
-  error(title: string, message: string) {
+  error(title: string, message: string = '') {
     this.show({
       id: this.generateId(),
       type: 'error',
@@ -35,7 +35,7 @@ export class NotificationService {
     });
   }
 
-  warning(title: string, message: string) {
+  warning(title: string, message: string = '') {
     this.show({
       id: this.generateId(),
       type: 'warning',
@@ -44,7 +44,7 @@ export class NotificationService {
     });
   }
 
-  info(title: string, message: string) {
+  info(title: string, message: string = '') {
     this.show({
       id: this.generateId(),
       type: 'info',
