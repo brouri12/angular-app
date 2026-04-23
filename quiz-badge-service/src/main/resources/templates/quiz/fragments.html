@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="styles">
+    <style>
+        :root { font-family: system-ui, sans-serif; color: #1a1a2e; }
+        body { max-width: 720px; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+        h1 { font-size: 1.35rem; margin-bottom: 0.5rem; }
+        .card { background: #f8f9fc; border-radius: 10px; padding: 1.25rem; margin-top: 1rem; border: 1px solid #e2e6ef; }
+        .muted { color: #5c6478; font-size: 0.9rem; }
+        .btn { display: inline-block; padding: 0.55rem 1.1rem; border-radius: 8px; border: none; cursor: pointer; font-size: 1rem; background: #3d5afe; color: #fff; text-decoration: none; }
+        .btn:hover { background: #2a3eb8; }
+        .alert { padding: 0.85rem 1rem; border-radius: 8px; background: #fff3e0; border: 1px solid #ffb74d; }
+        label { display: block; font-weight: 600; margin: 0.75rem 0 0.35rem; }
+        input[type="text"] { width: 100%; max-width: 100%; padding: 0.5rem 0.65rem; border-radius: 6px; border: 1px solid #c5cad8; box-sizing: border-box; }
+        fieldset { border: 1px solid #c5cad8; border-radius: 8px; margin-top: 0.5rem; padding: 0.5rem 0.75rem; }
+        .q-block { margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid #e2e6ef; }
+        .q-block:last-of-type { border-bottom: none; }
+        #quiz-play-form input[type="text"],
+        #quiz-play-form fieldset { user-select: none; -webkit-user-select: none; }
+        #integrity-banner { font-size: 0.82rem; color: #92400e; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 0.5rem 0.75rem; margin-bottom: 0.75rem; }
+    </style>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,22 @@
+name: Quiz Badge Service CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "quiz-badge-service/**"
+      - ".github/workflows/quiz-badge-service-ci.yml"
+      - ".github/workflows/_backend-service-ci.yml"
+  pull_request:
+    paths:
+      - "quiz-badge-service/**"
+      - ".github/workflows/quiz-badge-service-ci.yml"
+      - ".github/workflows/_backend-service-ci.yml"
+
+jobs:
+  ci:
+    uses: ./.github/workflows/_backend-service-ci.yml
+    with:
+      service_path: quiz-badge-service
+      service_name: quiz-badge-service
+    secrets: inherit

@@ -1,0 +1,22 @@
+name: Formation Service CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "formation-service/**"
+      - ".github/workflows/formation-service-ci.yml"
+      - ".github/workflows/_backend-service-ci.yml"
+  pull_request:
+    paths:
+      - "formation-service/**"
+      - ".github/workflows/formation-service-ci.yml"
+      - ".github/workflows/_backend-service-ci.yml"
+
+jobs:
+  ci:
+    uses: ./.github/workflows/_backend-service-ci.yml
+    with:
+      service_path: formation-service
+      service_name: formation-service
+    secrets: inherit

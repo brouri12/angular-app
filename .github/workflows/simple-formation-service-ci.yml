@@ -1,0 +1,22 @@
+name: Simple Formation Service CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "simple-formation-service/**"
+      - ".github/workflows/simple-formation-service-ci.yml"
+      - ".github/workflows/_backend-service-ci.yml"
+  pull_request:
+    paths:
+      - "simple-formation-service/**"
+      - ".github/workflows/simple-formation-service-ci.yml"
+      - ".github/workflows/_backend-service-ci.yml"
+
+jobs:
+  ci:
+    uses: ./.github/workflows/_backend-service-ci.yml
+    with:
+      service_path: simple-formation-service
+      service_name: simple-formation-service
+    secrets: inherit

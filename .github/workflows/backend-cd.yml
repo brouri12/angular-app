@@ -1,0 +1,67 @@
+name: Backend CD Global
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "docker-compose.yml"
+      - "Dockerfile.*"
+      - "api-gateway/**"
+      - "eureka-server/**"
+      - "formation-service/**"
+      - "quiz-badge-service/**"
+      - ".github/workflows/backend-cd.yml"
+
+jobs:
+  package-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build backend service images
+        run: |
+          docker build -f Dockerfile.eureka-server -t elearning/eureka-server:ci .
+          docker build -f Dockerfile.formation-service -t elearning/formation-service:ci .
+          docker build -f Dockerfile.quiz-badge-service -t elearning/quiz-badge-service:ci .
+          docker build -f Dockerfile.api-gateway -t elearning/api-gateway:ci .
+
+      - name: Validate docker compose
+        run: docker compose -f docker-compose.yml config
+
+      - name: Package deployment manifests
+        run: |
+          mkdir -p deployment-bundle
+          cp docker-compose.yml deployment-bundle/docker-compose.yml
+          cp Dockerfile.* deployment-bundle/
+
+      - name: Upload deployment bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-deployment-bundle
+          path: deployment-bundle
+
+  deploy:
+    name: Deploy backend stack
+    runs-on: ubuntu-latest
+    needs: package-and-validate
+    if: ${{ github.ref == 'refs/heads/main' && secrets.DEPLOY_HOST != '' && secrets.DEPLOY_USER != '' && secrets.DEPLOY_SSH_KEY != '' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH (docker compose)
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            cd ${{ secrets.DEPLOY_PATH }}
+            git pull
+            docker compose pull || true
+            docker compose up -d --build

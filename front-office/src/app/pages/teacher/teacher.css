@@ -1,0 +1,375 @@
+.teacher-page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1rem;
+  min-height: 100vh;
+  background: #f5f7fb;
+  color: #122132;
+  font-family: Inter, Arial, sans-serif;
+}
+
+.toast-banner {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: #0f172a;
+  color: #fff;
+  text-align: center;
+  border-radius: 0 0 10px 10px;
+  padding: 0.55rem 1rem;
+}
+
+.topbar {
+  background: #fff;
+  border: 1px solid #e3e9f1;
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.brand {
+  display: flex;
+  gap: 0.7rem;
+  align-items: center;
+}
+
+.brand-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  color: #fff;
+  background: linear-gradient(135deg, #00c897, #ff8a54);
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 0.75rem;
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.brand p {
+  margin: 0.2rem 0 0;
+  color: #627386;
+  font-size: 0.84rem;
+}
+
+.top-actions {
+  display: inline-flex;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.icon-btn,
+.tab-link {
+  border: 1px solid #d9e3ee;
+  border-radius: 8px;
+  background: #fff;
+  padding: 0.45rem 0.7rem;
+  text-decoration: none;
+  color: #122132;
+  cursor: pointer;
+}
+
+.toolbar {
+  margin-top: 0.75rem;
+  background: #fff;
+  border: 1px solid #e3e9f1;
+  border-radius: 12px;
+  padding: 0.55rem;
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.tab {
+  border: 1px solid #e3e9f1;
+  background: #fff;
+  border-radius: 10px;
+  padding: 0.45rem 0.8rem;
+  cursor: pointer;
+}
+
+.tab.active {
+  border: none;
+  color: #fff;
+  background: linear-gradient(90deg, #00c897, #ff8a54);
+}
+
+.hero-card {
+  margin-top: 1rem;
+  border: 1px solid #e3e9f1;
+  border-radius: 16px;
+  padding: 1rem;
+  background: linear-gradient(120deg, rgba(0, 200, 151, 0.16), rgba(255, 138, 84, 0.12));
+}
+
+.hero-card h2 {
+  margin: 0;
+}
+
+.hero-card p {
+  margin: 0.35rem 0 0;
+}
+
+.stats-grid {
+  margin-top: 0.9rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.7rem;
+}
+
+.stat,
+.card {
+  background: #fff;
+  border: 1px solid #e3e9f1;
+  border-radius: 12px;
+  padding: 0.9rem;
+}
+
+.stat strong {
+  font-size: 1.8rem;
+  display: block;
+}
+
+.stat span {
+  font-size: 0.78rem;
+  color: #627386;
+}
+
+.card {
+  margin-top: 0.9rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
+}
+
+label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #627386;
+}
+
+input,
+select,
+textarea {
+  margin-top: 0.2rem;
+  width: 100%;
+  border: 1px solid #d9e3ee;
+  border-radius: 8px;
+  padding: 0.55rem;
+  background: #fff;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.7rem;
+  flex-wrap: wrap;
+}
+
+.qtype-row {
+  display: flex;
+  gap: 0.6rem;
+  margin: 0.3rem 0 0.7rem;
+  flex-wrap: wrap;
+}
+
+.qtype-btn {
+  border: 1px solid #d9e3ee;
+  background: #fff;
+  border-radius: 10px;
+  padding: 0.5rem 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.qtype-btn.active {
+  border-color: #00b894;
+  box-shadow: 0 0 0 2px rgba(0, 184, 148, 0.14);
+}
+
+.btn {
+  border: 1px solid #d9e3ee;
+  background: #fff;
+  border-radius: 8px;
+  padding: 0.45rem 0.7rem;
+  cursor: pointer;
+}
+
+.btn.primary {
+  border: none;
+  color: #fff;
+  background: linear-gradient(90deg, #00c897, #ff8a54);
+}
+
+.btn.edit {
+  color: #0369a1;
+  background: #e0f2fe;
+}
+
+.btn.danger {
+  color: #dc2626;
+  background: #fee2e2;
+}
+
+.upload-inline {
+  border: 1px dashed #c5d4e8;
+  border-radius: 8px;
+  padding: 0.45rem 0.65rem;
+  background: #f8fbff;
+}
+
+.upload-inline input {
+  margin-top: 0.35rem;
+}
+
+.picker {
+  max-width: 420px;
+}
+
+.pedagogy-hero {
+  margin-top: 1rem;
+}
+
+.pedagogy-hero h2 {
+  margin: 0 0 0.4rem;
+  font-size: 2rem;
+}
+
+.pedagogy-hero h2 span {
+  color: #00c897;
+}
+
+.pedagogy-hero p {
+  margin: 0.2rem 0;
+  color: #54657a;
+  font-size: 1.05rem;
+}
+
+.pedagogy-step-label {
+  margin-top: 1.4rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.pedagogy-progress {
+  margin-top: 0.7rem;
+  height: 8px;
+  border-radius: 999px;
+  background: #d9e2ed;
+  overflow: hidden;
+}
+
+.pedagogy-progress-bar {
+  width: 36%;
+  height: 100%;
+  background: linear-gradient(90deg, #00c897, #ff8a54);
+}
+
+.pedagogy-search-wrap {
+  max-width: 430px;
+}
+
+.level-inline-form {
+  margin-top: 0.65rem;
+}
+
+.pedagogy-list {
+  margin-top: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.pedagogy-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.7rem;
+  border: 1px solid #e8eef6;
+  border-radius: 10px;
+  padding: 0.55rem 0.7rem;
+  background: #fff;
+}
+
+.pedagogy-main {
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  color: #122132;
+  flex: 1;
+}
+
+.pedagogy-actions {
+  display: inline-flex;
+  gap: 0.4rem;
+}
+
+.pager {
+  margin-top: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  border-bottom: 1px solid #e8eef6;
+  padding: 0.6rem;
+  text-align: left;
+  font-size: 0.85rem;
+}
+
+th {
+  font-size: 0.78rem;
+  color: #627386;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #e6edf6;
+  margin: 0.9rem 0;
+}
+
+.teacher-page.dark-theme {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+.teacher-page.dark-theme .topbar,
+.teacher-page.dark-theme .toolbar,
+.teacher-page.dark-theme .hero-card,
+.teacher-page.dark-theme .stat,
+.teacher-page.dark-theme .card,
+.teacher-page.dark-theme .pedagogy-row,
+.teacher-page.dark-theme input,
+.teacher-page.dark-theme select,
+.teacher-page.dark-theme textarea,
+.teacher-page.dark-theme .icon-btn,
+.teacher-page.dark-theme .tab-link,
+.teacher-page.dark-theme .btn {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.teacher-page.dark-theme .pedagogy-hero p {
+  color: #94a3b8;
+}

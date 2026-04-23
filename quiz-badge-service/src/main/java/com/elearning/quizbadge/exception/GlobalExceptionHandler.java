@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
@@ -15,7 +16,7 @@ import java.util.Map;
 /**
  * Global exception handler for REST controllers.
  */
-@RestControllerAdvice
+@RestControllerAdvice(annotations = RestController.class)
 @Slf4j
 public class GlobalExceptionHandler {
     
@@ -49,6 +50,16 @@ public class GlobalExceptionHandler {
         response.put("timestamp", LocalDateTime.now());
         
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalState(IllegalStateException ex) {
+        String msg = ex.getMessage() != null ? ex.getMessage() : "Business rule violation";
+        HttpStatus status = HttpStatus.CONFLICT;
+        if (msg.contains("TIME_EXPIRED")) status = HttpStatus.FORBIDDEN;
+        if (msg.contains("Aucune question active")) status = HttpStatus.BAD_REQUEST;
+        ErrorResponse error = new ErrorResponse(status.value(), msg, LocalDateTime.now());
+        return ResponseEntity.status(status).body(error);
     }
     
     @ExceptionHandler(Exception.class)

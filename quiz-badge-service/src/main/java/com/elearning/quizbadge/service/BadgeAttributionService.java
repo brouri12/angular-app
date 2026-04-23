@@ -40,8 +40,9 @@ public class BadgeAttributionService {
             checkAndAwardCourseCompletionBadge(enrollment);
             checkAndAwardPerfectScoreBadge(enrollment);
             checkAndAwardSpeedBadge(enrollment);
-            checkAndAwardStreakBadge(studentId);
         }
+        // La série dépend de l'ensemble des cours terminés: on ne la vérifie qu'une seule fois.
+        checkAndAwardStreakBadge(studentId);
     }
     
     /**

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Résultat</title>
+    <th:block th:replace="~{quiz/fragments :: styles}"/>
+</head>
+<body>
+<h1 th:text="${quizTitle}">Quiz</h1>
+<div class="card">
+    <p><strong>Score :</strong> <span th:text="${result.scorePercent}">0</span> %</p>
+    <p><strong>Points :</strong> <span th:text="${result.pointsEarned}">0</span> / <span th:text="${result.totalPoints}">0</span></p>
+    <p><strong>Résultat :</strong>
+        <span th:if="${result.passed}" style="color:#2e7d32;">Réussi</span>
+        <span th:unless="${result.passed}" style="color:#c62828;">Non réussi</span>
+    </p>
+    <p class="muted">
+        Bonnes réponses : <span th:text="${result.correctCount}">0</span> ·
+        Mauvaises : <span th:text="${result.wrongCount}">0</span> ·
+        Sans réponse : <span th:text="${result.unansweredCount}">0</span>
+        <span th:if="${result.durationSeconds != null}"> · Durée : <span th:text="${result.durationSeconds}">0</span> s</span>
+    </p>
+    <p class="muted" th:if="${result.tabHiddenCount != null or result.clipboardBlockCount != null}">
+        Intégrité (session) : onglet masqué <strong th:text="${result.tabHiddenCount != null ? result.tabHiddenCount : 0}">0</strong> fois ·
+        actions copier/coller/couper bloquées <strong th:text="${result.clipboardBlockCount != null ? result.clipboardBlockCount : 0}">0</strong>
+    </p>
+</div>
+</body>
+</html>

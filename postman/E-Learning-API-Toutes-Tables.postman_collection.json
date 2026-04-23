@@ -1,0 +1,156 @@
+{
+  "info": {
+    "name": "E-Learning API - Toutes les tables",
+    "description": "Collection complète pour tester toutes les tables (students, courses, teachers, enrollments, questions, badges, levels, chapters, lessons, quizzes, materials, responses, etc.)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8083" },
+    { "key": "studentId", "value": "1" },
+    { "key": "courseId", "value": "1" },
+    { "key": "teacherId", "value": "1" },
+    { "key": "enrollmentId", "value": "1" },
+    { "key": "levelId", "value": "1" },
+    { "key": "chapterId", "value": "1" },
+    { "key": "lessonId", "value": "1" },
+    { "key": "quizId", "value": "1" },
+    { "key": "questionId", "value": "1" },
+    { "key": "badgeId", "value": "1" },
+    { "key": "materialId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "0 - Santé API",
+      "item": [
+        { "name": "Ping", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/ping" },
+        { "name": "Database Info (toutes les tables)", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/database/info" },
+        { "name": "Pedagogy Tree", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/pedagogy/tree" } }
+      ]
+    },
+    {
+      "name": "1 - Students",
+      "item": [
+        { "name": "GET All Students", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/students" },
+        { "name": "GET Student by ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/students/{{studentId}}" },
+        { "name": "POST Create Student", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"Marie\",\n  \"lastName\": \"Dupont\",\n  \"email\": \"marie.dupont@email.com\",\n  \"city\": \"Paris\",\n  \"country\": \"France\",\n  \"latitude\": 48.8566,\n  \"longitude\": 2.3522\n}" }, "url": "{{baseUrl}}/api/students" },
+        { "name": "PUT Update Student", "request": { "method": "PUT", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"Marie\",\n  \"lastName\": \"Dupont\",\n  \"email\": \"marie.dupont@email.com\",\n  \"city\": \"Lyon\",\n  \"country\": \"France\",\n  \"latitude\": 45.764,\n  \"longitude\": 4.8357\n}" }, "url": "{{baseUrl}}/api/students/{{studentId}}" },
+        { "name": "GET Student Points", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/students/{{studentId}}/points" },
+        { "name": "DELETE Student", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/students/{{studentId}}" } }
+      ]
+    },
+    {
+      "name": "2 - Teachers",
+      "item": [
+        { "name": "GET All Teachers", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/teachers" },
+        { "name": "GET Teacher by ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/teachers/{{teacherId}}" },
+        { "name": "POST Create Teacher", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"Jean\",\n  \"lastName\": \"Martin\",\n  \"email\": \"jean.martin@school.com\",\n  \"city\": \"Lyon\",\n  \"country\": \"France\"\n}" }, "url": "{{baseUrl}}/api/teachers" },
+        { "name": "PUT Update Teacher", "request": { "method": "PUT", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"Jean\",\n  \"lastName\": \"Martin\",\n  \"email\": \"jean.martin@school.com\",\n  \"city\": \"Paris\",\n  \"country\": \"France\"\n}" }, "url": "{{baseUrl}}/api/teachers/{{teacherId}}" },
+        { "name": "DELETE Teacher", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/teachers/{{teacherId}}" } }
+      ]
+    },
+    {
+      "name": "3 - Courses",
+      "item": [
+        { "name": "GET All Courses", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/courses" },
+        { "name": "GET Course by ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/courses/{{courseId}}" },
+        { "name": "POST Create Course", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"courseCode\": \"MATH101\",\n  \"title\": \"Algèbre 1\",\n  \"description\": \"Introduction à l'algèbre\",\n  \"teacherId\": 1,\n  \"teacherName\": \"Jean Martin\",\n  \"teacherLocation\": \"Lyon, France\",\n  \"durationHours\": 40,\n  \"price\": 199.99,\n  \"maxStudents\": 30,\n  \"level\": \"BEGINNER\",\n  \"status\": \"ACTIVE\",\n  \"city\": \"Lyon\",\n  \"country\": \"France\",\n  \"latitude\": 45.764,\n  \"longitude\": 4.8357\n}" }, "url": "{{baseUrl}}/api/courses" },
+        { "name": "PUT Update Course", "request": { "method": "PUT", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"courseCode\": \"MATH101\",\n  \"title\": \"Algèbre 1 (mis à jour)\",\n  \"description\": \"Introduction à l'algèbre\",\n  \"teacherId\": 1,\n  \"teacherName\": \"Jean Martin\",\n  \"teacherLocation\": \"Lyon, France\",\n  \"durationHours\": 45,\n  \"price\": 219.99,\n  \"maxStudents\": 35,\n  \"level\": \"BEGINNER\",\n  \"status\": \"ACTIVE\",\n  \"city\": \"Lyon\",\n  \"country\": \"France\",\n  \"latitude\": 45.764,\n  \"longitude\": 4.8357\n}" }, "url": "{{baseUrl}}/api/courses/{{courseId}}" },
+        { "name": "PUT Assign Teacher to Course", "request": { "method": "PUT", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"teacherId\": 1\n}" }, "url": "{{baseUrl}}/api/courses/{{courseId}}/assign-teacher" },
+        { "name": "DELETE Course", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/courses/{{courseId}}" } }
+      ]
+    },
+    {
+      "name": "4 - Enrollments",
+      "item": [
+        { "name": "GET All Enrollments", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/enrollments" },
+        { "name": "GET Enrollments by Student", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/enrollments?studentId={{studentId}}" },
+        { "name": "GET Enrollments by Course", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/enrollments?courseId={{courseId}}" },
+        { "name": "GET Enrollment by ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/enrollments/{{enrollmentId}}" },
+        { "name": "POST Create Enrollment", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"studentId\": 1,\n  \"courseId\": 1,\n  \"status\": \"ACTIVE\",\n  \"completionPercentage\": 0,\n  \"finalGrade\": null\n}" }, "url": "{{baseUrl}}/api/enrollments" },
+        { "name": "PUT Update Enrollment", "request": { "method": "PUT", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"studentId\": 1,\n  \"courseId\": 1,\n  \"status\": \"IN_PROGRESS\",\n  \"completionPercentage\": 50,\n  \"finalGrade\": null\n}" }, "url": "{{baseUrl}}/api/enrollments/{{enrollmentId}}" },
+        { "name": "DELETE Enrollment", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/enrollments/{{enrollmentId}}" } }
+      ]
+    },
+    {
+      "name": "5 - Questions (table questions)",
+      "item": [
+        { "name": "GET All Questions", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/questions" },
+        { "name": "GET Questions by Course", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/questions?courseId={{courseId}}" },
+        { "name": "GET Question by ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/questions/{{questionId}}" },
+        { "name": "POST Create Question", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"courseId\": 1,\n  \"questionText\": \"Quelle est la dérivée de x² ?\",\n  \"questionType\": \"SHORT_ANSWER\",\n  \"points\": 10,\n  \"difficultyLevel\": \"EASY\",\n  \"correctAnswer\": \"2x\",\n  \"explanation\": \"Règle des puissances\",\n  \"orderNumber\": 1,\n  \"isActive\": true\n}" }, "url": "{{baseUrl}}/api/questions" },
+        { "name": "PUT Update Question", "request": { "method": "PUT", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"questionText\": \"Quelle est la dérivée de x² ?\",\n  \"questionType\": \"SHORT_ANSWER\",\n  \"points\": 15,\n  \"difficultyLevel\": \"EASY\",\n  \"correctAnswer\": \"2x\",\n  \"explanation\": \"Règle des puissances\",\n  \"orderNumber\": 1,\n  \"isActive\": true\n}" }, "url": "{{baseUrl}}/api/questions/{{questionId}}" },
+        { "name": "DELETE Question", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/questions/{{questionId}}" } }
+      ]
+    },
+    {
+      "name": "6 - Responses",
+      "item": [
+        { "name": "GET All Responses", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/responses" },
+        { "name": "GET Responses by Student", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/responses?studentId={{studentId}}" },
+        { "name": "POST Create Response", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"studentId\": 1,\n  \"questionId\": 1,\n  \"enrollmentId\": 1,\n  \"answerText\": \"2x\",\n  \"isCorrect\": true,\n  \"pointsEarned\": 10\n}" }, "url": "{{baseUrl}}/api/responses" } }
+      ]
+    },
+    {
+      "name": "7 - Badges",
+      "item": [
+        { "name": "GET All Badges", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/badges" },
+        { "name": "GET Badges by Student", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/badges?studentId={{studentId}}" },
+        { "name": "POST Create Badge", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"studentId\": 1,\n  \"badgeName\": \"Premier quiz réussi\",\n  \"badgeType\": \"QUIZ_MASTER\",\n  \"description\": \"Premier quiz réussi du cours\",\n  \"badgeLevel\": \"BRONZE\",\n  \"courseId\": 1,\n  \"criteriaMet\": \"Score >= 50%\",\n  \"earnedDate\": \"2026-02-19\"\n}" }, "url": "{{baseUrl}}/api/badges" },
+        { "name": "PUT Update Badge", "request": { "method": "PUT", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"badgeName\": \"Expert Quiz\",\n  \"badgeType\": \"QUIZ_MASTER\",\n  \"description\": \"Plusieurs quiz réussis\",\n  \"badgeLevel\": \"SILVER\",\n  \"earnedDate\": \"2026-02-19\"\n}" }, "url": "{{baseUrl}}/api/badges/{{badgeId}}" },
+        { "name": "DELETE Badge", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/badges/{{badgeId}}" } }
+      ]
+    },
+    {
+      "name": "8 - Levels",
+      "item": [
+        { "name": "GET All Levels", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/levels" },
+        { "name": "GET Level by ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/levels/{{levelId}}" },
+        { "name": "POST Create Level", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"code\": \"L1\",\n  \"name\": \"Niveau 1\",\n  \"sortOrder\": 1\n}" }, "url": "{{baseUrl}}/api/levels" },
+        { "name": "PUT Update Level", "request": { "method": "PUT", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"code\": \"L1\",\n  \"name\": \"Niveau Débutant\",\n  \"sortOrder\": 1\n}" }, "url": "{{baseUrl}}/api/levels/{{levelId}}" },
+        { "name": "GET Chapters of Level", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/levels/{{levelId}}/chapters" },
+        { "name": "POST Create Chapter", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"title\": \"Chapitre 1 - Introduction\",\n  \"sortOrder\": 1\n}" }, "url": "{{baseUrl}}/api/levels/{{levelId}}/chapters" },
+        { "name": "DELETE Level", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/levels/{{levelId}}" } }
+      ]
+    },
+    {
+      "name": "9 - Chapters",
+      "item": [
+        { "name": "GET Chapter by ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/chapters/{{chapterId}}" },
+        { "name": "PUT Update Chapter", "request": { "method": "PUT", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"title\": \"Chapitre 1 - Introduction\",\n  \"sortOrder\": 1\n}" }, "url": "{{baseUrl}}/api/chapters/{{chapterId}}" },
+        { "name": "GET Lessons of Chapter", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/chapters/{{chapterId}}/lessons" },
+        { "name": "GET Quiz of Chapter", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/chapters/{{chapterId}}/quiz" },
+        { "name": "DELETE Chapter", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/chapters/{{chapterId}}" } }
+      ]
+    },
+    {
+      "name": "10 - Lessons",
+      "item": [
+        { "name": "GET Lesson by ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/lessons/{{lessonId}}" },
+        { "name": "POST Create Lesson", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"title\": \"Leçon 1 - Vidéo intro\",\n  \"type\": \"VIDEO\",\n  \"url\": \"/uploads/lessons/video1.mp4\",\n  \"durationMinutes\": 15,\n  \"sortOrder\": 1\n}" }, "url": "{{baseUrl}}/api/chapters/{{chapterId}}/lessons" },
+        { "name": "PUT Update Lesson", "request": { "method": "PUT", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"title\": \"Leçon 1 - Vidéo intro\",\n  \"type\": \"VIDEO\",\n  \"url\": \"/uploads/lessons/video1.mp4\",\n  \"durationMinutes\": 20,\n  \"sortOrder\": 1\n}" }, "url": "{{baseUrl}}/api/lessons/{{lessonId}}" },
+        { "name": "DELETE Lesson", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/lessons/{{lessonId}}" } }
+      ]
+    },
+    {
+      "name": "11 - Quizzes",
+      "item": [
+        { "name": "GET Quiz by ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/quizzes/{{quizId}}" },
+        { "name": "POST Create Quiz", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"title\": \"Quiz Chapitre 1\",\n  \"passingScorePercent\": 50\n}" }, "url": "{{baseUrl}}/api/chapters/{{chapterId}}/quizzes" },
+        { "name": "PUT Update Quiz", "request": { "method": "PUT", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"title\": \"Quiz Chapitre 1\",\n  \"passingScorePercent\": 60\n}" }, "url": "{{baseUrl}}/api/quizzes/{{quizId}}" },
+        { "name": "GET Quiz Questions", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/quizzes/{{quizId}}/questions" },
+        { "name": "POST Quiz Question", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"questionText\": \"Quelle est la bonne réponse ?\",\n  \"questionType\": \"MULTIPLE_CHOICE\",\n  \"points\": 10,\n  \"correctAnswer\": \"A\",\n  \"orderNumber\": 1\n}" }, "url": "{{baseUrl}}/api/quizzes/{{quizId}}/questions" },
+        { "name": "POST Quiz Attempt", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"studentId\": 1,\n  \"quizId\": 1,\n  \"answers\": [\n    { \"questionId\": 1, \"answerText\": \"A\" }\n  ]\n}" }, "url": "{{baseUrl}}/api/quiz-attempts" },
+        { "name": "DELETE Quiz", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/quizzes/{{quizId}}" } }
+      ]
+    },
+    {
+      "name": "12 - Course Materials",
+      "item": [
+        { "name": "GET Materials of Course", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/courses/{{courseId}}/materials" },
+        { "name": "POST Create Material", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"type\": \"PDF\",\n  \"title\": \"Cours chapitre 1\",\n  \"url\": \"/uploads/course-materials/doc1.pdf\",\n  \"orderNumber\": 1\n}" }, "url": "{{baseUrl}}/api/courses/{{courseId}}/materials" },
+        { "name": "PUT Update Material", "request": { "method": "PUT", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"type\": \"PDF\",\n  \"title\": \"Cours chapitre 1 (mis à jour)\",\n  \"url\": \"/uploads/course-materials/doc1.pdf\",\n  \"orderNumber\": 1\n}" }, "url": "{{baseUrl}}/api/materials/{{materialId}}" },
+        { "name": "DELETE Material", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/materials/{{materialId}}" } }
+      ]
+    }
+  ]
+}

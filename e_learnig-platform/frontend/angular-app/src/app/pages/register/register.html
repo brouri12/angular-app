@@ -1,0 +1,295 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-2xl w-full space-y-8">
+    <!-- Header -->
+    <div>
+      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+        Create your account
+      </h2>
+      <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+        Already have an account?
+        <a routerLink="/login" class="font-medium text-primary hover:text-primary/80">
+          Sign in
+        </a>
+      </p>
+    </div>
+
+    <!-- Register Form -->
+    <form class="mt-8 space-y-6" (ngSubmit)="onSubmit()">
+      <!-- Success Message -->
+      <div *ngIf="successMessage" class="rounded-md bg-green-50 dark:bg-green-900/20 p-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm font-medium text-green-800 dark:text-green-200">
+              {{ successMessage }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="rounded-md bg-red-50 dark:bg-red-900/20 p-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm font-medium text-red-800 dark:text-red-200">
+              {{ errorMessage }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 space-y-6">
+        <!-- Role Selection -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            I want to register as *
+          </label>
+          <div class="grid grid-cols-2 gap-4">
+            <label class="relative flex cursor-pointer rounded-lg border p-4 focus:outline-none"
+                   [class.border-primary]="registerData.role === 'STUDENT'"
+                   [class.bg-primary/5]="registerData.role === 'STUDENT'"
+                   [class.border-gray-300]="registerData.role !== 'STUDENT'"
+                   [class.dark:border-gray-600]="registerData.role !== 'STUDENT'">
+              <input type="radio" name="role" value="STUDENT" [(ngModel)]="registerData.role" 
+                     (change)="onRoleChange()" class="sr-only" />
+              <span class="flex flex-1 flex-col">
+                <span class="block text-sm font-medium text-gray-900 dark:text-white">Student</span>
+                <span class="mt-1 flex items-center text-sm text-gray-500 dark:text-gray-400">
+                  Learn new languages
+                </span>
+              </span>
+            </label>
+
+            <label class="relative flex cursor-pointer rounded-lg border p-4 focus:outline-none"
+                   [class.border-primary]="registerData.role === 'TEACHER'"
+                   [class.bg-primary/5]="registerData.role === 'TEACHER'"
+                   [class.border-gray-300]="registerData.role !== 'TEACHER'"
+                   [class.dark:border-gray-600]="registerData.role !== 'TEACHER'">
+              <input type="radio" name="role" value="TEACHER" [(ngModel)]="registerData.role" 
+                     (change)="onRoleChange()" class="sr-only" />
+              <span class="flex flex-1 flex-col">
+                <span class="block text-sm font-medium text-gray-900 dark:text-white">Teacher</span>
+                <span class="mt-1 flex items-center text-sm text-gray-500 dark:text-gray-400">
+                  Teach languages
+                </span>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Account Information -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Username *
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              required
+              [(ngModel)]="registerData.username"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            />
+          </div>
+
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Email *
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              [(ngModel)]="registerData.email"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            />
+          </div>
+
+          <div>
+            <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Password *
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
+              [(ngModel)]="registerData.password"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            />
+          </div>
+
+          <div>
+            <label for="confirmPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Confirm Password *
+            </label>
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              required
+              [(ngModel)]="confirmPassword"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            />
+          </div>
+        </div>
+
+        <!-- Personal Information -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="nom" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Last Name *
+            </label>
+            <input
+              type="text"
+              id="nom"
+              name="nom"
+              required
+              [(ngModel)]="registerData.nom"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            />
+          </div>
+
+          <div>
+            <label for="prenom" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              First Name *
+            </label>
+            <input
+              type="text"
+              id="prenom"
+              name="prenom"
+              required
+              [(ngModel)]="registerData.prenom"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            />
+          </div>
+
+          <div>
+            <label for="telephone" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Phone
+            </label>
+            <input
+              type="tel"
+              id="telephone"
+              name="telephone"
+              [(ngModel)]="registerData.telephone"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            />
+          </div>
+        </div>
+
+        <!-- Teacher Specific Fields -->
+        <div *ngIf="registerData.role === 'TEACHER'" class="space-y-4 border-t border-gray-200 dark:border-gray-700 pt-4">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white">Teacher Information</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="specialite" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Specialization
+              </label>
+              <input
+                type="text"
+                id="specialite"
+                name="specialite"
+                [(ngModel)]="registerData.specialite"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              />
+            </div>
+
+            <div>
+              <label for="experience" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Years of Experience
+              </label>
+              <input
+                type="number"
+                id="experience"
+                name="experience"
+                [(ngModel)]="registerData.experience"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              />
+            </div>
+
+            <div class="md:col-span-2">
+              <label for="disponibilite" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Availability
+              </label>
+              <input
+                type="text"
+                id="disponibilite"
+                name="disponibilite"
+                [(ngModel)]="registerData.disponibilite"
+                placeholder="e.g., Monday-Friday 9AM-5PM"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Student Specific Fields -->
+        <div *ngIf="registerData.role === 'STUDENT'" class="space-y-4 border-t border-gray-200 dark:border-gray-700 pt-4">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white">Student Information</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="date_naissance" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Date of Birth
+              </label>
+              <input
+                type="date"
+                id="date_naissance"
+                name="date_naissance"
+                [(ngModel)]="registerData.date_naissance"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              />
+            </div>
+
+            <div>
+              <label for="niveau_actuel" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Current Level
+              </label>
+              <select
+                id="niveau_actuel"
+                name="niveau_actuel"
+                [(ngModel)]="registerData.niveau_actuel"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              >
+                <option value="">Select level</option>
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div>
+        <button
+          type="submit"
+          [disabled]="isLoading"
+          class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <span *ngIf="!isLoading">Create Account</span>
+          <span *ngIf="isLoading">Creating Account...</span>
+        </button>
+      </div>
+    </form>
+
+    <!-- Back to Home -->
+    <div class="text-center">
+      <a routerLink="/" class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary">
+        ← Back to Home
+      </a>
+    </div>
+  </div>
+</div>

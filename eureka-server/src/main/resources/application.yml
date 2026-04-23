@@ -16,8 +16,8 @@ eureka:
     service-url:
       defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
   server:
-    # Enable standalone mode
-    enable-self-preservation: true
+    # Désactiver l'auto-préservation en dev (évite l'avertissement "RENEWALS ARE LESSER THAN THRESHOLD")
+    enable-self-preservation: false
     eviction-interval-timer-in-ms: 60000
     renewal-percent-threshold: 0.85
 

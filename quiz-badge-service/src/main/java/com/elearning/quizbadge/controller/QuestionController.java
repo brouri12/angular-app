@@ -1,6 +1,8 @@
 package com.elearning.quizbadge.controller;
 
+import com.elearning.quizbadge.dto.CourseQuizBundleDTO;
 import com.elearning.quizbadge.dto.QuestionDTO;
+import com.elearning.quizbadge.service.CourseQuizEnrichmentService;
 import com.elearning.quizbadge.service.QuestionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ import java.util.Map;
 public class QuestionController {
     
     private final QuestionService questionService;
+    private final CourseQuizEnrichmentService courseQuizEnrichmentService;
     
     @PostMapping
     public ResponseEntity<QuestionDTO> createQuestion(@Valid @RequestBody QuestionDTO questionDTO) {
@@ -40,6 +43,18 @@ public class QuestionController {
         return ResponseEntity.ok(question);
     }
     
+    /**
+     * Compatibility endpoint:
+     * - GET /api/questions?courseId=123 => List<QuestionDTO> (used by legacy frontend)
+     * - GET /api/questions?page=0&size=10 => Page<QuestionDTO>
+     */
+    @GetMapping(params = "courseId")
+    public ResponseEntity<List<QuestionDTO>> getQuestionsByCourseQuery(@RequestParam Long courseId) {
+        log.info("GET /api/questions?courseId={}", courseId);
+        List<QuestionDTO> questions = questionService.getQuestionsByCourse(courseId);
+        return ResponseEntity.ok(questions);
+    }
+
     @GetMapping
     public ResponseEntity<Page<QuestionDTO>> getAllQuestions(
             @RequestParam(defaultValue = "0") int page,
@@ -54,6 +69,15 @@ public class QuestionController {
         log.info("GET /api/questions/course/{}", courseId);
         List<QuestionDTO> questions = questionService.getQuestionsByCourse(courseId);
         return ResponseEntity.ok(questions);
+    }
+
+    /**
+     * Quiz d'un cours + libellés cours (OpenFeign → formation-service).
+     */
+    @GetMapping("/course/{courseId}/enriched")
+    public ResponseEntity<CourseQuizBundleDTO> getQuestionsByCourseEnriched(@PathVariable Long courseId) {
+        log.info("GET /api/questions/course/{}/enriched", courseId);
+        return ResponseEntity.ok(courseQuizEnrichmentService.getQuestionsForCourseWithFormationMeta(courseId));
     }
     
     @PutMapping("/{id}")

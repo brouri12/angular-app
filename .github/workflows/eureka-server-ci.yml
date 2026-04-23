@@ -1,0 +1,22 @@
+name: Eureka Server CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "eureka-server/**"
+      - ".github/workflows/eureka-server-ci.yml"
+      - ".github/workflows/_backend-service-ci.yml"
+  pull_request:
+    paths:
+      - "eureka-server/**"
+      - ".github/workflows/eureka-server-ci.yml"
+      - ".github/workflows/_backend-service-ci.yml"
+
+jobs:
+  ci:
+    uses: ./.github/workflows/_backend-service-ci.yml
+    with:
+      service_path: eureka-server
+      service_name: eureka-server
+    secrets: inherit

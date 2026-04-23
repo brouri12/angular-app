@@ -1,0 +1,17 @@
+{
+  "/api": {
+    "target": "http://localhost:8083",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "silent"
+  },
+  "/dict-api": {
+    "target": "https://api.dictionaryapi.dev",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/dict-api": ""
+    },
+    "logLevel": "silent"
+  }
+}

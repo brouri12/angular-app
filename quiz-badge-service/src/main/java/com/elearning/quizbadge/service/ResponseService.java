@@ -57,6 +57,13 @@ public class ResponseService {
     }
     
     @Transactional(readOnly = true)
+    public List<ResponseDTO> getAllResponses() {
+        return responseRepository.findAll().stream()
+                .map(ResponseDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public List<ResponseDTO> getResponsesByStudent(Long studentId) {
         return responseRepository.findByStudentId(studentId).stream()
                 .map(ResponseDTO::fromEntity)

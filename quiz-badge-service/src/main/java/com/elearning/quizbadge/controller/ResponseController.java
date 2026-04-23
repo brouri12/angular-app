@@ -22,6 +22,30 @@ public class ResponseController {
     
     private final ResponseService responseService;
     
+    /**
+     * Compatibility endpoint used by back-office:
+     * - GET /api/responses
+     * - GET /api/responses?studentId=...
+     * - GET /api/responses?questionId=...
+     * - GET /api/responses?enrollmentId=...
+     */
+    @GetMapping
+    public ResponseEntity<List<ResponseDTO>> getResponses(
+            @RequestParam(required = false) Long studentId,
+            @RequestParam(required = false) Long questionId,
+            @RequestParam(required = false) Long enrollmentId) {
+        if (studentId != null) {
+            return ResponseEntity.ok(responseService.getResponsesByStudent(studentId));
+        }
+        if (questionId != null) {
+            return ResponseEntity.ok(responseService.getResponsesByQuestion(questionId));
+        }
+        if (enrollmentId != null) {
+            return ResponseEntity.ok(responseService.getResponsesByEnrollment(enrollmentId));
+        }
+        return ResponseEntity.ok(responseService.getAllResponses());
+    }
+
     @PostMapping
     public ResponseEntity<ResponseDTO> submitResponse(@Valid @RequestBody ResponseDTO responseDTO) {
         log.info("POST /api/responses - Submitting response");

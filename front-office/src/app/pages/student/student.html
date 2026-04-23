@@ -1,0 +1,739 @@
+<div class="student-page" [class.dark-theme]="darkTheme">
+  <div class="notif-screen-flash" [class.active]="notifScreenFlashActive" aria-hidden="true"></div>
+  <div class="notif-alert-banner" [class.active]="notifBannerActive" aria-live="polite" role="status">
+    <div class="notif-alert-main">
+      <span class="notif-alert-dot"></span>
+      <span>{{ notifBannerText }}</span>
+    </div>
+    <span class="notif-alert-meta">{{ notifBannerMeta }}</span>
+  </div>
+
+  @if (initialBusy) {
+    <section class="state loading-state">Chargement des donnees...</section>
+  } @else {
+    @if (toastText) {
+      <div class="toast-banner">{{ toastText }}</div>
+    }
+
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-text-ico">JiE</span>
+        <div>
+          <h1>Jungle in English - Espace Student</h1>
+          <p>Parcours, cours, inscriptions, badges et quiz (comme student.html sur :8083)</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <label class="student-picker-label">Je suis :</label>
+        <select
+          class="student-picker-select"
+          [(ngModel)]="selectedStudentId"
+          (ngModelChange)="onStudentChange()"
+        >
+          @for (s of students; track s.id) {
+            <option [ngValue]="s.id">
+              {{ (s.firstName || '') + ' ' + (s.lastName || '') }}
+            </option>
+          }
+        </select>
+        <div class="user-box">
+          <div class="avatar">{{ initials || 'S' }}</div>
+          <div>
+            <div class="small-label">Bienvenue</div>
+            <div class="user-name">{{ fullName }}</div>
+            <div class="badge">{{ currentBadge }}</div>
+          </div>
+        </div>
+        <button type="button" class="icon-btn" (click)="toggleDark()" [title]="darkTheme ? 'Mode clair' : 'Mode sombre'">
+          {{ darkTheme ? 'Clair' : 'Sombre' }}
+        </button>
+        <a routerLink="/teacher" class="tab-link">Espace Enseignant</a>
+      </div>
+    </header>
+
+    <nav class="toolbar">
+      <button type="button" class="tab" [class.active]="activeTab === 'parcours'" (click)="setTab('parcours')">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 6a2 2 0 012-2h8a2 2 0 012 2v12l-5-2-5 2V6z" stroke="currentColor" stroke-width="1.7" />
+          <path d="M16 8h2a2 2 0 012 2v10l-4-2" stroke="currentColor" stroke-width="1.7" />
+        </svg>
+        Parcours
+      </button>
+      <button type="button" class="tab" [class.active]="activeTab === 'courses'" (click)="setTab('courses')">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="3" y="5" width="8" height="14" rx="1.5" stroke="currentColor" stroke-width="1.7" />
+          <rect x="13" y="5" width="8" height="14" rx="1.5" stroke="currentColor" stroke-width="1.7" />
+        </svg>
+        Our Courses
+      </button>
+      <button type="button" class="tab" [class.active]="activeTab === 'enrollments'" (click)="setTab('enrollments')">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="4" y="3" width="16" height="18" rx="2" stroke="currentColor" stroke-width="1.7" />
+          <path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+        </svg>
+        My Enrollments
+      </button>
+      <button type="button" class="tab" [class.active]="activeTab === 'badges'" (click)="setTab('badges')">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="9" r="5" stroke="currentColor" stroke-width="1.7" />
+          <path d="M9 14l-1 7 4-2 4 2-1-7" stroke="currentColor" stroke-width="1.7" />
+        </svg>
+        My Badges
+      </button>
+      <button type="button" class="tab" [class.active]="activeTab === 'quiz'" (click)="setTab('quiz')">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 20h4l10-10-4-4L4 16v4z" stroke="currentColor" stroke-width="1.7" />
+          <path d="M12 8l4 4" stroke="currentColor" stroke-width="1.7" />
+        </svg>
+        Quiz
+      </button>
+      @if (quizReviewTodoCount > 0) {
+        <button type="button" class="icon-btn nav-review-btn" (click)="openQuizReviewTodo()">
+          Mark review ({{ quizReviewTodoCount }})
+        </button>
+      }
+      <div class="nav-notif-wrap">
+        <button
+          type="button"
+          class="notif-bell"
+          [class.has-unread]="notifications.length > 0"
+          [class.new-notif]="notifBellAnimate"
+          title="Notifications"
+          aria-label="Notifications"
+          (click)="toggleNotifications()"
+        >
+          <svg class="notif-bell-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 9a6 6 0 1112 0v5l2 2H4l2-2V9z" stroke="currentColor" stroke-width="1.8" />
+            <path d="M10 18a2 2 0 004 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </button>
+        @if (notifications.length > 0) {
+          <span class="notif-badge" [class.new-notif-badge]="notifBadgeAnimate">{{ notifications.length }}</span>
+        }
+        @if (notificationsOpen) {
+          <div class="notif-dropdown">
+            <h4>
+              Notifications
+              <span class="notif-header-actions">
+                <button type="button" class="notif-refresh" (click)="refreshNotifications()" [disabled]="notificationsBusy">
+                  <svg class="notif-action-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M20 5v5h-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                    <path d="M19 10a8 8 0 10-2 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  class="notif-clear-all"
+                  (click)="clearAllNotifications()"
+                  [disabled]="notificationsBusy || !notifications.length"
+                >
+                  <svg class="notif-action-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M4 7h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                    <path d="M9 7V5h6v2M7 7l1 12h8l1-12" stroke="currentColor" stroke-width="1.8" />
+                  </svg>
+                  Tout
+                </button>
+              </span>
+            </h4>
+
+            @if (notificationsBusy) {
+              <div class="notif-empty">Chargement...</div>
+            } @else if (!notifications.length) {
+              <div class="notif-empty">Aucune notification.</div>
+            } @else {
+              @for (n of notifications; track n.id) {
+                <div class="notif-row">
+                  <button type="button" class="notif-item" (click)="openNotification(n)">
+                    <strong>{{ notificationLabel(n) }}</strong>
+                    <div class="notif-date">{{ notificationDateLabel(n.createdAt) }}</div>
+                  </button>
+                  <div class="notif-actions">
+                    <button type="button" class="notif-open-btn" (click)="openNotification(n)">Ouvrir</button>
+                    <button type="button" class="notif-delete-btn" (click)="deleteNotification(n)">Suppr.</button>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        }
+      </div>
+    </nav>
+
+    @if (errorMessage) {
+      <section class="state error-state">{{ errorMessage }}</section>
+    }
+
+    @switch (activeTab) {
+      @case ('parcours') {
+        @switch (parcoursStep) {
+          @case ('levels') {
+            <section class="hero-card">
+              <div class="hero-main">
+                <div class="hero-avatar">{{ initials || 'S' }}</div>
+                <div>
+                  <div class="hero-kicker">YOUR LEARNING SPACE</div>
+                  <h2>{{ greeting }}</h2>
+                  <p>A short session is enough to move forward. Your dashboard is up to date.</p>
+                  <div class="hero-badges">
+                    <span>
+                      <svg class="mini-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M12 3l2.7 5.46L21 9.27l-4.5 4.39 1.06 6.23L12 17l-5.56 2.89 1.06-6.23L3 9.27l6.3-.81L12 3z" stroke="currentColor" stroke-width="1.6" />
+                      </svg>
+                      {{ points }} pts
+                    </span>
+                    <span>{{ currentBadge }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="hero-actions">
+                <button type="button" class="secondary-btn" (click)="setTab('courses')">Course catalog</button>
+                <button type="button" class="secondary-btn" (click)="setTab('badges')">My badges</button>
+              </div>
+              <div class="progress-zone">
+                <div class="progress-head">
+                  <strong>OVERALL PATH PROGRESS</strong>
+                  <span>{{ progressLabel }}</span>
+                </div>
+                <div class="progress-track">
+                  <span class="progress-fill" [style.width.%]="progressPercent"></span>
+                </div>
+              </div>
+            </section>
+
+            <section class="stats-grid">
+              <article class="stat"><strong>{{ points }}</strong><span>POINTS</span></article>
+              <article class="stat"><strong>{{ coursesStarted }}</strong><span>COURSES STARTED</span></article>
+              <article class="stat"><strong>{{ coursesCompleted }}</strong><span>COURSES COMPLETED</span></article>
+              <article class="stat"><strong>{{ quizzesTaken }}</strong><span>QUIZZES TAKEN</span></article>
+              <article class="stat"><strong>{{ totalLevels }}</strong><span>LEVELS</span></article>
+              <article class="stat"><strong>{{ progressPercent }}%</strong><span>PROGRESS</span></article>
+            </section>
+
+            <section class="cards-two">
+              <article class="card">
+                <h3>MOTIVATION & GOALS</h3>
+                <p>
+                  Score moyen quiz: <strong>{{ averageQuizScore }}%</strong>. Il reste
+                  <strong>{{ pendingLevels }}</strong> niveau(x) a completer.
+                </p>
+              </article>
+              <article class="card">
+                <h3>Recent activity</h3>
+                @if (recentActivity.length) {
+                  @for (activity of recentActivity; track $index) {
+                    <div class="activity-item">
+                      <div>{{ activity.title || activity.eventType || 'Activity' }}</div>
+                      <small>{{ activity.createdAt ? (activity.createdAt | date: 'medium') : '-' }}</small>
+                    </div>
+                  }
+                } @else {
+                  <p>Aucune activite recente.</p>
+                }
+              </article>
+            </section>
+
+            <section class="filters">
+              <input type="text" [(ngModel)]="searchTerm" placeholder="Search a level (code, name)..." />
+              <select [(ngModel)]="selectedSort">
+                <option value="pedagogy">Ordre pedagogique</option>
+                <option value="name">Ordre alphabetique</option>
+              </select>
+            </section>
+
+            <section class="levels-section">
+              <h3>Parcours par Level</h3>
+              <div class="levels-grid">
+                @for (level of levelCards; track trackByLevelId($index, level)) {
+                  <article class="level-card">
+                    <div class="level-header">
+                      @if (level.imageUrl) {
+                        <img [src]="level.imageUrl" [alt]="level.code" />
+                      } @else {
+                        <span class="fallback-icon" aria-hidden="true">
+                          <svg class="fallback-icon-svg" viewBox="0 0 24 24" fill="none">
+                            <path d="M5 4h8a2 2 0 012 2v12l-5-2-5 2V4z" stroke="currentColor" stroke-width="1.7" />
+                            <path d="M15 7h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+                          </svg>
+                        </span>
+                      }
+                      <div>
+                        <small>{{ level.code }}</small>
+                        <h4>{{ level.title }}</h4>
+                      </div>
+                    </div>
+                    <p>
+                      Parcours {{ level.code }} - {{ level.chaptersCount }} chapters -
+                      {{ level.lessonsCount }} lessons & quiz.
+                    </p>
+                    <div class="meta-row">
+                      <span>{{ level.chaptersCount }} chapters</span>
+                      <span>{{ level.status }}</span>
+                    </div>
+                    <div class="level-progress">
+                      <div class="progress-track">
+                        <span class="progress-fill" [style.width.%]="level.progress"></span>
+                      </div>
+                      <strong>{{ level.progress }}%</strong>
+                    </div>
+                    <button type="button" class="start-btn" (click)="openParcoursLevel(level.id)">
+                      {{ level.action }}
+                    </button>
+                  </article>
+                }
+              </div>
+            </section>
+          }
+          @case ('chapters') {
+            <div class="page-block">
+              <button type="button" class="link-back" (click)="backParcoursLevels()">Retour aux niveaux</button>
+              <h2>Chapitres — {{ parcoursLevel?.code }} {{ parcoursLevel?.name }}</h2>
+              <input
+                type="text"
+                class="search-input"
+                [(ngModel)]="parcoursChapterSearch"
+                placeholder="Rechercher un chapitre..."
+              />
+              <div class="chapter-list">
+                @for (ch of parcoursChaptersFiltered; track trackByChapterId($index, ch)) {
+                  <button type="button" class="chapter-row" (click)="openParcoursChapter(ch.id)">
+                    <span class="ch-ico" aria-hidden="true">
+                      <svg class="ch-ico-svg" viewBox="0 0 24 24" fill="none">
+                        <rect x="4" y="5" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.7" />
+                        <path d="M8 9h8M8 13h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+                      </svg>
+                    </span>
+                    <span>{{ ch.title }}</span>
+                    <span class="ch-meta"
+                      >{{ ch.lessons?.length ?? 0 }} lecon(s) @if ((ch.quizzes?.length ?? 0) > 0 || ch.quiz) {
+                        <span> · {{ (ch.quizzes?.length ?? 0) || 1 }} quiz</span>
+                      }</span
+                    >
+                  </button>
+                }
+              </div>
+            </div>
+          }
+          @case ('detail') {
+            <div class="page-block">
+              <button type="button" class="link-back" (click)="backParcoursChapters()">Retour aux chapitres</button>
+              <h2>{{ parcoursChapter?.title }}</h2>
+              <p class="muted">Niveau {{ parcoursLevel?.code }}</p>
+
+              <div class="sub-tabs">
+                <button
+                  type="button"
+                  [class.active]="parcoursDetailPane === 'lessons'"
+                  (click)="setParcoursPane('lessons')"
+                >
+                  Lecons
+                </button>
+                <button type="button" [class.active]="parcoursDetailPane === 'quiz'" (click)="setParcoursPane('quiz')">
+                  Quiz
+                </button>
+              </div>
+
+              @if (parcoursDetailPane === 'lessons') {
+                <div class="lesson-list">
+                  @for (les of sortedLessons; track les.id) {
+                    <div class="lesson-item">
+                      <strong>{{ les.title }}</strong>
+                      <div class="lesson-actions">
+                        <button type="button" class="btn-outline" (click)="openLessonAndMarkComplete(les)">
+                          Ouvrir
+                        </button>
+                      </div>
+                    </div>
+                  } @empty {
+                    <p class="muted">Aucune lecon.</p>
+                  }
+                </div>
+              } @else {
+                @if (!parcoursChapterQuizzes.length) {
+                  <p class="muted">Pas de quiz pour ce chapitre.</p>
+                } @else if (!parcoursQuizQuestions.length) {
+                  <p class="muted">Aucune question chargee.</p>
+                } @else {
+                  <div class="quiz-picker-row">
+                    <label for="chapter-quiz-select">Quiz</label>
+                    <select
+                      id="chapter-quiz-select"
+                      class="quiz-picker-select"
+                      [(ngModel)]="selectedParcoursQuizId"
+                      (ngModelChange)="onParcoursQuizChange()"
+                    >
+                      @for (qz of parcoursChapterQuizzes; track qz.id) {
+                        <option [ngValue]="qz.id">{{ qz.title || ('Quiz #' + qz.id) }}</option>
+                      }
+                    </select>
+                  </div>
+                  @if (!parcoursQuizStarted) {
+                    <button type="button" class="start-btn" [disabled]="parcoursQuizBusy" (click)="startParcoursQuizSession()">
+                      Commencer le quiz
+                    </button>
+                  } @else {
+                    <div class="quiz-topbar">
+                      <span class="quiz-chip">{{ parcoursQuizSubmitting ? 'Submitting...' : 'Quiz en cours' }}</span>
+                      <span class="quiz-timer">{{ parcoursQuizRemainingLabel }}</span>
+                    </div>
+                    <div class="progress-track quiz-progress-track">
+                      <span class="progress-fill" [style.width.%]="parcoursQuizProgressPercent"></span>
+                    </div>
+                    <div class="quiz-qcounter">Question {{ parcoursQuizIndex + 1 }} / {{ parcoursQuizQuestions.length }}</div>
+
+                    @if (parcoursQuizCurrent; as q) {
+                      <div class="quiz-row">
+                        <label>{{ q.questionText }}</label>
+                        @if (isTrueFalseQuizQuestion(q)) {
+                          <div class="tf-answer-row">
+                            <button
+                              type="button"
+                              class="tf-btn"
+                              [class.active]="(parcoursQuizAnswers[q.id] || '').toLowerCase() === 'true'"
+                              (click)="setTrueFalseAnswer(q.id, 'true')"
+                            >
+                              True
+                            </button>
+                            <button
+                              type="button"
+                              class="tf-btn"
+                              [class.active]="(parcoursQuizAnswers[q.id] || '').toLowerCase() === 'false'"
+                              (click)="setTrueFalseAnswer(q.id, 'false')"
+                            >
+                              False
+                            </button>
+                          </div>
+                        } @else {
+                          <input type="text" [(ngModel)]="parcoursQuizAnswers[q.id]" [name]="'pq' + q.id" />
+                        }
+                      </div>
+                    }
+                    <div class="quiz-review-tools">
+                      <button type="button" class="secondary-btn" [disabled]="parcoursQuizBusy" (click)="toggleCurrentQuizQuestionReview()">
+                        {{ isCurrentQuizQuestionMarkedForReview() ? 'Retirer mark review' : 'Mark for review' }}
+                      </button>
+                      @if (markedQuizQuestionIndexes.length) {
+                        <div class="quiz-review-list">
+                          @for (idx of markedQuizQuestionIndexes; track idx) {
+                            <button type="button" class="quiz-review-item" [disabled]="parcoursQuizBusy" (click)="jumpToQuizQuestion(idx)">
+                              Q{{ idx + 1 }}
+                            </button>
+                          }
+                        </div>
+                      }
+                    </div>
+
+                    <div class="quiz-nav-actions">
+                      <button type="button" class="secondary-btn" [disabled]="!parcoursQuizCanPrev || parcoursQuizBusy" (click)="parcoursQuizPrev()">
+                        Precedent
+                      </button>
+                      @if (parcoursQuizCanNext) {
+                        <button type="button" class="secondary-btn" [disabled]="parcoursQuizBusy" (click)="parcoursQuizNext()">
+                          Suivant
+                        </button>
+                      } @else {
+                        <button type="button" class="start-btn" [disabled]="parcoursQuizBusy" (click)="submitParcoursQuiz()">
+                          Envoyer le quiz
+                        </button>
+                      }
+                    </div>
+                    <div class="quiz-camera-card">
+                      <div class="quiz-camera-head">
+                        <strong>Surveillance camera</strong>
+                        <span [class.quiz-ok]="parcoursQuizCameraReady">{{ parcoursQuizCameraLabel }}</span>
+                      </div>
+                      <div class="quiz-camera-controls">
+                        <select
+                          class="quiz-camera-select"
+                          [(ngModel)]="selectedQuizCameraDeviceId"
+                          (ngModelChange)="onQuizCameraDeviceChange()"
+                        >
+                          <option [ngValue]="''">Camera par defaut</option>
+                          @for (d of quizCameraDevices; track d.deviceId) {
+                            <option [ngValue]="d.deviceId">{{ d.label || ('Camera ' + $index) }}</option>
+                          }
+                        </select>
+                        <button type="button" class="btn-outline" (click)="startParcoursQuizCamera()">Reessayer camera</button>
+                      </div>
+                      @if (parcoursQuizProctorHint) {
+                        <div class="quiz-proctor-hint">{{ parcoursQuizProctorHint }}</div>
+                      }
+                      @if (parcoursQuizProctorAlert) {
+                        <div class="quiz-proctor-alert">{{ parcoursQuizProctorAlert }}</div>
+                      }
+                      <video #quizCameraVideo class="quiz-camera-video" autoplay muted playsinline></video>
+                    </div>
+                    @if (parcoursQuizMessage) {
+                      <p class="quiz-result">{{ parcoursQuizMessage }}</p>
+                    }
+                  }
+                }
+              }
+            </div>
+          }
+        }
+      }
+      @case ('courses') {
+        <div class="page-block">
+          @if (courseDetailId && courseDetail) {
+            <button type="button" class="link-back" (click)="backFromCourseDetail()">Retour aux cours</button>
+            <div class="course-detail-card">
+              <h2>{{ courseDetail.title }}</h2>
+              <p class="muted">
+                {{ courseDetail.teacherName }} · {{ courseDetail.level }} · {{ courseDetail.durationHours }} h
+              </p>
+              <p>{{ courseDetail.description || 'Pas de description.' }}</p>
+              <p class="price-line">
+                @if (courseDetail.price != null) {
+                  <strong>{{ courseDetail.price }} EUR</strong>
+                } @else {
+                  <strong>Gratuit</strong>
+                }
+              </p>
+              <button type="button" class="start-btn" (click)="enrollCurrentCourse()">S'inscrire a ce cours</button>
+              @if (courseMaterials.length) {
+                <h3>Ressources</h3>
+                <ul class="materials">
+                  @for (m of courseMaterials; track $index) {
+                    <li>
+                      <a [href]="resolveMediaUrl(m.url)" target="_blank" rel="noopener">{{ m.title || 'Ressource' }}</a>
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          } @else {
+            <h2>Our Courses</h2>
+            @if (coursesLoadError) {
+              <p class="error-inline">{{ coursesLoadError }}</p>
+            }
+            <div class="courses-grid">
+              @for (c of coursesList; track c.id) {
+                <article class="course-card">
+                  <div class="course-thumb" aria-hidden="true">
+                    <svg class="course-thumb-svg" viewBox="0 0 24 24" fill="none">
+                      <rect x="3" y="5" width="8" height="14" rx="1.5" stroke="currentColor" stroke-width="1.7" />
+                      <rect x="13" y="5" width="8" height="14" rx="1.5" stroke="currentColor" stroke-width="1.7" />
+                    </svg>
+                  </div>
+                  <div class="course-body">
+                    <h3>{{ c.title }}</h3>
+                    <p class="muted">{{ c.teacherName }} · {{ c.level }}</p>
+                    <p class="price-line">
+                      @if (c.price != null) {
+                        {{ c.price }} EUR
+                      } @else {
+                        Gratuit
+                      }
+                    </p>
+                    <button type="button" class="start-btn" (click)="openCourseDetail(c.id)">Voir & S'inscrire</button>
+                  </div>
+                </article>
+              } @empty {
+                <p class="muted">Aucun cours actif.</p>
+              }
+            </div>
+          }
+        </div>
+      }
+      @case ('enrollments') {
+        <div class="page-block">
+          <h2>My Enrollments</h2>
+          @for (e of enrollmentsRows; track e.id) {
+            <article class="enrollment-card">
+              <h3>{{ e.courseTitle || 'Cours' }}</h3>
+              <p class="muted">Statut: {{ e.status }} · Note: {{ e.finalGrade ?? '-' }}</p>
+              <div class="progress-track">
+                <span class="progress-fill" [style.width.%]="e.completionPercentage || 0"></span>
+              </div>
+              <p class="small">{{ e.completionPercentage || 0 }}% complete</p>
+              <button type="button" class="secondary-btn" (click)="updateEnrollmentProgress(e)">
+                Mettre a jour progression
+              </button>
+            </article>
+          } @empty {
+            <p class="muted">Aucune inscription.</p>
+          }
+        </div>
+      }
+      @case ('badges') {
+        <div class="page-block">
+          <h2>My Badges</h2>
+          <div class="badges-progress-box">
+            <p>{{ badgeProgressText }}</p>
+          </div>
+
+          <h3 class="badges-subtitle">Badges obtenus</h3>
+          <div class="badges-grid">
+            @for (item of earnedBadgeCards; track item.tier.badgeLevel) {
+              <article class="badge-card badge-unlocked">
+                <div class="badge-card-top">
+                  <span class="badge-icon">{{ item.tier.icon }}</span>
+                  <span class="badge-state">Obtenu</span>
+                </div>
+                <h4>{{ item.badge?.badgeName || item.tier.badgeName }}</h4>
+                <p class="muted">Niveau {{ item.tier.badgeLevel }}</p>
+                @if (item.badge?.description) {
+                  <p class="badge-condition">{{ item.badge?.description }}</p>
+                }
+                @if (item.badge?.earnedDate) {
+                  <p class="badge-date">Obtenu le {{ item.badge?.earnedDate }}</p>
+                }
+                <div class="badge-actions">
+                  <a
+                    class="badge-action-btn"
+                    [href]="badgeCertificateDownloadUrl(item.badge)"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    Telecharger PDF
+                  </a>
+                  <a class="badge-action-btn" [href]="badgeShareLink('facebook', item.badge, item.tier)" target="_blank" rel="noopener">
+                    Facebook
+                  </a>
+                  <a class="badge-action-btn" [href]="badgeShareLink('linkedin', item.badge, item.tier)" target="_blank" rel="noopener">
+                    LinkedIn
+                  </a>
+                  <a class="badge-action-btn" [href]="badgeShareLink('whatsapp', item.badge, item.tier)" target="_blank" rel="noopener">
+                    WhatsApp
+                  </a>
+                  <a class="badge-action-btn" [href]="badgeShareLink('x', item.badge, item.tier)" target="_blank" rel="noopener">
+                    X
+                  </a>
+                  <button type="button" class="badge-action-btn" (click)="copyBadgeShareLink(item.badge)">Copy share link</button>
+                </div>
+              </article>
+            } @empty {
+              <p class="muted">Aucun badge obtenu pour le moment.</p>
+            }
+          </div>
+
+          <h3 class="badges-subtitle">Badges a debloquer</h3>
+          <div class="badges-grid">
+            @for (tier of lockedBadgeCards; track tier.badgeLevel) {
+              <article class="badge-card badge-locked">
+                <div class="badge-card-top">
+                  <span class="badge-icon">{{ tier.icon }}</span>
+                  <span class="badge-state">Verrouille</span>
+                </div>
+                <h4>{{ tier.badgeName }}</h4>
+                <p class="muted">Niveau {{ tier.badgeLevel }}</p>
+                <p class="badge-condition">Condition: atteindre {{ tier.points }} points.</p>
+              </article>
+            } @empty {
+              <p class="muted">Rien a debloquer: vous avez tous les badges.</p>
+            }
+          </div>
+        </div>
+      }
+      @case ('quiz') {
+        <div class="page-block">
+          <h2>Quiz / Questions (catalogue cours)</h2>
+          <label class="block-label">Cours :</label>
+          <select
+            class="full-select"
+            [(ngModel)]="selectedQuizCourseId"
+            (ngModelChange)="onQuizCourseChange()"
+          >
+            <option [ngValue]="null">-- Choisir un cours --</option>
+            @for (c of quizCourses; track c.id) {
+              <option [ngValue]="c.id">{{ c.title }}</option>
+            }
+          </select>
+          @for (q of catalogQuestions; track q.id) {
+            <div class="quiz-row">
+              <label>{{ q.questionText }}</label>
+              <input type="text" [(ngModel)]="catalogAnswers[q.id]" [name]="'cq' + q.id" />
+            </div>
+          }
+          @if (catalogQuestions.length) {
+            <button type="button" class="start-btn" [disabled]="catalogBusy" (click)="submitCatalogQuiz()">
+              Envoyer les reponses
+            </button>
+          }
+        </div>
+      }
+    }
+
+    <footer class="footer-mini">
+      <span>API: localhost:8083 — Angular dev: npm start (proxy /api)</span>
+    </footer>
+  }
+
+  <aside class="student-float-widgets" aria-label="Dictionnaire et coach anglais">
+    <div class="dict-float-wrap">
+      <form class="dict-bar" (ngSubmit)="lookupDictionary()">
+        <input
+          type="text"
+          class="dict-bar-input"
+          name="dictWord"
+          [(ngModel)]="dictionaryWord"
+          placeholder="Type an English word..."
+          autocomplete="off"
+          [disabled]="dictionaryBusy"
+        />
+        <button type="submit" class="dict-bar-en" [disabled]="dictionaryBusy || coachBusy">EN</button>
+      </form>
+      <p class="dict-bar-hint">La reponse s'affiche dans le coach (bulle).</p>
+    </div>
+
+    @if (coachPanelOpen) {
+      <section class="chatbot-panel" aria-live="polite">
+        <div class="chatbot-head">
+          <div>
+            <div class="chatbot-title">Jungle English Coach</div>
+            <div class="chatbot-sub">Ask in English only</div>
+          </div>
+          <button type="button" class="chatbot-close" (click)="closeCoachPanel()" aria-label="Fermer le coach">&#10005;</button>
+        </div>
+        <div #coachChatBody class="chatbot-body">
+          @for (m of coachMessages; track $index) {
+            <div class="chatbot-msg" [class.bot]="m.role === 'bot'" [class.user]="m.role === 'user'">
+              <div class="bubble">{{ m.text }}</div>
+            </div>
+          }
+        </div>
+        <div class="chatbot-tips">
+          <button type="button" class="chatbot-tip-btn" (click)="sendCoachTip('How can I improve my English speaking?')">
+            Speaking tips
+          </button>
+          <button type="button" class="chatbot-tip-btn" (click)="sendCoachTip('Give me a short grammar exercise.')">
+            Grammar exercise
+          </button>
+          <button type="button" class="chatbot-tip-btn" (click)="sendCoachTip('How do I use this platform for learning?')">
+            Platform help
+          </button>
+        </div>
+        <form class="chatbot-form" (ngSubmit)="submitCoachMessage()">
+          <input
+            #coachInputEl
+            type="text"
+            class="chatbot-input"
+            name="coachQ"
+            [(ngModel)]="coachInput"
+            placeholder="Ask your question in English..."
+            autocomplete="off"
+            [disabled]="coachBusy"
+          />
+          <button type="submit" class="chatbot-send" [disabled]="coachBusy">Send</button>
+        </form>
+      </section>
+    }
+
+    <button
+      type="button"
+      class="chatbot-fab"
+      title="English Coach"
+      aria-label="Ouvrir le coach anglais"
+      (click)="toggleCoachPanel()"
+    >
+      <svg class="chatbot-fab-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path
+          d="M4 6a3 3 0 013-3h7a3 3 0 013 3v6a3 3 0 01-3 3h-2l-4 3v-3H7a3 3 0 01-3-3V6z"
+          stroke="currentColor"
+          stroke-width="1.75"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </button>
+  </aside>
+</div>

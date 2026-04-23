@@ -1,0 +1,22 @@
+name: Review Todo Service CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "review-todo-service/**"
+      - ".github/workflows/review-todo-service-ci.yml"
+      - ".github/workflows/_backend-service-ci.yml"
+  pull_request:
+    paths:
+      - "review-todo-service/**"
+      - ".github/workflows/review-todo-service-ci.yml"
+      - ".github/workflows/_backend-service-ci.yml"
+
+jobs:
+  ci:
+    uses: ./.github/workflows/_backend-service-ci.yml
+    with:
+      service_path: review-todo-service
+      service_name: review-todo-service
+    secrets: inherit

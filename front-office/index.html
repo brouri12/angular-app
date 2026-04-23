@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wordly – Forge Your Future with Expert-Led Courses</title>
+  <title>Jungle in English – Forge Your Future with Expert-Led Courses</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -28,6 +28,7 @@
       display: flex; align-items: center; gap: 0.5rem;
       font-weight: 700; font-size: 1.25rem; color: var(--text); text-decoration: none;
     }
+    .nav-logo img { width: 32px; height: 32px; object-fit: contain; }
     .nav-logo svg { width: 32px; height: 32px; }
     .nav-links { display: flex; align-items: center; gap: 2rem; }
     .nav-links a { color: var(--text); text-decoration: none; font-weight: 500; }
@@ -190,14 +191,62 @@
       .why-grid { grid-template-columns: 1fr; }
       .footer-inner { grid-template-columns: 1fr; }
     }
+
+    /* ----- Splash (animation avant interface) ----- */
+    #splash {
+      position: fixed; inset: 0; z-index: 9999;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      transition: opacity 0.6s ease-out; pointer-events: none;
+    }
+    #splash.hide { opacity: 0; }
+    #splash.remove { display: none; }
+    .splash-logo {
+      width: 140px; height: 140px; object-fit: contain;
+      animation: splashLogo 1.2s ease-out forwards;
+      filter: drop-shadow(0 0 24px rgba(0,200,151,0.3));
+    }
+    .splash-name {
+      font-size: 2.25rem; font-weight: 800; color: #fff; letter-spacing: 0.08em;
+      margin-top: 1rem; opacity: 0;
+      animation: splashText 0.8s ease-out 0.4s forwards;
+    }
+    .splash-tagline {
+      font-size: 0.95rem; color: rgba(255,255,255,0.7); margin-top: 0.5rem; opacity: 0;
+      animation: splashText 0.8s ease-out 0.7s forwards;
+    }
+    .splash-loader {
+      width: 120px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 4px;
+      margin-top: 2rem; overflow: hidden; opacity: 0;
+      animation: splashText 0.5s ease-out 1s forwards;
+    }
+    .splash-loader-bar {
+      height: 100%; width: 0; background: linear-gradient(90deg, rgb(0,200,151), rgb(255,127,80));
+      border-radius: 4px; animation: splashLoad 2s ease-in-out 1.2s forwards;
+    }
+    @keyframes splashLogo {
+      0% { transform: scale(0.6); opacity: 0; }
+      50% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes splashText { to { opacity: 1; } }
+    @keyframes splashLoad { to { width: 100%; } }
   </style>
 </head>
 <body>
+  <!-- Splash (animation avec logo avant interface) -->
+  <div id="splash">
+    <img src="logo.png" alt="Jungle" class="splash-logo">
+    <div class="splash-name">JUNGLE</div>
+    <div class="splash-tagline">in English</div>
+    <div class="splash-loader"><div class="splash-loader-bar"></div></div>
+  </div>
+
   <!-- Nav -->
   <header class="nav">
     <a href="#" class="nav-logo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M8 7h8"/><path d="M8 11h8"/></svg>
-      Wordly
+      <img src="logo.png" alt="Jungle">
+      Jungle <span style="font-weight:500;opacity:0.85;font-size:0.9em;">in English</span>
     </a>
     <nav class="nav-links">
       <a href="#courses">Courses</a>
@@ -218,7 +267,7 @@
     <div>
       <div class="hero-badge">New courses added weekly</div>
       <h1>Forge Your Future with <span class="green">Expert-Led</span> <span class="orange">Courses</span></h1>
-      <p class="hero-desc">Master cutting-edge skills with industry experts. Learn at your own pace and unlock your full potential with SkillForge's comprehensive online courses.</p>
+      <p class="hero-desc">Master cutting-edge skills with industry experts. Learn at your own pace and unlock your full potential with Jungle in English's comprehensive online courses.</p>
       <div class="hero-btns">
         <a href="student.html" class="btn-browse">Espace Étudiant – Apprendre & s'inscrire</a>
         <a href="teacher.html" class="btn-learn">Espace Enseignant – Gérer cours & quiz</a>
@@ -244,7 +293,7 @@
 
   <!-- Why Choose -->
   <section class="section" id="about">
-    <h2 class="section-title">Why Choose SkillForge?</h2>
+    <h2 class="section-title">Why Choose Jungle in English?</h2>
     <p class="section-subtitle">We're more than just a learning platform. We're your partner in success.</p>
     <div class="why-grid">
       <div class="why-card">
@@ -344,8 +393,8 @@
     <div class="footer-inner">
       <div>
         <div class="footer-logo">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-          SkillForge
+          <img src="logo.png" alt="Jungle" style="width:28px;height:28px;object-fit:contain;">
+          Jungle in English
         </div>
         <p class="footer-desc">Empowering learners worldwide with expert-led courses and cutting-edge skills.</p>
       </div>
@@ -373,12 +422,23 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 SkillForge. All rights reserved.</span>
+      <span>© 2026 Jungle in English. All rights reserved.</span>
       <span><a href="#">Privacy Policy</a> · <a href="#">Terms of Service</a></span>
     </div>
   </footer>
 
   <script>
+    // Splash: masquer après l'animation (logo + barre de chargement)
+    (function() {
+      var splash = document.getElementById('splash');
+      if (splash) {
+        setTimeout(function() {
+          splash.classList.add('hide');
+          setTimeout(function() { splash.classList.add('remove'); }, 600);
+        }, 3200);
+      }
+    })();
+
     // Même origine que la page = requêtes relatives. Sinon port 8083.
     const API_BASE = (window.location.port === '8083' || window.location.port === '8081' ? '' : 'http://localhost:8083');
 

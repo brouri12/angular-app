@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Espace Enseignant – Wordly</title>
+  <title>Espace Enseignant – Jungle in English</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -16,8 +16,17 @@
       --border: #e2e8f0;
       --footer-bg: #0f172a;
     }
+    body.dark-theme {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --footer-bg: #020617;
+    }
+    body.dark-theme .stat-card, body.dark-theme table th { background: #1e293b; border-color: #334155; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); transition: background 0.3s, color 0.3s; }
 
     .nav {
       display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
@@ -29,6 +38,7 @@
       font-weight: 700; font-size: 1.25rem; color: var(--text); text-decoration: none;
     }
     .nav-logo:hover { color: var(--secondary); }
+    .nav-logo img { width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; }
     .nav-logo svg { width: 28px; height: 28px; flex-shrink: 0; }
     .nav-links { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
     .nav-links a {
@@ -37,6 +47,13 @@
     }
     .nav-links a:hover { background: rgba(255,127,80,0.1); color: var(--secondary); }
     .nav-links a.active { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; }
+    .nav-dark-toggle { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 0.4rem 0.6rem; cursor: pointer; font-size: 1.1rem; }
+    .nav-dark-toggle:hover { background: rgba(255,127,80,0.1); }
+    .pedagogy-search-wrap { margin-bottom: 1rem; max-width: 320px; position: relative; }
+    .pedagogy-search-wrap input { width: 100%; padding: 0.6rem 1rem 0.6rem 2.25rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; background: var(--card); color: var(--text); }
+    .pedagogy-search-wrap::before { content: '🔍'; position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 0.9rem; opacity: 0.7; }
+    .btn-duplicate { background: #fef3c7; color: #b45309; }
+    .btn-duplicate:hover { background: #fde68a; }
 
     .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
     .page-hero { margin-bottom: 2rem; }
@@ -81,6 +98,9 @@
     .form-grid label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.25rem; }
     .form-grid input, .form-grid select, .form-grid textarea { width: 100%; padding: 0.6rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; font-family: inherit; }
     .hidden { display: none !important; }
+    .back-link { font-size: 0.9rem; }
+    .back-link a { color: var(--primary); text-decoration: none; font-weight: 500; }
+    .back-link a:hover { text-decoration: underline; }
     .loading { color: var(--text-muted); font-size: 0.9rem; }
     .loading-wrap { display: inline-flex; align-items: center; gap: 0.5rem; }
     .error { color: #dc2626; font-size: 0.875rem; }
@@ -161,7 +181,7 @@
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .btn:hover { transform: translateY(-1px); }
-    .btn:active { transform: translateY(0); }
+    .btn:active { transform: scale(0.97); }
     table tbody tr { animation: slideInRight 0.3s ease-out backwards; }
     table tbody tr:nth-child(1) { animation-delay: 0.02s; }
     table tbody tr:nth-child(2) { animation-delay: 0.04s; }
@@ -171,10 +191,107 @@
     table tbody tr:nth-child(n+6) { animation-delay: 0.12s; }
     .quiz-modal-overlay { animation: fadeIn 0.2s ease-out; }
     .quiz-modal-overlay .quiz-modal-card { animation: fadeInScale 0.3s ease-out; }
-    .nav-links a { transition: transform 0.2s ease; }
+    .nav-links a { transition: transform 0.2s ease, background 0.2s, color 0.2s; }
     .nav-links a:hover { transform: translateY(-2px); }
+    .nav-links a:active { transform: scale(0.97); }
     .stat-card { transition: transform 0.2s ease, box-shadow 0.2s ease; animation: fadeIn 0.35s ease-out backwards; }
     .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+
+    /* Cartes cliquables Niveaux & Chapitres (pédagogie) */
+    .pedagogy-level-row, .pedagogy-chapter-row {
+      display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;
+      border-radius: 10px; overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s;
+    }
+    .pedagogy-level-row .level-card, .pedagogy-chapter-row .chapter-label {
+      flex: 1; padding: 0.75rem; cursor: pointer; border-radius: 10px;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    .pedagogy-level-row .level-card:hover, .pedagogy-chapter-row .chapter-label:hover {
+      background: rgba(0,200,151,0.08);
+    }
+    .pedagogy-level-row .level-card:active, .pedagogy-chapter-row .chapter-label:active {
+      transform: scale(0.98);
+    }
+    .pedagogy-level-row .level-card.click-anim, .pedagogy-chapter-row .chapter-label.click-anim {
+      animation: teacherCardClick 0.35s ease;
+    }
+    @keyframes teacherCardClick {
+      0% { transform: scale(1); }
+      50% { transform: scale(0.98); }
+      100% { transform: scale(1); }
+    }
+    /* Apparition des blocs Chapitres / Leçons / Quiz */
+    #pedagogy-chapters-block, #pedagogy-lessons-block, #pedagogy-quiz-block {
+      animation: pedagogyBlockIn 0.4s ease-out forwards;
+    }
+    @keyframes pedagogyBlockIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ========== Fil d'Ariane, pagination, icônes (enseignant = étudiant) ========== */
+    .pedagogy-breadcrumb {
+      display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 1.25rem;
+      font-size: 0.9rem; color: var(--text-muted);
+    }
+    .pedagogy-breadcrumb a { color: var(--primary); text-decoration: none; font-weight: 500; }
+    .pedagogy-breadcrumb a:hover { text-decoration: underline; }
+    .pedagogy-breadcrumb span.current { color: var(--text); font-weight: 600; }
+    .pedagogy-progress {
+      height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 1.25rem; overflow: hidden;
+    }
+    .pedagogy-progress-bar { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 3px; transition: width 0.4s ease; }
+    .icon-pedagogy {
+      display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem;
+      border-radius: 10px; font-size: 1rem; margin-right: 0.6rem; flex-shrink: 0;
+    }
+    .icon-pedagogy.icon-level { background: linear-gradient(135deg, rgba(0,200,151,0.2), rgba(0,200,151,0.35)); }
+    .level-thumb {
+      width: 2rem; height: 2rem; border-radius: 10px; object-fit: cover; flex-shrink: 0; margin-right: 0.6rem;
+      border: 1px solid rgba(0,0,0,0.08); background: #f1f5f9;
+    }
+    .icon-pedagogy.icon-chapter { background: linear-gradient(135deg, rgba(255,127,80,0.2), rgba(255,127,80,0.35)); }
+    .icon-pedagogy.icon-lesson-video { background: rgba(59,130,246,0.2); }
+    .icon-pedagogy.icon-lesson-pdf { background: rgba(139,92,246,0.2); }
+    .icon-pedagogy.icon-quiz { background: linear-gradient(135deg, rgba(0,200,151,0.2), rgba(255,127,80,0.2)); }
+    .pedagogy-pagination { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+    .pedagogy-pagination .btn-page {
+      min-width: 2.25rem; height: 2.25rem; padding: 0 0.5rem; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--card); color: var(--text); font-weight: 600; font-size: 0.875rem; cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .pedagogy-pagination .btn-page:hover:not(:disabled) { background: rgba(0,200,151,0.1); border-color: var(--primary); color: var(--primary); }
+    .pedagogy-pagination .btn-page.active { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; border-color: transparent; }
+    .pedagogy-pagination .btn-page:disabled { opacity: 0.5; cursor: not-allowed; }
+    .pedagogy-pagination .pagination-info { font-size: 0.85rem; color: var(--text-muted); margin-right: 0.5rem; }
+    .pedagogy-tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 2px solid var(--border); }
+    .pedagogy-tab {
+      padding: 0.6rem 1.25rem; border: none; background: none; cursor: pointer; font-weight: 600; font-size: 0.9rem;
+      color: var(--text-muted); border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s;
+    }
+    .pedagogy-tab:hover { color: var(--primary); }
+    .pedagogy-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .pedagogy-pane { display: none; animation: pedagogyBlockIn 0.35s ease-out; }
+    .pedagogy-pane.active { display: block; }
+    .pedagogy-cards .pedagogy-level-row, .pedagogy-cards .pedagogy-chapter-row {
+      animation: cardSlideIn 0.35s ease-out backwards;
+    }
+    .pedagogy-cards .pedagogy-level-row:nth-child(1), .pedagogy-cards .pedagogy-chapter-row:nth-child(1) { animation-delay: 0.05s; }
+    .pedagogy-cards .pedagogy-level-row:nth-child(2), .pedagogy-cards .pedagogy-chapter-row:nth-child(2) { animation-delay: 0.1s; }
+    .pedagogy-cards .pedagogy-level-row:nth-child(3), .pedagogy-cards .pedagogy-chapter-row:nth-child(3) { animation-delay: 0.15s; }
+    .pedagogy-cards .pedagogy-level-row:nth-child(4), .pedagogy-cards .pedagogy-chapter-row:nth-child(4) { animation-delay: 0.2s; }
+    .pedagogy-cards .pedagogy-level-row:nth-child(5), .pedagogy-cards .pedagogy-chapter-row:nth-child(5) { animation-delay: 0.25s; }
+    .pedagogy-cards .pedagogy-level-row:nth-child(n+6), .pedagogy-cards .pedagogy-chapter-row:nth-child(n+6) { animation-delay: 0.3s; }
+    @keyframes cardSlideIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .pedagogy-lesson-row {
+      display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; padding: 0.75rem;
+      background: linear-gradient(135deg, #f8fafc 0%, #fff 100%); border-radius: 10px; border: 1px solid var(--border);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .pedagogy-lesson-row:hover { transform: translateX(4px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
 
     /* ========== CONTRÔLE DE SAISIE AVANCÉ ========== */
     .input-wrapper { position: relative; margin-bottom: 0.5rem; }
@@ -228,13 +345,30 @@
       .nav-links { justify-content: center; }
       .stats-strip { grid-template-columns: repeat(2, 1fr); }
     }
+    #splash { position: fixed; inset: 0; z-index: 9999; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.6s ease-out; pointer-events: none; }
+    #splash.hide { opacity: 0; }
+    #splash.remove { display: none; }
+    .splash-logo { width: 120px; height: 120px; object-fit: contain; animation: splashLogo 1.2s ease-out forwards; filter: drop-shadow(0 0 20px rgba(255,127,80,0.3)); }
+    .splash-name { font-size: 1.75rem; font-weight: 800; color: #fff; letter-spacing: 0.08em; margin-top: 1rem; opacity: 0; animation: splashText 0.8s ease-out 0.4s forwards; }
+    .splash-tagline { font-size: 0.9rem; color: rgba(255,255,255,0.7); margin-top: 0.5rem; opacity: 0; animation: splashText 0.8s ease-out 0.7s forwards; }
+    .splash-loader { width: 100px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 4px; margin-top: 1.5rem; overflow: hidden; opacity: 0; animation: splashText 0.5s ease-out 1s forwards; }
+    .splash-loader-bar { height: 100%; width: 0; background: linear-gradient(90deg, rgb(0,200,151), rgb(255,127,80)); border-radius: 4px; animation: splashLoad 2s ease-in-out 1.2s forwards; }
+    @keyframes splashLogo { 0% { transform: scale(0.6); opacity: 0; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes splashText { to { opacity: 1; } }
+    @keyframes splashLoad { to { width: 100%; } }
   </style>
 </head>
 <body>
+  <div id="splash">
+    <img src="logo.png" alt="Jungle" class="splash-logo">
+    <div class="splash-name">JUNGLE</div>
+    <div class="splash-tagline">in English · Espace Enseignant</div>
+    <div class="splash-loader"><div class="splash-loader-bar"></div></div>
+  </div>
   <header class="nav">
     <a href="index.html" class="nav-logo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M8 7h8"/><path d="M8 11h8"/></svg>
-      Wordly – <span class="orange">Espace Enseignant</span>
+      <img src="logo.png" alt="Jungle">
+      Jungle in English – <span class="orange">Espace Enseignant</span>
     </a>
     <nav class="nav-links">
       <a href="#" class="active" data-page="pedagogy">📖 Niveaux & Chapitres</a>
@@ -244,6 +378,7 @@
       <a href="#" data-page="responses">📝 Responses</a>
       <a href="#" data-page="enrollments">📋 Enrollments</a>
       <a href="#" data-page="award-badge">🏅 Award Badge</a>
+      <button type="button" id="toggle-dark-teacher" class="nav-dark-toggle" title="Mode sombre" aria-label="Mode sombre">🌙</button>
     </nav>
   </header>
 
@@ -255,28 +390,43 @@
         <h1 class="page-title">Niveaux & <span class="green">Chapitres</span></h1>
         <p class="page-subtitle">Créez les niveaux (A1–C2), les chapitres, les leçons (vidéo/PDF) et les quiz. C’est ce que l’étudiant voit dans « Parcours ».</p>
       </div>
-      <div class="card">
+      <div id="pedagogy-breadcrumb" class="pedagogy-breadcrumb"></div>
+      <div id="pedagogy-progress-wrap" class="pedagogy-progress" style="display:none;"><div id="pedagogy-progress-bar" class="pedagogy-progress-bar" style="width:0%"></div></div>
+      <!-- Un seul bloc visible à la fois : niveaux OU chapitres OU détail chapitre (à la même position) -->
+      <div class="card" id="pedagogy-levels-block">
         <h3>Niveaux</h3>
+        <div id="pedagogy-search-levels" class="pedagogy-search-wrap" style="display:none;"><input type="text" id="pedagogy-search-levels-input" placeholder="Rechercher un niveau (code ou nom)…"></div>
         <button class="btn btn-primary" onclick="pedagogyAddLevel()">+ Nouveau niveau</button>
         <div id="pedagogy-form-level" class="hidden" style="margin-top:1rem;"></div>
         <div id="pedagogy-levels" style="margin-top:1rem;"></div>
+        <div id="pedagogy-levels-pagination" class="pedagogy-pagination"></div>
       </div>
       <div class="card" id="pedagogy-chapters-block" style="display:none;">
+        <div class="back-link" style="margin-bottom:0.75rem;"><a href="#" id="pedagogy-back-to-levels">← Retour aux niveaux</a></div>
         <h3>Chapitres du niveau <span id="pedagogy-level-name"></span></h3>
+        <div id="pedagogy-search-chapters" class="pedagogy-search-wrap" style="display:none;"><input type="text" id="pedagogy-search-chapters-input" placeholder="Rechercher un chapitre…"></div>
         <button class="btn btn-primary" onclick="pedagogyAddChapter()">+ Nouveau chapitre</button>
         <div id="pedagogy-form-chapter" class="hidden" style="margin-top:1rem;"></div>
         <div id="pedagogy-chapters" style="margin-top:1rem;"></div>
+        <div id="pedagogy-chapters-pagination" class="pedagogy-pagination"></div>
       </div>
-      <div class="card" id="pedagogy-lessons-block" style="display:none;">
-        <h3>Leçons du chapitre <span id="pedagogy-chapter-name"></span></h3>
-        <button class="btn btn-primary" onclick="pedagogyAddLesson()">+ Nouvelle leçon (vidéo/PDF)</button>
-        <div id="pedagogy-form-lesson" class="hidden" style="margin-top:1rem;"></div>
-        <div id="pedagogy-lessons" style="margin-top:1rem;"></div>
-      </div>
-      <div class="card" id="pedagogy-quiz-block" style="display:none;">
-        <h3>Quiz du chapitre</h3>
-        <div id="pedagogy-quiz-form-or-list"></div>
-        <div id="pedagogy-quiz-questions" style="margin-top:1rem;"></div>
+      <div id="pedagogy-detail-block" style="display:none;">
+        <div class="back-link" style="margin-bottom:0.75rem;"><a href="#" id="pedagogy-back-to-chapters">← Retour aux chapitres</a></div>
+        <div class="pedagogy-tabs" style="margin-bottom:1rem;">
+          <button type="button" class="pedagogy-tab active" data-pedagogy-tab="lessons">Leçons</button>
+          <button type="button" class="pedagogy-tab" data-pedagogy-tab="quiz">Quiz</button>
+        </div>
+        <div class="card" id="pedagogy-lessons-block">
+          <h3>Leçons du chapitre <span id="pedagogy-chapter-name"></span></h3>
+          <button class="btn btn-primary" onclick="pedagogyAddLesson()">+ Nouvelle leçon (vidéo/PDF)</button>
+          <div id="pedagogy-form-lesson" class="hidden" style="margin-top:1rem;"></div>
+          <div id="pedagogy-lessons" style="margin-top:1rem;"></div>
+        </div>
+        <div class="card" id="pedagogy-quiz-block" style="display:none;">
+          <h3>Quiz du chapitre</h3>
+          <div id="pedagogy-quiz-form-or-list"></div>
+          <div id="pedagogy-quiz-questions" style="margin-top:1rem;"></div>
+        </div>
       </div>
     </section>
 
@@ -375,6 +525,20 @@
             <div class="quiz-type-tab" data-type="SHORT_ANSWER"><span class="icon">✎</span> Réponse courte</div>
           </div>
           <input type="hidden" id="pq-question-type" value="TRUE_FALSE"/>
+          <div id="pq-modal-quiz-params" style="margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border);">
+            <label style="display:block;font-weight:600;color:var(--text-muted);margin-bottom:0.5rem;">Temps et tentatives du quiz (toute la tentative)</label>
+            <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:0.75rem;align-items:end;">
+              <div>
+                <label style="display:block;font-size:0.85rem;margin-bottom:0.25rem;color:var(--text-muted);">Durée (minutes) *</label>
+                <input type="number" id="pq-modal-time-min" min="1" max="600" title="Temps global pour répondre à tout le quiz" style="width:100%;max-width:160px;padding:0.6rem;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;"/>
+              </div>
+              <div>
+                <label style="display:block;font-size:0.85rem;margin-bottom:0.25rem;color:var(--text-muted);">Max. tentatives</label>
+                <input type="number" id="pq-modal-max-att" min="1" placeholder="Illimité si vide" style="width:100%;max-width:160px;padding:0.6rem;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;"/>
+              </div>
+            </div>
+            <p class="meta" style="font-size:0.8rem;margin-top:0.45rem;color:var(--text-muted);">* Durée globale du quiz (chronomètre étudiant) — même réglage que « Modifier le quiz ».</p>
+          </div>
           <label style="display:block;font-weight:600;color:var(--text-muted);margin-bottom:0.35rem;">Texte de la question</label>
           <textarea id="pq-question-text" rows="3" placeholder="Écrivez votre question..." style="width:100%;padding:0.6rem;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;font-family:inherit;margin-bottom:1rem;"></textarea>
           <div id="pq-answer-zone">
@@ -400,13 +564,56 @@
   </main>
 
   <script>
+    (function(){ var s=document.getElementById('splash'); if(s){ setTimeout(function(){ s.classList.add('hide'); setTimeout(function(){ s.classList.add('remove'); }, 600); }, 3200); } })();
+    (function initDarkThemeTeacher() {
+      var dark = localStorage.getItem('jungleDarkTheme') === '1';
+      if (dark) document.body.classList.add('dark-theme');
+      var btn = document.getElementById('toggle-dark-teacher');
+      if (btn) btn.addEventListener('click', function() { document.body.classList.toggle('dark-theme'); var on = document.body.classList.contains('dark-theme'); localStorage.setItem('jungleDarkTheme', on ? '1' : '0'); btn.textContent = on ? '☀️' : '🌙'; btn.title = on ? 'Mode clair' : 'Mode sombre'; });
+      if (btn && document.body.classList.contains('dark-theme')) btn.textContent = '☀️';
+    })();
     const API = (window.location.port === '8083' || window.location.port === '8081') ? '' : 'http://localhost:8083';
+    const QUIZ_API = 'http://localhost:8082';
+    function isSpringQuizPath(url) {
+      if (!url || /^https?:\/\//i.test(url)) return false;
+      return /^\/api\/(quizzes|quiz-sessions|quiz-questions|questions|responses)(\/|$)/.test(url);
+    }
     function parseErr(r, text) { let msg = r.status + ' ' + r.statusText; try { const j = JSON.parse(text); msg = j.error || j.message || msg; } catch (_) {} return msg; }
     async function api(url, options = {}) {
-      const r = await fetch(API + url, options);
-      const text = await r.text();
-      if (!r.ok) throw new Error(parseErr(r, text));
-      return text ? JSON.parse(text) : null;
+      const useSpring = isSpringQuizPath(url);
+      const springUrl = QUIZ_API + url;
+      const nodeUrl = API + url;
+      async function doFetch(targetUrl) {
+        const r = await fetch(targetUrl, options);
+        const text = await r.text();
+        return { r, text };
+      }
+      try {
+        if (useSpring) {
+          const first = await doFetch(springUrl);
+          if (first.r.ok) return first.text ? JSON.parse(first.text) : null;
+          // Fallback progressif: endpoint pas encore migré côté Spring.
+          if (first.r.status === 404 || first.r.status === 405 || first.r.status === 501) {
+            const fallback = await doFetch(nodeUrl);
+            if (!fallback.r.ok) throw new Error(parseErr(fallback.r, fallback.text));
+            return fallback.text ? JSON.parse(fallback.text) : null;
+          }
+          throw new Error(parseErr(first.r, first.text));
+        }
+        const normal = await doFetch(nodeUrl);
+        if (!normal.r.ok) throw new Error(parseErr(normal.r, normal.text));
+        return normal.text ? JSON.parse(normal.text) : null;
+      } catch (e) {
+        // Si Spring est down/injoignable: retenter automatiquement sur Node.
+        if (useSpring) {
+          try {
+            const fallback = await doFetch(nodeUrl);
+            if (!fallback.r.ok) throw new Error(parseErr(fallback.r, fallback.text));
+            return fallback.text ? JSON.parse(fallback.text) : null;
+          } catch (_) {}
+        }
+        throw e;
+      }
     }
 
     /* ========== CONTRRÔLE DE SAISIE AVANCÉ ========== */
@@ -560,20 +767,115 @@
     // --- Pédagogie (niveaux, chapitres, leçons, quiz) ---
     let pedagogyLevelId = null, pedagogyChapterId = null, pedagogyLevelName = '', pedagogyChapterName = '';
     let pedagogyEditingLevelId = null, pedagogyEditingChapterId = null, pedagogyEditingLessonId = null;
+    const PEDAGOGY_LEVELS_PER_PAGE = 6;
+    const PEDAGOGY_CHAPTERS_PER_PAGE = 6;
+    let pedagogyLevelsList = [];
+    let pedagogyChaptersList = [];
+    let pedagogyQuizzesList = [];
+    let pedagogyActiveQuizId = null;
+
+    function teEsc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+    function setPedagogyBreadcrumb(items) {
+      var el = document.getElementById('pedagogy-breadcrumb');
+      if (!el) return;
+      if (!items || !items.length) { el.innerHTML = ''; return; }
+      el.innerHTML = items.map(function(it, i) {
+        var isLast = i === items.length - 1;
+        var text = teEsc(it.label || '');
+        if (it.href && !isLast) return '<a href="#" data-pedagogy-breadcrumb="' + teEsc(it.href) + '">' + text + '</a>';
+        return '<span class="' + (isLast ? 'current' : '') + '">' + text + '</span>';
+      }).join('<span style="margin:0 0.25rem;">›</span>');
+      el.querySelectorAll('a[data-pedagogy-breadcrumb]').forEach(function(a) {
+        a.onclick = function(e) { e.preventDefault(); var h = a.getAttribute('data-pedagogy-breadcrumb'); if (h === 'levels') { pedagogyLevelId = null; pedagogyChapterId = null; document.getElementById('pedagogy-levels-block').style.display = 'block'; document.getElementById('pedagogy-chapters-block').style.display = 'none'; document.getElementById('pedagogy-detail-block').style.display = 'none'; loadPedagogyPage(); } else if (h.indexOf('chapters:') === 0) { pedagogyChapterId = null; pedagogyLevelId = parseInt(h.split(':')[1], 10); document.getElementById('pedagogy-levels-block').style.display = 'none'; document.getElementById('pedagogy-chapters-block').style.display = 'block'; document.getElementById('pedagogy-detail-block').style.display = 'none'; loadPedagogyChapters(); } };
+      });
+    }
+    function setPedagogyProgress(pct) {
+      var wrap = document.getElementById('pedagogy-progress-wrap');
+      var bar = document.getElementById('pedagogy-progress-bar');
+      if (wrap) wrap.style.display = (pct != null && pct > 0) ? 'block' : 'none';
+      if (bar) bar.style.width = (pct != null ? Math.min(100, Math.max(0, pct)) : 0) + '%';
+    }
+
+    function renderPedagogyLevelsPage(page, optionalList) {
+      var list = optionalList && optionalList.length >= 0 ? optionalList : pedagogyLevelsList;
+      var total = list.length;
+      if (total === 0) {
+        document.getElementById('pedagogy-levels').innerHTML = '<p class="loading">Aucun niveau ne correspond à la recherche.</p>';
+        document.getElementById('pedagogy-levels-pagination').innerHTML = '';
+        return;
+      }
+      var totalPages = Math.max(1, Math.ceil(total / PEDAGOGY_LEVELS_PER_PAGE));
+      var p = Math.max(1, Math.min(page, totalPages));
+      var start = (p - 1) * PEDAGOGY_LEVELS_PER_PAGE;
+      var pageLevels = list.slice(start, start + PEDAGOGY_LEVELS_PER_PAGE);
+      var el = document.getElementById('pedagogy-levels');
+      el.innerHTML = '<div class="pedagogy-cards">' + pageLevels.map(function(l) {
+        var image = teEsc(l.imageUrl || '');
+        var media = image ? '<img class="level-thumb" src="' + image + '" alt="Niveau ' + teEsc(l.code || '') + '" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'inline-flex\';"/><span class="icon-pedagogy icon-level" style="display:none;">📚</span>' : '<span class="icon-pedagogy icon-level">📚</span>';
+        return '<div class="pedagogy-level-row">' + media + '<span class="level-card" data-level-id="' + l.id + '"><strong>' + teEsc(l.code || '') + '</strong> – ' + teEsc(l.name || '') + '</span><button class="btn btn-edit" onclick="pedagogyEditLevel(' + l.id + ')">Modifier</button><button class="btn btn-danger" onclick="pedagogyDeleteLevel(' + l.id + ')">Supprimer</button></div>';
+      }).join('') + '</div>';
+      el.querySelectorAll('[data-level-id]').forEach(function(n) {
+        n.addEventListener('click', function(ev) {
+          if (ev.target.closest('button')) return;
+          var levelId = parseInt(this.getAttribute('data-level-id'), 10);
+          this.classList.add('click-anim');
+          setTimeout(function() {
+            pedagogyLevelId = levelId;
+            var lvl = pedagogyLevelsList.find(function(l) { return l.id === pedagogyLevelId; }) || {};
+            pedagogyLevelName = lvl.name || '';
+            document.getElementById('pedagogy-level-name').textContent = (lvl.code || '') + (lvl.name ? ' – ' + lvl.name : '');
+            document.getElementById('pedagogy-levels-block').style.display = 'none';
+            document.getElementById('pedagogy-chapters-block').style.display = 'block';
+            document.getElementById('pedagogy-detail-block').style.display = 'none';
+            setPedagogyBreadcrumb([{ label: 'Niveaux', href: 'levels' }, { label: (lvl.code || '') + ' – ' + (lvl.name || ''), href: 'chapters:' + levelId }]);
+            setPedagogyProgress(50);
+            loadPedagogyChapters();
+            var backBtn = document.getElementById('pedagogy-back-to-levels');
+            if (backBtn) backBtn.onclick = function(ev) { ev.preventDefault(); document.getElementById('pedagogy-levels-block').style.display = 'block'; document.getElementById('pedagogy-chapters-block').style.display = 'none'; document.getElementById('pedagogy-detail-block').style.display = 'none'; setPedagogyBreadcrumb([{ label: 'Niveaux' }]); setPedagogyProgress(25); loadPedagogyPage(); };
+          }, 200);
+        });
+      });
+      var pagEl = document.getElementById('pedagogy-levels-pagination');
+      if (totalPages > 1 && pagEl) {
+        var pagHtml = '<span class="pagination-info">Page ' + p + ' / ' + totalPages + '</span><button type="button" class="btn-page" data-page="prev"' + (p <= 1 ? ' disabled' : '') + '>‹</button>';
+        for (var i = 1; i <= totalPages; i++) pagHtml += '<button type="button" class="btn-page' + (i === p ? ' active' : '') + '" data-page="' + i + '">' + i + '</button>';
+        pagHtml += '<button type="button" class="btn-page" data-page="next"' + (p >= totalPages ? ' disabled' : '') + '>›</button>';
+        pagEl.innerHTML = pagHtml;
+        pagEl.querySelectorAll('.btn-page').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            if (btn.disabled) return;
+            var toPage = btn.getAttribute('data-page');
+            var next = toPage === 'prev' ? p - 1 : toPage === 'next' ? p + 1 : parseInt(toPage, 10);
+            if (next >= 1 && next <= totalPages) renderPedagogyLevelsPage(next, list);
+          });
+        });
+      } else if (pagEl) pagEl.innerHTML = '';
+    }
+
     async function loadPedagogyPage() {
       const el = document.getElementById('pedagogy-levels');
       el.innerHTML = '<span class="loading-wrap"><span class="spinner"></span><span class="loading">Chargement...</span></span>';
+      document.getElementById('pedagogy-search-levels').style.display = 'none';
+      setPedagogyBreadcrumb([{ label: 'Niveaux' }]);
+      setPedagogyProgress(25);
       try {
-        const levels = await api('/api/levels') || [];
-        el.innerHTML = levels.length ? levels.map(l => '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;"><span class="level-card" style="flex:1;padding:0.75rem;" data-level-id="' + l.id + '"><strong>' + (l.code || '') + '</strong> – ' + (l.name || '') + '</span><button class="btn btn-edit" onclick="pedagogyEditLevel(' + l.id + ')">Modifier</button><button class="btn btn-danger" onclick="pedagogyDeleteLevel(' + l.id + ')">Supprimer</button></div>').join('') : '<p>Aucun niveau. Cliquez sur "+ Nouveau niveau".</p>';
-        el.querySelectorAll('[data-level-id]').forEach(n => n.addEventListener('click', function(ev) { if (ev.target.closest('button')) return; pedagogyLevelId = parseInt(this.getAttribute('data-level-id'), 10); const lvl = levels.find(l => l.id === pedagogyLevelId) || {}; pedagogyLevelName = lvl.name || ''; document.getElementById('pedagogy-level-name').textContent = (lvl.code || '') + (lvl.name ? ' – ' + lvl.name : ''); document.getElementById('pedagogy-chapters-block').style.display = 'block'; loadPedagogyChapters(); }));
+        pedagogyLevelsList = await api('/api/levels') || [];
+        if (!pedagogyLevelsList.length) { el.innerHTML = '<p>Aucun niveau. Cliquez sur "+ Nouveau niveau".</p>'; return; }
+        document.getElementById('pedagogy-search-levels').style.display = 'block';
+        document.getElementById('pedagogy-search-levels-input').value = '';
+        renderPedagogyLevelsPage(1);
+        document.getElementById('pedagogy-search-levels-input').oninput = function() {
+          var q = (this.value || '').trim().toLowerCase();
+          var filtered = q ? pedagogyLevelsList.filter(function(l) { return ((l.code || '') + ' ' + (l.name || '')).toLowerCase().indexOf(q) >= 0; }) : pedagogyLevelsList;
+          renderPedagogyLevelsPage(1, filtered);
+        };
       } catch (e) { el.innerHTML = '<span class="error">' + e.message + '</span>'; }
     }
     function pedagogyAddLevel() {
       pedagogyEditingLevelId = null;
       const box = document.getElementById('pedagogy-form-level');
       box.classList.remove('hidden');
-      box.innerHTML = '<div class="form-grid"><label>Code (ex. A1)</label><input id="pl-code" placeholder="A1"/><label>Titre</label><input id="pl-name" placeholder="Débutant"/></div><button class="btn btn-primary" onclick="pedagogySubmitLevel()">Enregistrer</button> <button class="btn btn-secondary" onclick="box.classList.add(\'hidden\')">Annuler</button>';
+      box.innerHTML = '<div class="form-grid"><label>Code (ex. A1)</label><input id="pl-code" placeholder="A1"/><label>Titre</label><input id="pl-name" placeholder="Débutant"/><label>Image URL</label><input id="pl-image" placeholder="https://.../niveau-a1.jpg"/></div><button class="btn btn-primary" onclick="pedagogySubmitLevel()">Enregistrer</button> <button class="btn btn-secondary" onclick="box.classList.add(\'hidden\')">Annuler</button>';
     }
     async function pedagogyEditLevel(id) {
       pedagogyEditingLevelId = id;
@@ -581,25 +883,27 @@
         const lvl = await api('/api/levels/' + id);
         const box = document.getElementById('pedagogy-form-level');
         box.classList.remove('hidden');
-        box.innerHTML = '<div class="form-grid"><label>Code</label><input id="pl-code" value="' + (lvl.code || '').replace(/"/g, '&quot;') + '"/><label>Titre</label><input id="pl-name" value="' + (lvl.name || '').replace(/"/g, '&quot;') + '"/></div><button class="btn btn-primary" onclick="pedagogySubmitLevel()">Enregistrer</button> <button class="btn btn-secondary" onclick="document.getElementById(\'pedagogy-form-level\').classList.add(\'hidden\'); pedagogyEditingLevelId=null">Annuler</button>';
+        box.innerHTML = '<div class="form-grid"><label>Code</label><input id="pl-code" value="' + (lvl.code || '').replace(/"/g, '&quot;') + '"/><label>Titre</label><input id="pl-name" value="' + (lvl.name || '').replace(/"/g, '&quot;') + '"/><label>Image URL</label><input id="pl-image" value="' + ((lvl.imageUrl || '').replace(/"/g, '&quot;')) + '" placeholder="https://.../niveau.jpg"/></div><button class="btn btn-primary" onclick="pedagogySubmitLevel()">Enregistrer</button> <button class="btn btn-secondary" onclick="document.getElementById(\'pedagogy-form-level\').classList.add(\'hidden\'); pedagogyEditingLevelId=null">Annuler</button>';
       } catch (e) { alert(e.message); pedagogyEditingLevelId = null; }
     }
     async function pedagogySubmitLevel() {
       var plCode = document.getElementById('pl-code');
       var plName = document.getElementById('pl-name');
+      var plImage = document.getElementById('pl-image');
       Validator.clearError(plCode); Validator.clearError(plName);
       var code = (plCode && plCode.value || '').trim();
       var name = (plName && plName.value || '').trim();
+      var imageUrl = (plImage && plImage.value || '').trim();
       var err = Validator.validate(code, [Validator.rules.required, Validator.rules.minLen(1), Validator.rules.maxLen(20), Validator.rules.code()]);
       if (err) { Validator.showError(plCode, err); return; }
       err = Validator.validate(name, [Validator.rules.required, Validator.rules.minLen(1), Validator.rules.maxLen(100)]);
       if (err) { Validator.showError(plName, err); return; }
       try {
         if (pedagogyEditingLevelId) {
-          await api('/api/levels/' + pedagogyEditingLevelId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code, name }) });
+          await api('/api/levels/' + pedagogyEditingLevelId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code, name, imageUrl }) });
           pedagogyEditingLevelId = null;
         } else {
-          await api('/api/levels', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code, name }) });
+          await api('/api/levels', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code, name, imageUrl }) });
         }
         document.getElementById('pedagogy-form-level').classList.add('hidden');
         loadPedagogyPage();
@@ -607,16 +911,94 @@
     }
     async function pedagogyDeleteLevel(id) {
       if (!confirm('Supprimer ce niveau et tous ses chapitres ?')) return;
-      try { await api('/api/levels/' + id, { method: 'DELETE' }); loadPedagogyPage(); document.getElementById('pedagogy-chapters-block').style.display = 'none'; } catch (e) { alert(e.message); }
+      try { await api('/api/levels/' + id, { method: 'DELETE' }); document.getElementById('pedagogy-levels-block').style.display = 'block'; document.getElementById('pedagogy-chapters-block').style.display = 'none'; document.getElementById('pedagogy-detail-block').style.display = 'none'; loadPedagogyPage(); } catch (e) { alert(e.message); }
     }
+    function renderPedagogyChaptersPage(page, optionalChapters) {
+      var list = optionalChapters && optionalChapters.length >= 0 ? optionalChapters : pedagogyChaptersList;
+      var total = list.length;
+      var el = document.getElementById('pedagogy-chapters');
+      var pagContainer = document.getElementById('pedagogy-chapters-pagination');
+      if (total === 0) {
+        el.innerHTML = '<p class="loading">' + (optionalChapters ? 'Aucun chapitre ne correspond à la recherche.' : 'Aucun chapitre.') + '</p>';
+        if (pagContainer) pagContainer.innerHTML = '';
+        return;
+      }
+      var totalPages = Math.max(1, Math.ceil(total / PEDAGOGY_CHAPTERS_PER_PAGE));
+      var p = Math.max(1, Math.min(page, totalPages));
+      var start = (p - 1) * PEDAGOGY_CHAPTERS_PER_PAGE;
+      var pageChs = list.slice(start, start + PEDAGOGY_CHAPTERS_PER_PAGE);
+      el.innerHTML = '<div class="pedagogy-cards">' + pageChs.map(function(c) {
+        var titleEsc = teEsc(c.title || '');
+        return '<div class="pedagogy-chapter-row"><span class="icon-pedagogy icon-chapter">📑</span><span class="chapter-label" data-chapter-id="' + c.id + '"><strong>' + titleEsc + '</strong></span><button type="button" class="btn btn-duplicate" data-dup-chapter-id="' + c.id + '" data-dup-chapter-title="' + titleEsc + '">Dupliquer</button><button class="btn btn-edit" onclick="pedagogyEditChapter(' + c.id + ')">Modifier</button><button class="btn btn-danger" onclick="pedagogyDeleteChapter(' + c.id + ')">Supprimer</button></div>';
+      }).join('') + '</div>';
+      el.querySelectorAll('[data-chapter-id]').forEach(function(n) {
+        n.addEventListener('click', function(ev) {
+          if (ev.target.closest('button')) return;
+          var chId = parseInt(this.getAttribute('data-chapter-id'), 10);
+          this.classList.add('click-anim');
+          setTimeout(function() {
+            pedagogyChapterId = chId;
+            pedagogyChapterName = (pedagogyChaptersList.find(function(ch) { return ch.id === pedagogyChapterId; }) || {}).title || '';
+            document.getElementById('pedagogy-chapter-name').textContent = pedagogyChapterName;
+            setPedagogyBreadcrumb([{ label: 'Niveaux', href: 'levels' }, { label: document.getElementById('pedagogy-level-name').textContent, href: 'chapters:' + pedagogyLevelId }, { label: pedagogyChapterName }]);
+            setPedagogyProgress(100);
+            document.getElementById('pedagogy-levels-block').style.display = 'none';
+            document.getElementById('pedagogy-chapters-block').style.display = 'none';
+            document.getElementById('pedagogy-detail-block').style.display = 'block';
+            document.getElementById('pedagogy-lessons-block').style.display = 'block';
+            document.getElementById('pedagogy-quiz-block').style.display = 'none';
+            document.querySelectorAll('#pedagogy-detail-block .pedagogy-tab').forEach(function(t) { t.classList.remove('active'); if (t.getAttribute('data-pedagogy-tab') === 'lessons') t.classList.add('active'); });
+            loadPedagogyLessons();
+            loadPedagogyQuiz();
+            var backCh = document.getElementById('pedagogy-back-to-chapters');
+            if (backCh) backCh.onclick = function(ev) { ev.preventDefault(); document.getElementById('pedagogy-levels-block').style.display = 'none'; document.getElementById('pedagogy-chapters-block').style.display = 'block'; document.getElementById('pedagogy-detail-block').style.display = 'none'; setPedagogyBreadcrumb([{ label: 'Niveaux', href: 'levels' }, { label: document.getElementById('pedagogy-level-name').textContent, href: 'chapters:' + pedagogyLevelId }]); setPedagogyProgress(50); loadPedagogyChapters(); };
+          }, 200);
+        });
+      });
+      el.querySelectorAll('.btn-duplicate').forEach(function(btn) {
+        btn.onclick = function(ev) { ev.preventDefault(); ev.stopPropagation(); var id = parseInt(btn.getAttribute('data-dup-chapter-id'), 10); var title = btn.getAttribute('data-dup-chapter-title') || 'Chapitre'; pedagogyDuplicateChapter(id, title); };
+      });
+      if (totalPages > 1 && pagContainer) {
+        var pagHtml = '<span class="pagination-info">Page ' + p + ' / ' + totalPages + '</span><button type="button" class="btn-page" data-page="prev"' + (p <= 1 ? ' disabled' : '') + '>‹</button>';
+        for (var i = 1; i <= totalPages; i++) pagHtml += '<button type="button" class="btn-page' + (i === p ? ' active' : '') + '" data-page="' + i + '">' + i + '</button>';
+        pagHtml += '<button type="button" class="btn-page" data-page="next"' + (p >= totalPages ? ' disabled' : '') + '>›</button>';
+        pagContainer.innerHTML = pagHtml;
+        pagContainer.querySelectorAll('.btn-page').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            if (btn.disabled) return;
+            var toPage = btn.getAttribute('data-page');
+            var next = toPage === 'prev' ? p - 1 : toPage === 'next' ? p + 1 : parseInt(toPage, 10);
+            if (next >= 1 && next <= totalPages) renderPedagogyChaptersPage(next, list);
+          });
+        });
+      } else if (pagContainer) pagContainer.innerHTML = '';
+    }
+
+    async function pedagogyDuplicateChapter(chapterId, chapterTitle) {
+      if (!pedagogyLevelId) return;
+      var newTitle = 'Copie de ' + (chapterTitle || 'Chapitre');
+      try {
+        await api('/api/levels/' + pedagogyLevelId + '/chapters', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: newTitle }) });
+        loadPedagogyChapters();
+      } catch (e) { alert('Erreur : ' + e.message); }
+    }
+
     async function loadPedagogyChapters() {
       if (!pedagogyLevelId) return;
       const el = document.getElementById('pedagogy-chapters');
       el.innerHTML = '<span class="loading-wrap"><span class="spinner"></span><span class="loading">Chargement...</span></span>';
+      document.getElementById('pedagogy-chapters-pagination').innerHTML = '';
+      document.getElementById('pedagogy-search-chapters').style.display = 'none';
       try {
-        const chapters = await api('/api/levels/' + pedagogyLevelId + '/chapters') || [];
-        el.innerHTML = chapters.length ? chapters.map(c => '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;"><span style="flex:1;padding:0.5rem;cursor:pointer;" data-chapter-id="' + c.id + '"><strong>' + (c.title || '') + '</strong></span><button class="btn btn-edit" onclick="pedagogyEditChapter(' + c.id + ')">Modifier</button><button class="btn btn-danger" onclick="pedagogyDeleteChapter(' + c.id + ')">Supprimer</button></div>').join('') : '<p>Aucun chapitre.</p>';
-        el.querySelectorAll('[data-chapter-id]').forEach(n => n.addEventListener('click', function(ev) { if (ev.target.closest('button')) return; pedagogyChapterId = parseInt(this.getAttribute('data-chapter-id'), 10); pedagogyChapterName = (chapters.find(ch => ch.id === pedagogyChapterId) || {}).title || ''; document.getElementById('pedagogy-chapter-name').textContent = pedagogyChapterName; document.getElementById('pedagogy-lessons-block').style.display = 'block'; document.getElementById('pedagogy-quiz-block').style.display = 'block'; loadPedagogyLessons(); loadPedagogyQuiz(); }));
+        pedagogyChaptersList = await api('/api/levels/' + pedagogyLevelId + '/chapters') || [];
+        document.getElementById('pedagogy-search-chapters').style.display = 'block';
+        document.getElementById('pedagogy-search-chapters-input').value = '';
+        renderPedagogyChaptersPage(1);
+        document.getElementById('pedagogy-search-chapters-input').oninput = function() {
+          var q = (this.value || '').trim().toLowerCase();
+          var filtered = q ? pedagogyChaptersList.filter(function(c) { return (c.title || '').toLowerCase().indexOf(q) >= 0; }) : pedagogyChaptersList;
+          renderPedagogyChaptersPage(1, filtered);
+        };
       } catch (e) { el.innerHTML = '<span class="error">' + e.message + '</span>'; }
     }
     function pedagogyAddChapter() {
@@ -653,7 +1035,7 @@
     }
     async function pedagogyDeleteChapter(id) {
       if (!confirm('Supprimer ce chapitre ?')) return;
-      try { await api('/api/chapters/' + id, { method: 'DELETE' }); loadPedagogyChapters(); document.getElementById('pedagogy-lessons-block').style.display = 'none'; document.getElementById('pedagogy-quiz-block').style.display = 'none'; } catch (e) { alert(e.message); }
+      try { await api('/api/chapters/' + id, { method: 'DELETE' }); document.getElementById('pedagogy-detail-block').style.display = 'none'; document.getElementById('pedagogy-chapters-block').style.display = 'block'; loadPedagogyChapters(); } catch (e) { alert(e.message); }
     }
     async function loadPedagogyLessons() {
       if (!pedagogyChapterId) return;
@@ -661,7 +1043,11 @@
       el.innerHTML = '<span class="loading-wrap"><span class="spinner"></span><span class="loading">Chargement...</span></span>';
       try {
         const lessons = await api('/api/chapters/' + pedagogyChapterId + '/lessons') || [];
-        el.innerHTML = lessons.length ? lessons.map(l => '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;"><span style="flex:1">' + (l.type === 'VIDEO' ? '🎬' : '📄') + ' ' + (l.title || '') + '</span><button class="btn btn-edit" onclick="pedagogyEditLesson(' + l.id + ')">Modifier</button><button class="btn btn-danger" onclick="pedagogyDeleteLesson(' + l.id + ')">Supprimer</button></div>') : '<p>Aucune leçon.</p>';
+        el.innerHTML = lessons.length ? lessons.map(function(l) {
+          var iconClass = l.type === 'VIDEO' ? 'icon-lesson-video' : 'icon-lesson-pdf';
+          var emoji = l.type === 'VIDEO' ? '🎬' : '📄';
+          return '<div class="pedagogy-lesson-row"><span class="icon-pedagogy ' + iconClass + '">' + emoji + '</span><span style="flex:1">' + teEsc(l.title || '') + '</span><button class="btn btn-edit" onclick="pedagogyEditLesson(' + l.id + ')">Modifier</button><button class="btn btn-danger" onclick="pedagogyDeleteLesson(' + l.id + ')">Supprimer</button></div>';
+        }).join('') : '<p>Aucune leçon.</p>';
       } catch (e) { el.innerHTML = '<span class="error">' + e.message + '</span>'; }
     }
     function pedagogyAddLesson() {
@@ -726,15 +1112,49 @@
       const box = document.getElementById('pedagogy-quiz-form-or-list');
       const qlist = document.getElementById('pedagogy-quiz-questions');
       try {
-        let quiz = await api('/api/chapters/' + pedagogyChapterId + '/quiz');
-        if (!quiz) {
-          box.innerHTML = '<p>Aucun quiz. <button class="btn btn-primary" onclick="pedagogyCreateQuiz()">Créer un quiz pour ce chapitre</button></p>';
+        const quizzes = await api('/api/chapters/' + pedagogyChapterId + '/quizzes') || [];
+        pedagogyQuizzesList = quizzes;
+        var esc = function(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
+        if (!quizzes.length) {
+          pedagogyActiveQuizId = null;
+          box.innerHTML = '<div class="form-grid" style="grid-template-columns:1fr auto;align-items:end;"><div><label>Nom du quiz</label><input id="pedagogy-new-quiz-title" placeholder="Ex: Quiz grammaire A1"/></div><div><button class="btn btn-primary" onclick="pedagogyCreateQuiz()">Créer le quiz</button></div></div><p class="meta" style="margin-top:0.5rem;">Vous pouvez créer plusieurs quiz dans le même chapitre.</p>';
           qlist.innerHTML = '';
           return;
         }
-        var esc = function(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
-        box.innerHTML = '<p>Quiz: <strong>' + esc(quiz.title) + '</strong> (seuil ' + (quiz.passingScorePercent || 50) + ' %) <button type="button" class="btn btn-edit" data-pedagogy-edit-quiz="' + quiz.id + '">Modifier le quiz</button></p>';
-        box.querySelector('[data-pedagogy-edit-quiz]').addEventListener('click', function() { pedagogyEditQuiz(parseInt(this.getAttribute('data-pedagogy-edit-quiz'), 10)); });
+        if (!pedagogyActiveQuizId || !quizzes.find(function(qz) { return qz.id === pedagogyActiveQuizId; })) {
+          pedagogyActiveQuizId = quizzes[0].id;
+        }
+        var quiz = quizzes.find(function(qz) { return qz.id === pedagogyActiveQuizId; }) || quizzes[0];
+        box.innerHTML =
+          '<div class="form-grid" style="grid-template-columns:1fr auto;align-items:end;">' +
+            '<div><label>Nom du quiz</label><input id="pedagogy-new-quiz-title" placeholder="Ex: Quiz grammaire A1"/></div>' +
+            '<div><button class="btn btn-primary" onclick="pedagogyCreateQuiz()">Créer le quiz</button></div>' +
+          '</div>' +
+          '<div class="form-grid" style="grid-template-columns:1fr auto auto;align-items:end;margin-top:0.6rem;">' +
+            '<div><label>Quiz du chapitre</label><select id="pedagogy-quiz-select">' +
+              quizzes.map(function(qz) {
+                return '<option value="' + qz.id + '"' + (qz.id === quiz.id ? ' selected' : '') + '>' + esc(qz.title || ('Quiz #' + qz.id)) + '</option>';
+              }).join('') +
+            '</select></div>' +
+            '<button type="button" class="btn btn-edit" data-pedagogy-edit-quiz="' + quiz.id + '">Modifier le quiz</button>' +
+            '<button type="button" class="btn btn-danger" data-pedagogy-delete-quiz="' + quiz.id + '">Supprimer le quiz</button>' +
+          '</div>' +
+          '<p class="meta" style="margin-top:0.5rem;">Quiz actif: <strong>' + esc(quiz.title) + '</strong> (seuil ' + (quiz.passingScorePercent || 50) + ' %)</p>';
+        var sel = document.getElementById('pedagogy-quiz-select');
+        if (sel) {
+          sel.addEventListener('change', function() {
+            pedagogyActiveQuizId = parseInt(this.value, 10) || null;
+            loadPedagogyQuiz();
+          });
+        }
+        var btnEditQuiz = box.querySelector('[data-pedagogy-edit-quiz]');
+        if (btnEditQuiz) {
+          btnEditQuiz.addEventListener('click', function() { pedagogyEditQuiz(parseInt(this.getAttribute('data-pedagogy-edit-quiz'), 10)); });
+        }
+        var btnDeleteQuiz = box.querySelector('[data-pedagogy-delete-quiz]');
+        if (btnDeleteQuiz) {
+          btnDeleteQuiz.addEventListener('click', function() { pedagogyDeleteQuiz(parseInt(this.getAttribute('data-pedagogy-delete-quiz'), 10)); });
+        }
         const questions = await api('/api/quizzes/' + quiz.id + '/questions') || [];
         pedagogyQuizQuestionsList = questions;
         const typeLabel = function(t) { return t === 'TRUE_FALSE' ? 'V/F' : t === 'MULTIPLE_CHOICE' ? 'QCM' : t === 'SHORT_ANSWER' ? 'Court' : t || '-'; };
@@ -744,7 +1164,20 @@
     }
     async function pedagogyCreateQuiz() {
       try {
-        await api('/api/chapters/' + pedagogyChapterId + '/quizzes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: 'Quiz ' + pedagogyChapterName, passingScorePercent: 50 }) });
+        var titleInput = document.getElementById('pedagogy-new-quiz-title');
+        var title = (titleInput && titleInput.value ? titleInput.value : '').trim();
+        if (!title) title = 'Quiz ' + (pedagogyChapterName || '');
+        if (title.length < 2) { alert('Nom du quiz trop court.'); return; }
+        var created = await api('/api/chapters/' + pedagogyChapterId + '/quizzes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, passingScorePercent: 50, timeLimitMinutes: 15, maxAttempts: 3, minDelayMinutesBetweenAttempts: 0, requireChapterLessonsCompleted: 1 }) });
+        pedagogyActiveQuizId = created && created.id ? created.id : null;
+        loadPedagogyQuiz();
+      } catch (e) { alert(e.message); }
+    }
+    async function pedagogyDeleteQuiz(quizId) {
+      if (!confirm('Supprimer ce quiz et toutes ses questions ?')) return;
+      try {
+        await api('/api/quizzes/' + quizId, { method: 'DELETE' });
+        if (pedagogyActiveQuizId === quizId) pedagogyActiveQuizId = null;
         loadPedagogyQuiz();
       } catch (e) { alert(e.message); }
     }
@@ -753,28 +1186,52 @@
         const quiz = await api('/api/quizzes/' + quizId);
         const box = document.getElementById('pedagogy-quiz-form-or-list');
         const titleEsc = (quiz.title || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
-        box.innerHTML = '<div class="form-grid"><label>Titre du quiz</label><input id="pq-title" value="' + titleEsc + '"/><label>Seuil de réussite (%)</label><input type="number" id="pq-seuil" value="' + (quiz.passingScorePercent || 50) + '" min="0" max="100"/></div><button class="btn btn-primary" onclick="pedagogySubmitQuizEdit(' + quizId + ')">Enregistrer</button> <button class="btn btn-secondary" onclick="loadPedagogyQuiz()">Annuler</button>';
+        var tlimMin = quiz.timeLimitSeconds != null && quiz.timeLimitSeconds > 0 ? Math.round(quiz.timeLimitSeconds / 60) : 15;
+        box.innerHTML = '<div class="form-grid"><label>Titre du quiz</label><input id="pq-title" value="' + titleEsc + '"/><label>Seuil de réussite (%)</label><input type="number" id="pq-seuil" value="' + (quiz.passingScorePercent || 50) + '" min="0" max="100"/><label>Durée du quiz (minutes) *</label><input type="number" id="pq-time-min" value="' + tlimMin + '" min="1" max="600" title="Obligatoire : temps imparti à l étudiant"/><label>Nombre max. de tentatives</label><input type="number" id="pq-max-att" value="' + (quiz.maxAttempts != null ? quiz.maxAttempts : '') + '" min="1" placeholder="Illimité si vide"/><label>Délai minimum entre 2 tentatives (minutes)</label><input type="number" id="pq-min-delay" value="' + (quiz.minDelayMinutesBetweenAttempts != null ? quiz.minDelayMinutesBetweenAttempts : '') + '" min="0" placeholder="0 = aucun"/><label><input type="checkbox" id="pq-req-lessons" ' + (quiz.requireChapterLessonsCompleted === 0 || quiz.requireChapterLessonsCompleted === false ? '' : 'checked') + '/> Exiger toutes les leçons du chapitre avant le quiz</label></div><p class="meta" style="margin-top:0.5rem;">* Durée obligatoire : l étudiant voit un chronomètre ; à 0 la tentative est envoyée automatiquement.</p><button class="btn btn-primary" onclick="pedagogySubmitQuizEdit(' + quizId + ')">Enregistrer</button> <button class="btn btn-secondary" onclick="loadPedagogyQuiz()">Annuler</button>';
       } catch (e) { alert(e.message); }
     }
     async function pedagogySubmitQuizEdit(quizId) {
       var pqTitle = document.getElementById('pq-title');
       var pqSeuil = document.getElementById('pq-seuil');
-      Validator.clearError(pqTitle); Validator.clearError(pqSeuil);
+      var pqTimeMin = document.getElementById('pq-time-min');
+      Validator.clearError(pqTitle); Validator.clearError(pqSeuil); if (pqTimeMin) Validator.clearError(pqTimeMin);
       var title = (pqTitle && pqTitle.value || '').trim();
       var passingScorePercent = parseInt(pqSeuil && pqSeuil.value, 10);
+      var timeLimitMinutes = parseInt(pqTimeMin && pqTimeMin.value, 10);
       var err = Validator.validate(title, [Validator.rules.required, Validator.rules.minLen(2), Validator.rules.maxLen(150)]);
       if (err) { Validator.showError(pqTitle, err); return; }
       err = Validator.validate(passingScorePercent, [Validator.rules.integer(0, 100)]);
       if (err) { Validator.showError(pqSeuil, err); return; }
+      if (isNaN(timeLimitMinutes) || timeLimitMinutes < 1) { if (pqTimeMin) Validator.showError(pqTimeMin, 'Durée minimum 1 minute.'); return; }
+      var maxAttemptsVal = document.getElementById('pq-max-att') && document.getElementById('pq-max-att').value;
+      var maxAttempts = maxAttemptsVal === '' ? null : parseInt(maxAttemptsVal, 10);
+      var minDelayVal = document.getElementById('pq-min-delay') && document.getElementById('pq-min-delay').value;
+      var minDelayMinutesBetweenAttempts = minDelayVal === '' ? null : parseInt(minDelayVal, 10);
+      var requireChapterLessonsCompleted = document.getElementById('pq-req-lessons') && document.getElementById('pq-req-lessons').checked ? 1 : 0;
       try {
-        await api('/api/quizzes/' + quizId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, passingScorePercent: isNaN(passingScorePercent) ? 50 : passingScorePercent }) });
+        await api('/api/quizzes/' + quizId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, passingScorePercent: isNaN(passingScorePercent) ? 50 : passingScorePercent, timeLimitMinutes, maxAttempts, minDelayMinutesBetweenAttempts, requireChapterLessonsCompleted }) });
         loadPedagogyQuiz();
       } catch (e) { alert(e.message); }
     }
     let pedagogyQuizQuestionQuizId = null;
     let pedagogyQuizQuestionEditId = null;
     let pedagogyQuizQuestionsList = [];
-    function pedagogyAddQuizQuestion(quizId) {
+    async function pedagogyQuizModalLoadQuizParams(quizId) {
+      var tEl = document.getElementById('pq-modal-time-min');
+      var mEl = document.getElementById('pq-modal-max-att');
+      if (!tEl) return;
+      if (!quizId) { tEl.value = '15'; if (mEl) mEl.value = ''; return; }
+      try {
+        var quiz = await api('/api/quizzes/' + quizId);
+        var tlimMin = quiz.timeLimitSeconds != null && quiz.timeLimitSeconds > 0 ? Math.round(quiz.timeLimitSeconds / 60) : 15;
+        tEl.value = String(tlimMin);
+        if (mEl) mEl.value = quiz.maxAttempts != null ? String(quiz.maxAttempts) : '';
+      } catch (_) {
+        tEl.value = '15';
+        if (mEl) mEl.value = '';
+      }
+    }
+    async function pedagogyAddQuizQuestion(quizId) {
       pedagogyQuizQuestionQuizId = quizId;
       pedagogyQuizQuestionEditId = null;
       document.getElementById('pedagogy-quiz-modal-title').textContent = '📝 Nouvelle question';
@@ -784,6 +1241,7 @@
       pedagogyQuizQuestionSetType('TRUE_FALSE');
       document.querySelectorAll('#pedagogy-quiz-type-tabs .quiz-type-tab').forEach(t => { t.classList.toggle('active', t.getAttribute('data-type') === 'TRUE_FALSE'); });
       document.querySelectorAll('input[name="pq-vf"]').forEach(r => { r.checked = false; });
+      await pedagogyQuizModalLoadQuizParams(quizId);
       document.getElementById('pedagogy-quiz-question-modal').classList.remove('hidden');
     }
     async function pedagogyEditQuizQuestion(id) {
@@ -793,7 +1251,11 @@
         if (!q) { alert('Question introuvable.'); return; }
       }
       pedagogyQuizQuestionEditId = typeof id === 'number' ? id : parseInt(id, 10);
-      pedagogyQuizQuestionQuizId = null;
+      var qzId = q.quizId;
+      if (qzId == null || qzId === '') {
+        try { var full = await api('/api/quiz-questions/' + pedagogyQuizQuestionEditId); qzId = full.quizId; } catch (_) { qzId = null; }
+      }
+      pedagogyQuizQuestionQuizId = qzId;
       document.getElementById('pedagogy-quiz-modal-title').textContent = '✏️ Modifier la question';
       document.getElementById('pq-question-text').value = q.questionText || '';
       document.getElementById('pq-question-points').value = q.points || 10;
@@ -805,20 +1267,45 @@
       if (type === 'TRUE_FALSE') {
         const v = (q.correctAnswer || '').toLowerCase();
         document.querySelectorAll('input[name="pq-vf"]').forEach(r => { r.checked = (r.value === 'true' && (v === 'true' || v === 'vrai')) || (r.value === 'false' && (v === 'false' || v === 'faux')); });
+      } else if (type === 'MULTIPLE_CHOICE') {
+        var raw = (q && q.explanation ? String(q.explanation) : '');
+        var opts = [];
+        if (raw.indexOf('QCM_OPTIONS::') === 0) opts = raw.replace('QCM_OPTIONS::', '').split('||').slice(0, 3);
+        while (opts.length < 3) opts.push('');
+        if (q.correctAnswer && opts.indexOf(q.correctAnswer) === -1) {
+          var emptyIdx = opts.findIndex(function(v) { return !v; });
+          if (emptyIdx >= 0) opts[emptyIdx] = q.correctAnswer;
+          else opts[0] = q.correctAnswer;
+        }
+        [1, 2, 3].forEach(function(i) {
+          var el = document.getElementById('pq-option-' + i);
+          if (el) el.value = opts[i - 1] || '';
+        });
+        var selected = Math.max(1, opts.indexOf(q.correctAnswer || '') + 1);
+        var radio = document.querySelector('input[name="pq-qcm-correct"][value="' + selected + '"]');
+        if (radio) radio.checked = true;
       } else {
         const inp = document.getElementById('pq-answer-text');
         if (inp) inp.value = q.correctAnswer || '';
       }
+      await pedagogyQuizModalLoadQuizParams(pedagogyQuizQuestionQuizId);
       document.getElementById('pedagogy-quiz-question-modal').classList.remove('hidden');
     }
     function pedagogyQuizQuestionSetType(type) {
       const zone = document.getElementById('pq-answer-zone');
       if (type === 'TRUE_FALSE') {
         zone.innerHTML = '<label style="display:block;font-weight:600;color:var(--text-muted);margin-bottom:0.35rem;">Réponse correcte</label><div class="quiz-answer-vf"><label><input type="radio" name="pq-vf" value="true"/><span>Vrai</span></label><label><input type="radio" name="pq-vf" value="false"/><span>Faux</span></label></div>';
+      } else if (type === 'MULTIPLE_CHOICE') {
+        zone.innerHTML = '<label style="display:block;font-weight:600;color:var(--text-muted);margin-bottom:0.35rem;">Options QCM (3 réponses)</label><div class="form-grid" style="grid-template-columns: 1fr auto; gap:0.5rem; align-items:center;"><input type="text" id="pq-option-1" placeholder="Option 1" style="width:100%;padding:0.6rem;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;"/><label style="display:flex;align-items:center;gap:0.4rem;"><input type="radio" name="pq-qcm-correct" value="1"/> Correcte</label><input type="text" id="pq-option-2" placeholder="Option 2" style="width:100%;padding:0.6rem;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;"/><label style="display:flex;align-items:center;gap:0.4rem;"><input type="radio" name="pq-qcm-correct" value="2"/> Correcte</label><input type="text" id="pq-option-3" placeholder="Option 3" style="width:100%;padding:0.6rem;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;"/><label style="display:flex;align-items:center;gap:0.4rem;"><input type="radio" name="pq-qcm-correct" value="3"/> Correcte</label></div>';
       } else {
-        const label = type === 'MULTIPLE_CHOICE' ? 'Réponse correcte (texte de l\'option choisie)' : 'Réponse correcte';
-        zone.innerHTML = '<label style="display:block;font-weight:600;color:var(--text-muted);margin-bottom:0.35rem;">' + label + '</label><input type="text" id="pq-answer-text" placeholder="' + (type === 'MULTIPLE_CHOICE' ? 'Ex: Paris' : 'Ex: Réponse courte') + '" style="width:100%;padding:0.6rem;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;"/>';
+        zone.innerHTML = '<label style="display:block;font-weight:600;color:var(--text-muted);margin-bottom:0.35rem;">Réponse correcte</label><input type="text" id="pq-answer-text" placeholder="Ex: Réponse courte" style="width:100%;padding:0.6rem;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;"/>';
       }
+    }
+    function pedagogyQuizQuestionGetMcqOptions() {
+      return [1, 2, 3].map(function(i) {
+        var el = document.getElementById('pq-option-' + i);
+        return (el && el.value ? el.value : '').trim();
+      });
     }
     function pedagogyQuizQuestionGetCorrectAnswer() {
       const type = document.getElementById('pq-question-type').value;
@@ -826,24 +1313,54 @@
         const r = document.querySelector('input[name="pq-vf"]:checked');
         return r ? r.value : '';
       }
+      if (type === 'MULTIPLE_CHOICE') {
+        var selected = document.querySelector('input[name="pq-qcm-correct"]:checked');
+        if (!selected) return '';
+        var opt = document.getElementById('pq-option-' + selected.value);
+        return opt && opt.value ? opt.value.trim() : '';
+      }
       const inp = document.getElementById('pq-answer-text');
       return inp ? inp.value.trim() : '';
     }
     async function pedagogyQuizQuestionSubmit() {
       var questionTextEl = document.getElementById('pq-question-text');
       var pointsEl = document.getElementById('pq-question-points');
-      Validator.clearError(questionTextEl); if (pointsEl) Validator.clearError(pointsEl);
+      var pqModalTime = document.getElementById('pq-modal-time-min');
+      var pqModalMaxAtt = document.getElementById('pq-modal-max-att');
+      Validator.clearError(questionTextEl); if (pointsEl) Validator.clearError(pointsEl); if (pqModalTime) Validator.clearError(pqModalTime); if (pqModalMaxAtt) Validator.clearError(pqModalMaxAtt);
       var questionText = (questionTextEl && questionTextEl.value || '').trim();
       var correctAnswer = pedagogyQuizQuestionGetCorrectAnswer();
       var questionType = document.getElementById('pq-question-type').value;
       var points = parseInt(pointsEl && pointsEl.value, 10) || 10;
       var err = Validator.validate(questionText, [Validator.rules.required, Validator.rules.minLen(5), Validator.rules.maxLen(500)]);
       if (err) { Validator.showError(questionTextEl, err); return; }
-      if (!correctAnswer) { var answerEl = document.querySelector('input[name="pq-vf"]:checked') || document.getElementById('pq-answer-text'); if (answerEl) Validator.showError(answerEl, 'Indiquez la réponse correcte.'); else alert('Veuillez indiquer la réponse correcte.'); return; }
+      var mcqOptions = [];
+      if (questionType === 'MULTIPLE_CHOICE') {
+        mcqOptions = pedagogyQuizQuestionGetMcqOptions();
+        for (var oi = 0; oi < mcqOptions.length; oi++) {
+          if (!mcqOptions[oi]) {
+            var emptyEl = document.getElementById('pq-option-' + (oi + 1));
+            if (emptyEl) Validator.showError(emptyEl, 'Les 3 options sont obligatoires.');
+            return;
+          }
+        }
+      }
+      if (!correctAnswer) { var answerEl = document.querySelector('input[name="pq-vf"]:checked') || document.querySelector('input[name="pq-qcm-correct"]:checked') || document.getElementById('pq-answer-text'); if (answerEl) Validator.showError(answerEl, 'Indiquez la réponse correcte.'); else alert('Veuillez indiquer la réponse correcte.'); return; }
       err = Validator.validate(points, [Validator.rules.integer(1, 100)]);
       if (err) { Validator.showError(pointsEl, err); return; }
+      var timeLimitMinutes = parseInt(pqModalTime && pqModalTime.value, 10);
+      if (isNaN(timeLimitMinutes) || timeLimitMinutes < 1) { if (pqModalTime) Validator.showError(pqModalTime, 'Durée minimum 1 minute.'); return; }
+      var maxAttModalVal = pqModalMaxAtt && pqModalMaxAtt.value;
+      var maxAttemptsModal = null;
+      if (maxAttModalVal !== '') {
+        maxAttemptsModal = parseInt(maxAttModalVal, 10);
+        if (isNaN(maxAttemptsModal) || maxAttemptsModal < 1) { if (pqModalMaxAtt) Validator.showError(pqModalMaxAtt, 'Entier ≥ 1 ou laissez vide (illimité).'); return; }
+      }
+      var qzIdForParams = pedagogyQuizQuestionQuizId;
+      if (!qzIdForParams) { alert('Quiz introuvable : impossible d’enregistrer la durée.'); return; }
       try {
-        const body = { questionText, questionType, correctAnswer, points };
+        await api('/api/quizzes/' + qzIdForParams, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ timeLimitMinutes, maxAttempts: maxAttemptsModal }) });
+        const body = { questionText, questionType, correctAnswer, points, explanation: questionType === 'MULTIPLE_CHOICE' ? ('QCM_OPTIONS::' + mcqOptions.join('||')) : undefined };
         if (pedagogyQuizQuestionEditId) {
           await api('/api/quiz-questions/' + pedagogyQuizQuestionEditId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
         } else {
@@ -853,6 +1370,18 @@
         loadPedagogyQuiz();
       } catch (e) { alert(e.message); }
     }
+    (function initPedagogyDetailTabs() {
+      var wrap = document.getElementById('pedagogy-detail-block');
+      if (!wrap) return;
+      wrap.querySelectorAll('.pedagogy-tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          var t = this.getAttribute('data-pedagogy-tab');
+          wrap.querySelectorAll('.pedagogy-tab').forEach(function(x) { x.classList.toggle('active', x.getAttribute('data-pedagogy-tab') === t); });
+          document.getElementById('pedagogy-lessons-block').style.display = t === 'lessons' ? 'block' : 'none';
+          document.getElementById('pedagogy-quiz-block').style.display = t === 'quiz' ? 'block' : 'none';
+        });
+      });
+    })();
     (function initQuizQuestionModal() {
       document.getElementById('pedagogy-quiz-type-tabs').addEventListener('click', function(e) {
         const tab = e.target.closest('.quiz-type-tab');
@@ -1070,5 +1599,83 @@
     updateTeacherStats();
     loadCourses();
   </script>
+<script>
+(function enforceEnglishUI() {
+  var rules = [
+    [/Nouvelle question/gi, 'New question'],
+    [/Modifier la question/gi, 'Edit question'],
+    [/Type de question/gi, 'Question type'],
+    [/Texte de la question/gi, 'Question text'],
+    [/Réponse correcte/gi, 'Correct answer'],
+    [/Réponse courte/gi, 'Short answer'],
+    [/Vrai\s*\/\s*Faux/gi, 'True / False'],
+    [/Vrai/gi, 'True'],
+    [/Faux/gi, 'False'],
+    [/Points/gi, 'Points'],
+    [/Enregistrer/gi, 'Save'],
+    [/Annuler/gi, 'Cancel'],
+    [/Supprimer le quiz/gi, 'Delete quiz'],
+    [/Modifier le quiz/gi, 'Edit quiz'],
+    [/Créer le quiz/gi, 'Create quiz'],
+    [/Nom du quiz/gi, 'Quiz name'],
+    [/Quiz du chapitre/gi, 'Chapter quizzes'],
+    [/Quiz actif/gi, 'Active quiz'],
+    [/Ajouter une question/gi, 'Add question'],
+    [/Modifier/gi, 'Edit'],
+    [/Supprimer/gi, 'Delete'],
+    [/Leçons/gi, 'Lessons'],
+    [/Quiz/gi, 'Quiz'],
+    [/Retour/gi, 'Back'],
+    [/Choisir/gi, 'Choose'],
+    [/Aucun/gi, 'None'],
+    [/Erreur/gi, 'Error']
+  ];
+  function tr(text) {
+    var s = String(text == null ? '' : text);
+    for (var i = 0; i < rules.length; i++) s = s.replace(rules[i][0], rules[i][1]);
+    return s;
+  }
+  function translateNodeText(root) {
+    if (!root) return;
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    var n;
+    while ((n = w.nextNode())) {
+      if (!n || !n.parentElement) continue;
+      var t = n.parentElement.tagName;
+      if (t === 'SCRIPT' || t === 'STYLE' || t === 'CODE' || t === 'PRE') continue;
+      var v = n.nodeValue;
+      var nv = tr(v);
+      if (nv !== v) n.nodeValue = nv;
+    }
+  }
+  function translateAttrs(root) {
+    if (!root || !root.querySelectorAll) return;
+    root.querySelectorAll('[placeholder],[title],[aria-label],[value]').forEach(function(el) {
+      ['placeholder', 'title', 'aria-label', 'value'].forEach(function(a) {
+        if (!el.hasAttribute(a)) return;
+        var v = el.getAttribute(a);
+        var nv = tr(v);
+        if (nv !== v) el.setAttribute(a, nv);
+      });
+    });
+  }
+  var _alert = window.alert;
+  var _confirm = window.confirm;
+  window.alert = function(msg) { return _alert.call(window, tr(msg)); };
+  window.confirm = function(msg) { return _confirm.call(window, tr(msg)); };
+  function apply() {
+    document.documentElement.lang = 'en';
+    translateNodeText(document.body);
+    translateAttrs(document.body);
+  }
+  var timer = null;
+  function schedule() { if (timer) clearTimeout(timer); timer = setTimeout(apply, 30); }
+  document.addEventListener('DOMContentLoaded', function() {
+    apply();
+    var obs = new MutationObserver(schedule);
+    if (document.body) obs.observe(document.body, { childList: true, subtree: true, characterData: true });
+  });
+})();
+</script>
 </body>
 </html>

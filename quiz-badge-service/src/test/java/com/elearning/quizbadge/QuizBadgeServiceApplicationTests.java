@@ -3,7 +3,7 @@ package com.elearning.quizbadge;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+@SpringBootTest(classes = QuizBadgeServiceApplication.class)
 class QuizBadgeServiceApplicationTests {
 
     @Test

@@ -1,0 +1,22 @@
+name: Test Service CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "test-service/**"
+      - ".github/workflows/test-service-ci.yml"
+      - ".github/workflows/_backend-service-ci.yml"
+  pull_request:
+    paths:
+      - "test-service/**"
+      - ".github/workflows/test-service-ci.yml"
+      - ".github/workflows/_backend-service-ci.yml"
+
+jobs:
+  ci:
+    uses: ./.github/workflows/_backend-service-ci.yml
+    with:
+      service_path: test-service
+      service_name: test-service
+    secrets: inherit

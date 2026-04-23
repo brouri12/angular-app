@@ -1,0 +1,16 @@
+# Maven
+target/
+*.jar
+*.war
+*.class
+!**/mvnw
+!**/mvnw.cmd
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db

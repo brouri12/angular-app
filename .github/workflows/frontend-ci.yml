@@ -1,0 +1,82 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "front-office/**"
+      - "e_learnig-platform/frontend/angular-app/**"
+      - "e_learnig-platform/back-office-verifier/**"
+      - ".github/workflows/frontend-ci.yml"
+  pull_request:
+    paths:
+      - "front-office/**"
+      - "e_learnig-platform/frontend/angular-app/**"
+      - "e_learnig-platform/back-office-verifier/**"
+      - ".github/workflows/frontend-ci.yml"
+
+jobs:
+  test-build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app:
+          - name: front-office
+            path: front-office
+            test_cmd: npm run test:ci
+            lcov: coverage/front-office/lcov.info
+          - name: angular-app
+            path: e_learnig-platform/frontend/angular-app
+            test_cmd: npm run test:ci
+            lcov: coverage/lcov.info,coverage/angular-app/lcov.info
+          - name: back-office-verifier
+            path: e_learnig-platform/back-office-verifier
+            test_cmd: npm run test:ci
+            lcov: coverage/back-office/lcov.info
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.app.path }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: ${{ matrix.app.path }}/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: ${{ matrix.app.test_cmd }}
+
+      - name: Build app
+        run: npm run build
+
+      - name: Upload frontend artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.app.name }}-reports
+          path: |
+            ${{ matrix.app.path }}/coverage/**
+            ${{ matrix.app.path }}/dist/**
+
+      - name: SonarQube scan (frontend)
+        if: ${{ secrets.SONAR_TOKEN != '' && secrets.SONAR_HOST_URL != '' }}
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          projectBaseDir: ${{ matrix.app.path }}
+          args: >
+            -Dsonar.projectKey=${{ matrix.app.name }}
+            -Dsonar.projectName=${{ matrix.app.name }}
+            -Dsonar.javascript.lcov.reportPaths=${{ matrix.app.lcov }}

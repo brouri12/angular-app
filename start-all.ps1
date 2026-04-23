@@ -6,6 +6,9 @@ $PORT = 8083
 
 Set-Location $piRoot
 
+# Important : servir le back-office Angular depuis ce dossier
+$env:BACK_OFFICE_DIST = (Join-Path $piRoot 'back-office')
+
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "  E-Learning - Backend + Front" -ForegroundColor Cyan
