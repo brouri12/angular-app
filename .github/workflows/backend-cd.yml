@@ -6,11 +6,25 @@ on:
     branches: [main]
     paths:
       - "docker-compose.yml"
+      - "docker/**"
       - "Dockerfile.*"
       - "api-gateway/**"
       - "eureka-server/**"
       - "formation-service/**"
       - "quiz-badge-service/**"
+      - "review-todo-service/**"
+      - "club-service/**"
+      - "member-service/**"
+      - "reservation-service/**"
+      - "event-service/**"
+      - "forum-service/**"
+      - "recrutement-service/**"
+      - "UserService/**"
+      - "PlanificationService/**"
+      - "ChallengeService/**"
+      - "AbonnementService/**"
+      - "simple-formation-service/**"
+      - "test-service/**"
       - ".github/workflows/backend-cd.yml"
 
 jobs:
@@ -28,6 +42,19 @@ jobs:
           docker build -f Dockerfile.eureka-server -t elearning/eureka-server:ci .
           docker build -f Dockerfile.formation-service -t elearning/formation-service:ci .
           docker build -f Dockerfile.quiz-badge-service -t elearning/quiz-badge-service:ci .
+          docker build -f Dockerfile.review-todo-service -t elearning/review-todo-service:ci .
+          docker build -f Dockerfile.club-service -t elearning/club-service:ci .
+          docker build -f Dockerfile.member-service -t elearning/member-service:ci .
+          docker build -f Dockerfile.reservation-service -t elearning/reservation-service:ci .
+          docker build -f Dockerfile.event-service -t elearning/event-service:ci .
+          docker build -f Dockerfile.forum-service -t elearning/forum-service:ci .
+          docker build -f Dockerfile.recrutement-service -t elearning/recrutement-service:ci .
+          docker build -f Dockerfile.user-service -t elearning/user-service:ci .
+          docker build -f Dockerfile.planification-service -t elearning/planification-service:ci .
+          docker build -f Dockerfile.challenge-service -t elearning/challenge-service:ci .
+          docker build -f Dockerfile.abonnement-service -t elearning/abonnement-service:ci .
+          docker build -f Dockerfile.simple-formation-service -t elearning/simple-formation-service:ci .
+          docker build -f Dockerfile.test-service -t elearning/test-service:ci .
           docker build -f Dockerfile.api-gateway -t elearning/api-gateway:ci .
 
       - name: Validate docker compose
@@ -38,6 +65,7 @@ jobs:
           mkdir -p deployment-bundle
           cp docker-compose.yml deployment-bundle/docker-compose.yml
           cp Dockerfile.* deployment-bundle/
+          cp -r docker deployment-bundle/docker
 
       - name: Upload deployment bundle
         uses: actions/upload-artifact@v4

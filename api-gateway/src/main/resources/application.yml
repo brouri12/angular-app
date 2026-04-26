@@ -53,6 +53,110 @@ spring:
           filters:
             - StripPrefix=1
 
+        # Review Todo Service
+        - id: review-todo-service
+          uri: lb://REVIEW-TODO-SERVICE
+          predicates:
+            - Path=/api/review-todos/**
+
+        # --- Microservices Esprit (decouverte Eureka) ---
+        - id: membre-service
+          uri: lb://MEMBRE-SERVICE
+          predicates:
+            - Path=/membres/**
+        - id: club-service
+          uri: lb://CLUB-SERVICE
+          predicates:
+            - Path=/clubs/**
+        - id: reservation-service
+          uri: lb://REGISTRATION-SERVICE
+          predicates:
+            - Path=/registrations/**
+        - id: event-service
+          uri: lb://EVENT-SERVICE
+          predicates:
+            - Path=/events/**
+        - id: forum-service
+          uri: lb://FORUM-SERVICE
+          predicates:
+            - Path=/api/forum/**
+        - id: recrutement-service
+          uri: lb://RECRUTEMENT-SERVICE
+          predicates:
+            - Path=/api/recrutement/**
+        - id: user-service-users
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/users/**
+        - id: user-service-auth
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/auth/**
+        - id: user-service-payments
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/payments/**
+        - id: user-service-subscriptions
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/subscriptions/**
+        - id: planification-groups
+          uri: lb://PLANIFICATION-SERVICE
+          predicates:
+            - Path=/api/groups/**
+        - id: planification-calendar
+          uri: lb://PLANIFICATION-SERVICE
+          predicates:
+            - Path=/api/calendar/**
+        - id: planification-planifications
+          uri: lb://PLANIFICATION-SERVICE
+          predicates:
+            - Path=/api/planifications/**
+        - id: planification-analytics-rooms
+          uri: lb://PLANIFICATION-SERVICE
+          predicates:
+            - Path=/api/analytics/rooms/**
+        - id: planification-salles
+          uri: lb://PLANIFICATION-SERVICE
+          predicates:
+            - Path=/api/salles/**
+        - id: challenge-challenges
+          uri: lb://CHALLENGE-SERVICE
+          predicates:
+            - Path=/api/challenges/**
+        - id: challenge-submissions
+          uri: lb://CHALLENGE-SERVICE
+          predicates:
+            - Path=/api/submissions/**
+        - id: challenge-stats
+          uri: lb://CHALLENGE-SERVICE
+          predicates:
+            - Path=/api/stats/**
+        - id: challenge-test-scheduler
+          uri: lb://CHALLENGE-SERVICE
+          predicates:
+            - Path=/api/test/scheduler/**
+        - id: abonnement-abonnements
+          uri: lb://ABONNEMENT-SERVICE
+          predicates:
+            - Path=/api/abonnements/**
+        - id: abonnement-promo
+          uri: lb://ABONNEMENT-SERVICE
+          predicates:
+            - Path=/api/promo/**
+        - id: abonnement-renewal
+          uri: lb://ABONNEMENT-SERVICE
+          predicates:
+            - Path=/api/renewal/**
+        - id: abonnement-subscription-reminders
+          uri: lb://ABONNEMENT-SERVICE
+          predicates:
+            - Path=/api/subscription-reminders/**
+        - id: abonnement-test-email
+          uri: lb://ABONNEMENT-SERVICE
+          predicates:
+            - Path=/api/test/**
+
 # Eureka Discovery Client Configuration
 eureka:
   client:

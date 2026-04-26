@@ -30,3 +30,68 @@ scrape_configs:
     metrics_path: /actuator/prometheus
     static_configs:
       - targets: ["quiz-badge-service:8082"]
+
+  - job_name: review-todo-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["review-todo-service:8091"]
+
+  - job_name: club-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["club-service:8089"]
+
+  - job_name: member-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["member-service:8092"]
+
+  - job_name: reservation-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["reservation-service:8083"]
+
+  - job_name: event-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["event-service:8095"]
+
+  - job_name: forum-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["forum-service:8094"]
+
+  - job_name: recrutement-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["recrutement-service:8093"]
+
+  - job_name: user-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["user-service:8100"]
+
+  - job_name: planification-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["planification-service:8087"]
+
+  - job_name: challenge-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["challenge-service:8086"]
+
+  - job_name: abonnement-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["abonnement-service:8084"]
+
+  - job_name: simple-formation-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["simple-formation-service:8101"]
+
+  - job_name: test-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["test-service:8102"]

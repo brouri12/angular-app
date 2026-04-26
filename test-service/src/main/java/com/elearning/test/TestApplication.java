@@ -40,11 +40,4 @@ public class TestApplication {
         response.put("timestamp", LocalDateTime.now().toString());
         return ResponseEntity.ok(response);
     }
-    
-    @GetMapping("/actuator/health")
-    public ResponseEntity<Map<String, String>> health() {
-        Map<String, String> response = new HashMap<>();
-        response.put("status", "UP");
-        return ResponseEntity.ok(response);
-    }
 }
