@@ -1,0 +1,22 @@
+name: Service Feedback CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "microservices/service-feedback/**"
+      - ".github/workflows/service-feedback-ci.yml"
+      - ".github/workflows/_backend-service-ci.yml"
+  pull_request:
+    paths:
+      - "microservices/service-feedback/**"
+      - ".github/workflows/service-feedback-ci.yml"
+      - ".github/workflows/_backend-service-ci.yml"
+
+jobs:
+  ci:
+    uses: ./.github/workflows/_backend-service-ci.yml
+    with:
+      service_path: microservices/service-feedback
+      service_name: service-feedback
+    secrets: inherit

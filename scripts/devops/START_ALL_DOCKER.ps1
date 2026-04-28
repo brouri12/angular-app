@@ -51,3 +51,4 @@ $gw = if (Test-Path (Join-Path $Root ".env")) {
   Node exporter   http://localhost:9100/metrics
 
 "@ | Write-Host
+

@@ -95,3 +95,13 @@ scrape_configs:
     metrics_path: /actuator/prometheus
     static_configs:
       - targets: ["test-service:8102"]
+
+  - job_name: service-feedback
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["service-feedback:8110"]
+
+  - job_name: service-pronunciation
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["service-pronunciation:8111"]

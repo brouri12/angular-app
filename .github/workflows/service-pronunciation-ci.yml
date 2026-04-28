@@ -1,0 +1,22 @@
+name: Service Pronunciation CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "microservices/service-pronunciation/**"
+      - ".github/workflows/service-pronunciation-ci.yml"
+      - ".github/workflows/_backend-service-ci.yml"
+  pull_request:
+    paths:
+      - "microservices/service-pronunciation/**"
+      - ".github/workflows/service-pronunciation-ci.yml"
+      - ".github/workflows/_backend-service-ci.yml"
+
+jobs:
+  ci:
+    uses: ./.github/workflows/_backend-service-ci.yml
+    with:
+      service_path: microservices/service-pronunciation
+      service_name: service-pronunciation
+    secrets: inherit

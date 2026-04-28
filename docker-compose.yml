@@ -27,6 +27,7 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - JAVA_OPTS=-Xms256m -Xmx512m
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     networks:
       - elearning-network
     healthcheck:
@@ -157,6 +158,7 @@ services:
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - EUREKA_INSTANCE_PREFER-IP-ADDRESS=true
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     depends_on:
       mysql-formation:
         condition: service_healthy
@@ -192,6 +194,7 @@ services:
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - EUREKA_INSTANCE_PREFER-IP-ADDRESS=true
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     depends_on:
       mysql-quiz:
         condition: service_healthy
@@ -228,6 +231,7 @@ services:
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - EUREKA_INSTANCE_PREFER-IP-ADDRESS=true
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     depends_on:
       mysql-review-todo:
         condition: service_healthy
@@ -265,7 +269,7 @@ services:
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - EUREKA_INSTANCE_PREFER-IP-ADDRESS=true
-      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     depends_on:
       mysql-aggregate:
         condition: service_healthy
@@ -299,7 +303,7 @@ services:
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - EUREKA_INSTANCE_PREFER-IP-ADDRESS=true
-      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
       - CLUB_CHAT_MEMBER_SERVICE_BASE_URL=http://member-service:8092
     depends_on:
       mysql-aggregate:
@@ -336,7 +340,7 @@ services:
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - EUREKA_INSTANCE_PREFER-IP-ADDRESS=true
-      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     depends_on:
       mysql-aggregate:
         condition: service_healthy
@@ -371,7 +375,7 @@ services:
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - EUREKA_INSTANCE_PREFER-IP-ADDRESS=true
-      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     depends_on:
       mysql-aggregate:
         condition: service_healthy
@@ -405,7 +409,7 @@ services:
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - EUREKA_INSTANCE_PREFER-IP-ADDRESS=true
-      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     depends_on:
       mysql-aggregate:
         condition: service_healthy
@@ -439,7 +443,7 @@ services:
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - EUREKA_INSTANCE_PREFER-IP-ADDRESS=true
-      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     depends_on:
       mysql-aggregate:
         condition: service_healthy
@@ -474,7 +478,7 @@ services:
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - EUREKA_INSTANCE_PREFER-IP-ADDRESS=true
-      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     depends_on:
       mysql-aggregate:
         condition: service_healthy
@@ -508,7 +512,7 @@ services:
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - EUREKA_INSTANCE_PREFER-IP-ADDRESS=true
-      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     depends_on:
       mysql-aggregate:
         condition: service_healthy
@@ -542,7 +546,8 @@ services:
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - EUREKA_INSTANCE_PREFER-IP-ADDRESS=true
-      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
+      - MANAGEMENT_HEALTH_MAIL_ENABLED=false
     depends_on:
       mysql-aggregate:
         condition: service_healthy
@@ -576,7 +581,8 @@ services:
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - EUREKA_INSTANCE_PREFER-IP-ADDRESS=true
-      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
+      - MANAGEMENT_HEALTH_MAIL_ENABLED=false
     depends_on:
       mysql-aggregate:
         condition: service_healthy
@@ -601,7 +607,7 @@ services:
       - "8101:8101"
     environment:
       - SERVER_PORT=8101
-      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     networks:
       - elearning-network
     healthcheck:
@@ -621,7 +627,7 @@ services:
       - "8102:8102"
     environment:
       - SERVER_PORT=8102
-      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     networks:
       - elearning-network
     healthcheck:
@@ -632,6 +638,99 @@ services:
       start_period: 60s
     restart: unless-stopped
 
+  #-----------------------------------------------------------------------
+  # Ramzi services (feedback + pronunciation)
+  #-----------------------------------------------------------------------
+  service-feedback:
+    build:
+      context: .
+      dockerfile: Dockerfile.service-feedback
+    container_name: service-feedback
+    ports:
+      - "8110:8110"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - JAVA_OPTS=-Xms256m -Xmx512m
+      - SERVER_PORT=8110
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-aggregate:3306/skillforge_feedback?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=rootpassword
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - EUREKA_INSTANCE_PREFER-IP-ADDRESS=true
+      - APP_USER_SERVICE_URL=http://user-service:8100
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus,prometheus
+      - FILE_UPLOAD_DIRECTORY=/app/uploads/reclamations
+      - MANAGEMENT_HEALTH_MAIL_ENABLED=false
+    depends_on:
+      mysql-aggregate:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+    networks:
+      - elearning-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8110/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    restart: unless-stopped
+
+  pronunciation-fastapi:
+    build:
+      context: .
+      dockerfile: Dockerfile.pronunciation-fastapi
+    container_name: pronunciation-fastapi
+    ports:
+      - "8000:8000"
+    networks:
+      - elearning-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    restart: unless-stopped
+
+  service-pronunciation:
+    build:
+      context: .
+      dockerfile: Dockerfile.service-pronunciation
+    container_name: service-pronunciation
+    ports:
+      - "8111:8111"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - JAVA_OPTS=-Xms256m -Xmx512m
+      - SERVER_PORT=8111
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-aggregate:3306/skillforge_pronunciation?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=rootpassword
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - EUREKA_INSTANCE_PREFER-IP-ADDRESS=true
+      - APP_PRONUNCIATION_AI_URL=http://pronunciation-fastapi:8000/analyze-pronunciation
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus,prometheus
+    depends_on:
+      mysql-aggregate:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      pronunciation-fastapi:
+        condition: service_healthy
+    networks:
+      - elearning-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8111/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    restart: unless-stopped
   #-----------------------------------------------------------------------
   # API Gateway - Entry Point
   #-----------------------------------------------------------------------
@@ -648,6 +747,7 @@ services:
       - JAVA_OPTS=-Xms256m -Xmx512m
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - EUREKA_INSTANCE_PREFER-IP-ADDRESS=true
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -666,7 +766,7 @@ services:
 #-----------------------------------------------------------------------
 networks:
   elearning-network:
-    driver: bridge
+    external: true
 
 #-----------------------------------------------------------------------
 # Volumes (for persistent data)
@@ -676,3 +776,7 @@ volumes:
   mysql-quiz-data:
   mysql-review-todo-data:
   mysql-aggregate-data:
+
+
+
+

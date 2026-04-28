@@ -93,3 +93,4 @@ jobs:
             git pull
             docker compose pull || true
             docker compose up -d --build
+
