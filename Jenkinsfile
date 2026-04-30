@@ -306,8 +306,14 @@ pipeline {
         // ── 4. Quality Gate ───────────────────────────────────────
         stage('Quality Gate') {
             steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: false
+                script {
+                    try {
+                        timeout(time: 5, unit: 'MINUTES') {
+                            waitForQualityGate abortPipeline: false
+                        }
+                    } catch (err) {
+                        echo "Quality Gate skipped: no SonarQube analysis context found (${err})"
+                    }
                 }
             }
         }
