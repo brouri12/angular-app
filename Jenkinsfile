@@ -25,8 +25,20 @@ pipeline {
         // ── 1. Checkout ──────────────────────────────────────────
         stage('Checkout') {
             steps {
-                git branch: 'feature/complete-devops-setup',
-                    url: "${GIT_REPO}"
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/feature/complete-devops-setup']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [
+                        [$class: 'CloneOption', shallow: true, depth: 1, noTags: true, honorRefspec: true, timeout: 20],
+                        [$class: 'PruneStaleBranch'],
+                        [$class: 'CheckoutOption', timeout: 20]
+                    ],
+                    userRemoteConfigs: [[
+                        url: "${GIT_REPO}",
+                        refspec: '+refs/heads/feature/complete-devops-setup:refs/remotes/origin/feature/complete-devops-setup'
+                    ]]
+                ])
                 echo "Branch: ${env.GIT_BRANCH} | Commit: ${env.GIT_COMMIT}"
             }
         }
@@ -413,7 +425,13 @@ pipeline {
 
     post {
         always {
-            cleanWs()
+            script {
+                try {
+                    cleanWs()
+                } catch (err) {
+                    echo "Skipping cleanWs: workspace context unavailable (${err})"
+                }
+            }
         }
         success {
             echo "Backend pipeline succeeded – build #${env.BUILD_NUMBER}"
