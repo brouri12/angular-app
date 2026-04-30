@@ -11,7 +11,7 @@ pipeline {
     environment {
         REGISTRY    = 'brouri12'
         IMAGE_TAG   = "${env.BUILD_NUMBER}"
-        SONAR_HOST  = 'http://wordly-sonarqube:9000'
+        SONAR_HOST  = 'http://host.docker.internal:9000'
         GIT_REPO    = 'https://github.com/brouri12/angular-app.git'
     }
 
