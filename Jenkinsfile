@@ -380,9 +380,6 @@ pipeline {
 
         // ── 6. Deploy to Kubernetes ───────────────────────────────
         stage('Deploy to Kubernetes') {
-            when {
-                branch 'main'
-            }
             steps {
                 withKubeConfig([credentialsId: 'kubeconfig']) {
                     sh 'kubectl apply -f devops/k8s/00-namespace.yml'
