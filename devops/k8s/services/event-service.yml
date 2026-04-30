@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: event-service
-          image: YOUR_ACTUAL_USERNAME/event-service:latest
+          image: marwenazouzi1/event-service:latest
           ports:
             - containerPort: 8082
               name: http

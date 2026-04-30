@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: recrutement-service
-          image: YOUR_ACTUAL_USERNAME/recrutement-service:latest
+          image: marwenazouzi1/recrutement-service:latest
           ports:
             - containerPort: 8093
               name: http

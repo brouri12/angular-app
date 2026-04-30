@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: reservation-service
-          image: YOUR_ACTUAL_USERNAME/reservation-service:latest
+          image: marwenazouzi1/reservation-service:latest
           ports:
             - containerPort: 8083
               name: http

@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: quiz-badge-service
-          image: YOUR_ACTUAL_USERNAME/quiz-badge-service:latest
+          image: marwenazouzi1/quiz-badge-service:latest
           ports:
             - containerPort: 8092
               name: http

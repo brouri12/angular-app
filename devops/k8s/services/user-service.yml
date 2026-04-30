@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: YOUR_ACTUAL_USERNAME/user-service:latest
+          image: marwenazouzi1/user-service:latest
           ports:
             - containerPort: 8085
               name: http

@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: pronunciation-service
-          image: YOUR_ACTUAL_USERNAME/pronunciation-service:latest
+          image: marwenazouzi1/pronunciation-service:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8095

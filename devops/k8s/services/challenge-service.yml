@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: challenge-service
-          image: YOUR_ACTUAL_USERNAME/challenge-service:latest
+          image: marwenazouzi1/challenge-service:latest
           ports:
             - containerPort: 8086
               name: http

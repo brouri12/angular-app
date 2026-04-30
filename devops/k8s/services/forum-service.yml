@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: forum-service
-          image: YOUR_ACTUAL_USERNAME/forum-service:latest
+          image: marwenazouzi1/forum-service:latest
           ports:
             - containerPort: 8094
               name: http

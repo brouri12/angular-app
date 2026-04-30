@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: feedback-service
-          image: YOUR_ACTUAL_USERNAME/feedback-service:latest
+          image: marwenazouzi1/feedback-service:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8096

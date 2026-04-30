@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: planification-service
-          image: YOUR_ACTUAL_USERNAME/planification-service:latest
+          image: marwenazouzi1/planification-service:latest
           ports:
             - containerPort: 8087
               name: http

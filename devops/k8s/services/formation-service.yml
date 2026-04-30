@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: formation-service
-          image: YOUR_ACTUAL_USERNAME/formation-service:latest
+          image: marwenazouzi1/formation-service:latest
           ports:
             - containerPort: 8081
               name: http

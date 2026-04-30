@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: club-service
-          image: YOUR_ACTUAL_USERNAME/club-service:latest
+          image: marwenazouzi1/club-service:latest
           ports:
             - containerPort: 8089
               name: http
