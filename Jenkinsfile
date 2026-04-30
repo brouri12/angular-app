@@ -7,6 +7,9 @@
 // ============================================================
 pipeline {
     agent any
+    options {
+        skipDefaultCheckout(true)
+    }
 
     environment {
         REGISTRY    = 'brouri12'
