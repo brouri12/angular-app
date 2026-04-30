@@ -1,0 +1,108 @@
+# ============================================================
+#  NodePort Services for External Access
+# ============================================================
+# This file exposes key services via NodePort for access
+# from outside the Kubernetes cluster.
+#
+# Access services at: http://<node-ip>:<nodeport>
+# ============================================================
+
+---
+# Frontend Application
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-nodeport
+  namespace: wordly
+  labels:
+    app: frontend
+spec:
+  type: NodePort
+  selector:
+    app: frontend
+  ports:
+    - port: 4200
+      targetPort: 4200
+      nodePort: 30200
+      protocol: TCP
+      name: http
+
+---
+# Back-office Application
+apiVersion: v1
+kind: Service
+metadata:
+  name: backoffice-nodeport
+  namespace: wordly
+  labels:
+    app: backoffice
+spec:
+  type: NodePort
+  selector:
+    app: backoffice
+  ports:
+    - port: 4201
+      targetPort: 4201
+      nodePort: 30201
+      protocol: TCP
+      name: http
+
+---
+# API Gateway
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway-nodeport
+  namespace: wordly
+  labels:
+    app: api-gateway
+spec:
+  type: NodePort
+  selector:
+    app: api-gateway
+  ports:
+    - port: 8888
+      targetPort: 8888
+      nodePort: 30888
+      protocol: TCP
+      name: http
+
+---
+# Eureka Server
+apiVersion: v1
+kind: Service
+metadata:
+  name: eureka-server-nodeport
+  namespace: wordly
+  labels:
+    app: eureka-server
+spec:
+  type: NodePort
+  selector:
+    app: eureka-server
+  ports:
+    - port: 8761
+      targetPort: 8761
+      nodePort: 30761
+      protocol: TCP
+      name: http
+
+---
+# Keycloak
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak-nodeport
+  namespace: wordly
+  labels:
+    app: keycloak
+spec:
+  type: NodePort
+  selector:
+    app: keycloak
+  ports:
+    - port: 9090
+      targetPort: 8080
+      nodePort: 30090
+      protocol: TCP
+      name: http

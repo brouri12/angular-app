@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: your-dockerhub-username/user-service:latest
+          image: YOUR_ACTUAL_USERNAME/user-service:latest
           ports:
             - containerPort: 8085
           env:
@@ -67,7 +67,7 @@ spec:
     spec:
       containers:
         - name: abonnement-service
-          image: your-dockerhub-username/abonnement-service:latest
+          image: YOUR_ACTUAL_USERNAME/abonnement-service:latest
           ports:
             - containerPort: 8084
           env:
@@ -110,7 +110,7 @@ spec:
     spec:
       containers:
         - name: challenge-service
-          image: your-dockerhub-username/challenge-service:latest
+          image: YOUR_ACTUAL_USERNAME/challenge-service:latest
           ports:
             - containerPort: 8086
           env:
@@ -153,7 +153,7 @@ spec:
     spec:
       containers:
         - name: planification-service
-          image: your-dockerhub-username/planification-service:latest
+          image: YOUR_ACTUAL_USERNAME/planification-service:latest
           ports:
             - containerPort: 8087
           env:
@@ -196,7 +196,7 @@ spec:
     spec:
       containers:
         - name: event-service
-          image: your-dockerhub-username/event-service:latest
+          image: YOUR_ACTUAL_USERNAME/event-service:latest
           ports:
             - containerPort: 8082
           env:
@@ -239,7 +239,7 @@ spec:
     spec:
       containers:
         - name: reservation-service
-          image: your-dockerhub-username/reservation-service:latest
+          image: YOUR_ACTUAL_USERNAME/reservation-service:latest
           ports:
             - containerPort: 8083
           env:
@@ -282,7 +282,7 @@ spec:
     spec:
       containers:
         - name: recrutement-service
-          image: your-dockerhub-username/recrutement-service:latest
+          image: YOUR_ACTUAL_USERNAME/recrutement-service:latest
           ports:
             - containerPort: 8093
           env:
@@ -325,7 +325,7 @@ spec:
     spec:
       containers:
         - name: club-service
-          image: your-dockerhub-username/club-service:latest
+          image: YOUR_ACTUAL_USERNAME/club-service:latest
           ports:
             - containerPort: 8089
           env:
@@ -370,7 +370,7 @@ spec:
     spec:
       containers:
         - name: member-service
-          image: your-dockerhub-username/member-service:latest
+          image: YOUR_ACTUAL_USERNAME/member-service:latest
           ports:
             - containerPort: 8091
           env:
@@ -413,7 +413,7 @@ spec:
     spec:
       containers:
         - name: forum-service
-          image: your-dockerhub-username/forum-service:latest
+          image: YOUR_ACTUAL_USERNAME/forum-service:latest
           ports:
             - containerPort: 8094
           env:
@@ -457,7 +457,7 @@ spec:
     spec:
       containers:
         - name: formation-service
-          image: your-dockerhub-username/formation-service:latest
+          image: YOUR_ACTUAL_USERNAME/formation-service:latest
           ports:
             - containerPort: 8081
           env:
@@ -502,7 +502,7 @@ spec:
     spec:
       containers:
         - name: quiz-badge-service
-          image: your-dockerhub-username/quiz-badge-service:latest
+          image: YOUR_ACTUAL_USERNAME/quiz-badge-service:latest
           ports:
             - containerPort: 8092
           env:
@@ -547,7 +547,7 @@ spec:
     spec:
       containers:
         - name: pronunciation-fastapi
-          image: your-dockerhub-username/pronunciation-fastapi:latest
+          image: YOUR_ACTUAL_USERNAME/pronunciation-fastapi:latest
           ports:
             - containerPort: 8000
 ---
@@ -581,7 +581,7 @@ spec:
     spec:
       containers:
         - name: pronunciation-service
-          image: your-dockerhub-username/pronunciation-service:latest
+          image: YOUR_ACTUAL_USERNAME/pronunciation-service:latest
           ports:
             - containerPort: 8095
           env:
@@ -628,7 +628,7 @@ spec:
     spec:
       containers:
         - name: feedback-service
-          image: your-dockerhub-username/feedback-service:latest
+          image: YOUR_ACTUAL_USERNAME/feedback-service:latest
           ports:
             - containerPort: 8096
           env:

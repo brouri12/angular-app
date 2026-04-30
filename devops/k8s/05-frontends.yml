@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: your-dockerhub-username/wordly-frontend:latest
+          image: YOUR_ACTUAL_USERNAME/wordly-frontend:latest
           ports:
             - containerPort: 80
 ---
@@ -50,7 +50,7 @@ spec:
     spec:
       containers:
         - name: back-office
-          image: your-dockerhub-username/wordly-backoffice:latest
+          image: YOUR_ACTUAL_USERNAME/wordly-backoffice:latest
           ports:
             - containerPort: 80
 ---

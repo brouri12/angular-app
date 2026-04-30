@@ -1,0 +1,75 @@
+# ============================================================
+#  Club Service - Kubernetes Deployment & Service
+# ============================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: club-service
+  namespace: wordly
+  labels:
+    app: club-service
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: club-service
+  template:
+    metadata:
+      labels:
+        app: club-service
+        tier: backend
+    spec:
+      containers:
+        - name: club-service
+          image: YOUR_ACTUAL_USERNAME/club-service:latest
+          ports:
+            - containerPort: 8089
+              name: http
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql:3306/Clubdb?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: root
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: http://eureka-server:8761/eureka/
+            - name: CLUB_CHAT_MEMBER_SERVICE_BASE_URL
+              value: http://member-service:8091
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8089
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8089
+            initialDelaySeconds: 30
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: club-service
+  namespace: wordly
+  labels:
+    app: club-service
+spec:
+  type: ClusterIP
+  selector:
+    app: club-service
+  ports:
+    - port: 8089
+      targetPort: 8089
+      protocol: TCP
+      name: http

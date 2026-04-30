@@ -1,0 +1,21 @@
+﻿{
+    "wordly-api-gateway":  "squ_7383960fe5ca5ed0171cac669635e1878f590898",
+    "wordly-feedback-service":  "squ_b16782ded45224f22db3d590ed2e21fddc587708",
+    "wordly-reservation-service":  "squ_0c62828da08e860fed551e611dfdcf2031b8a1f2",
+    "wordly-formation-service":  "squ_39d2bf3272a6b3b3679012f201bdbd9e6aa9f7c6",
+    "wordly-member-service":  "squ_5679529401833a1d775e67d71e0e46af735f3519",
+    "wordly-challenge-service":  "squ_90d5b43ddc8c749d728023e70f7e1292b0f5cc56",
+    "wordly-abonnement-service":  "squ_8d9f9e486f452359708bc6c0c7184837f6918264",
+    "wordly-frontend":  "squ_5374bbb9253f06234488bc8c32331f39ff0f5b49",
+    "wordly-quiz-badge-service":  "squ_91cd19810d852611f32d106fbe6b59264f659090",
+    "wordly-pronunciation-service":  "squ_ae18e21860ac1e3e2f4083260a05fbd331bface3",
+    "wordly-event-service":  "squ_10a9049fbc4b8da727f5b5897eabcd594dcb4adc",
+    "wordly-user-service":  "squ_525de9be8d8efaf567a61b886706728791a2ec17",
+    "wordly-pronunciation-fastapi":  "squ_c4fb46677b210ce5d95d42bb23fb48466a580d7a",
+    "wordly-recrutement-service":  "squ_669b8150dbe5d5aab48d7a7a2372f896e80f4858",
+    "wordly-forum-service":  "squ_bc2cc6b28e74495706951f86110bff7216f3f761",
+    "wordly-planification-service":  "squ_73aa6ff9436ed05a9d4fac1f6cf8709c7435eb06",
+    "wordly-backoffice":  "squ_1bd444997a3985c3dcd14207f9ee855c60a4c640",
+    "wordly-eureka-server":  "squ_2b39dfe7780d1de7e6489d0485387b803197ff7c",
+    "wordly-club-service":  "squ_dd38f05d8893e6bc763ac3bdda890f1bbeff6f0e"
+}

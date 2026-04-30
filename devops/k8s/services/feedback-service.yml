@@ -1,0 +1,88 @@
+# ============================================================
+#  Feedback Service - Kubernetes Deployment
+# ============================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: feedback-service
+  namespace: wordly
+  labels:
+    app: feedback-service
+    tier: backend
+    component: microservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: feedback-service
+  template:
+    metadata:
+      labels:
+        app: feedback-service
+        tier: backend
+        component: microservice
+    spec:
+      containers:
+        - name: feedback-service
+          image: YOUR_ACTUAL_USERNAME/feedback-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8096
+              name: http
+              protocol: TCP
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql-feedback:3306/feedback_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: root
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: http://eureka-server:8761/eureka/
+            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+              value: update
+            - name: SPRING_MAIL_HOST
+              value: smtp.gmail.com
+            - name: SPRING_MAIL_PORT
+              value: "587"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8096
+            initialDelaySeconds: 90
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8096
+            initialDelaySeconds: 60
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: feedback-service
+  namespace: wordly
+  labels:
+    app: feedback-service
+    tier: backend
+spec:
+  type: ClusterIP
+  selector:
+    app: feedback-service
+  ports:
+    - port: 8096
+      targetPort: 8096
+      protocol: TCP
+      name: http
