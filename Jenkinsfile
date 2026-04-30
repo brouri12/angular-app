@@ -287,6 +287,11 @@ pipeline {
                                         -Dsonar.host.url=${SONAR_HOST} \
                                         -Dsonar.token=${SONAR_TOKEN} -B
                                 """
+                                sh '''
+                                    if [ -f "UserService/.scannerwork/report-task.txt" ]; then
+                                      sed -i 's#http://host.docker.internal:9000#http://localhost:9000#g' UserService/.scannerwork/report-task.txt
+                                    fi
+                                '''
                                 sh """
                                     cd ChallengeService && mvn sonar:sonar \
                                         -Dsonar.projectKey=challenge-service \
@@ -294,6 +299,11 @@ pipeline {
                                         -Dsonar.host.url=${SONAR_HOST} \
                                         -Dsonar.token=${SONAR_TOKEN} -B
                                 """
+                                sh '''
+                                    if [ -f "ChallengeService/.scannerwork/report-task.txt" ]; then
+                                      sed -i 's#http://host.docker.internal:9000#http://localhost:9000#g' ChallengeService/.scannerwork/report-task.txt
+                                    fi
+                                '''
                             }
                         }
                     } catch (err) {
