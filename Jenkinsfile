@@ -400,8 +400,21 @@ pipeline {
                         services.each { svc ->
                             sh "kubectl set image deployment/${svc} ${svc}=${REGISTRY}/${svc}:${IMAGE_TAG} -n wordly"
                         }
+
+                        // Wait service-by-service to identify the exact deployment that is stuck.
+                        services.each { svc ->
+                            try {
+                                sh "kubectl rollout status deployment/${svc} -n wordly --timeout=600s"
+                            } catch (err) {
+                                echo "Rollout failed for ${svc}. Dumping diagnostics before failing pipeline."
+                                sh "kubectl get deployment/${svc} -n wordly -o wide || true"
+                                sh "kubectl describe deployment/${svc} -n wordly || true"
+                                sh "kubectl get pods -n wordly -o wide || true"
+                                sh "kubectl describe pods -n wordly || true"
+                                throw err
+                            }
+                        }
                     }
-                    sh 'kubectl rollout status deployment -n wordly --timeout=180s'
                 }
             }
         }
