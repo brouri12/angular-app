@@ -4,7 +4,7 @@
 //  Registry: brouri12 (Docker Hub)
 //  Stages:   Checkout → Build & Test → SonarQube → Quality Gate
 //            → Docker Build & Push → Deploy to Kubernetes
-// ============================================================
+// ============================================================......
 pipeline {
     agent any
     options {
