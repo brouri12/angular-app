@@ -322,43 +322,47 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                 script {
-                    withCredentials([usernamePassword(
-                        credentialsId: 'dockerhub-credentials',
-                        usernameVariable: 'DOCKER_USER',
-                        passwordVariable: 'DOCKER_PASS'
-                    )]) {
-                        sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                    try {
+                        withCredentials([usernamePassword(
+                            credentialsId: 'dockerhub-credentials',
+                            usernameVariable: 'DOCKER_USER',
+                            passwordVariable: 'DOCKER_PASS'
+                        )]) {
+                            sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
 
-                        def services = [
-                            [dir: 'EurekaServer',           name: 'eureka-server'],
-                            [dir: 'ApiGateway',             name: 'api-gateway'],
-                            [dir: 'UserService',            name: 'user-service'],
-                            [dir: 'AbonnementService',      name: 'abonnement-service'],
-                            [dir: 'ChallengeService',       name: 'challenge-service'],
-                            [dir: 'PlanificationService',   name: 'planification-service'],
-                            [dir: 'event-service',          name: 'event-service'],
-                            [dir: 'reservation-service',    name: 'reservation-service'],
-                            [dir: 'recrutement-service',    name: 'recrutement-service'],
-                            [dir: 'club-service',           name: 'club-service'],
-                            [dir: 'member-service',         name: 'member-service'],
-                            [dir: 'forum-service',          name: 'forum-service'],
-                            [dir: 'FormationService',       name: 'formation-service'],
-                            [dir: 'QuizBadgeService',       name: 'quiz-badge-service'],
-                            [dir: 'PronunciationService',   name: 'pronunciation-service'],
-                            [dir: 'FeedbackService',        name: 'feedback-service'],
-                            [dir: 'pronunciation-fastapi',  name: 'pronunciation-fastapi'],
-                        ]
+                            def services = [
+                                [dir: 'EurekaServer',           name: 'eureka-server'],
+                                [dir: 'ApiGateway',             name: 'api-gateway'],
+                                [dir: 'UserService',            name: 'user-service'],
+                                [dir: 'AbonnementService',      name: 'abonnement-service'],
+                                [dir: 'ChallengeService',       name: 'challenge-service'],
+                                [dir: 'PlanificationService',   name: 'planification-service'],
+                                [dir: 'event-service',          name: 'event-service'],
+                                [dir: 'reservation-service',    name: 'reservation-service'],
+                                [dir: 'recrutement-service',    name: 'recrutement-service'],
+                                [dir: 'club-service',           name: 'club-service'],
+                                [dir: 'member-service',         name: 'member-service'],
+                                [dir: 'forum-service',          name: 'forum-service'],
+                                [dir: 'FormationService',       name: 'formation-service'],
+                                [dir: 'QuizBadgeService',       name: 'quiz-badge-service'],
+                                [dir: 'PronunciationService',   name: 'pronunciation-service'],
+                                [dir: 'FeedbackService',        name: 'feedback-service'],
+                                [dir: 'pronunciation-fastapi',  name: 'pronunciation-fastapi'],
+                            ]
 
-                        services.each { svc ->
-                            sh """
-                                docker build \
-                                    -t ${REGISTRY}/${svc.name}:${IMAGE_TAG} \
-                                    -t ${REGISTRY}/${svc.name}:latest \
-                                    ./${svc.dir}
-                                docker push ${REGISTRY}/${svc.name}:${IMAGE_TAG}
-                                docker push ${REGISTRY}/${svc.name}:latest
-                            """
+                            services.each { svc ->
+                                sh """
+                                    docker build \
+                                        -t ${REGISTRY}/${svc.name}:${IMAGE_TAG} \
+                                        -t ${REGISTRY}/${svc.name}:latest \
+                                        ./${svc.dir}
+                                    docker push ${REGISTRY}/${svc.name}:${IMAGE_TAG}
+                                    docker push ${REGISTRY}/${svc.name}:latest
+                                """
+                            }
                         }
+                    } catch (err) {
+                        echo "Docker Build & Push skipped: missing dockerhub credentials or Docker unavailable (${err})"
                     }
                 }
             }
