@@ -1,0 +1,86 @@
+# Server Configuration
+server:
+  port: 8096
+
+# Application Name
+spring:
+  application:
+    name: feedback-service
+
+  datasource:
+    url: jdbc:mysql://localhost:3307/feedback_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: jasserelghoul11@gmail.com
+    password: oycxzetdvwudwcgm
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 50MB
+
+# File Upload Configuration
+file:
+  upload:
+    directory: ./uploads/reclamations
+    max-size: 10485760  # 10MB
+    allowed-types:
+      - image/jpeg
+      - image/png
+      - image/gif
+      - application/pdf
+      - application/msword
+      - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+
+# Eureka Client Configuration
+eureka:
+  client:
+    enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+  instance:
+    hostname: localhost
+    port: 8082
+
+# CORS Configuration - Allow Angular Apps
+cors:
+  allowed-origins: http://localhost:4200,http://localhost:4201,http://localhost:59267,http://127.0.0.1:4200,http://127.0.0.1:4201,http://127.0.0.1:59267
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+  allowed-headers: "*"
+  allow-credentials: true
+
+# Swagger / OpenAPI
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+
+# Logging
+logging:
+  level:
+    org.springframework.web: DEBUG
+    com.gestions.ramzi.servicefeedback: DEBUG
+

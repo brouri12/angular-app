@@ -52,6 +52,20 @@ public class GatewayConfig {
                 .route("recrutement-service", r -> r
                         .path("/api/recrutement/**")
                         .uri("lb://RECRUTEMENT-SERVICE"))
+                // ── Formation / Quiz-Badge services (E-Learning) ──────────────────────
+                .route("formation-service", r -> r
+                        .path("/api/formations/**", "/api/courses/**", "/api/chapters/**", "/api/lessons/**")
+                        .uri("lb://FORMATION-SERVICE"))
+                .route("quiz-badge-service", r -> r
+                        .path("/api/quizzes/**", "/api/badges/**", "/api/chatbot/**")
+                        .uri("lb://QUIZ-BADGE-SERVICE"))
+                // ── Pronunciation / Feedback services ─────────────────────────────────
+                .route("pronunciation-service", r -> r
+                        .path("/api/pronunciation/**", "/api/challenges/**", "/api/sessions/**")
+                        .uri("lb://PRONUNCIATION-SERVICE"))
+                .route("feedback-service", r -> r
+                        .path("/api/feedbacks/**", "/api/reclamations/**", "/api/resolutions/**")
+                        .uri("lb://FEEDBACK-SERVICE"))
                 .build();
     }
 }

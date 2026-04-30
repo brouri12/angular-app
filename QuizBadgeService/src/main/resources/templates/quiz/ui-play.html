@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${page.quizTitle}">Quiz</title>
+    <th:block th:replace="~{quiz/fragments :: styles}"/>
+</head>
+<body>
+<h1 th:text="${page.quizTitle}">Titre</h1>
+<p class="muted">
+    Session <span th:text="${page.sessionId}">0</span>
+    · Étudiant <span th:text="${page.studentId}">0</span>
+    <span th:if="${page.timeLimitSeconds != null and page.timeLimitSeconds > 0}">
+        · Temps restant (indicatif) : <strong th:text="${page.remainingSeconds}">0</strong> s
+    </span>
+</p>
+
+<div id="integrity-banner">
+    Copier / coller / couper sont désactivés sur les champs de réponses (compteur d’essais bloqués).
+    Changements d’onglet (page masquée) : <strong id="leave-counter">0</strong>.
+    Les valeurs finales sont enregistrées sur la session quiz côté <strong>Spring Boot</strong> à l’envoi.
+</div>
+
+<form id="quiz-play-form" th:action="@{/ui/quiz-sessions/{sid}/submit(sid=${page.sessionId})}" method="post">
+    <input type="hidden" name="studentId" th:value="${page.studentId}"/>
+    <input type="hidden" name="quizId" th:value="${page.quizId}"/>
+    <input type="hidden" name="tabHiddenCount" id="tabHiddenCount"
+           th:value="${page.tabHiddenCount != null ? page.tabHiddenCount : 0}"/>
+    <input type="hidden" name="clipboardBlockCount" id="clipboardBlockCount"
+           th:value="${page.clipboardBlockCount != null ? page.clipboardBlockCount : 0}"/>
+
+    <div class="card">
+        <th:block th:each="q, iter : ${page.questions}">
+            <div class="q-block">
+                <label th:for="|ans-${iter.index}|">
+                    <span th:text="${iter.count}">1</span>.
+                    <span th:text="${q.questionText}">Question</span>
+                    <span class="muted" th:text="|(${q.points} pt)|">(1 pt)</span>
+                </label>
+
+                <input type="hidden" th:name="|answers[${iter.index}].questionId|" th:value="${q.id}"/>
+
+                <th:block th:switch="${q.questionType.name()}">
+                    <fieldset th:case="'TRUE_FALSE'">
+                        <label><input type="radio" th:name="|answers[${iter.index}].answerText|" value="vrai"/> Vrai</label>
+                        <label><input type="radio" th:name="|answers[${iter.index}].answerText|" value="faux"/> Faux</label>
+                    </fieldset>
+                    <input th:case="*" type="text" th:id="|ans-${iter.index}|" th:name="|answers[${iter.index}].answerText|" placeholder="Votre réponse" autocomplete="off"/>
+                </th:block>
+            </div>
+        </th:block>
+    </div>
+
+    <p style="margin-top:1rem;">
+        <button type="submit" class="btn">Envoyer le quiz</button>
+    </p>
+</form>
+<p class="muted">Réponses comparées côté serveur (normalisation simple). Pour Vrai/Faux, utilisez les libellés <code>vrai</code> / <code>faux</code> en base ou adaptez le barème.</p>
+
+<script th:inline="javascript">
+(function () {
+    var form = document.getElementById('quiz-play-form');
+    if (!form) return;
+
+    var tabHiddenInput = document.getElementById('tabHiddenCount');
+    var clipInput = document.getElementById('clipboardBlockCount');
+    var leaveEl = document.getElementById('leave-counter');
+
+    function readInt(el) {
+        if (!el || el.value == null || el.value === '') return 0;
+        var n = parseInt(String(el.value), 10);
+        return isNaN(n) || n < 0 ? 0 : n;
+    }
+    function writeInt(el, n) {
+        if (el) el.value = String(Math.max(0, n));
+    }
+    function bumpTab() {
+        var n = readInt(tabHiddenInput) + 1;
+        writeInt(tabHiddenInput, n);
+        if (leaveEl) leaveEl.textContent = String(n);
+    }
+    function bumpClip() {
+        writeInt(clipInput, readInt(clipInput) + 1);
+    }
+
+    if (leaveEl) leaveEl.textContent = String(readInt(tabHiddenInput));
+
+    /* Bloquer copier / coller / couper + rapport au serveur via champ caché */
+    function blockClipboard(e) {
+        e.preventDefault();
+        bumpClip();
+    }
+    ['copy', 'paste', 'cut'].forEach(function (ev) {
+        form.addEventListener(ev, function (e) {
+            var t = e.target;
+            if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) {
+                blockClipboard(e);
+            }
+        }, true);
+    });
+    form.addEventListener('contextmenu', function (e) {
+        var t = e.target;
+        if (t && t.tagName === 'INPUT') {
+            e.preventDefault();
+            bumpClip();
+        }
+    }, true);
+
+    document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'hidden') bumpTab();
+    });
+})();
+</script>
+</body>
+</html>

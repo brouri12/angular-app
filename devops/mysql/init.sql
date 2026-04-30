@@ -15,6 +15,9 @@ CREATE DATABASE IF NOT EXISTS Membredb CHARACTER SET utf8mb4 COLLATE utf8mb4_uni
 CREATE DATABASE IF NOT EXISTS forum_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE DATABASE IF NOT EXISTS keycloak_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- Note: formation_db, quiz_badge_db, pronunciation_db, and feedback_db
+-- are created in their dedicated MySQL instances (mysql-formation, mysql-quiz, etc.)
+
 -- Grant all privileges to root from any host
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
 FLUSH PRIVILEGES;

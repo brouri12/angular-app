@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Quiz indisponible</title>
+    <th:block th:replace="~{quiz/fragments :: styles}"/>
+</head>
+<body>
+<h1>Quiz indisponible</h1>
+<p class="muted">Identifiant quiz : <span th:text="${quizId}">—</span> · Étudiant : <span th:text="${studentId}">—</span></p>
+<div class="alert" th:text="${message}">Message</div>
+<p class="muted">Les règles (tentatives max, délai entre tentatives) sont appliquées côté serveur.</p>
+</body>
+</html>

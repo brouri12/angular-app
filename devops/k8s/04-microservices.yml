@@ -437,3 +437,224 @@ spec:
   ports:
     - port: 8094
       targetPort: 8094
+
+---
+# ── Formation Service ─────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: formation-service
+  namespace: wordly
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: formation-service
+  template:
+    metadata:
+      labels:
+        app: formation-service
+    spec:
+      containers:
+        - name: formation-service
+          image: your-dockerhub-username/formation-service:latest
+          ports:
+            - containerPort: 8081
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql-formation:3306/formation_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: root
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: http://eureka-server:8761/eureka/
+            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+              value: update
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: formation-service
+  namespace: wordly
+spec:
+  selector:
+    app: formation-service
+  ports:
+    - port: 8081
+      targetPort: 8081
+---
+# ── Quiz Badge Service ────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quiz-badge-service
+  namespace: wordly
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quiz-badge-service
+  template:
+    metadata:
+      labels:
+        app: quiz-badge-service
+    spec:
+      containers:
+        - name: quiz-badge-service
+          image: your-dockerhub-username/quiz-badge-service:latest
+          ports:
+            - containerPort: 8092
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql-quiz:3306/quiz_badge_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: root
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: http://eureka-server:8761/eureka/
+            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+              value: update
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: quiz-badge-service
+  namespace: wordly
+spec:
+  selector:
+    app: quiz-badge-service
+  ports:
+    - port: 8092
+      targetPort: 8092
+---
+# ── Pronunciation FastAPI ─────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pronunciation-fastapi
+  namespace: wordly
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pronunciation-fastapi
+  template:
+    metadata:
+      labels:
+        app: pronunciation-fastapi
+    spec:
+      containers:
+        - name: pronunciation-fastapi
+          image: your-dockerhub-username/pronunciation-fastapi:latest
+          ports:
+            - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pronunciation-fastapi
+  namespace: wordly
+spec:
+  selector:
+    app: pronunciation-fastapi
+  ports:
+    - port: 8000
+      targetPort: 8000
+---
+# ── Pronunciation Service ─────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pronunciation-service
+  namespace: wordly
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pronunciation-service
+  template:
+    metadata:
+      labels:
+        app: pronunciation-service
+    spec:
+      containers:
+        - name: pronunciation-service
+          image: your-dockerhub-username/pronunciation-service:latest
+          ports:
+            - containerPort: 8095
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql-pronunciation:3306/pronunciation_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: root
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: http://eureka-server:8761/eureka/
+            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+              value: update
+            - name: FASTAPI_URL
+              value: http://pronunciation-fastapi:8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pronunciation-service
+  namespace: wordly
+spec:
+  selector:
+    app: pronunciation-service
+  ports:
+    - port: 8095
+      targetPort: 8095
+---
+# ── Feedback Service ──────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: feedback-service
+  namespace: wordly
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: feedback-service
+  template:
+    metadata:
+      labels:
+        app: feedback-service
+    spec:
+      containers:
+        - name: feedback-service
+          image: your-dockerhub-username/feedback-service:latest
+          ports:
+            - containerPort: 8096
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql-feedback:3306/feedback_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: root
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: http://eureka-server:8761/eureka/
+            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+              value: update
+            - name: SPRING_MAIL_HOST
+              value: smtp.gmail.com
+            - name: SPRING_MAIL_PORT
+              value: "587"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: feedback-service
+  namespace: wordly
+spec:
+  selector:
+    app: feedback-service
+  ports:
+    - port: 8096
+      targetPort: 8096

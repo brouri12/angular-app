@@ -82,3 +82,33 @@ scrape_configs:
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: ['forum-service:8094']
+
+  # Formation Service
+  - job_name: 'formation-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['formation-service:8081']
+
+  # Quiz Badge Service
+  - job_name: 'quiz-badge-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['quiz-badge-service:8092']
+
+  # Pronunciation Service
+  - job_name: 'pronunciation-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['pronunciation-service:8095']
+
+  # Feedback Service
+  - job_name: 'feedback-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['feedback-service:8096']
+
+  # Pronunciation FastAPI
+  - job_name: 'pronunciation-fastapi'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['pronunciation-fastapi:8000']

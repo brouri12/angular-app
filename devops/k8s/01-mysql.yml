@@ -84,3 +84,272 @@ data:
     CREATE DATABASE IF NOT EXISTS keycloak_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
     GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
     FLUSH PRIVILEGES;
+
+---
+# ============================================================
+#  Dedicated MySQL Instances for New Services
+# ============================================================
+
+# ── MySQL Formation ──────────────────────────────────────────
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-formation-pvc
+  namespace: wordly
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 3Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-formation
+  namespace: wordly
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-formation
+  template:
+    metadata:
+      labels:
+        app: mysql-formation
+    spec:
+      containers:
+        - name: mysql-formation
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "root"
+            - name: MYSQL_DATABASE
+              value: "formation_db"
+            - name: MYSQL_USER
+              value: "elearning"
+            - name: MYSQL_PASSWORD
+              value: "elearning123"
+          volumeMounts:
+            - name: mysql-storage
+              mountPath: /var/lib/mysql
+          readinessProbe:
+            exec:
+              command: ["mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+            initialDelaySeconds: 20
+            periodSeconds: 10
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: mysql-formation-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-formation
+  namespace: wordly
+spec:
+  selector:
+    app: mysql-formation
+  ports:
+    - port: 3306
+      targetPort: 3306
+---
+# ── MySQL Quiz ───────────────────────────────────────────────
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-quiz-pvc
+  namespace: wordly
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 3Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-quiz
+  namespace: wordly
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-quiz
+  template:
+    metadata:
+      labels:
+        app: mysql-quiz
+    spec:
+      containers:
+        - name: mysql-quiz
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "root"
+            - name: MYSQL_DATABASE
+              value: "quiz_badge_db"
+            - name: MYSQL_USER
+              value: "elearning"
+            - name: MYSQL_PASSWORD
+              value: "elearning123"
+          volumeMounts:
+            - name: mysql-storage
+              mountPath: /var/lib/mysql
+          readinessProbe:
+            exec:
+              command: ["mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+            initialDelaySeconds: 20
+            periodSeconds: 10
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: mysql-quiz-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-quiz
+  namespace: wordly
+spec:
+  selector:
+    app: mysql-quiz
+  ports:
+    - port: 3306
+      targetPort: 3306
+---
+# ── MySQL Pronunciation ──────────────────────────────────────
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pronunciation-pvc
+  namespace: wordly
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 3Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-pronunciation
+  namespace: wordly
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-pronunciation
+  template:
+    metadata:
+      labels:
+        app: mysql-pronunciation
+    spec:
+      containers:
+        - name: mysql-pronunciation
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "root"
+            - name: MYSQL_DATABASE
+              value: "pronunciation_db"
+            - name: MYSQL_USER
+              value: "pronunciation"
+            - name: MYSQL_PASSWORD
+              value: "pronunciation123"
+          volumeMounts:
+            - name: mysql-storage
+              mountPath: /var/lib/mysql
+          readinessProbe:
+            exec:
+              command: ["mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+            initialDelaySeconds: 20
+            periodSeconds: 10
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: mysql-pronunciation-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-pronunciation
+  namespace: wordly
+spec:
+  selector:
+    app: mysql-pronunciation
+  ports:
+    - port: 3306
+      targetPort: 3306
+---
+# ── MySQL Feedback ───────────────────────────────────────────
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-feedback-pvc
+  namespace: wordly
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 3Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-feedback
+  namespace: wordly
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-feedback
+  template:
+    metadata:
+      labels:
+        app: mysql-feedback
+    spec:
+      containers:
+        - name: mysql-feedback
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "root"
+            - name: MYSQL_DATABASE
+              value: "feedback_db"
+            - name: MYSQL_USER
+              value: "feedback"
+            - name: MYSQL_PASSWORD
+              value: "feedback123"
+          volumeMounts:
+            - name: mysql-storage
+              mountPath: /var/lib/mysql
+          readinessProbe:
+            exec:
+              command: ["mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+            initialDelaySeconds: 20
+            periodSeconds: 10
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: mysql-feedback-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-feedback
+  namespace: wordly
+spec:
+  selector:
+    app: mysql-feedback
+  ports:
+    - port: 3306
+      targetPort: 3306

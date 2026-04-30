@@ -193,6 +193,83 @@ pipeline {
                     }
                 }
 
+                stage('FormationService') {
+                    steps {
+                        dir('FormationService') {
+                            sh 'mvn clean package -B'
+                        }
+                    }
+                    post {
+                        always {
+                            junit allowEmptyResults: true,
+                                  testResults: 'FormationService/target/surefire-reports/*.xml'
+                        }
+                    }
+                }
+
+                stage('QuizBadgeService') {
+                    steps {
+                        dir('QuizBadgeService') {
+                            sh 'mvn clean package -B'
+                        }
+                    }
+                    post {
+                        always {
+                            junit allowEmptyResults: true,
+                                  testResults: 'QuizBadgeService/target/surefire-reports/*.xml'
+                        }
+                    }
+                }
+
+                stage('PronunciationService') {
+                    steps {
+                        dir('PronunciationService') {
+                            sh 'mvn clean package -B'
+                        }
+                    }
+                    post {
+                        always {
+                            junit allowEmptyResults: true,
+                                  testResults: 'PronunciationService/target/surefire-reports/*.xml'
+                        }
+                    }
+                }
+
+                stage('FeedbackService') {
+                    steps {
+                        dir('FeedbackService') {
+                            sh 'mvn clean package -B'
+                        }
+                    }
+                    post {
+                        always {
+                            junit allowEmptyResults: true,
+                                  testResults: 'FeedbackService/target/surefire-reports/*.xml'
+                        }
+                    }
+                }
+
+                stage('PronunciationFastAPI') {
+                    agent {
+                        docker {
+                            image 'python:3.10-slim'
+                            args '-u root'
+                        }
+                    }
+                    steps {
+                        dir('pronunciation-fastapi') {
+                            sh '''
+                                apt-get update && apt-get install -y ffmpeg libsndfile1
+                                pip install --no-cache-dir -r requirements.txt
+                                pip install pytest pytest-cov
+                                # Run basic syntax check
+                                python -m py_compile main.py models.py
+                                echo "Python FastAPI service validated successfully"
+                            '''
+                        }
+                    }
+                }
+
             } // end parallel
         }
 
@@ -270,6 +347,48 @@ pipeline {
                             -Dsonar.host.url=${SONAR_HOST} \
                             -Dsonar.token=${SONAR_TOKEN} -B
                     """
+                    sh """
+                        cd FormationService && mvn sonar:sonar \
+                            -Dsonar.projectKey=formation-service \
+                            -Dsonar.projectName="Formation Service" \
+                            -Dsonar.host.url=${SONAR_HOST} \
+                            -Dsonar.token=${SONAR_TOKEN} -B
+                    """
+                    sh """
+                        cd QuizBadgeService && mvn sonar:sonar \
+                            -Dsonar.projectKey=quiz-badge-service \
+                            -Dsonar.projectName="Quiz Badge Service" \
+                            -Dsonar.host.url=${SONAR_HOST} \
+                            -Dsonar.token=${SONAR_TOKEN} -B
+                    """
+                    sh """
+                        cd PronunciationService && mvn sonar:sonar \
+                            -Dsonar.projectKey=pronunciation-service \
+                            -Dsonar.projectName="Pronunciation Service" \
+                            -Dsonar.host.url=${SONAR_HOST} \
+                            -Dsonar.token=${SONAR_TOKEN} -B
+                    """
+                    sh """
+                        cd FeedbackService && mvn sonar:sonar \
+                            -Dsonar.projectKey=feedback-service \
+                            -Dsonar.projectName="Feedback Service" \
+                            -Dsonar.host.url=${SONAR_HOST} \
+                            -Dsonar.token=${SONAR_TOKEN} -B
+                    """
+                    
+                    // Python FastAPI - SonarQube Analysis with SonarScanner
+                    sh """
+                        cd pronunciation-fastapi
+                        sonar-scanner \
+                            -Dsonar.projectKey=pronunciation-fastapi \
+                            -Dsonar.projectName="Pronunciation FastAPI" \
+                            -Dsonar.sources=. \
+                            -Dsonar.host.url=${SONAR_HOST} \
+                            -Dsonar.token=${SONAR_TOKEN} \
+                            -Dsonar.python.version=3.10 \
+                            -Dsonar.exclusions=**/__pycache__/**,**/*.pyc \
+                            || echo "SonarQube analysis for Python service skipped (SonarScanner not configured)"
+                    """
                 }
             }
         }
@@ -295,18 +414,23 @@ pipeline {
                         sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
 
                         def services = [
-                            [dir: 'EurekaServer',         name: 'eureka-server'],
-                            [dir: 'ApiGateway',           name: 'api-gateway'],
-                            [dir: 'UserService',          name: 'user-service'],
-                            [dir: 'AbonnementService',    name: 'abonnement-service'],
-                            [dir: 'ChallengeService',     name: 'challenge-service'],
-                            [dir: 'PlanificationService', name: 'planification-service'],
-                            [dir: 'event-service',        name: 'event-service'],
-                            [dir: 'reservation-service',  name: 'reservation-service'],
-                            [dir: 'recrutement-service',  name: 'recrutement-service'],
-                            [dir: 'club-service',         name: 'club-service'],
-                            [dir: 'member-service',       name: 'member-service'],
-                            [dir: 'forum-service',        name: 'forum-service'],
+                            [dir: 'EurekaServer',           name: 'eureka-server'],
+                            [dir: 'ApiGateway',             name: 'api-gateway'],
+                            [dir: 'UserService',            name: 'user-service'],
+                            [dir: 'AbonnementService',      name: 'abonnement-service'],
+                            [dir: 'ChallengeService',       name: 'challenge-service'],
+                            [dir: 'PlanificationService',   name: 'planification-service'],
+                            [dir: 'event-service',          name: 'event-service'],
+                            [dir: 'reservation-service',    name: 'reservation-service'],
+                            [dir: 'recrutement-service',    name: 'recrutement-service'],
+                            [dir: 'club-service',           name: 'club-service'],
+                            [dir: 'member-service',         name: 'member-service'],
+                            [dir: 'forum-service',          name: 'forum-service'],
+                            [dir: 'FormationService',       name: 'formation-service'],
+                            [dir: 'QuizBadgeService',       name: 'quiz-badge-service'],
+                            [dir: 'PronunciationService',   name: 'pronunciation-service'],
+                            [dir: 'FeedbackService',        name: 'feedback-service'],
+                            [dir: 'pronunciation-fastapi',  name: 'pronunciation-fastapi'],
                         ]
 
                         services.each { svc ->
@@ -342,7 +466,9 @@ pipeline {
                             'eureka-server', 'api-gateway', 'user-service',
                             'abonnement-service', 'challenge-service', 'planification-service',
                             'event-service', 'reservation-service', 'recrutement-service',
-                            'club-service', 'member-service', 'forum-service'
+                            'club-service', 'member-service', 'forum-service',
+                            'formation-service', 'quiz-badge-service', 'pronunciation-service',
+                            'feedback-service', 'pronunciation-fastapi'
                         ]
                         services.each { svc ->
                             sh "kubectl set image deployment/${svc} ${svc}=${REGISTRY}/${svc}:${IMAGE_TAG} -n wordly"

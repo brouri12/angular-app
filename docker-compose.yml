@@ -11,6 +11,12 @@ networks:
 
 volumes:
   mysql-data:
+  mysql-formation-data:
+  mysql-quiz-data:
+  mysql-pronunciation-data:
+  mysql-feedback-data:
+  pronunciation-uploads:
+  feedback-uploads:
   keycloak-data:
   jenkins-data:
   sonarqube-data:
@@ -38,6 +44,94 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
       - ./devops/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - wordly-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ── MySQL for Formation Service ──────────────────────────
+  mysql-formation:
+    image: mysql:8.0
+    container_name: wordly-mysql-formation
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: formation_db
+      MYSQL_USER: elearning
+      MYSQL_PASSWORD: elearning123
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql-formation-data:/var/lib/mysql
+    networks:
+      - wordly-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ── MySQL for Quiz Badge Service ─────────────────────────
+  mysql-quiz:
+    image: mysql:8.0
+    container_name: wordly-mysql-quiz
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: quiz_badge_db
+      MYSQL_USER: elearning
+      MYSQL_PASSWORD: elearning123
+    ports:
+      - "3309:3306"
+    volumes:
+      - mysql-quiz-data:/var/lib/mysql
+    networks:
+      - wordly-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ── MySQL for Pronunciation Service ──────────────────────
+  mysql-pronunciation:
+    image: mysql:8.0
+    container_name: wordly-mysql-pronunciation
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: pronunciation_db
+      MYSQL_USER: pronunciation
+      MYSQL_PASSWORD: pronunciation123
+    ports:
+      - "3310:3306"
+    volumes:
+      - mysql-pronunciation-data:/var/lib/mysql
+    networks:
+      - wordly-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ── MySQL for Feedback Service ───────────────────────────
+  mysql-feedback:
+    image: mysql:8.0
+    container_name: wordly-mysql-feedback
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: feedback_db
+      MYSQL_USER: feedback
+      MYSQL_PASSWORD: feedback123
+    ports:
+      - "3311:3306"
+    volumes:
+      - mysql-feedback-data:/var/lib/mysql
     networks:
       - wordly-net
     healthcheck:
@@ -323,6 +417,122 @@ services:
       - ./forum-uploads:/app/uploads
     depends_on:
       mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - wordly-net
+
+  formation-service:
+    build:
+      context: ./FormationService
+      dockerfile: Dockerfile
+    container_name: wordly-formation-service
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-formation:3306/formation_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      mysql-formation:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - wordly-net
+
+  quiz-badge-service:
+    build:
+      context: ./QuizBadgeService
+      dockerfile: Dockerfile
+    container_name: wordly-quiz-badge-service
+    restart: unless-stopped
+    ports:
+      - "8092:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-quiz:3306/quiz_badge_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      mysql-quiz:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - wordly-net
+
+  pronunciation-fastapi:
+    build:
+      context: ./pronunciation-fastapi
+      dockerfile: Dockerfile
+    container_name: wordly-pronunciation-fastapi
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    networks:
+      - wordly-net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+  pronunciation-service:
+    build:
+      context: ./PronunciationService
+      dockerfile: Dockerfile
+    container_name: wordly-pronunciation-service
+    restart: unless-stopped
+    ports:
+      - "8095:8095"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-pronunciation:3306/pronunciation_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      FASTAPI_URL: http://pronunciation-fastapi:8000
+    volumes:
+      - pronunciation-uploads:/app/uploads/pronunciation
+    depends_on:
+      mysql-pronunciation:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      pronunciation-fastapi:
+        condition: service_healthy
+    networks:
+      - wordly-net
+
+  feedback-service:
+    build:
+      context: ./FeedbackService
+      dockerfile: Dockerfile
+    container_name: wordly-feedback-service
+    restart: unless-stopped
+    ports:
+      - "8096:8096"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-feedback:3306/feedback_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_MAIL_HOST: smtp.gmail.com
+      SPRING_MAIL_PORT: 587
+      SPRING_MAIL_USERNAME: ${MAIL_USERNAME:-your-email@gmail.com}
+      SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD:-your-app-password}
+    volumes:
+      - feedback-uploads:/app/uploads/reclamations
+    depends_on:
+      mysql-feedback:
         condition: service_healthy
       eureka-server:
         condition: service_healthy
