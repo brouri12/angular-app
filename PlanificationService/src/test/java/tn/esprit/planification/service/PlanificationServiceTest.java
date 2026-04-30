@@ -241,7 +241,8 @@ class PlanificationServiceTest {
     @Test
     @DisplayName("Should throw SchedulingConflictException when room is not available")
     void testCreatePlanification_RoomConflict() {
-        // Given        when(salleRepository.findById(1L)).thenReturn(Optional.of(testSalle));
+        // Given
+        when(salleRepository.findById(1L)).thenReturn(Optional.of(testSalle));
         when(groupRepository.findById(1L)).thenReturn(Optional.of(testGroup));
         when(salleRepository.isSalleAvailable(anyLong(), any(), any(), any())).thenReturn(false);
 

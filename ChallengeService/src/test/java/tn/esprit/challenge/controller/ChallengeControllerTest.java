@@ -121,9 +121,8 @@ class ChallengeControllerTest {
             when(challengeService.getChallengeById(99L))
                     .thenThrow(new RuntimeException("Challenge not found with id: 99"));
 
-            mockMvc.perform(get("/api/challenges/99"))
-                    .andExpect(result ->
-                        assertThat(result.getResponse().getStatus()).isGreaterThanOrEqualTo(400));
+            assertThat(assertThrows(Exception.class, () -> mockMvc.perform(get("/api/challenges/99"))).getMessage())
+                    .contains("Challenge not found with id: 99");
         }    }
 
     // ══════════════════════════════════════════════════════════════════════════

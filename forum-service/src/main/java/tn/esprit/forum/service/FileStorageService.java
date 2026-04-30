@@ -6,6 +6,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import tn.esprit.forum.exception.FileValidationException;
+import tn.esprit.forum.exception.StorageException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,6 +27,13 @@ public class FileStorageService {
     private final Tika tika = new Tika();
     
     public String storeFile(MultipartFile file, String mediaType) throws IOException {
+        if (file == null || file.isEmpty()) {
+            throw new FileValidationException("Le fichier est vide.");
+        }
+        if (mediaType == null || mediaType.isBlank()) {
+            throw new FileValidationException("Le type media est obligatoire.");
+        }
+
         // Create directory structure: uploads/{mediaType}/{year}/{month}/
         LocalDate now = LocalDate.now();
         String subPath = String.format("%s/%d/%02d", mediaType.toLowerCase(), now.getYear(), now.getMonthValue());
@@ -46,12 +55,14 @@ public class FileStorageService {
     
     public Resource loadFile(String filePath) throws IOException {
         Path path = Paths.get(uploadDirectory).resolve(filePath).normalize();
-        Resource resource = new UrlResource(path.toUri());
-        
-        if (resource.exists() && resource.isReadable()) {
-            return resource;
-        } else {
-            throw new IOException("Fichier introuvable: " + filePath);
+        try {
+            Resource resource = new UrlResource(path.toUri());
+            if (resource.exists() && resource.isReadable()) {
+                return resource;
+            }
+            throw new StorageException("Fichier introuvable: " + filePath);
+        } catch (IOException e) {
+            throw new StorageException("Impossible de lire le fichier: " + filePath, e);
         }
     }
     

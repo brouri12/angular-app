@@ -25,6 +25,7 @@ class ClubChatServiceTest {
 
     @Mock ClubRepository clubRepository;
     @Mock ClubChatMessageRepository messageRepository;
+    @Mock MemberLookupClient memberLookupClient;
     @Mock MemberFeignClient memberFeignClient;
     @Mock ProfanityApiClient profanityApiClient;
 
@@ -59,7 +60,7 @@ class ClubChatServiceTest {
     @Test
     void shouldThrowWhenUserIsNotAcceptedMember() {
         when(clubRepository.findById(1L)).thenReturn(Optional.of(club));
-        when(memberFeignClient.findMembershipsByUser(5L)).thenReturn(List.of());
+        when(memberLookupClient.findMembershipsByUser(5L)).thenReturn(List.of());
 
         assertThrows(ResponseStatusException.class,
             () -> clubChatService.postMessage(1L, request));
@@ -73,7 +74,7 @@ class ClubChatServiceTest {
     void shouldThrowWhenMessageContainsBadWords() {
         request.setContent("fuck this");
         when(clubRepository.findById(1L)).thenReturn(Optional.of(club));
-        when(memberFeignClient.findMembershipsByUser(5L)).thenReturn(List.of(acceptedMember));
+        when(memberLookupClient.findMembershipsByUser(5L)).thenReturn(List.of(acceptedMember));
         when(profanityApiClient.containsProfanity("fuck this")).thenReturn(true);
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
@@ -97,7 +98,7 @@ class ClubChatServiceTest {
         ClubChatMessage m3 = new ClubChatMessage(); m3.setContent(spamMsg);
 
         when(clubRepository.findById(1L)).thenReturn(Optional.of(club));
-        when(memberFeignClient.findMembershipsByUser(5L)).thenReturn(List.of(acceptedMember));
+        when(memberLookupClient.findMembershipsByUser(5L)).thenReturn(List.of(acceptedMember));
         when(profanityApiClient.containsProfanity(spamMsg)).thenReturn(false);
         when(messageRepository.findTop3ByIdClubAndIdUserOrderByCreatedAtDesc(1L, 5L))
             .thenReturn(List.of(m1, m2, m3));
@@ -121,7 +122,7 @@ class ClubChatServiceTest {
         saved.setIdUser(5L);
 
         when(clubRepository.findById(1L)).thenReturn(Optional.of(club));
-        when(memberFeignClient.findMembershipsByUser(5L)).thenReturn(List.of(acceptedMember));
+        when(memberLookupClient.findMembershipsByUser(5L)).thenReturn(List.of(acceptedMember));
         when(profanityApiClient.containsProfanity("Hello everyone!")).thenReturn(false);
         when(messageRepository.findTop3ByIdClubAndIdUserOrderByCreatedAtDesc(1L, 5L))
             .thenReturn(List.of());
