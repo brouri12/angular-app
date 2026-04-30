@@ -115,6 +115,18 @@ docker-compose down -v
 4. Use `Jenkinsfile` from project root
 5. Click "Build Now"
 
+### Configure GitHub Webhook Automatically
+
+```powershell
+# Example with ngrok/cloudflared public URL
+.\setup-github-webhook-gh.ps1 -PublicJenkinsUrl "https://your-public-url"
+```
+
+Notes:
+- Requires `gh` CLI authenticated (`gh auth login`)
+- Creates the webhook on `brouri12/angular-app`
+- Webhook target generated: `https://your-public-url/github-webhook/`
+
 ### View SonarQube Analysis
 
 1. Run Jenkins build (includes SonarQube scan)

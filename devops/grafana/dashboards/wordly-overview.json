@@ -1,12 +1,13 @@
 {
-  "dashboard": {
-    "title": "Wordly Platform Overview",
-    "tags": ["wordly", "microservices", "overview"],
-    "timezone": "browser",
-    "schemaVersion": 16,
-    "version": 0,
-    "refresh": "30s",
-    "panels": [
+  "id": null,
+  "uid": "wordly-overview",
+  "title": "Wordly Platform Overview",
+  "tags": ["wordly", "microservices", "overview"],
+  "timezone": "browser",
+  "schemaVersion": 16,
+  "version": 1,
+  "refresh": "30s",
+  "panels": [
       {
         "id": 1,
         "title": "Total Requests",
@@ -95,6 +96,5 @@
           }
         ]
       }
-    ]
-  }
+  ]
 }

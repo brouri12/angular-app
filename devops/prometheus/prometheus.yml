@@ -93,7 +93,7 @@ scrape_configs:
   - job_name: 'quiz-badge-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['quiz-badge-service:8092']
+      - targets: ['quiz-badge-service:8082']
 
   # Pronunciation Service
   - job_name: 'pronunciation-service'
