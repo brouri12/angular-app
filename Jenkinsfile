@@ -26,7 +26,7 @@ pipeline {
         // ── 1. Checkout ──────────────────────────────────────────
         stage('Checkout') {
             steps {
-                git branch: 'main',
+                git branch: 'feature/complete-devops-setup',
                     url: "${GIT_REPO}",
                     credentialsId: 'github-credentials'
                 echo "Branch: ${env.GIT_BRANCH} | Commit: ${env.GIT_COMMIT}"
