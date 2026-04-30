@@ -28,20 +28,22 @@ pipeline {
         // ── 1. Checkout ──────────────────────────────────────────
         stage('Checkout') {
             steps {
-                checkout([
-                    $class: 'GitSCM',
-                    branches: [[name: '*/feature/complete-devops-setup']],
-                    doGenerateSubmoduleConfigurations: false,
-                    extensions: [
-                        [$class: 'CloneOption', shallow: true, depth: 1, noTags: true, honorRefspec: true, timeout: 20],
-                        [$class: 'PruneStaleBranch'],
-                        [$class: 'CheckoutOption', timeout: 20]
-                    ],
-                    userRemoteConfigs: [[
-                        url: "${GIT_REPO}",
-                        refspec: '+refs/heads/feature/complete-devops-setup:refs/remotes/origin/feature/complete-devops-setup'
-                    ]]
-                ])
+                deleteDir()
+                sh '''
+                    set -e
+                    curl -L --retry 5 --retry-delay 3 \
+                      "https://codeload.github.com/brouri12/angular-app/tar.gz/refs/heads/feature/complete-devops-setup" \
+                      -o source.tar.gz
+                    tar -xzf source.tar.gz --strip-components=1
+                    rm -f source.tar.gz
+                '''
+                script {
+                    env.GIT_BRANCH = 'feature/complete-devops-setup'
+                    env.GIT_COMMIT = sh(
+                        returnStdout: true,
+                        script: "git ls-remote ${GIT_REPO} refs/heads/feature/complete-devops-setup | awk '{print \$1}'"
+                    ).trim()
+                }
                 echo "Branch: ${env.GIT_BRANCH} | Commit: ${env.GIT_COMMIT}"
             }
         }
