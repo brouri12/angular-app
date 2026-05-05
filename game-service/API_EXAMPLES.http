@@ -1,0 +1,389 @@
+// ============================================================================
+// GAMIFIED LEARNING PLATFORM - API REQUEST EXAMPLES
+// ============================================================================
+// This file contains example HTTP requests for all API endpoints
+// Copy and paste into Postman, Insomnia, or your API client
+// ============================================================================
+
+// ============================================================================
+// 1. HEALTH CHECK ENDPOINTS (No Auth Required)
+// ============================================================================
+
+### Health Check
+GET http://localhost:8080/health
+
+### Service Info
+GET http://localhost:8080/health/info
+
+// ============================================================================
+// 2. GAME MANAGEMENT ENDPOINTS (No Auth Required)
+// ============================================================================
+
+### Get All Games
+GET http://localhost:8080/api/games
+
+### Get Games by Type (QUIZ)
+GET http://localhost:8080/api/games?type=QUIZ
+
+### Get Games by Type (MEMORY)
+GET http://localhost:8080/api/games?type=MEMORY
+
+### Get Games by Type (SENTENCE)
+GET http://localhost:8080/api/games?type=SENTENCE
+
+### Get Games by Difficulty (EASY)
+GET http://localhost:8080/api/games?difficulty=EASY
+
+### Get Games by Difficulty (MEDIUM)
+GET http://localhost:8080/api/games?difficulty=MEDIUM
+
+### Get Games by Difficulty (HARD)
+GET http://localhost:8080/api/games?difficulty=HARD
+
+### Get Specific Game
+GET http://localhost:8080/api/games/1
+
+// ============================================================================
+// 3. GAME PLAY ENDPOINTS (Requires JWT Token)
+// ============================================================================
+
+### Get Game Content - Quiz (5 questions)
+GET http://localhost:8080/api/games/1/play?limit=5
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.YOUR_JWT_TOKEN_HERE
+
+### Get Game Content - Memory (3 cards)
+GET http://localhost:8080/api/games/3/play?limit=3
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.YOUR_JWT_TOKEN_HERE
+
+### Get Game Content - Sentence (5 questions)
+GET http://localhost:8080/api/games/5/play?limit=5
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.YOUR_JWT_TOKEN_HERE
+
+// ============================================================================
+// 4. SUBMIT GAME ANSWERS (Requires JWT Token)
+// ============================================================================
+
+### Submit Quiz Answers
+POST http://localhost:8080/api/games/1/submit
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.YOUR_JWT_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "answers": {
+    "1": "Finding something good by chance",
+    "2": "exhausted",
+    "3": "A word with the same meaning",
+    "4": "showing great attention to detail",
+    "5": "to delay or postpone something"
+  },
+  "timeSpent": 120
+}
+
+### Submit Quiz Answers - Partial Correct
+POST http://localhost:8080/api/games/1/submit
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.YOUR_JWT_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "answers": {
+    "1": "Feeling sad",
+    "2": "exhausted",
+    "3": "A word with opposite meaning",
+    "4": "showing great attention to detail",
+    "5": "to work hard"
+  },
+  "timeSpent": 150
+}
+
+### Submit Flashcard Answers
+POST http://localhost:8080/api/games/3/submit
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.YOUR_JWT_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "answers": {
+    "1": "revealed",
+    "2": "matched",
+    "3": "revealed",
+    "4": "matched",
+    "5": "revealed"
+  },
+  "timeSpent": 90
+}
+
+### Submit Sentence Completion Answers
+POST http://localhost:8080/api/games/5/submit
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.YOUR_JWT_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "answers": {
+    "1": "go",
+    "2": "has",
+    "3": "have",
+    "4": "were",
+    "5": "has gone"
+  },
+  "timeSpent": 180
+}
+
+### Submit Fill-in-the-Blanks Answers
+POST http://localhost:8080/api/games/6/submit
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.YOUR_JWT_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "answers": {
+    "1": "nice",
+    "2": "library",
+    "3": "tell",
+    "4": "delicious",
+    "5": "happy"
+  },
+  "timeSpent": 210
+}
+
+// ============================================================================
+// 5. USER PROGRESS ENDPOINTS (Requires JWT Token)
+// ============================================================================
+
+### Get User Progress for All Games
+GET http://localhost:8080/api/progress
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.YOUR_JWT_TOKEN_HERE
+
+### Get User Statistics
+GET http://localhost:8080/api/progress/stats
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.YOUR_JWT_TOKEN_HERE
+
+// ============================================================================
+// RESPONSE EXAMPLES
+// ============================================================================
+
+// GET /api/games Response (200 OK)
+/*
+[
+  {
+    "id": 1,
+    "title": "English Vocabulary Quiz",
+    "type": "QUIZ",
+    "difficulty": "EASY",
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00",
+    "description": "Learn common English words through multiple choice questions",
+    "questionCount": 5
+  },
+  {
+    "id": 2,
+    "title": "Advanced Grammar Quiz",
+    "type": "QUIZ",
+    "difficulty": "HARD",
+    "isActive": true,
+    "createdAt": "2024-01-16T11:45:00",
+    "description": "Master complex English grammar rules",
+    "questionCount": 5
+  },
+  {
+    "id": 3,
+    "title": "Vocabulary Memory Match",
+    "type": "MEMORY",
+    "difficulty": "EASY",
+    "isActive": true,
+    "createdAt": "2024-01-17T09:20:00",
+    "description": "Match English words with their meanings using flashcards",
+    "questionCount": 5
+  }
+]
+*/
+
+// GET /api/games/1/play?limit=5 Response (200 OK)
+/*
+[
+  {
+    "id": 1,
+    "questionText": "What does the word 'serendipity' mean?",
+    "options": [
+      "Finding something good by chance",
+      "Feeling sad",
+      "Moving fast",
+      "Making a mistake"
+    ],
+    "extraData": null,
+    "explanation": "Serendipity refers to finding something valuable or delightful by chance - a happy accident!"
+  },
+  {
+    "id": 2,
+    "questionText": "Which word means 'extremely tired'?",
+    "options": [
+      "excited",
+      "exhausted",
+      "energetic",
+      "happy"
+    ],
+    "extraData": null,
+    "explanation": "Exhausted is an adjective meaning very tired or depleted of energy."
+  }
+]
+*/
+
+// POST /api/games/1/submit Response (200 OK)
+/*
+{
+  "score": 80.0,
+  "stars": 2,
+  "xpEarned": 20,
+  "correctAnswers": 4,
+  "totalQuestions": 5,
+  "message": "🎉 Great job!",
+  "currentLevel": 2,
+  "totalXp": 120,
+  "streak": 3
+}
+*/
+
+// GET /api/progress Response (200 OK)
+/*
+[
+  {
+    "gameId": 1,
+    "gameTitle": "English Vocabulary Quiz",
+    "score": 80.0,
+    "completionPercentage": 80,
+    "totalAttempts": 5,
+    "xp": 100,
+    "level": 2,
+    "streak": 3,
+    "lastPlayedAt": "2024-01-20T15:45:00"
+  },
+  {
+    "gameId": 3,
+    "gameTitle": "Vocabulary Memory Match",
+    "score": 90.0,
+    "completionPercentage": 90,
+    "totalAttempts": 3,
+    "xp": 60,
+    "level": 1,
+    "streak": 1,
+    "lastPlayedAt": "2024-01-20T14:20:00"
+  }
+]
+*/
+
+// GET /api/progress/stats Response (200 OK)
+/*
+{
+  "totalXp": 350,
+  "level": 4,
+  "gamesPlayed": 3,
+  "averageScore": 78.5,
+  "totalAttempts": 12,
+  "currentStreak": 3,
+  "lastPlayedAt": "2024-01-20T15:45:00"
+}
+*/
+
+// Error Response (400 Bad Request)
+/*
+{
+  "timestamp": "2024-01-20T16:00:00",
+  "status": 400,
+  "error": "Validation Error",
+  "message": "Invalid input parameters",
+  "details": {
+    "timeSpent": "must not be null",
+    "answers": "must not be null"
+  }
+}
+*/
+
+// Error Response (404 Not Found)
+/*
+{
+  "timestamp": "2024-01-20T16:00:00",
+  "status": 404,
+  "error": "Not Found",
+  "message": "Game not found: 999"
+}
+*/
+
+// Error Response (401 Unauthorized)
+/*
+{
+  "timestamp": "2024-01-20T16:00:00",
+  "status": 401,
+  "error": "Unauthorized",
+  "message": "Full authentication is required to access this resource"
+}
+*/
+
+// ============================================================================
+// TESTING WORKFLOW
+// ============================================================================
+
+/*
+1. Start the application:
+   mvn spring-boot:run
+
+2. Test health check (no auth):
+   GET http://localhost:8080/health
+
+3. Get all games (no auth):
+   GET http://localhost:8080/api/games
+
+4. Get specific game details:
+   GET http://localhost:8080/api/games/1
+
+5. [REQUIRES AUTH TOKEN] Get game content:
+   GET http://localhost:8080/api/games/1/play?limit=5
+   + Add Authorization header with valid JWT
+
+6. [REQUIRES AUTH TOKEN] Submit answers:
+   POST http://localhost:8080/api/games/1/submit
+   + Add Authorization header with valid JWT
+   + Add request body with answers and timeSpent
+
+7. [REQUIRES AUTH TOKEN] Check progress:
+   GET http://localhost:8080/api/progress
+   + Add Authorization header with valid JWT
+
+8. [REQUIRES AUTH TOKEN] Check statistics:
+   GET http://localhost:8080/api/progress/stats
+   + Add Authorization header with valid JWT
+*/
+
+// ============================================================================
+// HOW TO GET JWT TOKEN FOR TESTING
+// ============================================================================
+
+/*
+Using Keycloak:
+
+1. Start Keycloak:
+   docker run -p 8180:8080 \
+     -e KEYCLOAK_ADMIN=admin \
+     -e KEYCLOAK_ADMIN_PASSWORD=admin \
+     quay.io/keycloak/keycloak:latest \
+     start-dev
+
+2. Get token:
+   POST http://localhost:8180/auth/realms/gamified-learning/protocol/openid-connect/token
+
+   Body (form-urlencoded):
+   - grant_type: password
+   - client_id: gamified-learning-api
+   - client_secret: your-client-secret
+   - username: test-user
+   - password: test-password
+
+3. Extract access_token from response
+4. Use it in Authorization header: Bearer <access_token>
+
+Alternative (for testing without Keycloak):
+Generate a JWT at jwt.io with payload:
+{
+  "sub": "user-123",
+  "name": "Test User",
+  "iat": 1705756800,
+  "exp": 9999999999
+}
+*/
+

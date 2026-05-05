@@ -32,6 +32,8 @@ export class Header {
     { name: 'My Group', path: '/my-groups' },
     { name: 'Forums', path: '/forums' },
     { name: 'Recrutement', path: '/recrutement' },
+    { name: 'Library', path: '/library' },
+    { name: 'Games', path: '/games' },
     { name: 'Pricing', path: '/pricing' },
     { name: 'About', path: '/about' },
   ];
@@ -136,3 +138,4 @@ export class Header {
     }
   }
 }
+

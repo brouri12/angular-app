@@ -1,0 +1,251 @@
+<div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 pb-16">
+
+  <!-- ===== HERO HEADER ===== -->
+  <div class="max-w-7xl mx-auto px-4 pt-12 pb-8">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+      <div>
+        <div class="inline-flex items-center gap-2 bg-[rgb(0,200,151)]/10 text-[rgb(0,200,151)] px-4 py-1.5 rounded-full text-sm font-semibold mb-3">
+          <span class="w-2 h-2 bg-[rgb(0,200,151)] rounded-full animate-pulse"></span>
+          📚 Digital Library
+        </div>
+        <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-2 tracking-tight">
+          Book <span class="bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] bg-clip-text text-transparent">Library</span>
+        </h1>
+        <p class="text-gray-500 dark:text-gray-400 text-lg">Browse, reserve and borrow books from our collection</p>
+      </div>
+      <button (click)="goToReservations()"
+        class="flex items-center gap-2 px-6 py-3 rounded-xl font-bold bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white hover:opacity-90 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 shadow-md">
+        📋 My Reservations
+      </button>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 pt-4">
+
+    <!-- ===== TOASTS ===== -->
+    @if (successMessage()) {
+      <div class="mb-4 flex items-center gap-3 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 text-green-800 dark:text-green-300 px-5 py-3 rounded-xl shadow-sm">
+        <span class="text-xl">✅</span>
+        <span class="font-medium">{{ successMessage() }}</span>
+      </div>
+    }
+    @if (error()) {
+      <div class="mb-4 flex items-center gap-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-800 dark:text-red-300 px-5 py-3 rounded-xl shadow-sm">
+        <span class="text-xl">⚠️</span>
+        <span class="font-medium">{{ error() }}</span>
+      </div>
+    }
+
+    <!-- ===== FILTERS ===== -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+        <!-- Search -->
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="onFilterChange()"
+            placeholder="Search by title, author..."
+            class="w-full pl-9 pr-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent dark:bg-gray-700 dark:text-white text-sm transition-all outline-none" />
+        </div>
+
+        <!-- Category -->
+        <select
+          [(ngModel)]="filterCategory"
+          (ngModelChange)="onFilterChange()"
+          class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent dark:bg-gray-700 dark:text-white text-sm transition-all outline-none">
+          <option value="">📂 All Categories</option>
+          @for (cat of categories(); track cat) {
+            <option [value]="cat">{{ cat }}</option>
+          }
+        </select>
+
+        <!-- Type -->
+        <select
+          [(ngModel)]="filterType"
+          (ngModelChange)="onFilterChange()"
+          class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent dark:bg-gray-700 dark:text-white text-sm transition-all outline-none">
+          <option value="">📖 All Types</option>
+          <option value="PHYSICAL">📦 Physical</option>
+          <option value="PDF">💻 PDF / Digital</option>
+        </select>
+      </div>
+
+      @if (searchTerm || filterCategory || filterType) {
+        <div class="flex items-center justify-between mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+          <span class="text-sm text-gray-500 dark:text-gray-400">
+            Showing <strong class="text-gray-900 dark:text-white">{{ filteredBooks().length }}</strong> of {{ books().length }} books
+          </span>
+          <button (click)="clearFilters()" class="text-sm text-red-500 hover:text-red-600 font-medium">✕ Clear filters</button>
+        </div>
+      }
+    </div>
+
+    <!-- ===== LOADING SKELETON ===== -->
+    @if (loading()) {
+      <div class="space-y-10">
+        @for (s of [1, 2]; track s) {
+          <div>
+            <div class="h-6 w-48 bg-gray-200 dark:bg-gray-700 rounded-lg mb-4 animate-pulse"></div>
+            <div class="flex gap-4 overflow-hidden">
+              @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+                <div class="flex-shrink-0 w-36 animate-pulse">
+                  <div class="w-36 h-52 bg-gray-200 dark:bg-gray-700 rounded-xl mb-2"></div>
+                  <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-1 w-full"></div>
+                  <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ===== BOOKS BY CATEGORY ===== -->
+    @if (!loading()) {
+      @if (filteredBooks().length === 0) {
+        <div class="text-center py-20">
+          <div class="text-7xl mb-4">📭</div>
+          <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">No books found</h3>
+          <p class="text-gray-500 dark:text-gray-400 mb-6">Try adjusting your search or filters</p>
+          <button (click)="clearFilters()"
+            class="px-8 py-3 rounded-xl font-semibold bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white hover:opacity-90 transition-opacity shadow-lg">
+            Clear Filters
+          </button>
+        </div>
+      }
+
+      @for (group of booksByCategory(); track group.category) {
+        <section class="mb-12">
+
+          <!-- Section header -->
+          <div class="mb-4">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ group.category }}</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{ group.books.length }} books</p>
+          </div>
+
+          <!-- Horizontal scroll row -->
+          <div class="flex gap-5 overflow-x-auto pb-3" style="scrollbar-width: thin;">
+            @for (book of group.books; track book.id) {
+              <div class="flex-shrink-0 w-36 group cursor-pointer" (click)="goToBook(book)">
+
+                <!-- Cover -->
+                <div class="relative w-36 h-52 rounded-xl overflow-hidden shadow-md mb-2 group-hover:shadow-xl group-hover:-translate-y-1 transition-all duration-300">
+
+                  @if (book.coverUrl) {
+                    <img [src]="book.coverUrl" [alt]="book.title"
+                      class="w-full h-full object-cover" />
+                  } @else {
+                    <div class="w-full h-full bg-gradient-to-br flex flex-col items-center justify-center p-3 text-white text-center"
+                         [ngClass]="getCoverGradient(book)">
+                      <span class="text-3xl mb-2">📖</span>
+                      <span class="text-xs font-bold leading-tight line-clamp-3">{{ book.title }}</span>
+                    </div>
+                  }
+
+                  <!-- Type badge -->
+                  <div class="absolute top-2 right-2">
+                    <span class="text-xs font-bold px-1.5 py-0.5 rounded-md"
+                      [ngClass]="book.bookType === 'PDF' ? 'bg-blue-600 text-white' : 'bg-amber-500 text-white'">
+                      {{ book.bookType === 'PDF' ? 'PDF' : 'Book' }}
+                    </span>
+                  </div>
+
+                  <!-- Unavailable overlay — only for physical books with no copies -->
+                  @if (book.bookType === 'PHYSICAL' && !(book.availableCopies > 0)) {
+                    <div class="absolute inset-0 bg-black/50 flex items-center justify-center">
+                      <span class="text-white text-xs font-bold bg-red-600 px-2 py-1 rounded-lg">Unavailable</span>
+                    </div>
+                  }
+                </div>
+
+                <!-- Info -->
+                <div class="px-0.5">
+                  <h3 class="text-sm font-semibold text-gray-900 dark:text-white line-clamp-2 leading-tight mb-0.5 group-hover:text-[rgb(0,200,151)] transition-colors">
+                    {{ book.title }}
+                  </h3>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-1 mb-1">{{ book.author }}</p>
+
+                  <!-- Stars -->
+                  <div class="flex items-center gap-0.5 mb-1">
+                    @for (star of getStars(); track $index) {
+                      <span class="text-yellow-400 text-xs">{{ star }}</span>
+                    }
+                  </div>
+
+                  <!-- Price + availability -->
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-bold text-gray-900 dark:text-white">
+                      {{ formatPrice(book.price) }}
+                    </span>
+                    @if (book.bookType === 'PHYSICAL') {
+                      <span class="text-xs font-medium" [ngClass]="getAvailabilityColor(book)">
+                        {{ book.availableCopies }} left
+                      </span>
+                    }
+                  </div>
+
+                  <!-- Action button — depends on book type and state -->
+                  @if (book.bookType === 'PDF') {
+                    @if (book.purchased) {
+                      <!-- Already purchased → Read -->
+                      <button (click)="goToPurchase(book, $event)"
+                        class="w-full py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(0,180,135)] text-white hover:shadow-md active:scale-95 transition-all duration-200">
+                        📖 Read
+                      </button>
+                    } @else {
+                      <!-- Not purchased → Purchase -->
+                      <button (click)="goToPurchase(book, $event)"
+                        class="w-full py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-[rgb(255,127,80)] to-[rgb(255,90,50)] text-white hover:shadow-md active:scale-95 transition-all duration-200">
+                        💳 Purchase
+                      </button>
+                    }
+                  } @else {
+                    @if (book.availableCopies > 0) {
+                      <!-- Physical, available → Reserve -->
+                      <button (click)="reserve(book, $event)"
+                        [disabled]="reservingBookId() === book.id"
+                        class="w-full py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(0,180,135)] text-white hover:shadow-md active:scale-95 transition-all duration-200 disabled:opacity-60">
+                        @if (reservingBookId() === book.id) {
+                          <span class="inline-flex items-center justify-center gap-1">
+                            <svg class="animate-spin w-3 h-3" fill="none" viewBox="0 0 24 24">
+                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                            Reserving...
+                          </span>
+                        } @else {
+                          📋 Reserve
+                        }
+                      </button>
+                    } @else {
+                      <!-- Physical, no copies → Reserve (waitlist) -->
+                      <button (click)="reserve(book, $event)"
+                        [disabled]="reservingBookId() === book.id"
+                        class="w-full py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-orange-400 to-red-500 text-white hover:shadow-md active:scale-95 transition-all duration-200 disabled:opacity-60">
+                        @if (reservingBookId() === book.id) {
+                          <span class="inline-flex items-center justify-center gap-1">
+                            <svg class="animate-spin w-3 h-3" fill="none" viewBox="0 0 24 24">
+                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                            Reserving...
+                          </span>
+                        } @else {
+                          🔔 Reserve (Waitlist)
+                        }
+                      </button>
+                    }
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </section>
+      }
+    }
+
+  </div>
+</div>

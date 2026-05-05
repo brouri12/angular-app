@@ -1,0 +1,4 @@
+/* Word Ladder page — additional styles */
+input[type="text"]:focus {
+  box-shadow: 0 0 0 3px rgba(255, 127, 80, 0.25);
+}

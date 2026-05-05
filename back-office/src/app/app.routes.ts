@@ -27,7 +27,7 @@ export const routes: Routes = [
   { path: 'planifications', component: PlanificationsComponent },
   { path: 'room-analytics', component: RoomAnalyticsComponent },
 
-  // ── Events (Mahdi) ─────────────────────────────────────────────────────────
+  // -- Events (Mahdi) -------------------------------------------------------
   {
     path: 'events',
     loadComponent: () => import('./pages/events-admin/events').then(m => m.Events),
@@ -37,7 +37,7 @@ export const routes: Routes = [
     ]
   },
 
-  // ── Clubs (Mahdi) ──────────────────────────────────────────────────────────
+  // -- Clubs (Mahdi) --------------------------------------------------------
   {
     path: 'clubs',
     loadComponent: () => import('./pages/clubs-admin/clubs.component').then(m => m.ClubsComponent),
@@ -47,10 +47,10 @@ export const routes: Routes = [
     ]
   },
 
-  // ── Members (Mahdi) ────────────────────────────────────────────────────────
+  // -- Members (Mahdi) ------------------------------------------------------
   { path: 'members', loadComponent: () => import('./pages/members-admin/members.page').then(m => m.MembersPage) },
 
-  // ── Registrations (Mahdi) ──────────────────────────────────────────────────
+  // -- Registrations (Mahdi) ------------------------------------------------
   {
     path: 'registrations',
     loadComponent: () => import('./pages/registrations-admin/registrations.component').then(m => m.RegistrationsComponent),
@@ -59,9 +59,18 @@ export const routes: Routes = [
     ]
   },
 
-  // ── Forum & Recrutement (Rahma) ────────────────────────────────────────────
+  // -- Forum & Recrutement (Rahma) ------------------------------------------
   { path: 'forum', loadComponent: () => import('./pages/forum/forum').then(m => m.ForumComponent) },
   { path: 'recrutement', loadComponent: () => import('./pages/recrutement/recrutement').then(m => m.RecrutementComponent) },
+
+  // -- Library (Hsaya) -----------------------------------------------------
+  { path: 'library', loadComponent: () => import('./pages/library-admin/library-admin').then(m => m.LibraryAdmin) },
+  { path: 'reservations-admin', loadComponent: () => import('./pages/reservations-admin/reservations-admin').then(m => m.ReservationsAdmin) },
+  { path: 'loans-admin', loadComponent: () => import('./pages/loans-admin/loans-admin').then(m => m.LoansAdmin) },
+
+  // -- Games (Hsaya) --------------------------------------------------------
+  { path: 'games-admin', loadComponent: () => import('./pages/games-admin/games-admin').then(m => m.GamesAdmin) },
+  { path: 'add-question', loadComponent: () => import('./pages/add-question/add-question').then(m => m.AddQuestion) },
 
   { path: '**', redirectTo: '/dashboard' }
 ];

@@ -1,0 +1,10 @@
+/* Prevent PDF download via context menu */
+iframe {
+  pointer-events: auto;
+  user-select: none;
+}
+
+/* Hide browser PDF toolbar download button via CSS hack */
+iframe[src*=".pdf"] {
+  /* Chrome hides toolbar when embedded with #toolbar=0 in URL */
+}

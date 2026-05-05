@@ -17,6 +17,19 @@ import { MyRegistrationsComponent } from './pages/reservation/my-registrations.c
 import { ForumsPublicComponent } from './pages/forums-public/forums-public';
 import { RecrutementPublicComponent } from './pages/recrutement-public/recrutement-public';
 
+// -- Library (Hsaya) ----------------------------------------------------------
+import { LibraryPage } from './pages/library/library';
+import { BookDetailPage } from './pages/book-detail/book-detail';
+import { ReservationsPage } from './pages/reservations/reservations';
+
+// -- Games (Hsaya) ------------------------------------------------------------
+import { GamesPage } from './pages/games/games';
+import { GamePlayPage } from './pages/game-play/game-play';
+import { GameResultsPage } from './pages/game-results/game-results';
+import { ScoreboardPage } from './pages/scoreboard/scoreboard';
+import { CrosswordPage } from './pages/crossword/crossword';
+import { WordLadderPage } from './pages/word-ladder/word-ladder';
+
 export const routes: Routes = [
   { path: '', component: Home },
   { path: 'courses', component: Courses },
@@ -39,8 +52,19 @@ export const routes: Routes = [
         .then(m => m.RegistrationFormComponent)
   },
   { path: 'test-notifications', component: TestNotifications },
-  // ── Forum & Recrutement (Rahma) ──────────────────────────────────────────
+  // -- Forum & Recrutement (Rahma) ------------------------------------------
   { path: 'forums', component: ForumsPublicComponent },
   { path: 'recrutement', component: RecrutementPublicComponent },
+  // -- Library (Hsaya) -----------------------------------------------------
+  { path: 'library', component: LibraryPage },
+  { path: 'library/:id', component: BookDetailPage },
+  { path: 'my-reservations', component: ReservationsPage },
+  // -- Games (Hsaya) --------------------------------------------------------
+  { path: 'games', component: GamesPage },
+  { path: 'games/play/:id', component: GamePlayPage },
+  { path: 'games/results/:id', component: GameResultsPage },
+  { path: 'scoreboard', component: ScoreboardPage },
+  { path: 'crossword', component: CrosswordPage },
+  { path: 'word-ladder', component: WordLadderPage },
   { path: '**', redirectTo: '' }
 ];

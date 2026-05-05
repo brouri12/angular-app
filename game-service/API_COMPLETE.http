@@ -1,0 +1,323 @@
+### Game Service - Complete API Reference
+### Base URL: http://localhost:9001 (direct) or http://localhost:8888/game-service (via gateway)
+
+### ============================================
+### HEALTH CHECK
+### ============================================
+
+### Health Check
+GET http://localhost:9001/api/health
+
+### ============================================
+### GAMES
+### ============================================
+
+### Get all games
+GET http://localhost:9001/api/games
+
+### Get games by type
+GET http://localhost:9001/api/games?type=QUIZ
+
+### Get games by difficulty
+GET http://localhost:9001/api/games?difficulty=EASY
+
+### Get specific game
+GET http://localhost:9001/api/games/1
+
+### Get game content for playing
+GET http://localhost:9001/api/games/1/play?limit=5
+
+### Submit game answers
+POST http://localhost:9001/api/games/1/submit
+Content-Type: application/json
+
+{
+  "answers": {
+    "1": "A",
+    "2": "B",
+    "3": "C",
+    "4": "A",
+    "5": "D"
+  },
+  "timeSpent": 45
+}
+
+### ============================================
+### PLAYER SESSION
+### ============================================
+
+### Get current player session
+GET http://localhost:9001/api/session
+
+### Get session for specific user (admin)
+GET http://localhost:9001/api/session/default-user
+
+### Reset lives
+POST http://localhost:9001/api/session/reset-lives
+
+### Full session reset (admin)
+POST http://localhost:9001/api/session/default-user/reset
+
+### ============================================
+### ACHIEVEMENTS
+### ============================================
+
+### Get all achievements with progress
+GET http://localhost:9001/api/achievements
+
+### Get earned achievements only
+GET http://localhost:9001/api/achievements/earned
+
+### Check for new achievements
+POST http://localhost:9001/api/achievements/check
+
+### Mark achievements as notified
+POST http://localhost:9001/api/achievements/mark-notified
+
+### ============================================
+### LEADERBOARD
+### ============================================
+
+### Top players by XP
+GET http://localhost:9001/api/leaderboard/xp?limit=10
+
+### Top players by level
+GET http://localhost:9001/api/leaderboard/level?limit=10
+
+### Top players by wins
+GET http://localhost:9001/api/leaderboard/wins?limit=10
+
+### Top players by streak
+GET http://localhost:9001/api/leaderboard/streak?limit=10
+
+### Get my rank
+GET http://localhost:9001/api/leaderboard/my-rank
+
+### ============================================
+### STATISTICS
+### ============================================
+
+### Get platform statistics
+GET http://localhost:9001/api/statistics/platform
+
+### ============================================
+### ADMIN - GAME MANAGEMENT
+### ============================================
+
+### Create new game
+POST http://localhost:9001/api/admin/games
+Content-Type: application/json
+
+{
+  "title": "Advanced Vocabulary Quiz",
+  "type": "QUIZ",
+  "difficulty": "HARD",
+  "description": "Test your advanced English vocabulary"
+}
+
+### Update game
+PUT http://localhost:9001/api/admin/games/1
+Content-Type: application/json
+
+{
+  "title": "Updated Game Title",
+  "description": "Updated description",
+  "isActive": true
+}
+
+### Delete game
+DELETE http://localhost:9001/api/admin/games/1
+
+### Add game content
+POST http://localhost:9001/api/admin/games/1/content
+Content-Type: application/json
+
+{
+  "questionText": "What is the capital of France?",
+  "correctAnswer": "Paris",
+  "options": ["London", "Paris", "Berlin", "Madrid"],
+  "explanation": "Paris is the capital and largest city of France"
+}
+
+### Bulk add game content
+POST http://localhost:9001/api/admin/games/1/content/bulk
+Content-Type: application/json
+
+[
+  {
+    "questionText": "What is 2 + 2?",
+    "correctAnswer": "4",
+    "options": ["2", "3", "4", "5"]
+  },
+  {
+    "questionText": "What color is the sky?",
+    "correctAnswer": "Blue",
+    "options": ["Red", "Blue", "Green", "Yellow"]
+  }
+]
+
+### ============================================
+### VIA API GATEWAY
+### ============================================
+
+### Get games via gateway
+GET http://localhost:8888/game-service/api/games
+
+### Submit game via gateway
+POST http://localhost:8888/game-service/api/games/1/submit
+Content-Type: application/json
+
+{
+  "answers": {
+    "1": "A",
+    "2": "B"
+  },
+  "timeSpent": 30
+}
+
+### Get leaderboard via gateway
+GET http://localhost:8888/game-service/api/leaderboard/xp?limit=10
+
+### Get achievements via gateway
+GET http://localhost:8888/game-service/api/achievements
+
+### Get statistics via gateway
+GET http://localhost:8888/game-service/api/statistics/platform
+
+### ============================================
+### PROGRESSIVE QUIZ
+### ============================================
+
+### Start quiz session
+POST http://localhost:9001/api/quiz/start/1
+
+### Get next question
+GET http://localhost:9001/api/quiz/next
+
+### Submit answer
+POST http://localhost:9001/api/quiz/answer
+Content-Type: application/json
+
+{
+  "questionId": 1,
+  "answer": "Paris"
+}
+
+### Get quiz results
+GET http://localhost:9001/api/quiz/results
+
+### ============================================
+### USER PROGRESS
+### ============================================
+
+### Get user progress for a game
+GET http://localhost:9001/api/progress/game/1
+
+### Get user statistics
+GET http://localhost:9001/api/progress/stats
+
+### ============================================
+### GAME LEVELS
+### ============================================
+
+### Get levels for a game
+GET http://localhost:9001/api/games/1/levels
+
+### Get next level to play
+GET http://localhost:9001/api/games/1/levels/next
+
+### Complete a level
+POST http://localhost:9001/api/games/1/levels/1/complete
+Content-Type: application/json
+
+{
+  "score": 85,
+  "stars": 3
+}
+
+### ============================================
+### EXAMPLE RESPONSES
+### ============================================
+
+### Game List Response
+# {
+#   "id": 1,
+#   "title": "Basic Vocabulary Quiz",
+#   "type": "QUIZ",
+#   "difficulty": "EASY",
+#   "isActive": true,
+#   "createdAt": "2026-04-16T00:00:00",
+#   "description": "Learn basic English vocabulary",
+#   "questionCount": 20
+# }
+
+### Game Submit Response
+# {
+#   "score": 85.0,
+#   "stars": 3,
+#   "xpEarned": 35,
+#   "correctAnswers": 17,
+#   "totalQuestions": 20,
+#   "message": "🎉 Excellent work!",
+#   "currentLevel": 5,
+#   "totalXp": 450,
+#   "streak": 3,
+#   "lives": 3,
+#   "progressBar": 50,
+#   "gameOver": false,
+#   "won": true,
+#   "newAchievements": ["On Fire", "Learner"]
+# }
+
+### Player Session Response
+# {
+#   "userId": "default-user",
+#   "lives": 3,
+#   "level": 5,
+#   "progressBar": 50,
+#   "gamesWon": 25,
+#   "gamesLost": 5,
+#   "totalGamesPlayed": 30,
+#   "totalXP": 450,
+#   "winStreak": 3,
+#   "bestStreak": 7,
+#   "totalStars": 65,
+#   "gameOver": false
+# }
+
+### Achievement Response
+# {
+#   "id": 1,
+#   "code": "FIRST_WIN",
+#   "title": "First Victory",
+#   "description": "Win your first game",
+#   "type": "GAMES_WON",
+#   "requiredValue": 1,
+#   "iconUrl": "/icons/first-win.png",
+#   "xpReward": 10,
+#   "earned": true,
+#   "earnedAt": "2026-04-16T00:00:00"
+# }
+
+### Leaderboard Response
+# {
+#   "rank": 1,
+#   "userId": "player123",
+#   "username": "player123",
+#   "level": 15,
+#   "totalXP": 1500,
+#   "gamesWon": 75,
+#   "bestStreak": 12,
+#   "totalStars": 200
+# }
+
+### Statistics Response
+# {
+#   "totalGames": 50,
+#   "totalPlayers": 150,
+#   "totalGamesSessions": 2500,
+#   "averageScore": 75.5,
+#   "totalQuestionsAnswered": 50000,
+#   "totalCorrectAnswers": 37500,
+#   "overallAccuracy": 75.0
+# }
