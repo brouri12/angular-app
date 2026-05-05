@@ -3,6 +3,7 @@ import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Theme } from '../../services/theme';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 interface PlayerSession {
   userId: string;
@@ -43,6 +44,8 @@ export class Header implements OnInit {
   navLinks = [
     { name: 'Courses', path: '/courses' },
     { name: 'Game Zone', path: '/games' },
+    { name: 'Library', path: '/library' },
+    { name: 'Reservations', path: '/reservations' },
     { name: 'Progress', path: '/progress' },
     { name: 'About', path: '/about' },
   ];
@@ -59,7 +62,7 @@ export class Header implements OnInit {
   }
 
   loadUserSession() {
-    this.http.get<PlayerSession>('http://localhost:9001/api/session').subscribe({
+    this.http.get<PlayerSession>(`${environment.gameServiceUrl}/api/session`).subscribe({
       next: s => this.userSession.set(s),
       error: () => this.userSession.set(null)
     });
@@ -67,7 +70,7 @@ export class Header implements OnInit {
 
   loadRecentSubmissions() {
     this.loadingSubmissions = true;
-    this.http.get<RecentSubmission[]>('http://localhost:9001/api/submissions/user/default-user').subscribe({
+    this.http.get<RecentSubmission[]>(`${environment.gameServiceUrl}/api/submissions/user/default-user`).subscribe({
       next: subs => {
         this.recentSubmissions.set(subs.slice(0, 5));
         this.loadingSubmissions = false;

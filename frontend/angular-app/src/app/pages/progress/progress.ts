@@ -2,8 +2,9 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
-const BASE = 'http://localhost:9001/api';
+const BASE = `${environment.gameServiceUrl}/api`;
 
 interface UserStats {
   userId: string;

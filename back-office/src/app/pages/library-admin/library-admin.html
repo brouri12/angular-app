@@ -1,0 +1,351 @@
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6 transition-colors duration-300">
+
+  <!-- Toast -->
+  @if (toast()) {
+    <div class="fixed top-4 right-4 px-6 py-3 rounded-xl shadow-lg z-50 text-white"
+         [ngClass]="toastType() === 'success' ? 'bg-green-500' : 'bg-red-500'">
+      {{ toast() }}
+    </div>
+  }
+
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Library Management</h1>
+      <p class="text-gray-500 dark:text-gray-400 mt-1">Add, edit and manage the book catalogue</p>
+    </div>
+    <button (click)="openCreate()"
+      class="px-5 py-2 rounded-lg font-medium bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white hover:opacity-90 transition-opacity">
+      + New Book
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+      <div class="text-3xl font-bold text-purple-600">{{ books().length }}</div>
+      <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Total Books</div>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+      <div class="text-3xl font-bold text-green-600">{{ filteredBooks().length }}</div>
+      <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Showing</div>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+      <div class="text-3xl font-bold text-blue-600">{{ availableCount() }}</div>
+      <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Available</div>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+      <div class="text-3xl font-bold text-amber-500">{{ pdfCount() }}</div>
+      <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">PDF Books</div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="relative">
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
+        <input
+          [ngModel]="searchTerm()"
+          (ngModelChange)="searchTerm.set($event)"
+          placeholder="Search by title, author, ISBN..."
+          class="w-full pl-8 pr-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent dark:bg-gray-700 dark:text-white text-sm outline-none transition-all" />
+      </div>
+      <select
+        [ngModel]="filterCategory()"
+        (ngModelChange)="filterCategory.set($event)"
+        class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent dark:bg-gray-700 dark:text-white text-sm outline-none transition-all">
+        <option value="">📂 All Categories</option>
+        @for (cat of categories; track cat) {
+          <option [value]="cat">{{ cat }}</option>
+        }
+      </select>
+      <select
+        [ngModel]="filterType()"
+        (ngModelChange)="filterType.set($event)"
+        class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent dark:bg-gray-700 dark:text-white text-sm outline-none transition-all">
+        <option value="">📖 All Types</option>
+        <option value="PHYSICAL">📦 Physical</option>
+        <option value="PDF">💻 PDF</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Books Table -->
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+    <div class="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-700">
+      <h2 class="font-bold text-gray-900 dark:text-white">All Books</h2>
+      <span class="text-sm text-gray-500 dark:text-gray-400">{{ filteredBooks().length }} of {{ books().length }} books</span>
+    </div>
+
+    @if (loading()) {
+      <div class="p-12 text-center">
+        <div class="inline-block w-8 h-8 border-4 border-[rgb(0,200,151)] border-t-transparent rounded-full animate-spin mb-3"></div>
+        <p class="text-gray-500 dark:text-gray-400">Loading books...</p>
+      </div>
+    } @else {
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-100 dark:divide-gray-700 text-sm">
+          <thead class="bg-gray-50 dark:bg-gray-900">
+            <tr>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Book</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Author</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Category</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Price</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Copies</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+            @for (book of filteredBooks(); track book.id) {
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+
+                <!-- Book title + cover thumbnail -->
+                <td class="px-5 py-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-12 rounded-lg overflow-hidden flex-shrink-0 shadow-sm bg-gradient-to-br from-[rgb(0,200,151)] to-[rgb(255,127,80)]">
+                      @if (book.coverImageUrl) {
+                        <img [src]="getFilePreviewUrl(book.coverImageUrl)" [alt]="book.title"
+                             class="w-full h-full object-cover"
+                             (error)="$any($event.target).style.display='none'" />
+                      } @else {
+                        <div class="w-full h-full flex items-center justify-center text-white text-xs font-bold">📖</div>
+                      }
+                    </div>
+                    <div>
+                      <div class="font-medium text-gray-900 dark:text-white line-clamp-1 max-w-[180px]">{{ book.title }}</div>
+                      @if (book.isbn) {
+                        <div class="text-xs text-gray-400 dark:text-gray-500">ISBN: {{ book.isbn }}</div>
+                      }
+                    </div>
+                  </div>
+                </td>
+
+                <td class="px-5 py-4 text-gray-600 dark:text-gray-300">{{ book.author }}</td>
+
+                <td class="px-5 py-4">
+                  <span class="px-2.5 py-0.5 rounded-full text-xs font-bold" [ngClass]="getCategoryColor(book.category)">
+                    {{ book.category }}
+                  </span>
+                </td>
+
+                <td class="px-5 py-4">
+                  <span class="px-2.5 py-0.5 rounded-md text-xs font-bold" [ngClass]="getTypeColor(book.bookType)">
+                    {{ book.bookType === 'PDF' ? '💻 PDF' : '📦 Physical' }}
+                  </span>
+                </td>
+
+                <td class="px-5 py-4 font-semibold text-gray-900 dark:text-white">
+                  {{ formatPrice(book.price) }}
+                </td>
+
+                <td class="px-5 py-4">
+                  <span [ngClass]="getAvailabilityColor(book)" class="font-semibold">{{ book.availableCopies }}</span>
+                  <span class="text-gray-400 dark:text-gray-500 text-xs"> / {{ book.totalCopies }}</span>
+                </td>
+
+                <td class="px-5 py-4">
+                  <div class="flex gap-3">
+                    <button (click)="openEdit(book)"
+                      class="text-yellow-600 hover:text-yellow-800 dark:text-yellow-400 dark:hover:text-yellow-300 text-xs font-semibold">
+                      Edit
+                    </button>
+                    <button (click)="confirmDelete(book)"
+                      [disabled]="deleting() === book.id"
+                      class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-xs font-semibold disabled:opacity-40">
+                      {{ deleting() === book.id ? '...' : 'Delete' }}
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (filteredBooks().length === 0) {
+        <div class="text-center py-12 text-gray-500 dark:text-gray-400">
+          @if (books().length === 0) {
+            No books yet. Click "+ New Book" to add one.
+          } @else {
+            No books match your filters.
+          }
+        </div>
+      }
+    }
+  </div>
+
+  <!-- ══ BOOK FORM MODAL ══ -->
+  @if (showForm()) {
+    <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
+        <h3 class="text-xl font-bold mb-5 text-gray-900 dark:text-white">
+          {{ editingBook ? '✏️ Edit Book' : '📚 New Book' }}
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <!-- Title -->
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title *</label>
+            <input [(ngModel)]="form.title" placeholder="e.g., The Great Gatsby"
+              class="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-2.5 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent outline-none" />
+          </div>
+
+          <!-- Author -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Author *</label>
+            <input [(ngModel)]="form.author" placeholder="e.g., F. Scott Fitzgerald"
+              class="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-2.5 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent outline-none" />
+          </div>
+
+          <!-- ISBN -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">ISBN</label>
+            <input [(ngModel)]="form.isbn" placeholder="e.g., 978-3-16-148410-0"
+              class="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-2.5 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent outline-none" />
+          </div>
+
+          <!-- Category -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category *</label>
+            <select [(ngModel)]="form.category"
+              class="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-2.5 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[rgb(0,200,151)] outline-none">
+              @for (cat of categories; track cat) {
+                <option [value]="cat">{{ cat }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Book Type -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Book Type *</label>
+            <select [(ngModel)]="form.bookType"
+              class="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-2.5 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[rgb(0,200,151)] outline-none">
+              <option value="PHYSICAL">📦 Physical</option>
+              <option value="PDF">💻 PDF / Digital</option>
+            </select>
+          </div>
+
+          <!-- Price -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price ($)</label>
+            <input [(ngModel)]="form.price" type="number" min="0" step="0.01" placeholder="0.00"
+              class="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-2.5 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent outline-none" />
+          </div>
+
+          <!-- Total Copies -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Total Copies</label>
+            <input [(ngModel)]="form.totalCopies" type="number" min="0" placeholder="1"
+              (ngModelChange)="onTotalCopiesChange()"
+              class="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-2.5 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent outline-none" />
+          </div>
+
+          <!-- Available Copies -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Available Copies
+              @if (form.totalCopies > 0) {
+                <span class="text-xs text-gray-400 ml-1">(max {{ form.totalCopies }})</span>
+              }
+            </label>
+            <input [(ngModel)]="form.availableCopies" type="number" min="0" [max]="form.totalCopies" placeholder="1"
+              (ngModelChange)="onAvailableCopiesChange()"
+              class="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-2.5 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent outline-none" />
+            @if (form.availableCopies > form.totalCopies) {
+              <p class="text-xs text-red-500 mt-1">Cannot exceed total copies ({{ form.totalCopies }})</p>
+            }
+          </div>
+
+          <!-- Cover Image URL -->
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cover Image</label>
+            <!-- Upload button -->
+            <div class="flex items-center gap-3 mb-2">
+              <label class="flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-[rgb(0,200,151)] cursor-pointer transition-colors text-sm text-gray-600 dark:text-gray-400">
+                @if (uploadingCover()) {
+                  <svg class="animate-spin w-4 h-4 text-[rgb(0,200,151)]" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                  </svg>
+                  Uploading...
+                } @else {
+                  📷 Upload Cover Image
+                }
+                <input type="file" accept="image/*" class="hidden" (change)="onCoverFileChange($event)" [disabled]="uploadingCover()" />
+              </label>
+              <span class="text-xs text-gray-400">or paste URL below</span>
+            </div>
+            <input [(ngModel)]="form.coverImageUrl" placeholder="https://example.com/cover.jpg"
+              class="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-2.5 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent outline-none" />
+            @if (form.coverImageUrl) {
+              <div class="mt-2 flex items-center gap-3">
+                <img [src]="getFilePreviewUrl(form.coverImageUrl)" alt="Cover preview"
+                  class="w-12 h-16 object-cover rounded-lg shadow-sm border border-gray-200 dark:border-gray-600" />
+                <span class="text-xs text-gray-400">Cover preview</span>
+              </div>
+            }
+          </div>
+
+          <!-- PDF URL — only shown for PDF type -->
+          @if (form.bookType === 'PDF') {
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">PDF File</label>
+              <!-- Upload button -->
+              <div class="flex items-center gap-3 mb-2">
+                <label class="flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-blue-400 cursor-pointer transition-colors text-sm text-gray-600 dark:text-gray-400">
+                  @if (uploadingPdf()) {
+                    <svg class="animate-spin w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                    Uploading PDF...
+                  } @else {
+                    📄 Upload PDF File
+                  }
+                  <input type="file" accept=".pdf" class="hidden" (change)="onPdfFileChange($event)" [disabled]="uploadingPdf()" />
+                </label>
+                <span class="text-xs text-gray-400">or paste URL below</span>
+              </div>
+              <input [(ngModel)]="form.pdfUrl" placeholder="https://example.com/book.pdf"
+                class="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-2.5 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-[rgb(0,200,151)] focus:border-transparent outline-none" />
+              @if (form.pdfUrl) {
+                <div class="mt-2 flex items-center gap-2 text-xs text-green-600 dark:text-green-400">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                  </svg>
+                  PDF file set
+                </div>
+              }
+            </div>
+          }
+
+        </div>
+
+        <div class="flex gap-3 mt-6">
+          <button (click)="save()" [disabled]="saving()"
+            class="flex-1 py-2.5 rounded-xl font-semibold bg-gradient-to-r from-[rgb(0,200,151)] to-[rgb(255,127,80)] text-white hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed">
+            @if (saving()) {
+              <span class="inline-flex items-center justify-center gap-2">
+                <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+                Saving...
+              </span>
+            } @else {
+              {{ editingBook ? 'Update Book' : 'Create Book' }}
+            }
+          </button>
+          <button (click)="closeForm()"
+            class="flex-1 py-2.5 rounded-xl font-semibold border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

@@ -1,0 +1,52 @@
+server:
+  port: 8078
+
+spring:
+  application:
+    name: LIBRARY-SERVICE
+  datasource:
+    url: jdbc:mysql://localhost:3307/library_db?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+    username: root
+    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    database-platform: org.hibernate.dialect.MySQLDialect
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 50MB
+      max-request-size: 55MB
+
+# Stripe
+# Get your test keys from https://dashboard.stripe.com/test/apikeys
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY:sk_test_YOUR_STRIPE_SECRET_KEY_HERE}
+  publishable-key: ${STRIPE_PUBLISHABLE_KEY:pk_test_YOUR_STRIPE_PUBLISHABLE_KEY_HERE}
+
+# File upload storage path
+file:
+  upload-dir: ./uploads
+
+eureka:
+  client:
+    enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    hostname: localhost
+    ip-address: 127.0.0.1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always

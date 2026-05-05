@@ -1,0 +1,276 @@
+<div class="fixed inset-0 bg-black z-50 flex flex-col" [class.fullscreen]="isFullscreen()" (mousemove)="onMouseMove()">
+
+  <!-- Top Toolbar -->
+  <div class="bg-gray-900 border-b border-gray-700 px-6 py-4 flex items-center justify-between"
+       [class.opacity-0]="!showControls()"
+       [class.transition-opacity]="true">
+
+    <!-- Left: Title & Info -->
+    <div class="flex items-center gap-4">
+      <div>
+        <h2 class="text-white font-bold text-lg">📖 {{ bookTitle }}</h2>
+        <p class="text-xs text-gray-400">Page {{ currentPage() }} of {{ totalPages() }}</p>
+      </div>
+    </div>
+
+    <!-- Right: Close Button -->
+    <button (click)="close()"
+            class="text-gray-300 hover:text-white transition-colors p-2 rounded hover:bg-gray-800">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- PDF Viewer Area -->
+  <div class="flex-1 overflow-hidden bg-black flex items-center justify-center">
+    <iframe
+      id="pdfIframe"
+      [src]="pdfUrl"
+      class="w-full h-full border-0"
+      title="PDF Book Reader"
+      (load)="onIframeLoad()"
+      (error)="onIframeError()"
+      [style.width.%]="zoomLevel()">
+    </iframe>
+
+    <!-- Loading State -->
+    @if (isLoading()) {
+      <div class="absolute inset-0 bg-black/60 flex items-center justify-center">
+        <div class="text-center">
+          <div class="inline-block w-12 h-12 border-4 border-[rgb(0,200,151)] border-t-transparent rounded-full animate-spin mb-3"></div>
+          <p class="text-gray-300">Loading PDF...</p>
+        </div>
+      </div>
+    }
+
+    <!-- Error State -->
+    @if (error()) {
+      <div class="absolute inset-0 bg-black/80 flex items-center justify-center">
+        <div class="text-center">
+          <div class="text-5xl mb-3">⚠️</div>
+          <p class="text-red-400">{{ error() }}</p>
+          <button (click)="close()" class="mt-4 px-6 py-2 bg-[rgb(0,200,151)] text-white rounded hover:opacity-90">
+            Close
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Bottom Toolbar -->
+  <div class="bg-gray-900 border-t border-gray-700 px-6 py-4"
+       [class.opacity-0]="!showControls()"
+       [class.transition-opacity]="true">
+
+    <!-- Controls Grid -->
+    <div class="flex flex-col gap-4">
+
+      <!-- Page Navigation -->
+      <div class="flex items-center gap-3 justify-between">
+        <div class="flex items-center gap-2">
+          <!-- First Page -->
+          <button (click)="firstPage()"
+                  [disabled]="currentPage() === 1"
+                  class="p-2 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  title="First page">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+          </button>
+
+          <!-- Previous Page -->
+          <button (click)="prevPage()"
+                  [disabled]="currentPage() === 1"
+                  class="p-2 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  title="Previous page">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m7 7l-7-7 7-7"/>
+            </svg>
+          </button>
+
+          <!-- Page Input -->
+          <div class="flex items-center gap-2">
+            <input
+              type="number"
+              [value]="currentPage()"
+              (change)="handlePageInput($event)"
+              min="1"
+              [max]="totalPages()"
+              class="w-16 px-2 py-1 bg-gray-800 text-white text-center rounded border border-gray-700 focus:border-[rgb(0,200,151)] focus:ring-1 focus:ring-[rgb(0,200,151)]">
+            <span class="text-gray-400 text-sm">of {{ totalPages() }}</span>
+          </div>
+
+          <!-- Next Page -->
+          <button (click)="nextPage()"
+                  [disabled]="currentPage() === totalPages()"
+                  class="p-2 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  title="Next page">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
+
+          <!-- Last Page -->
+          <button (click)="lastPage()"
+                  [disabled]="currentPage() === totalPages()"
+                  class="p-2 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  title="Last page">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19l7-7-7-7"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Right Controls -->
+        <div class="flex items-center gap-2">
+          <!-- Zoom Out -->
+          <button (click)="zoomOut()"
+                  [disabled]="zoomLevel() === 50"
+                  class="p-2 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white disabled:opacity-50 transition-colors"
+                  title="Zoom out">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+            </svg>
+          </button>
+
+          <!-- Zoom Level -->
+          <span class="text-gray-300 text-sm font-medium w-12 text-center">{{ zoomLevel() }}%</span>
+
+          <!-- Zoom In -->
+          <button (click)="zoomIn()"
+                  [disabled]="zoomLevel() === 200"
+                  class="p-2 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white disabled:opacity-50 transition-colors"
+                  title="Zoom in">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+          </button>
+
+          <!-- Reset Zoom -->
+          <button (click)="resetZoom()"
+                  class="px-3 py-1 text-sm rounded bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition-colors"
+                  title="Reset zoom">
+            100%
+          </button>
+        </div>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="flex items-center gap-2">
+        <div class="flex-1 flex gap-2">
+          <input
+            [ngModel]="searchText()"
+            (ngModelChange)="searchText.set($event)"
+            (keyup.enter)="search()"
+            type="text"
+            placeholder="Search in PDF..."
+            class="flex-1 px-3 py-1.5 bg-gray-800 text-white text-sm rounded border border-gray-700 focus:border-[rgb(0,200,151)] focus:ring-1 focus:ring-[rgb(0,200,151)]">
+          <button (click)="search()"
+                  class="px-4 py-1.5 text-sm rounded bg-[rgb(0,200,151)] text-white hover:opacity-90 transition-opacity">
+            Search
+          </button>
+        </div>
+
+        <!-- Search Results Navigation -->
+        @if (searchResults().length > 0) {
+          <div class="flex items-center gap-2">
+            <span class="text-gray-400 text-sm">{{ currentSearchIndex() + 1 }}/{{ searchResults().length }}</span>
+            <button (click)="prevSearchResult()" class="p-1.5 rounded bg-gray-800 hover:bg-gray-700 text-gray-300">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+              </svg>
+            </button>
+            <button (click)="nextSearchResult()" class="p-1.5 rounded bg-gray-800 hover:bg-gray-700 text-gray-300">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-2">
+        <!-- Bookmarks -->
+        <div class="flex items-center gap-1">
+          <button (click)="addBookmark()"
+                  [class.bg-[rgb(0,200,151)]]="bookmarks().includes(currentPage())"
+                  [class.bg-gray-800]="!bookmarks().includes(currentPage())"
+                  class="p-2 rounded text-gray-300 hover:text-white transition-colors"
+                  title="Add bookmark">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M5 2h14a1 1 0 011 1v19.143a.5.5 0 01-.766.424L12 19.03l-7.234 3.536A.5.5 0 014 22.143V3a1 1 0 011-1z"/>
+            </svg>
+          </button>
+
+          <!-- Bookmarks Dropdown -->
+          @if (bookmarks().length > 0) {
+            <div class="relative group">
+              <button class="p-1.5 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white text-xs">
+                {{ bookmarks().length }}
+              </button>
+              <div class="absolute left-0 bottom-full mb-2 bg-gray-800 rounded border border-gray-700 shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                @for (bookmark of bookmarks(); track bookmark) {
+                  <div class="flex items-center justify-between px-3 py-1.5 hover:bg-gray-700 whitespace-nowrap text-sm">
+                    <button (click)="goToBookmark(bookmark)" class="text-gray-300 hover:text-white">
+                      Page {{ bookmark }}
+                    </button>
+                    <button (click)="removeBookmark(bookmark)" class="ml-2 text-red-400 hover:text-red-300 text-xs">
+                      ✕
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="flex-1"></div>
+
+        <!-- Fullscreen -->
+        <button (click)="toggleFullscreen()"
+                class="p-2 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition-colors"
+                title="Fullscreen">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  [attr.d]="isFullscreen() ? 'M9 9V5m0 0H5m4 0l-4 4m0 6v4m0 0H5m4 0l-4-4m6-6h4v4m0-4l4-4m0 6h4m-4 0l4 4' : 'M15 3H9a2 2 0 00-2 2v2h2V5h6v6h2V5a2 2 0 00-2-2zm0 14h-2v2h2v-2zm-6 0H7v2h2v-2z'"/>
+          </svg>
+        </button>
+
+        <!-- Print -->
+        <button (click)="printPdf()"
+                class="p-2 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition-colors"
+                title="Print">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v12"/>
+          </svg>
+        </button>
+
+        <!-- Download -->
+        <button (click)="downloadPdf()"
+                class="p-2 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition-colors"
+                title="Download PDF">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Keyboard Shortcuts Help -->
+  <div class="fixed bottom-4 right-4 text-xs text-gray-400 bg-gray-900/90 rounded p-3 border border-gray-700"
+       *ngIf="showControls()">
+    <p class="font-semibold mb-1 text-gray-300">Keyboard Shortcuts:</p>
+    <ul class="space-y-1">
+      <li><span class="font-mono text-gray-500">←/→</span> Previous/Next page</li>
+      <li><span class="font-mono text-gray-500">Home/End</span> First/Last page</li>
+      <li><span class="font-mono text-gray-500">+/-</span> Zoom in/out</li>
+      <li><span class="font-mono text-gray-500">0</span> Reset zoom</li>
+      <li><span class="font-mono text-gray-500">F</span> Fullscreen</li>
+    </ul>
+  </div>
+
+</div>
+

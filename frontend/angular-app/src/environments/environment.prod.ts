@@ -1,11 +1,12 @@
+// Production environment — all traffic through API Gateway
 export const environment = {
   production: true,
-  apiGatewayUrl: '/api',
-  gameServiceUrl: '/api/game-service',
+  gameServiceUrl: 'http://localhost:8080',
+  libraryServiceUrl: 'http://localhost:8080',
+  apiGatewayUrl: 'http://localhost:8080',
   apiTimeout: 30000,
   retryConfig: {
-    count: 1,
-    delay: 2000
+    count: 2,
+    delay: 1000
   }
 };
-

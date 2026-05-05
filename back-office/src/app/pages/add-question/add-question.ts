@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 interface Game {
   id: number;
@@ -41,7 +42,7 @@ export class AddQuestion implements OnInit {
   option4 = signal('');
   explanation = signal('');
   
-  private apiUrl = 'http://localhost:9001/api';
+  private apiUrl = `${environment.gameServiceUrl}/api`;
 
   constructor(
     private http: HttpClient,

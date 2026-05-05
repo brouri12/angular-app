@@ -17,6 +17,7 @@ export class GamesComponent implements OnInit {
   session = signal<PlayerSession | null>(null);
   loading = signal(true);
   lastCrosswordAccuracy = signal<number | null>(null);
+  lastWordLadderAccuracy = signal<number | null>(null);
 
   // Filters
   filterDifficulty = signal<string | null>(null);
@@ -57,6 +58,8 @@ export class GamesComponent implements OnInit {
     // Load last crossword accuracy from localStorage
     const saved = localStorage.getItem('crossword_last_accuracy');
     if (saved) this.lastCrosswordAccuracy.set(parseFloat(saved));
+    const savedWL = localStorage.getItem('wordladder_last_accuracy');
+    if (savedWL) this.lastWordLadderAccuracy.set(parseFloat(savedWL));
   }
 
   loadGames() {
@@ -119,8 +122,12 @@ export class GamesComponent implements OnInit {
     this.router.navigate(['/games', id, 'play']);
   }
 
-  playCrossword(id?: number) {
+  playCrossword(_id?: number) {
     this.router.navigate(['/crossword']);
+  }
+
+  playWordLadder() {
+    this.router.navigate(['/word-ladder']);
   }
 
   getLevelRange(): number[] {

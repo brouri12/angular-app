@@ -1,0 +1,33 @@
+server:
+  port: 8077
+
+spring:
+  application:
+    name: GAME-SERVICE
+  datasource:
+    url: jdbc:mysql://localhost:3307/gamified_learning?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+    username: root
+    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    database-platform: org.hibernate.dialect.MySQLDialect
+
+# Eureka — registers with the main project's Eureka Server
+eureka:
+  client:
+    enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    hostname: localhost
+    ip-address: 127.0.0.1
+
+# APIVerve crossword API key
+apiverve:
+  key: apv_fb93dab9-0638-4cd6-a5a2-8d6ae5818fe6

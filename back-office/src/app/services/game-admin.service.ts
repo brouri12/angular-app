@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface Game {
   id?: number;
@@ -45,8 +46,8 @@ export interface PlayerSession {
 @Injectable({ providedIn: 'root' })
 export class GameAdminService {
   private http = inject(HttpClient);
-  private base = 'http://localhost:9001/api/admin';
-  private sessionBase = 'http://localhost:9001/api/session';
+  private base = `${environment.gameServiceUrl}/api/admin`;
+  private sessionBase = `${environment.gameServiceUrl}/api/session`;
 
   // ─── Games CRUD ───────────────────────────────────────────────────────────
   getGames(): Observable<Game[]> { return this.http.get<Game[]>(`${this.base}/games`); }
@@ -54,6 +55,7 @@ export class GameAdminService {
   updateGame(id: number, g: Game): Observable<Game> { return this.http.put<Game>(`${this.base}/games/${id}`, g); }
   deleteGame(id: number): Observable<void> { return this.http.delete<void>(`${this.base}/games/${id}`); }
   toggleGame(id: number): Observable<Game> { return this.http.patch<Game>(`${this.base}/games/${id}/toggle`, {}); }
+
   // ─── Content CRUD ─────────────────────────────────────────────────────────
   getContent(gameId: number): Observable<GameContent[]> { return this.http.get<GameContent[]>(`${this.base}/games/${gameId}/questions`); }
   addContent(gameId: number, c: GameContent): Observable<GameContent> { return this.http.post<GameContent>(`${this.base}/games/${gameId}/questions`, c); }

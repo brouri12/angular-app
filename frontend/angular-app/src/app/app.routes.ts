@@ -9,7 +9,11 @@ import { GameResults } from './pages/game-results/game-results';
 import { Register } from './pages/register/register';
 import { ProgressPage } from './pages/progress/progress';
 import { CrosswordPage } from './pages/crossword/crossword';
+import { WordLadderPage } from './pages/word-ladder/word-ladder';
 import { ScoreboardPage } from './pages/scoreboard/scoreboard';
+import { LibraryPage } from './pages/library/library';
+import { ReservationsPage } from './pages/reservations/reservations';
+import { BookDetailPage } from './pages/book-detail/book-detail';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -18,10 +22,14 @@ export const routes: Routes = [
   { path: 'games', component: GamesComponent },
   { path: 'games/:id/play', component: GamePlay },
   { path: 'crossword', component: CrosswordPage },
+  { path: 'word-ladder', component: WordLadderPage },
   { path: 'quiz/:id', component: ProgressiveQuizComponent },
   { path: 'results', component: GameResults },
   { path: 'register', component: Register },
   { path: 'progress', component: ProgressPage },
   { path: 'scoreboard', component: ScoreboardPage },
+  { path: 'library', component: LibraryPage },
+  { path: 'library/:id', component: BookDetailPage },
+  { path: 'reservations', component: ReservationsPage },
   { path: '**', redirectTo: '' }
 ];

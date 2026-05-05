@@ -4,7 +4,7 @@ import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, timeout } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
-const BASE = `${environment.gameServiceUrl || 'http://localhost:9001'}/api`;
+const BASE = `${environment.gameServiceUrl}/api`;
 
 // ─── Interfaces ───────────────────────────────────────────────────────────────
 

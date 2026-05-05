@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 // ─── APIVerve types ────────────────────────────────────────────────────────────
 interface ApiClue { number: number; clue: string; answer: string; length: number; }
@@ -22,8 +23,7 @@ interface Clue { number: number; direction: 'ACROSS' | 'DOWN'; clue: string; ans
 const THEMES = ['animals', 'food', 'sports', 'science', 'geography'];
 const DIFFICULTIES = ['easy', 'medium', 'hard'];
 
-// ── API is proxied through the backend to avoid CORS issues ───────────────────
-const PROXY_URL = 'http://localhost:9001/api/crossword/generate';
+const PROXY_URL = `${environment.gameServiceUrl}/api/crossword/generate`;
 
 @Component({
   selector: 'app-crossword',
@@ -335,7 +335,7 @@ export class CrosswordPage implements OnInit, OnDestroy {
 
     // Award XP via backend session
     if (xp > 0) {
-      this.http.post('http://localhost:9001/api/submissions', {
+      this.http.post(`${environment.gameServiceUrl}/api/submissions`, {
         gameId: 0,
         userId: 'default-user',
         answers: {},
