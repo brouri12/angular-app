@@ -149,6 +149,10 @@ EOF
         stage('Docker Build & Push') {
             steps {
                 script {
+                    if (sh(returnStatus: true, script: 'command -v docker >/dev/null 2>&1') != 0) {
+                        echo 'Docker Build & Push skipped: docker CLI not available on Jenkins agent.'
+                        return
+                    }
                     withCredentials([usernamePassword(
                         credentialsId: 'dockerhub-credentials',
                         usernameVariable: 'DOCKER_USER',
