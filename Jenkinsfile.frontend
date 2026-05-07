@@ -19,10 +19,6 @@ pipeline {
         GIT_REPO    = 'https://github.com/brouri12/angular-app.git'
     }
 
-    tools {
-        nodejs 'Node-20'
-    }
-
     stages {
 
         // ── 1. Checkout ──────────────────────────────────────────
@@ -31,6 +27,39 @@ pipeline {
                 git branch: 'main',
                     url: "${GIT_REPO}",
                     credentialsId: 'github-credentials'
+                sh '''
+                    set -e
+                    mkdir -p "$WORKSPACE/.ci" "$WORKSPACE/.cache"
+                    NODE_VERSION="20.19.2"
+                    NODE_DIR="$WORKSPACE/.cache/node-v${NODE_VERSION}-linux-x64"
+                    NODE_BIN="$NODE_DIR/bin"
+                    NODE_ARCHIVE="$WORKSPACE/.cache/node-v${NODE_VERSION}-linux-x64.tar.gz"
+
+                    if [ ! -x "$NODE_BIN/node" ]; then
+                      if [ ! -f "$NODE_ARCHIVE" ]; then
+                        curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.gz" -o "$NODE_ARCHIVE"
+                      fi
+                      rm -rf "$NODE_DIR"
+                      tar -xzf "$NODE_ARCHIVE" -C "$WORKSPACE/.cache"
+                    fi
+
+                    cat > "$WORKSPACE/.ci/npmw" <<'EOF'
+#!/usr/bin/env sh
+set -eu
+NODE_BIN="$WORKSPACE/.cache/node-v20.19.2-linux-x64/bin"
+export PATH="$NODE_BIN:$PATH"
+exec npm "$@"
+EOF
+                    cat > "$WORKSPACE/.ci/npxw" <<'EOF'
+#!/usr/bin/env sh
+set -eu
+NODE_BIN="$WORKSPACE/.cache/node-v20.19.2-linux-x64/bin"
+export PATH="$NODE_BIN:$PATH"
+exec npx "$@"
+EOF
+                    chmod +x "$WORKSPACE/.ci/npmw" "$WORKSPACE/.ci/npxw"
+                    "$WORKSPACE/.ci/npmw" -v >/dev/null 2>&1
+                '''
                 echo "Branch: ${env.GIT_BRANCH} | Commit: ${env.GIT_COMMIT}"
             }
         }
@@ -42,7 +71,7 @@ pipeline {
                 stage('Frontend – Install') {
                     steps {
                         dir('frontend/angular-app') {
-                            sh 'npm ci --legacy-peer-deps'
+                            sh '$WORKSPACE/.ci/npmw ci --legacy-peer-deps'
                         }
                     }
                 }
@@ -50,7 +79,7 @@ pipeline {
                 stage('Back Office – Install') {
                     steps {
                         dir('back-office') {
-                            sh 'npm ci --legacy-peer-deps'
+                            sh '$WORKSPACE/.ci/npmw ci --legacy-peer-deps'
                         }
                     }
                 }
@@ -65,7 +94,7 @@ pipeline {
                 stage('Frontend – Build') {
                     steps {
                         dir('frontend/angular-app') {
-                            sh 'npm run build -- --configuration production'
+                            sh '$WORKSPACE/.ci/npmw run build -- --configuration production'
                         }
                     }
                 }
@@ -73,7 +102,7 @@ pipeline {
                 stage('Back Office – Build') {
                     steps {
                         dir('back-office') {
-                            sh 'npm run build -- --configuration production'
+                            sh '$WORKSPACE/.ci/npmw run build -- --configuration production'
                         }
                     }
                 }
@@ -86,7 +115,7 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     sh """
-                        cd frontend/angular-app && npx sonar-scanner \
+                        cd frontend/angular-app && "$WORKSPACE/.ci/npxw" sonar-scanner \
                             -Dsonar.projectKey=wordly-frontend \
                             -Dsonar.projectName="Wordly Frontend" \
                             -Dsonar.sources=src \
@@ -95,7 +124,7 @@ pipeline {
                             -Dsonar.token=${SONAR_TOKEN}
                     """
                     sh """
-                        cd back-office && npx sonar-scanner \
+                        cd back-office && "$WORKSPACE/.ci/npxw" sonar-scanner \
                             -Dsonar.projectKey=wordly-backoffice \
                             -Dsonar.projectName="Wordly Back Office" \
                             -Dsonar.sources=src \
