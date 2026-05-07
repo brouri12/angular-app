@@ -16,7 +16,6 @@ pipeline {
         IMAGE_TAG   = "${env.BUILD_NUMBER}"
         SONAR_HOST  = 'http://host.docker.internal:9000'
         GIT_REPO    = 'https://github.com/brouri12/angular-app.git'
-        MVN_CMD     = 'mvn'
     }
 
     tools {
@@ -44,7 +43,6 @@ pipeline {
                         returnStdout: true,
                         script: "git ls-remote ${GIT_REPO} refs/heads/feature/cicd-updates | awk '{print \$1}'"
                     ).trim()
-                    env.MVN_CMD = "${env.WORKSPACE}/.ci/mvnw-ci"
                     sh '''
                         set -e
                         MVN_WRAPPER="$WORKSPACE/.ci/mvnw-ci"
@@ -72,7 +70,7 @@ EOF
                         chmod +x "$MVN_WRAPPER"
                     '''
                 }
-                echo "Branch: ${env.GIT_BRANCH} | Commit: ${env.GIT_COMMIT} | Maven command: ${env.MVN_CMD}"
+                echo "Branch: ${env.GIT_BRANCH} | Commit: ${env.GIT_COMMIT} | Maven wrapper: ${env.WORKSPACE}/.ci/mvnw-ci"
             }
         }
 
@@ -83,7 +81,7 @@ EOF
                 stage('EurekaServer') {
                     steps {
                         dir('EurekaServer') {
-                            sh '${MVN_CMD} clean package -DskipTests -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean package -DskipTests -B'
                         }
                     }
                 }
@@ -91,7 +89,7 @@ EOF
                 stage('ApiGateway') {
                     steps {
                         dir('ApiGateway') {
-                            sh '${MVN_CMD} clean verify -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean verify -B'
                         }
                     }
                     post {
@@ -105,7 +103,7 @@ EOF
                 stage('UserService') {
                     steps {
                         dir('UserService') {
-                            sh '${MVN_CMD} clean package -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean package -B'
                         }
                     }
                     post {
@@ -119,7 +117,7 @@ EOF
                 stage('AbonnementService') {
                     steps {
                         dir('AbonnementService') {
-                            sh '${MVN_CMD} clean package -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean package -B'
                         }
                     }
                     post {
@@ -133,7 +131,7 @@ EOF
                 stage('ChallengeService') {
                     steps {
                         dir('ChallengeService') {
-                            sh '${MVN_CMD} clean package -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean package -B'
                         }
                     }
                     post {
@@ -147,7 +145,7 @@ EOF
                 stage('PlanificationService') {
                     steps {
                         dir('PlanificationService') {
-                            sh '${MVN_CMD} clean verify -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean verify -B'
                         }
                     }
                     post {
@@ -161,7 +159,7 @@ EOF
                 stage('EventService') {
                     steps {
                         dir('event-service') {
-                            sh '${MVN_CMD} clean verify -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean verify -B'
                         }
                     }
                     post {
@@ -175,7 +173,7 @@ EOF
                 stage('ReservationService') {
                     steps {
                         dir('reservation-service') {
-                            sh '${MVN_CMD} clean package -Dmaven.test.skip=true -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean package -Dmaven.test.skip=true -B'
                         }
                     }
                     post {
@@ -189,7 +187,7 @@ EOF
                 stage('RecrutementService') {
                     steps {
                         dir('recrutement-service') {
-                            sh '${MVN_CMD} clean verify -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean verify -B'
                         }
                     }
                     post {
@@ -203,7 +201,7 @@ EOF
                 stage('ClubService') {
                     steps {
                         dir('club-service') {
-                            sh '${MVN_CMD} clean verify -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean verify -B'
                         }
                     }
                     post {
@@ -217,7 +215,7 @@ EOF
                 stage('MemberService') {
                     steps {
                         dir('member-service') {
-                            sh '${MVN_CMD} clean verify -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean verify -B'
                         }
                     }
                     post {
@@ -231,7 +229,7 @@ EOF
                 stage('ForumService') {
                     steps {
                         dir('forum-service') {
-                            sh '${MVN_CMD} clean verify -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean verify -B'
                         }
                     }
                     post {
@@ -245,7 +243,7 @@ EOF
                 stage('FormationService') {
                     steps {
                         dir('FormationService') {
-                            sh '${MVN_CMD} clean package -Dmaven.test.skip=true -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean package -Dmaven.test.skip=true -B'
                         }
                     }
                     post {
@@ -259,7 +257,7 @@ EOF
                 stage('QuizBadgeService') {
                     steps {
                         dir('QuizBadgeService') {
-                            sh '${MVN_CMD} clean verify -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean verify -B'
                         }
                     }
                     post {
@@ -273,7 +271,7 @@ EOF
                 stage('PronunciationService') {
                     steps {
                         dir('PronunciationService') {
-                            sh '${MVN_CMD} clean verify -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean verify -B'
                         }
                     }
                     post {
@@ -287,7 +285,7 @@ EOF
                 stage('FeedbackService') {
                     steps {
                         dir('FeedbackService') {
-                            sh '${MVN_CMD} clean verify -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean verify -B'
                         }
                     }
                     post {
@@ -367,7 +365,7 @@ EOF
                                     sh """
                                         set -e
                                         cd ${s.dir}
-                                        ${MVN_CMD} -B clean verify sonar:sonar \\
+                                        "$WORKSPACE/.ci/mvnw-ci" -B clean verify sonar:sonar \\
                                             -Dsonar.projectKey=${s.key} \\
                                             -Dsonar.projectName='${s.name}' \\
                                             -Dsonar.host.url=${SONAR_HOST} \\
