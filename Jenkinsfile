@@ -412,18 +412,24 @@ EOF
                                     [dir: 'UserService',           key: 'user-service',           name: 'User Service'],
                                 ]
                                 svc.each { s ->
-                                    sh """
-                                        set -e
-                                        cd ${s.dir}
-                                        "$WORKSPACE/.ci/mvnw-ci" -B clean verify sonar:sonar \\
-                                            -Dsonar.projectKey=${s.key} \\
-                                            -Dsonar.projectName='${s.name}' \\
-                                            -Dsonar.host.url=${SONAR_HOST} \\
-                                            -Dsonar.token=${SONAR_TOKEN}
-                                        if [ -f .scannerwork/report-task.txt ]; then
-                                            sed -i 's#http://host.docker.internal:9000#http://localhost:9000#g' .scannerwork/report-task.txt || true
-                                        fi
-                                    """
+                                    withEnv([
+                                        "SONAR_PROJECT_DIR=${s.dir}",
+                                        "SONAR_PROJECT_KEY=${s.key}",
+                                        "SONAR_PROJECT_NAME=${s.name}",
+                                    ]) {
+                                        sh '''
+                                            set -e
+                                            cd "$SONAR_PROJECT_DIR"
+                                            "$WORKSPACE/.ci/mvnw-ci" -B clean verify sonar:sonar \
+                                                -Dsonar.projectKey="$SONAR_PROJECT_KEY" \
+                                                -Dsonar.projectName="$SONAR_PROJECT_NAME" \
+                                                -Dsonar.host.url="$SONAR_HOST" \
+                                                -Dsonar.token="$SONAR_TOKEN"
+                                            if [ -f .scannerwork/report-task.txt ]; then
+                                                sed -i 's#http://host.docker.internal:9000#http://localhost:9000#g' .scannerwork/report-task.txt || true
+                                            fi
+                                        '''
+                                    }
                                 }
                                 // Python + Angular : SonarScanner CLI (hors Maven)
                                 sh '''
@@ -440,7 +446,17 @@ EOF
                                       unzip -q "$SCAN_ZIP" -d "$WORKSPACE/.cache"
                                       mv "$WORKSPACE/.cache/sonar-scanner-${SCAN_VERSION}-linux-x64" "$WORKSPACE/.cache/sonar-scanner-${SCAN_VERSION}"
                                     fi
-                                    export PATH="$WORKSPACE/.cache/sonar-scanner-${SCAN_VERSION}/bin:$PATH"
+                                    NODE_VERSION=20.19.2
+                                    NODE_DIR="$WORKSPACE/.cache/node-v${NODE_VERSION}-linux-x64"
+                                    if [ ! -x "$NODE_DIR/bin/node" ]; then
+                                      NODE_ARCHIVE="$WORKSPACE/.cache/node-v${NODE_VERSION}-linux-x64.tar.xz"
+                                      if [ ! -f "$NODE_ARCHIVE" ]; then
+                                        curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" -o "$NODE_ARCHIVE"
+                                      fi
+                                      rm -rf "$NODE_DIR"
+                                      tar -xJf "$NODE_ARCHIVE" -C "$WORKSPACE/.cache"
+                                    fi
+                                    export PATH="$WORKSPACE/.cache/sonar-scanner-${SCAN_VERSION}/bin:$NODE_DIR/bin:$PATH"
                                     run_scan() {
                                       sub="$1"
                                       if [ ! -f "$sub/sonar-project.properties" ]; then
@@ -453,12 +469,8 @@ EOF
                                         -Dsonar.token="$SONAR_TOKEN")
                                     }
                                     run_scan pronunciation-fastapi
-                                    if command -v npm >/dev/null 2>&1; then
-                                      (cd back-office && npm ci --no-audit --no-fund) || echo "npm ci back-office skipped/failed"
-                                      (cd frontend/angular-app && npm ci --no-audit --no-fund) || echo "npm ci frontend skipped/failed"
-                                    else
-                                      echo "npm absent — analyse Sonar TS sans node_modules (résolution limitée)"
-                                    fi
+                                    (cd back-office && npm ci --no-audit --no-fund) || echo "npm ci back-office skipped/failed"
+                                    (cd frontend/angular-app && npm ci --no-audit --no-fund) || echo "npm ci frontend skipped/failed"
                                     run_scan back-office
                                     run_scan frontend/angular-app
                                 '''
@@ -491,6 +503,10 @@ EOF
             steps {
                 script {
                     try {
+                        if (sh(returnStatus: true, script: 'command -v docker >/dev/null 2>&1') != 0) {
+                            echo 'Docker Build & Push skipped: docker CLI not available on Jenkins agent.'
+                            return
+                        }
                         withCredentials([usernamePassword(
                             credentialsId: 'dockerhub-credentials',
                             usernameVariable: 'DOCKER_USER',
