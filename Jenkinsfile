@@ -270,7 +270,7 @@ pipeline {
                             sh '''
                                 if command -v docker >/dev/null 2>&1; then
                                   docker run --rm \
-                                    -v "$PWD:/app" \
+                                    -v "$(pwd):/app" \
                                     -w /app \
                                     python:3.10-slim \
                                     sh -c "pip install --no-cache-dir -r requirements.txt && python -m py_compile main.py models.py"
