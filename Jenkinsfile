@@ -45,10 +45,11 @@ pipeline {
                         script: "git ls-remote ${GIT_REPO} refs/heads/feature/cicd-updates | awk '{print \$1}'"
                     ).trim()
                     env.MVN_CMD = "${env.WORKSPACE}/.ci/mvnw-ci"
-                    sh """
+                    sh '''
                         set -e
-                        mkdir -p "${env.WORKSPACE}/.ci"
-                        cat > "${env.MVN_CMD}" <<'EOF'
+                        MVN_WRAPPER="$WORKSPACE/.ci/mvnw-ci"
+                        mkdir -p "$WORKSPACE/.ci"
+                        cat > "$MVN_WRAPPER" <<'EOF'
 #!/usr/bin/env sh
 set -eu
 if command -v mvn >/dev/null 2>&1; then
@@ -68,8 +69,8 @@ if [ ! -x "$MVN_BIN" ]; then
 fi
 exec "$MVN_BIN" "$@"
 EOF
-                        chmod +x "${env.MVN_CMD}"
-                    """
+                        chmod +x "$MVN_WRAPPER"
+                    '''
                 }
                 echo "Branch: ${env.GIT_BRANCH} | Commit: ${env.GIT_COMMIT} | Maven command: ${env.MVN_CMD}"
             }
