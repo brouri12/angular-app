@@ -32,16 +32,16 @@ pipeline {
                 sh '''
                     set -e
                     curl -L --retry 5 --retry-delay 3 \
-                      "https://codeload.github.com/brouri12/angular-app/tar.gz/refs/heads/feature/complete-devops-setup" \
+                      "https://codeload.github.com/brouri12/angular-app/tar.gz/refs/heads/feature/cicd-updates" \
                       -o source.tar.gz
                     tar -xzf source.tar.gz --strip-components=1
                     rm -f source.tar.gz
                 '''
                 script {
-                    env.GIT_BRANCH = 'feature/complete-devops-setup'
+                    env.GIT_BRANCH = 'feature/cicd-updates'
                     env.GIT_COMMIT = sh(
                         returnStdout: true,
-                        script: "git ls-remote ${GIT_REPO} refs/heads/feature/complete-devops-setup | awk '{print \$1}'"
+                        script: "git ls-remote ${GIT_REPO} refs/heads/feature/cicd-updates | awk '{print \$1}'"
                     ).trim()
                 }
                 echo "Branch: ${env.GIT_BRANCH} | Commit: ${env.GIT_COMMIT}"
