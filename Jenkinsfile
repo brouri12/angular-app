@@ -62,8 +62,28 @@ if [ ! -x "$MVN_BIN" ]; then
   if [ ! -f "$ARCHIVE" ]; then
     curl -fsSL "https://archive.apache.org/dist/maven/maven-3/$MVN_VERSION/binaries/apache-maven-$MVN_VERSION-bin.tar.gz" -o "$ARCHIVE"
   fi
-  rm -rf "$MVN_DIR"
-  tar -xzf "$ARCHIVE" -C "$WORKSPACE/.cache"
+  LOCKDIR="$WORKSPACE/.cache/.mvn-extract.lock"
+  i=0
+  while ! mkdir "$LOCKDIR" 2>/dev/null; do
+    i=$((i+1))
+    if [ $i -ge 120 ]; then
+      echo "Timeout waiting Maven extraction lock"
+      exit 1
+    fi
+    sleep 1
+  done
+  if [ ! -x "$MVN_BIN" ]; then
+    TMP_DIR="$WORKSPACE/.cache/apache-maven-$MVN_VERSION.tmp.$$"
+    rm -rf "$TMP_DIR"
+    mkdir -p "$TMP_DIR"
+    tar -xzf "$ARCHIVE" -C "$TMP_DIR"
+    EXTRACTED="$TMP_DIR/apache-maven-$MVN_VERSION"
+    if [ -d "$EXTRACTED" ] && [ ! -d "$MVN_DIR" ]; then
+      mv "$EXTRACTED" "$MVN_DIR"
+    fi
+    rm -rf "$TMP_DIR"
+  fi
+  rmdir "$LOCKDIR" 2>/dev/null || true
 fi
 exec "$MVN_BIN" "$@"
 EOF
