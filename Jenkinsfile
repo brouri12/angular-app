@@ -12,7 +12,7 @@ pipeline {
     }
 
     environment {
-        REGISTRY    = 'brouri12'
+        REGISTRY    = 'mohamedalrahali'
         IMAGE_TAG   = "${env.BUILD_NUMBER}"
         SONAR_HOST  = 'http://host.docker.internal:9000'
         GIT_REPO    = 'https://github.com/brouri12/angular-app.git'
@@ -432,9 +432,9 @@ pipeline {
         always {
             script {
                 try {
-                    cleanWs()
+                    deleteDir()
                 } catch (err) {
-                    echo "Skipping cleanWs: workspace context unavailable (${err})"
+                    echo "Skipping deleteDir: workspace context unavailable (${err})"
                 }
             }
         }
