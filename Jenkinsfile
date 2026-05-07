@@ -573,16 +573,20 @@ EOF
                             withSonarQubeEnv('SonarQube') {
                                 // Tous les modules avec tests **/*Test.java + JaCoCo/Sonar dans le pom
                                 def svc = [
+                                    [dir: 'AbonnementService',      key: 'abonnement-service',     name: 'Abonnement Service',   extraArgs: ''],
                                     [dir: 'ApiGateway',            key: 'api-gateway',            name: 'API Gateway'],
                                     [dir: 'ChallengeService',      key: 'challenge-service',      name: 'Challenge Service'],
                                     [dir: 'club-service',          key: 'club-service',           name: 'Club Service'],
                                     [dir: 'event-service',         key: 'event-service',          name: 'Event Service'],
+                                    [dir: 'EurekaServer',          key: 'eureka-server',         name: 'Eureka Server',        extraArgs: ''],
                                     [dir: 'FeedbackService',       key: 'feedback-service',       name: 'Feedback Service'],
+                                    [dir: 'FormationService',      key: 'formation-service',      name: 'Formation Service',    extraArgs: '-Dspring.datasource.url="jdbc:mysql://host.docker.internal:3308/formation_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC" -Dspring.datasource.username=root -Dspring.datasource.password=root'],
                                     [dir: 'forum-service',         key: 'forum-service',          name: 'Forum Service'],
                                     [dir: 'member-service',        key: 'member-service',         name: 'Member Service'],
                                     [dir: 'PlanificationService',  key: 'planification-service',  name: 'Planification Service'],
                                     [dir: 'PronunciationService',  key: 'pronunciation-service',  name: 'Pronunciation Service'],
                                     [dir: 'QuizBadgeService',      key: 'quiz-badge-service',     name: 'Quiz-Badge-Service'],
+                                    [dir: 'reservation-service',   key: 'reservation-service',    name: 'Reservation Service',  extraArgs: ''],
                                     [dir: 'recrutement-service',   key: 'recrutement-service',    name: 'Recrutement Service'],
                                     [dir: 'UserService',           key: 'user-service',           name: 'User Service'],
                                 ]
@@ -591,15 +595,20 @@ EOF
                                         "SONAR_PROJECT_DIR=${s.dir}",
                                         "SONAR_PROJECT_KEY=${s.key}",
                                         "SONAR_PROJECT_NAME=${s.name}",
+                                        "SONAR_EXTRA_ARGS=${s.extraArgs ?: ''}",
                                     ]) {
                                         sh '''
                                             set -e
                                             cd "$SONAR_PROJECT_DIR"
-                                            "$WORKSPACE/.ci/mvnw-ci" -B clean verify sonar:sonar \
+                                            "$WORKSPACE/.ci/mvnw-ci" -B clean test jacoco:report sonar:sonar \
+                                                -DskipTests=false \
+                                                -DfailIfNoTests=false \
+                                                -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
                                                 -Dsonar.projectKey="$SONAR_PROJECT_KEY" \
                                                 -Dsonar.projectName="$SONAR_PROJECT_NAME" \
                                                 -Dsonar.host.url="$SONAR_HOST" \
-                                                -Dsonar.token="$SONAR_TOKEN"
+                                                -Dsonar.token="$SONAR_TOKEN" \
+                                                ${SONAR_EXTRA_ARGS}
                                             mkdir -p "$WORKSPACE/.scannerwork"
                                             if [ -f target/sonar/report-task.txt ]; then
                                                 sed -i 's#http://host.docker.internal:9000#http://localhost:9000#g' target/sonar/report-task.txt || true
