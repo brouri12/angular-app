@@ -31,6 +31,7 @@ pipeline {
         // ── 1. Checkout ──────────────────────────────────────────
         stage('Checkout') {
             steps {
+                checkout scm
                 deleteDir()
                 sh '''
                     set -e
