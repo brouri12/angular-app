@@ -646,7 +646,9 @@ services:
       - wordly-net
 
   grafana:
-    image: grafana/grafana:latest
+    # latest (Grafana 12.x) peut planter au démarrage sur le provisionnement
+    # (« data source not found », race / bug connu) — image figée pour Compose fiable.
+    image: grafana/grafana:11.5.4
     container_name: wordly-grafana
     restart: unless-stopped
     ports:
