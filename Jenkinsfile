@@ -7,6 +7,9 @@
 // ============================================================......
 pipeline {
     agent any
+    triggers {
+        githubPush()
+    }
     options {
         skipDefaultCheckout(true)
     }
