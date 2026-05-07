@@ -95,7 +95,7 @@ EOF
                     post {
                         always {
                             junit allowEmptyResults: true,
-                                  testResults: 'ApiGateway/target/surefire-reports/*.xml'
+                                  testResults: 'ApiGateway/target/surefire-reports/TEST-*.xml'
                         }
                     }
                 }
@@ -109,7 +109,7 @@ EOF
                     post {
                         always {
                             junit allowEmptyResults: true,
-                                  testResults: 'UserService/target/surefire-reports/*.xml'
+                                  testResults: 'UserService/target/surefire-reports/TEST-*.xml'
                         }
                     }
                 }
@@ -123,7 +123,7 @@ EOF
                     post {
                         always {
                             junit allowEmptyResults: true,
-                                  testResults: 'AbonnementService/target/surefire-reports/*.xml'
+                                  testResults: 'AbonnementService/target/surefire-reports/TEST-*.xml'
                         }
                     }
                 }
@@ -137,7 +137,7 @@ EOF
                     post {
                         always {
                             junit allowEmptyResults: true,
-                                  testResults: 'ChallengeService/target/surefire-reports/*.xml'
+                                  testResults: 'ChallengeService/target/surefire-reports/TEST-*.xml'
                         }
                     }
                 }
@@ -151,7 +151,7 @@ EOF
                     post {
                         always {
                             junit allowEmptyResults: true,
-                                  testResults: 'PlanificationService/target/surefire-reports/*.xml'
+                                  testResults: 'PlanificationService/target/surefire-reports/TEST-*.xml'
                         }
                     }
                 }
@@ -165,7 +165,7 @@ EOF
                     post {
                         always {
                             junit allowEmptyResults: true,
-                                  testResults: 'event-service/target/surefire-reports/*.xml'
+                                  testResults: 'event-service/target/surefire-reports/TEST-*.xml'
                         }
                     }
                 }
@@ -179,7 +179,7 @@ EOF
                     post {
                         always {
                             junit allowEmptyResults: true,
-                                  testResults: 'reservation-service/target/surefire-reports/*.xml'
+                                  testResults: 'reservation-service/target/surefire-reports/TEST-*.xml'
                         }
                     }
                 }
@@ -193,7 +193,7 @@ EOF
                     post {
                         always {
                             junit allowEmptyResults: true,
-                                  testResults: 'recrutement-service/target/surefire-reports/*.xml'
+                                  testResults: 'recrutement-service/target/surefire-reports/TEST-*.xml'
                         }
                     }
                 }
@@ -207,7 +207,7 @@ EOF
                     post {
                         always {
                             junit allowEmptyResults: true,
-                                  testResults: 'club-service/target/surefire-reports/*.xml'
+                                  testResults: 'club-service/target/surefire-reports/TEST-*.xml'
                         }
                     }
                 }
@@ -221,7 +221,7 @@ EOF
                     post {
                         always {
                             junit allowEmptyResults: true,
-                                  testResults: 'member-service/target/surefire-reports/*.xml'
+                                  testResults: 'member-service/target/surefire-reports/TEST-*.xml'
                         }
                     }
                 }
@@ -235,7 +235,7 @@ EOF
                     post {
                         always {
                             junit allowEmptyResults: true,
-                                  testResults: 'forum-service/target/surefire-reports/*.xml'
+                                  testResults: 'forum-service/target/surefire-reports/TEST-*.xml'
                         }
                     }
                 }
@@ -249,7 +249,7 @@ EOF
                     post {
                         always {
                             junit allowEmptyResults: true,
-                                  testResults: 'FormationService/target/surefire-reports/*.xml'
+                                  testResults: 'FormationService/target/surefire-reports/TEST-*.xml'
                         }
                     }
                 }
@@ -263,7 +263,7 @@ EOF
                     post {
                         always {
                             junit allowEmptyResults: true,
-                                  testResults: 'QuizBadgeService/target/surefire-reports/*.xml'
+                                  testResults: 'QuizBadgeService/target/surefire-reports/TEST-*.xml'
                         }
                     }
                 }
@@ -277,7 +277,7 @@ EOF
                     post {
                         always {
                             junit allowEmptyResults: true,
-                                  testResults: 'PronunciationService/target/surefire-reports/*.xml'
+                                  testResults: 'PronunciationService/target/surefire-reports/TEST-*.xml'
                         }
                     }
                 }
@@ -291,7 +291,7 @@ EOF
                     post {
                         always {
                             junit allowEmptyResults: true,
-                                  testResults: 'FeedbackService/target/surefire-reports/*.xml'
+                                  testResults: 'FeedbackService/target/surefire-reports/TEST-*.xml'
                         }
                     }
                 }
