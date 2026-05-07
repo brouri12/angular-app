@@ -522,7 +522,16 @@ EOF
                         def svc = item
                         branches["Test ${svc.name}"] = {
                             dir(svc.dir) {
-                                sh '$WORKSPACE/.ci/mvnw-ci -B test -DfailIfNoTests=false'
+                                if (svc.name == 'FormationService') {
+                                    sh '''
+                                        "$WORKSPACE/.ci/mvnw-ci" -B test -DfailIfNoTests=false \
+                                          -Dspring.datasource.url="jdbc:mysql://host.docker.internal:3308/formation_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC" \
+                                          -Dspring.datasource.username=root \
+                                          -Dspring.datasource.password=
+                                    '''
+                                } else {
+                                    sh '$WORKSPACE/.ci/mvnw-ci -B test -DfailIfNoTests=false'
+                                }
                             }
                             try {
                                 junit allowEmptyResults: true, testResults: svc.report
