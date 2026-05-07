@@ -59,21 +59,61 @@ MVN_BIN="$MVN_DIR/bin/mvn"
 if [ ! -x "$MVN_BIN" ]; then
   mkdir -p "$WORKSPACE/.cache"
   ARCHIVE="$WORKSPACE/.cache/apache-maven-$MVN_VERSION-bin.tar.gz"
-  if [ ! -f "$ARCHIVE" ]; then
-    curl -fsSL "https://archive.apache.org/dist/maven/maven-3/$MVN_VERSION/binaries/apache-maven-$MVN_VERSION-bin.tar.gz" -o "$ARCHIVE"
+  DOWNLOAD_LOCK="$WORKSPACE/.cache/.mvn-download.lock"
+  EXTRACT_LOCK="$WORKSPACE/.cache/.mvn-extract.lock"
+  DOWNLOAD_LOCK_HELD=""
+  EXTRACT_LOCK_HELD=""
+  TMP_ARCHIVE=""
+  TMP_DIR=""
+  cleanup() {
+    [ -n "$TMP_ARCHIVE" ] && rm -f "$TMP_ARCHIVE" 2>/dev/null || true
+    [ -n "$TMP_DIR" ] && rm -rf "$TMP_DIR" 2>/dev/null || true
+    if [ -n "$EXTRACT_LOCK_HELD" ]; then
+      rmdir "$EXTRACT_LOCK" 2>/dev/null || true
+    fi
+    if [ -n "$DOWNLOAD_LOCK_HELD" ]; then
+      rmdir "$DOWNLOAD_LOCK" 2>/dev/null || true
+    fi
+  }
+  trap cleanup EXIT INT TERM
+  wait_lock() {
+    lock_path="$1"
+    lock_name="$2"
+    i=0
+    while ! mkdir "$lock_path" 2>/dev/null; do
+      i=$((i+1))
+      if [ $i -ge 300 ]; then
+        echo "Timeout waiting ${lock_name} lock"
+        exit 1
+      fi
+      sleep 1
+    done
+  }
+  wait_lock "$DOWNLOAD_LOCK" "Maven download"
+  DOWNLOAD_LOCK_HELD="1"
+  if [ ! -f "$ARCHIVE" ] || ! tar -tzf "$ARCHIVE" >/dev/null 2>&1; then
+    rm -f "$ARCHIVE"
+    TMP_ARCHIVE="$ARCHIVE.tmp.$$"
+    curl -fsSL "https://archive.apache.org/dist/maven/maven-3/$MVN_VERSION/binaries/apache-maven-$MVN_VERSION-bin.tar.gz" -o "$TMP_ARCHIVE"
+    tar -tzf "$TMP_ARCHIVE" >/dev/null
+    mv "$TMP_ARCHIVE" "$ARCHIVE"
+    TMP_ARCHIVE=""
   fi
-  LOCKDIR="$WORKSPACE/.cache/.mvn-extract.lock"
+  rmdir "$DOWNLOAD_LOCK" 2>/dev/null || true
+  DOWNLOAD_LOCK_HELD=""
+  LOCKDIR="$EXTRACT_LOCK"
   i=0
   while ! mkdir "$LOCKDIR" 2>/dev/null; do
     i=$((i+1))
-    if [ $i -ge 120 ]; then
+    if [ $i -ge 300 ]; then
       echo "Timeout waiting Maven extraction lock"
       exit 1
     fi
     sleep 1
   done
+  EXTRACT_LOCK_HELD="1"
   if [ ! -x "$MVN_BIN" ]; then
-    TMP_DIR="$WORKSPACE/.cache/apache-maven-$MVN_VERSION.tmp.$$"
+    TMP_DIR="$WORKSPACE/.cache/apache-maven-$MVN_VERSION.extract.tmp.$$"
     rm -rf "$TMP_DIR"
     mkdir -p "$TMP_DIR"
     tar -xzf "$ARCHIVE" -C "$TMP_DIR"
@@ -82,12 +122,17 @@ if [ ! -x "$MVN_BIN" ]; then
       mv "$EXTRACTED" "$MVN_DIR"
     fi
     rm -rf "$TMP_DIR"
+    TMP_DIR=""
   fi
   rmdir "$LOCKDIR" 2>/dev/null || true
+  EXTRACT_LOCK_HELD=""
 fi
 exec "$MVN_BIN" "$@"
 EOF
                         chmod +x "$MVN_WRAPPER"
+                        # Précharge Maven une seule fois avant les stages parallèles
+                        # pour éviter tout téléchargement/extraction concurrent.
+                        "$MVN_WRAPPER" -v >/dev/null 2>&1
                     '''
                 }
                 echo "Branch: ${env.GIT_BRANCH} | Commit: ${env.GIT_COMMIT} | Maven wrapper: ${env.WORKSPACE}/.ci/mvnw-ci"
@@ -95,7 +140,7 @@ EOF
         }
 
         // ── 2. Build & Test (parallel) ────────────────────────────
-        stage('Build & Test') {
+        stage('Build') {
             parallel {
 
                 stage('EurekaServer') {
@@ -109,7 +154,7 @@ EOF
                 stage('ApiGateway') {
                     steps {
                         dir('ApiGateway') {
-                            sh '$WORKSPACE/.ci/mvnw-ci clean verify -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean package -DskipTests -B'
                         }
                     }
                     post {
@@ -129,7 +174,7 @@ EOF
                 stage('UserService') {
                     steps {
                         dir('UserService') {
-                            sh '$WORKSPACE/.ci/mvnw-ci clean package -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean package -DskipTests -B'
                         }
                     }
                     post {
@@ -149,7 +194,7 @@ EOF
                 stage('AbonnementService') {
                     steps {
                         dir('AbonnementService') {
-                            sh '$WORKSPACE/.ci/mvnw-ci clean package -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean package -DskipTests -B'
                         }
                     }
                     post {
@@ -169,7 +214,7 @@ EOF
                 stage('ChallengeService') {
                     steps {
                         dir('ChallengeService') {
-                            sh '$WORKSPACE/.ci/mvnw-ci clean package -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean package -DskipTests -B'
                         }
                     }
                     post {
@@ -189,7 +234,7 @@ EOF
                 stage('PlanificationService') {
                     steps {
                         dir('PlanificationService') {
-                            sh '$WORKSPACE/.ci/mvnw-ci clean verify -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean package -DskipTests -B'
                         }
                     }
                     post {
@@ -209,7 +254,7 @@ EOF
                 stage('EventService') {
                     steps {
                         dir('event-service') {
-                            sh '$WORKSPACE/.ci/mvnw-ci clean verify -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean package -DskipTests -B'
                         }
                     }
                     post {
@@ -249,7 +294,7 @@ EOF
                 stage('RecrutementService') {
                     steps {
                         dir('recrutement-service') {
-                            sh '$WORKSPACE/.ci/mvnw-ci clean verify -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean package -DskipTests -B'
                         }
                     }
                     post {
@@ -269,7 +314,7 @@ EOF
                 stage('ClubService') {
                     steps {
                         dir('club-service') {
-                            sh '$WORKSPACE/.ci/mvnw-ci clean verify -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean package -DskipTests -B'
                         }
                     }
                     post {
@@ -289,7 +334,7 @@ EOF
                 stage('MemberService') {
                     steps {
                         dir('member-service') {
-                            sh '$WORKSPACE/.ci/mvnw-ci clean verify -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean package -DskipTests -B'
                         }
                     }
                     post {
@@ -309,7 +354,7 @@ EOF
                 stage('ForumService') {
                     steps {
                         dir('forum-service') {
-                            sh '$WORKSPACE/.ci/mvnw-ci clean verify -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean package -DskipTests -B'
                         }
                     }
                     post {
@@ -349,7 +394,7 @@ EOF
                 stage('QuizBadgeService') {
                     steps {
                         dir('QuizBadgeService') {
-                            sh '$WORKSPACE/.ci/mvnw-ci clean verify -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean package -DskipTests -B'
                         }
                     }
                     post {
@@ -369,7 +414,7 @@ EOF
                 stage('PronunciationService') {
                     steps {
                         dir('PronunciationService') {
-                            sh '$WORKSPACE/.ci/mvnw-ci clean verify -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean package -DskipTests -B'
                         }
                     }
                     post {
@@ -389,7 +434,7 @@ EOF
                 stage('FeedbackService') {
                     steps {
                         dir('FeedbackService') {
-                            sh '$WORKSPACE/.ci/mvnw-ci clean verify -B'
+                            sh '$WORKSPACE/.ci/mvnw-ci clean package -DskipTests -B'
                         }
                     }
                     post {
@@ -449,7 +494,63 @@ EOF
             } // end parallel
         }
 
-        // ── 3. SonarQube Analysis (un rapport par microservice pour remplir le tableau Sonar ; JaCoCo -> couverture) ──
+        // ── 3. Test All Services (parallel) ─────────────────────────
+        stage('Test All Services') {
+            steps {
+                script {
+                    def javaServices = [
+                        [name: 'ApiGateway',           dir: 'ApiGateway',           report: 'ApiGateway/target/surefire-reports/TEST-*.xml'],
+                        [name: 'UserService',          dir: 'UserService',          report: 'UserService/target/surefire-reports/TEST-*.xml'],
+                        [name: 'AbonnementService',    dir: 'AbonnementService',    report: 'AbonnementService/target/surefire-reports/TEST-*.xml'],
+                        [name: 'ChallengeService',     dir: 'ChallengeService',     report: 'ChallengeService/target/surefire-reports/TEST-*.xml'],
+                        [name: 'PlanificationService', dir: 'PlanificationService', report: 'PlanificationService/target/surefire-reports/TEST-*.xml'],
+                        [name: 'EventService',         dir: 'event-service',        report: 'event-service/target/surefire-reports/TEST-*.xml'],
+                        [name: 'ReservationService',   dir: 'reservation-service',  report: 'reservation-service/target/surefire-reports/TEST-*.xml'],
+                        [name: 'RecrutementService',   dir: 'recrutement-service',  report: 'recrutement-service/target/surefire-reports/TEST-*.xml'],
+                        [name: 'ClubService',          dir: 'club-service',         report: 'club-service/target/surefire-reports/TEST-*.xml'],
+                        [name: 'MemberService',        dir: 'member-service',       report: 'member-service/target/surefire-reports/TEST-*.xml'],
+                        [name: 'ForumService',         dir: 'forum-service',        report: 'forum-service/target/surefire-reports/TEST-*.xml'],
+                        [name: 'FormationService',     dir: 'FormationService',     report: 'FormationService/target/surefire-reports/TEST-*.xml'],
+                        [name: 'QuizBadgeService',     dir: 'QuizBadgeService',     report: 'QuizBadgeService/target/surefire-reports/TEST-*.xml'],
+                        [name: 'PronunciationService', dir: 'PronunciationService', report: 'PronunciationService/target/surefire-reports/TEST-*.xml'],
+                        [name: 'FeedbackService',      dir: 'FeedbackService',      report: 'FeedbackService/target/surefire-reports/TEST-*.xml'],
+                    ]
+
+                    def branches = [:]
+
+                    javaServices.each { item ->
+                        def svc = item
+                        branches["Test ${svc.name}"] = {
+                            dir(svc.dir) {
+                                sh '$WORKSPACE/.ci/mvnw-ci -B test -DfailIfNoTests=false'
+                            }
+                            try {
+                                junit allowEmptyResults: true, testResults: svc.report
+                            } catch (err) {
+                                echo "Junit report skipped for ${svc.name} (${err})"
+                            }
+                        }
+                    }
+
+                    branches['Test PronunciationFastAPI'] = {
+                        dir('pronunciation-fastapi') {
+                            sh '''
+                                set -e
+                                [ -f requirements.txt ] || (echo "requirements.txt not found" && exit 1)
+                                [ -f main.py ] || (echo "main.py not found" && exit 1)
+                                [ -f models.py ] || (echo "models.py not found" && exit 1)
+                                [ -f Dockerfile ] || (echo "Dockerfile not found" && exit 1)
+                                python -m compileall -q .
+                            '''
+                        }
+                    }
+
+                    parallel branches
+                }
+            }
+        }
+
+        // ── 4. SonarQube Analysis (un rapport par microservice pour remplir le tableau Sonar ; JaCoCo -> couverture) ──
         stage('SonarQube Analysis') {
             steps {
                 script {
@@ -485,8 +586,11 @@ EOF
                                                 -Dsonar.projectName="$SONAR_PROJECT_NAME" \
                                                 -Dsonar.host.url="$SONAR_HOST" \
                                                 -Dsonar.token="$SONAR_TOKEN"
-                                            if [ -f .scannerwork/report-task.txt ]; then
-                                                sed -i 's#http://host.docker.internal:9000#http://localhost:9000#g' .scannerwork/report-task.txt || true
+                                            mkdir -p "$WORKSPACE/.scannerwork"
+                                            if [ -f target/sonar/report-task.txt ]; then
+                                                sed -i 's#http://host.docker.internal:9000#http://localhost:9000#g' target/sonar/report-task.txt || true
+                                                cp target/sonar/report-task.txt "$WORKSPACE/.scannerwork/report-task.txt"
+                                                rm -f target/sonar/report-task.txt
                                             fi
                                         '''
                                     }
@@ -509,12 +613,12 @@ EOF
                                     NODE_VERSION=20.19.2
                                     NODE_DIR="$WORKSPACE/.cache/node-v${NODE_VERSION}-linux-x64"
                                     if [ ! -x "$NODE_DIR/bin/node" ]; then
-                                      NODE_ARCHIVE="$WORKSPACE/.cache/node-v${NODE_VERSION}-linux-x64.tar.xz"
+                                      NODE_ARCHIVE="$WORKSPACE/.cache/node-v${NODE_VERSION}-linux-x64.tar.gz"
                                       if [ ! -f "$NODE_ARCHIVE" ]; then
-                                        curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" -o "$NODE_ARCHIVE"
+                                        curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.gz" -o "$NODE_ARCHIVE"
                                       fi
                                       rm -rf "$NODE_DIR"
-                                      tar -xJf "$NODE_ARCHIVE" -C "$WORKSPACE/.cache"
+                                      tar -xzf "$NODE_ARCHIVE" -C "$WORKSPACE/.cache"
                                     fi
                                     export PATH="$WORKSPACE/.cache/sonar-scanner-${SCAN_VERSION}/bin:$NODE_DIR/bin:$PATH"
                                     run_scan() {
@@ -527,6 +631,11 @@ EOF
                                       (cd "$sub" && sonar-scanner \
                                         -Dsonar.host.url="$SONAR_HOST" \
                                         -Dsonar.token="$SONAR_TOKEN")
+                                      if [ -f "$sub/.scannerwork/report-task.txt" ]; then
+                                        sed -i 's#http://host.docker.internal:9000#http://localhost:9000#g' "$sub/.scannerwork/report-task.txt" || true
+                                        cp "$sub/.scannerwork/report-task.txt" "$WORKSPACE/.scannerwork/report-task.txt"
+                                        rm -f "$sub/.scannerwork/report-task.txt"
+                                      fi
                                     }
                                     run_scan pronunciation-fastapi
                                     (cd back-office && npm ci --no-audit --no-fund) || echo "npm ci back-office skipped/failed"
