@@ -245,7 +245,7 @@ pipeline {
                 stage('PronunciationService') {
                     steps {
                         dir('PronunciationService') {
-                            sh 'mvn clean package -Dmaven.test.skip=true -B'
+                            sh 'mvn clean verify -B'
                         }
                     }
                     post {
@@ -330,7 +330,8 @@ pipeline {
                                     [dir: 'forum-service',         key: 'forum-service',          name: 'Forum Service'],
                                     [dir: 'member-service',        key: 'member-service',         name: 'Member Service'],
                                     [dir: 'PlanificationService',  key: 'planification-service',  name: 'Planification Service'],
-                                    [dir: 'QuizBadgeService',      key: 'achievement-service',    name: 'Achievement Service'],
+                                    [dir: 'PronunciationService',  key: 'pronunciation-service',  name: 'Pronunciation Service'],
+                                    [dir: 'QuizBadgeService',      key: 'quiz-badge-service',     name: 'Quiz-Badge-Service'],
                                     [dir: 'recrutement-service',   key: 'recrutement-service',    name: 'Recrutement Service'],
                                     [dir: 'UserService',           key: 'user-service',           name: 'User Service'],
                                 ]
@@ -348,6 +349,43 @@ pipeline {
                                         fi
                                     """
                                 }
+                                // Python + Angular : SonarScanner CLI (hors Maven)
+                                sh '''
+                                    set -e
+                                    SCAN_VERSION=6.2.1.4610
+                                    SCAN_ZIP="$WORKSPACE/.cache/sonar-scanner-cli-${SCAN_VERSION}-linux-x64.zip"
+                                    SCAN_BIN="$WORKSPACE/.cache/sonar-scanner-${SCAN_VERSION}/bin/sonar-scanner"
+                                    mkdir -p "$WORKSPACE/.cache"
+                                    if [ ! -x "$SCAN_BIN" ]; then
+                                      if [ ! -f "$SCAN_ZIP" ]; then
+                                        curl -fsSL "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SCAN_VERSION}-linux-x64.zip" -o "$SCAN_ZIP"
+                                      fi
+                                      rm -rf "$WORKSPACE/.cache/sonar-scanner-${SCAN_VERSION}"
+                                      unzip -q "$SCAN_ZIP" -d "$WORKSPACE/.cache"
+                                      mv "$WORKSPACE/.cache/sonar-scanner-${SCAN_VERSION}-linux-x64" "$WORKSPACE/.cache/sonar-scanner-${SCAN_VERSION}"
+                                    fi
+                                    export PATH="$WORKSPACE/.cache/sonar-scanner-${SCAN_VERSION}/bin:$PATH"
+                                    run_scan() {
+                                      sub="$1"
+                                      if [ ! -f "$sub/sonar-project.properties" ]; then
+                                        echo "Skip Sonar (no sonar-project.properties): $sub"
+                                        return 0
+                                      fi
+                                      echo "SonarScanner: $sub"
+                                      (cd "$sub" && sonar-scanner \
+                                        -Dsonar.host.url="$SONAR_HOST" \
+                                        -Dsonar.token="$SONAR_TOKEN")
+                                    }
+                                    run_scan pronunciation-fastapi
+                                    if command -v npm >/dev/null 2>&1; then
+                                      (cd back-office && npm ci --no-audit --no-fund) || echo "npm ci back-office skipped/failed"
+                                      (cd frontend/angular-app && npm ci --no-audit --no-fund) || echo "npm ci frontend skipped/failed"
+                                    else
+                                      echo "npm absent — analyse Sonar TS sans node_modules (résolution limitée)"
+                                    fi
+                                    run_scan back-office
+                                    run_scan frontend/angular-app
+                                '''
                             }
                         }
                     } catch (err) {
