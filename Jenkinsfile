@@ -44,26 +44,32 @@ pipeline {
                         returnStdout: true,
                         script: "git ls-remote ${GIT_REPO} refs/heads/feature/cicd-updates | awk '{print \$1}'"
                     ).trim()
-                    def mvnHome = tool 'Maven-3.9'
-                    env.MVN_CMD = "${mvnHome}/bin/mvn"
-                    def hasMvnTool = sh(
-                        returnStatus: true,
-                        script: "[ -x \"${env.MVN_CMD}\" ]"
-                    ) == 0
-                    if (!hasMvnTool) {
-                        env.MVN_CMD = sh(
-                            returnStdout: true,
-                            script: '''
-                                if command -v mvn >/dev/null 2>&1; then
-                                  command -v mvn
-                                elif command -v docker >/dev/null 2>&1; then
-                                  echo "docker run --rm -v \\"$PWD\\":/workspace -w /workspace maven:3.9.9-eclipse-temurin-17 mvn"
-                                else
-                                  echo "mvn"
-                                fi
-                            '''
-                        ).trim()
-                    }
+                    env.MVN_CMD = "${env.WORKSPACE}/.ci/mvnw-ci"
+                    sh """
+                        set -e
+                        mkdir -p "${env.WORKSPACE}/.ci"
+                        cat > "${env.MVN_CMD}" <<'EOF'
+#!/usr/bin/env sh
+set -eu
+if command -v mvn >/dev/null 2>&1; then
+  exec mvn "$@"
+fi
+MVN_VERSION="3.9.9"
+MVN_DIR="$WORKSPACE/.cache/apache-maven-$MVN_VERSION"
+MVN_BIN="$MVN_DIR/bin/mvn"
+if [ ! -x "$MVN_BIN" ]; then
+  mkdir -p "$WORKSPACE/.cache"
+  ARCHIVE="$WORKSPACE/.cache/apache-maven-$MVN_VERSION-bin.tar.gz"
+  if [ ! -f "$ARCHIVE" ]; then
+    curl -fsSL "https://archive.apache.org/dist/maven/maven-3/$MVN_VERSION/binaries/apache-maven-$MVN_VERSION-bin.tar.gz" -o "$ARCHIVE"
+  fi
+  rm -rf "$MVN_DIR"
+  tar -xzf "$ARCHIVE" -C "$WORKSPACE/.cache"
+fi
+exec "$MVN_BIN" "$@"
+EOF
+                        chmod +x "${env.MVN_CMD}"
+                    """
                 }
                 echo "Branch: ${env.GIT_BRANCH} | Commit: ${env.GIT_COMMIT} | Maven command: ${env.MVN_CMD}"
             }
