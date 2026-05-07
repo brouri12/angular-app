@@ -47,8 +47,9 @@ pipeline {
                     env.MVN_CMD = sh(
                         returnStdout: true,
                         script: '''
-                            if command -v mvn >/dev/null 2>&1; then
-                              echo "mvn"
+                            MVN_BIN="$(command -v mvn 2>/dev/null || true)"
+                            if [ -n "$MVN_BIN" ] && [ -x "$MVN_BIN" ]; then
+                              echo "$MVN_BIN"
                             elif command -v docker >/dev/null 2>&1; then
                               echo "docker run --rm -v \\"$PWD\\":/workspace -w /workspace maven:3.9.9-eclipse-temurin-17 mvn"
                             else
