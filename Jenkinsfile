@@ -268,12 +268,26 @@ pipeline {
                     steps {
                         dir('pronunciation-fastapi') {
                             sh '''
+                                echo "=== Debug: Current directory ==="
+                                pwd
+                                echo "=== Debug: Files in current directory ==="
+                                ls -la
+                                echo "=== Debug: Checking requirements.txt ==="
+                                if [ -f requirements.txt ]; then
+                                  echo "requirements.txt exists"
+                                  cat requirements.txt
+                                else
+                                  echo "ERROR: requirements.txt NOT FOUND"
+                                  exit 1
+                                fi
+                                
                                 if command -v docker >/dev/null 2>&1; then
+                                  echo "=== Running Docker validation ==="
                                   docker run --rm \
                                     -v "$(pwd):/app" \
                                     -w /app \
                                     python:3.10-slim \
-                                    sh -c "pip install --no-cache-dir -r requirements.txt && python -m py_compile main.py models.py"
+                                    sh -c "ls -la /app && pip install --no-cache-dir -r requirements.txt && python -m py_compile main.py models.py"
                                 elif command -v python3 >/dev/null 2>&1; then
                                   python3 -m py_compile main.py models.py
                                 elif command -v python >/dev/null 2>&1; then
