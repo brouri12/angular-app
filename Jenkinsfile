@@ -530,7 +530,7 @@ EOF
                                         "$WORKSPACE/.ci/mvnw-ci" -B test -DfailIfNoTests=false \
                                           -Dspring.datasource.url="jdbc:mysql://host.docker.internal:3308/formation_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC" \
                                           -Dspring.datasource.username=root \
-                                          -Dspring.datasource.password=
+                                          -Dspring.datasource.password=root
                                     '''
                                 } else {
                                     sh '$WORKSPACE/.ci/mvnw-ci -B test -DfailIfNoTests=false'
