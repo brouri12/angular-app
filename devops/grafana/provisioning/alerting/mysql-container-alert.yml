@@ -1,0 +1,67 @@
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: SQL Container Health
+    folder: Wordly Alerts
+    interval: 30s
+    rules:
+      - uid: wordly_mysql_container_down
+        title: Wordly MySQL Container Down
+        condition: C
+        for: 2m
+        noDataState: Alerting
+        execErrState: Alerting
+        labels:
+          severity: critical
+          service: mysql
+          team: devops
+        annotations:
+          summary: "Le conteneur SQL principal est indisponible"
+          description: "Le conteneur Docker service=mysql n'est plus vu par cAdvisor depuis 2 minutes."
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                type: prometheus
+                uid: prometheus
+              editorMode: code
+              expr: max(probe_success{job="sql-probe",instance="mysql:3306"})
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+          - refId: C
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 1
+                    type: lt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - A
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: C
+              type: threshold

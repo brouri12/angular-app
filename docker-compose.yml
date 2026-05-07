@@ -645,6 +645,32 @@ services:
     networks:
       - wordly-net
 
+  blackbox-exporter:
+    image: prom/blackbox-exporter:latest
+    container_name: wordly-blackbox-exporter
+    restart: unless-stopped
+    ports:
+      - "9115:9115"
+    volumes:
+      - ./devops/prometheus/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+    command:
+      - '--config.file=/etc/blackbox_exporter/config.yml'
+    networks:
+      - wordly-net
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: wordly-cadvisor
+    restart: unless-stopped
+    privileged: true
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - wordly-net
+
   grafana:
     # latest (Grafana 12.x) peut planter au démarrage sur le provisionnement
     # (« data source not found », race / bug connu) — image figée pour Compose fiable.
