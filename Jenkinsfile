@@ -174,8 +174,14 @@ EOF
                     }
                     post {
                         always {
-                            junit allowEmptyResults: true,
-                                  testResults: 'ChallengeService/target/surefire-reports/TEST-*.xml'
+                            script {
+                                try {
+                                    junit allowEmptyResults: true,
+                                          testResults: 'ChallengeService/target/surefire-reports/TEST-*.xml'
+                                } catch (err) {
+                                    echo "Junit report skipped for ChallengeService (${err})"
+                                }
+                            }
                         }
                     }
                 }
@@ -188,8 +194,14 @@ EOF
                     }
                     post {
                         always {
-                            junit allowEmptyResults: true,
-                                  testResults: 'PlanificationService/target/surefire-reports/TEST-*.xml'
+                            script {
+                                try {
+                                    junit allowEmptyResults: true,
+                                          testResults: 'PlanificationService/target/surefire-reports/TEST-*.xml'
+                                } catch (err) {
+                                    echo "Junit report skipped for PlanificationService (${err})"
+                                }
+                            }
                         }
                     }
                 }
@@ -202,8 +214,14 @@ EOF
                     }
                     post {
                         always {
-                            junit allowEmptyResults: true,
-                                  testResults: 'event-service/target/surefire-reports/TEST-*.xml'
+                            script {
+                                try {
+                                    junit allowEmptyResults: true,
+                                          testResults: 'event-service/target/surefire-reports/TEST-*.xml'
+                                } catch (err) {
+                                    echo "Junit report skipped for event-service (${err})"
+                                }
+                            }
                         }
                     }
                 }
@@ -236,8 +254,14 @@ EOF
                     }
                     post {
                         always {
-                            junit allowEmptyResults: true,
-                                  testResults: 'recrutement-service/target/surefire-reports/TEST-*.xml'
+                            script {
+                                try {
+                                    junit allowEmptyResults: true,
+                                          testResults: 'recrutement-service/target/surefire-reports/TEST-*.xml'
+                                } catch (err) {
+                                    echo "Junit report skipped for recrutement-service (${err})"
+                                }
+                            }
                         }
                     }
                 }
@@ -250,8 +274,14 @@ EOF
                     }
                     post {
                         always {
-                            junit allowEmptyResults: true,
-                                  testResults: 'club-service/target/surefire-reports/TEST-*.xml'
+                            script {
+                                try {
+                                    junit allowEmptyResults: true,
+                                          testResults: 'club-service/target/surefire-reports/TEST-*.xml'
+                                } catch (err) {
+                                    echo "Junit report skipped for club-service (${err})"
+                                }
+                            }
                         }
                     }
                 }
@@ -264,8 +294,14 @@ EOF
                     }
                     post {
                         always {
-                            junit allowEmptyResults: true,
-                                  testResults: 'member-service/target/surefire-reports/TEST-*.xml'
+                            script {
+                                try {
+                                    junit allowEmptyResults: true,
+                                          testResults: 'member-service/target/surefire-reports/TEST-*.xml'
+                                } catch (err) {
+                                    echo "Junit report skipped for member-service (${err})"
+                                }
+                            }
                         }
                     }
                 }
@@ -278,8 +314,14 @@ EOF
                     }
                     post {
                         always {
-                            junit allowEmptyResults: true,
-                                  testResults: 'forum-service/target/surefire-reports/TEST-*.xml'
+                            script {
+                                try {
+                                    junit allowEmptyResults: true,
+                                          testResults: 'forum-service/target/surefire-reports/TEST-*.xml'
+                                } catch (err) {
+                                    echo "Junit report skipped for forum-service (${err})"
+                                }
+                            }
                         }
                     }
                 }
@@ -312,8 +354,14 @@ EOF
                     }
                     post {
                         always {
-                            junit allowEmptyResults: true,
-                                  testResults: 'QuizBadgeService/target/surefire-reports/TEST-*.xml'
+                            script {
+                                try {
+                                    junit allowEmptyResults: true,
+                                          testResults: 'QuizBadgeService/target/surefire-reports/TEST-*.xml'
+                                } catch (err) {
+                                    echo "Junit report skipped for QuizBadgeService (${err})"
+                                }
+                            }
                         }
                     }
                 }
@@ -326,8 +374,14 @@ EOF
                     }
                     post {
                         always {
-                            junit allowEmptyResults: true,
-                                  testResults: 'PronunciationService/target/surefire-reports/TEST-*.xml'
+                            script {
+                                try {
+                                    junit allowEmptyResults: true,
+                                          testResults: 'PronunciationService/target/surefire-reports/TEST-*.xml'
+                                } catch (err) {
+                                    echo "Junit report skipped for PronunciationService (${err})"
+                                }
+                            }
                         }
                     }
                 }
@@ -340,8 +394,14 @@ EOF
                     }
                     post {
                         always {
-                            junit allowEmptyResults: true,
-                                  testResults: 'FeedbackService/target/surefire-reports/TEST-*.xml'
+                            script {
+                                try {
+                                    junit allowEmptyResults: true,
+                                          testResults: 'FeedbackService/target/surefire-reports/TEST-*.xml'
+                                } catch (err) {
+                                    echo "Junit report skipped for FeedbackService (${err})"
+                                }
+                            }
                         }
                     }
                 }
