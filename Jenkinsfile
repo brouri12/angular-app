@@ -16,6 +16,7 @@ pipeline {
         IMAGE_TAG   = "${env.BUILD_NUMBER}"
         SONAR_HOST  = 'http://host.docker.internal:9000'
         GIT_REPO    = 'https://github.com/brouri12/angular-app.git'
+        MVN_CMD     = 'mvn'
     }
 
     tools {
@@ -43,8 +44,20 @@ pipeline {
                         returnStdout: true,
                         script: "git ls-remote ${GIT_REPO} refs/heads/feature/cicd-updates | awk '{print \$1}'"
                     ).trim()
+                    env.MVN_CMD = sh(
+                        returnStdout: true,
+                        script: '''
+                            if command -v mvn >/dev/null 2>&1; then
+                              echo "mvn"
+                            elif command -v docker >/dev/null 2>&1; then
+                              echo "docker run --rm -v \\"$PWD\\":/workspace -w /workspace maven:3.9.9-eclipse-temurin-17 mvn"
+                            else
+                              echo "mvn"
+                            fi
+                        '''
+                    ).trim()
                 }
-                echo "Branch: ${env.GIT_BRANCH} | Commit: ${env.GIT_COMMIT}"
+                echo "Branch: ${env.GIT_BRANCH} | Commit: ${env.GIT_COMMIT} | Maven command: ${env.MVN_CMD}"
             }
         }
 
@@ -55,7 +68,7 @@ pipeline {
                 stage('EurekaServer') {
                     steps {
                         dir('EurekaServer') {
-                            sh 'mvn clean package -DskipTests -B'
+                            sh '${MVN_CMD} clean package -DskipTests -B'
                         }
                     }
                 }
@@ -63,7 +76,7 @@ pipeline {
                 stage('ApiGateway') {
                     steps {
                         dir('ApiGateway') {
-                            sh 'mvn clean verify -B'
+                            sh '${MVN_CMD} clean verify -B'
                         }
                     }
                     post {
@@ -77,7 +90,7 @@ pipeline {
                 stage('UserService') {
                     steps {
                         dir('UserService') {
-                            sh 'mvn clean package -B'
+                            sh '${MVN_CMD} clean package -B'
                         }
                     }
                     post {
@@ -91,7 +104,7 @@ pipeline {
                 stage('AbonnementService') {
                     steps {
                         dir('AbonnementService') {
-                            sh 'mvn clean package -B'
+                            sh '${MVN_CMD} clean package -B'
                         }
                     }
                     post {
@@ -105,7 +118,7 @@ pipeline {
                 stage('ChallengeService') {
                     steps {
                         dir('ChallengeService') {
-                            sh 'mvn clean package -B'
+                            sh '${MVN_CMD} clean package -B'
                         }
                     }
                     post {
@@ -119,7 +132,7 @@ pipeline {
                 stage('PlanificationService') {
                     steps {
                         dir('PlanificationService') {
-                            sh 'mvn clean verify -B'
+                            sh '${MVN_CMD} clean verify -B'
                         }
                     }
                     post {
@@ -133,7 +146,7 @@ pipeline {
                 stage('EventService') {
                     steps {
                         dir('event-service') {
-                            sh 'mvn clean verify -B'
+                            sh '${MVN_CMD} clean verify -B'
                         }
                     }
                     post {
@@ -147,7 +160,7 @@ pipeline {
                 stage('ReservationService') {
                     steps {
                         dir('reservation-service') {
-                            sh 'mvn clean package -Dmaven.test.skip=true -B'
+                            sh '${MVN_CMD} clean package -Dmaven.test.skip=true -B'
                         }
                     }
                     post {
@@ -161,7 +174,7 @@ pipeline {
                 stage('RecrutementService') {
                     steps {
                         dir('recrutement-service') {
-                            sh 'mvn clean verify -B'
+                            sh '${MVN_CMD} clean verify -B'
                         }
                     }
                     post {
@@ -175,7 +188,7 @@ pipeline {
                 stage('ClubService') {
                     steps {
                         dir('club-service') {
-                            sh 'mvn clean verify -B'
+                            sh '${MVN_CMD} clean verify -B'
                         }
                     }
                     post {
@@ -189,7 +202,7 @@ pipeline {
                 stage('MemberService') {
                     steps {
                         dir('member-service') {
-                            sh 'mvn clean verify -B'
+                            sh '${MVN_CMD} clean verify -B'
                         }
                     }
                     post {
@@ -203,7 +216,7 @@ pipeline {
                 stage('ForumService') {
                     steps {
                         dir('forum-service') {
-                            sh 'mvn clean verify -B'
+                            sh '${MVN_CMD} clean verify -B'
                         }
                     }
                     post {
@@ -217,7 +230,7 @@ pipeline {
                 stage('FormationService') {
                     steps {
                         dir('FormationService') {
-                            sh 'mvn clean package -Dmaven.test.skip=true -B'
+                            sh '${MVN_CMD} clean package -Dmaven.test.skip=true -B'
                         }
                     }
                     post {
@@ -231,7 +244,7 @@ pipeline {
                 stage('QuizBadgeService') {
                     steps {
                         dir('QuizBadgeService') {
-                            sh 'mvn clean verify -B'
+                            sh '${MVN_CMD} clean verify -B'
                         }
                     }
                     post {
@@ -245,7 +258,7 @@ pipeline {
                 stage('PronunciationService') {
                     steps {
                         dir('PronunciationService') {
-                            sh 'mvn clean verify -B'
+                            sh '${MVN_CMD} clean verify -B'
                         }
                     }
                     post {
@@ -259,7 +272,7 @@ pipeline {
                 stage('FeedbackService') {
                     steps {
                         dir('FeedbackService') {
-                            sh 'mvn clean verify -B'
+                            sh '${MVN_CMD} clean verify -B'
                         }
                     }
                     post {
@@ -339,7 +352,7 @@ pipeline {
                                     sh """
                                         set -e
                                         cd ${s.dir}
-                                        mvn -B clean verify sonar:sonar \\
+                                        ${MVN_CMD} -B clean verify sonar:sonar \\
                                             -Dsonar.projectKey=${s.key} \\
                                             -Dsonar.projectName='${s.name}' \\
                                             -Dsonar.host.url=${SONAR_HOST} \\
