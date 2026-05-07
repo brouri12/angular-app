@@ -1,5 +1,6 @@
 fastapi
 uvicorn[standard]
+prometheus-fastapi-instrumentator>=6.1.0
 python-multipart
 faster-whisper
 pydantic

@@ -8,6 +8,12 @@ dist/
 build/
 **/build/
 
+# Maven
+**/target/
+
+# Local tooling (credentials)
+.jenkins-cookie.txt
+
 # Angular cache
 .angular/
 **/.angular/

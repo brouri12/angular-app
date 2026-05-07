@@ -13,9 +13,11 @@
         "title": "Total Requests",
         "type": "graph",
         "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
         "targets": [
           {
-            "expr": "sum(rate(http_server_requests_seconds_count[5m]))",
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
+            "expr": "sum(rate(http_server_requests_seconds_count[5m])) or vector(0)",
             "legendFormat": "Total Requests/sec"
           }
         ]
@@ -25,9 +27,11 @@
         "title": "Response Time (p95)",
         "type": "graph",
         "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
         "targets": [
           {
-            "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket[5m])) by (le))",
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
+            "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket[5m])) by (le)) or vector(0)",
             "legendFormat": "95th Percentile"
           }
         ]
@@ -37,9 +41,11 @@
         "title": "Service Health",
         "type": "stat",
         "gridPos": {"h": 4, "w": 6, "x": 0, "y": 8},
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
         "targets": [
           {
-            "expr": "up{job=~\".*-service\"}",
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
+            "expr": "up",
             "legendFormat": "{{job}}"
           }
         ]
@@ -49,9 +55,11 @@
         "title": "Error Rate",
         "type": "graph",
         "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
         "targets": [
           {
-            "expr": "sum(rate(http_server_requests_seconds_count{status=~\"5..\"}[5m]))",
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
+            "expr": "sum(rate(http_server_requests_seconds_count{status=~\"5..\"}[5m])) or vector(0)",
             "legendFormat": "5xx Errors/sec"
           }
         ]
@@ -61,9 +69,11 @@
         "title": "JVM Memory Usage",
         "type": "graph",
         "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
         "targets": [
           {
-            "expr": "sum(jvm_memory_used_bytes) by (job)",
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
+            "expr": "sum(jvm_memory_used_bytes) by (job) or sum(process_resident_memory_bytes) by (job) or vector(0)",
             "legendFormat": "{{job}}"
           }
         ]
@@ -73,9 +83,11 @@
         "title": "CPU Usage",
         "type": "graph",
         "gridPos": {"h": 8, "w": 12, "x": 0, "y": 20},
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
         "targets": [
           {
-            "expr": "sum(rate(process_cpu_seconds_total[5m])) by (job)",
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
+            "expr": "sum(rate(process_cpu_seconds_total[5m])) by (job) or vector(0)",
             "legendFormat": "{{job}}"
           }
         ]
@@ -85,13 +97,16 @@
         "title": "Database Connections",
         "type": "graph",
         "gridPos": {"h": 8, "w": 12, "x": 12, "y": 20},
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
         "targets": [
           {
-            "expr": "sum(hikaricp_connections_active) by (job)",
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
+            "expr": "sum(hikaricp_connections_active) by (job) or vector(0)",
             "legendFormat": "{{job}} - Active"
           },
           {
-            "expr": "sum(hikaricp_connections_idle) by (job)",
+            "datasource": { "type": "prometheus", "uid": "prometheus" },
+            "expr": "sum(hikaricp_connections_idle) by (job) or vector(0)",
             "legendFormat": "{{job}} - Idle"
           }
         ]

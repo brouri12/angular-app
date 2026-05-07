@@ -63,7 +63,13 @@ pipeline {
                 stage('ApiGateway') {
                     steps {
                         dir('ApiGateway') {
-                            sh 'mvn clean package -DskipTests -B'
+                            sh 'mvn clean verify -B'
+                        }
+                    }
+                    post {
+                        always {
+                            junit allowEmptyResults: true,
+                                  testResults: 'ApiGateway/target/surefire-reports/*.xml'
                         }
                     }
                 }
@@ -113,7 +119,7 @@ pipeline {
                 stage('PlanificationService') {
                     steps {
                         dir('PlanificationService') {
-                            sh 'mvn clean package -B'
+                            sh 'mvn clean verify -B'
                         }
                     }
                     post {
@@ -127,7 +133,7 @@ pipeline {
                 stage('EventService') {
                     steps {
                         dir('event-service') {
-                            sh 'mvn clean package -Dmaven.test.skip=true -B'
+                            sh 'mvn clean verify -B'
                         }
                     }
                     post {
@@ -155,7 +161,7 @@ pipeline {
                 stage('RecrutementService') {
                     steps {
                         dir('recrutement-service') {
-                            sh 'mvn clean package -B'
+                            sh 'mvn clean verify -B'
                         }
                     }
                     post {
@@ -169,7 +175,7 @@ pipeline {
                 stage('ClubService') {
                     steps {
                         dir('club-service') {
-                            sh 'mvn clean package -B'
+                            sh 'mvn clean verify -B'
                         }
                     }
                     post {
@@ -183,7 +189,7 @@ pipeline {
                 stage('MemberService') {
                     steps {
                         dir('member-service') {
-                            sh 'mvn clean package -Dmaven.test.skip=true -B'
+                            sh 'mvn clean verify -B'
                         }
                     }
                     post {
@@ -197,7 +203,7 @@ pipeline {
                 stage('ForumService') {
                     steps {
                         dir('forum-service') {
-                            sh 'mvn clean package -B'
+                            sh 'mvn clean verify -B'
                         }
                     }
                     post {
@@ -225,7 +231,7 @@ pipeline {
                 stage('QuizBadgeService') {
                     steps {
                         dir('QuizBadgeService') {
-                            sh 'mvn clean package -Dmaven.test.skip=true -B'
+                            sh 'mvn clean verify -B'
                         }
                     }
                     post {
@@ -253,7 +259,7 @@ pipeline {
                 stage('FeedbackService') {
                     steps {
                         dir('FeedbackService') {
-                            sh 'mvn clean package -Dmaven.test.skip=true -B'
+                            sh 'mvn clean verify -B'
                         }
                     }
                     post {
@@ -307,37 +313,41 @@ pipeline {
             } // end parallel
         }
 
-        // ── 3. SonarQube Analysis ─────────────────────────────────
+        // ── 3. SonarQube Analysis (un rapport par microservice pour remplir le tableau Sonar ; JaCoCo -> couverture) ──
         stage('SonarQube Analysis') {
             steps {
                 script {
                     try {
                         withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                             withSonarQubeEnv('SonarQube') {
-                                sh """
-                                    cd UserService && mvn sonar:sonar \
-                                        -Dsonar.projectKey=user-service \
-                                        -Dsonar.projectName="User Service" \
-                                        -Dsonar.host.url=${SONAR_HOST} \
-                                        -Dsonar.token=${SONAR_TOKEN} -B
-                                """
-                                sh '''
-                                    if [ -f "UserService/.scannerwork/report-task.txt" ]; then
-                                      sed -i 's#http://host.docker.internal:9000#http://localhost:9000#g' UserService/.scannerwork/report-task.txt
-                                    fi
-                                '''
-                                sh """
-                                    cd ChallengeService && mvn sonar:sonar \
-                                        -Dsonar.projectKey=challenge-service \
-                                        -Dsonar.projectName="Challenge Service" \
-                                        -Dsonar.host.url=${SONAR_HOST} \
-                                        -Dsonar.token=${SONAR_TOKEN} -B
-                                """
-                                sh '''
-                                    if [ -f "ChallengeService/.scannerwork/report-task.txt" ]; then
-                                      sed -i 's#http://host.docker.internal:9000#http://localhost:9000#g' ChallengeService/.scannerwork/report-task.txt
-                                    fi
-                                '''
+                                // Tous les modules avec tests **/*Test.java + JaCoCo/Sonar dans le pom
+                                def svc = [
+                                    [dir: 'ApiGateway',            key: 'api-gateway',            name: 'API Gateway'],
+                                    [dir: 'ChallengeService',      key: 'challenge-service',      name: 'Challenge Service'],
+                                    [dir: 'club-service',          key: 'club-service',           name: 'Club Service'],
+                                    [dir: 'event-service',         key: 'event-service',          name: 'Event Service'],
+                                    [dir: 'FeedbackService',       key: 'feedback-service',       name: 'Feedback Service'],
+                                    [dir: 'forum-service',         key: 'forum-service',          name: 'Forum Service'],
+                                    [dir: 'member-service',        key: 'member-service',         name: 'Member Service'],
+                                    [dir: 'PlanificationService',  key: 'planification-service',  name: 'Planification Service'],
+                                    [dir: 'QuizBadgeService',      key: 'achievement-service',    name: 'Achievement Service'],
+                                    [dir: 'recrutement-service',   key: 'recrutement-service',    name: 'Recrutement Service'],
+                                    [dir: 'UserService',           key: 'user-service',           name: 'User Service'],
+                                ]
+                                svc.each { s ->
+                                    sh """
+                                        set -e
+                                        cd ${s.dir}
+                                        mvn -B clean verify sonar:sonar \\
+                                            -Dsonar.projectKey=${s.key} \\
+                                            -Dsonar.projectName='${s.name}' \\
+                                            -Dsonar.host.url=${SONAR_HOST} \\
+                                            -Dsonar.token=${SONAR_TOKEN}
+                                        if [ -f .scannerwork/report-task.txt ]; then
+                                            sed -i 's#http://host.docker.internal:9000#http://localhost:9000#g' .scannerwork/report-task.txt || true
+                                        fi
+                                    """
+                                }
                             }
                         }
                     } catch (err) {

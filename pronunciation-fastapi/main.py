@@ -1,6 +1,12 @@
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from faster_whisper import WhisperModel
+import threading
+
+try:
+    from prometheus_fastapi_instrumentator import Instrumentator
+except ImportError:
+    Instrumentator = None  # type: ignore
 import re
 import numpy as np
 import io
@@ -17,7 +23,30 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-model = WhisperModel("base", device="cpu", compute_type="int8")
+if Instrumentator is not None:
+    Instrumentator().instrument(app).expose(app, endpoint="/metrics")
+else:
+
+    @app.get("/metrics")
+    async def metrics_fallback():  # noqa: F811
+        from fastapi.responses import PlainTextResponse
+
+        return PlainTextResponse(
+            "# Prometheus stub (installer prometheus-fastapi-instrumentator pour des métriques détaillées)\npronunciation_stub_up 1\n",
+            media_type="text/plain; version=0.0.4",
+        )
+
+_whisper_model = None
+_whisper_lock = threading.Lock()
+
+
+def get_whisper_model() -> WhisperModel:
+    """Charge Whisper au premier besoin pour que l’API écoute tout de suite (health, Prometheus)."""
+    global _whisper_model
+    with _whisper_lock:
+        if _whisper_model is None:
+            _whisper_model = WhisperModel("base", device="cpu", compute_type="int8")
+        return _whisper_model
 
 NO_SPEECH_PHRASES = {
     "[no speech detected]", "no speech detected", "[blank_audio]",
@@ -167,7 +196,7 @@ async def analyze_pronunciation(
         contents = await audio.read()
         if len(contents) == 0:
             raise HTTPException(400, detail="Empty audio file")
-        segments, info = model.transcribe(
+        segments, info = get_whisper_model().transcribe(
             io.BytesIO(contents),
             beam_size=5,
             language="en",

@@ -61,3 +61,16 @@ logging:
     org.springframework.web: DEBUG
     com.gestions.ramzi.servicepronunciation: DEBUG
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    prometheus:
+      enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
