@@ -44,19 +44,26 @@ pipeline {
                         returnStdout: true,
                         script: "git ls-remote ${GIT_REPO} refs/heads/feature/cicd-updates | awk '{print \$1}'"
                     ).trim()
-                    env.MVN_CMD = sh(
-                        returnStdout: true,
-                        script: '''
-                            MVN_BIN="$(command -v mvn 2>/dev/null || true)"
-                            if [ -n "$MVN_BIN" ] && [ -x "$MVN_BIN" ]; then
-                              echo "$MVN_BIN"
-                            elif command -v docker >/dev/null 2>&1; then
-                              echo "docker run --rm -v \\"$PWD\\":/workspace -w /workspace maven:3.9.9-eclipse-temurin-17 mvn"
-                            else
-                              echo "mvn"
-                            fi
-                        '''
-                    ).trim()
+                    def mvnHome = tool 'Maven-3.9'
+                    env.MVN_CMD = "${mvnHome}/bin/mvn"
+                    def hasMvnTool = sh(
+                        returnStatus: true,
+                        script: "[ -x \"${env.MVN_CMD}\" ]"
+                    ) == 0
+                    if (!hasMvnTool) {
+                        env.MVN_CMD = sh(
+                            returnStdout: true,
+                            script: '''
+                                if command -v mvn >/dev/null 2>&1; then
+                                  command -v mvn
+                                elif command -v docker >/dev/null 2>&1; then
+                                  echo "docker run --rm -v \\"$PWD\\":/workspace -w /workspace maven:3.9.9-eclipse-temurin-17 mvn"
+                                else
+                                  echo "mvn"
+                                fi
+                            '''
+                        ).trim()
+                    }
                 }
                 echo "Branch: ${env.GIT_BRANCH} | Commit: ${env.GIT_COMMIT} | Maven command: ${env.MVN_CMD}"
             }
